@@ -16,7 +16,7 @@ tools_dir          = ENV['CREW_TOOLS_DIR']
 PLATFORM           = File.basename(tools_dir)
 PLATFORM_SYM       = PLATFORM.gsub(/-/, '_').to_sym
 utils_download_dir = File.join(Crew_test::DOCROOT_DIR, 'utilities')
-orig_ndk_dir       = File.join('..', '..', '..')
+orig_ndk_dir       = ENV['ORIG_NDK_DIR']
 orig_tools_dir     = File.join(orig_ndk_dir, 'prebuilt', PLATFORM)
 orig_engine_dir    = File.join(orig_tools_dir, 'crew')
 
@@ -38,7 +38,7 @@ require_relative '../library/utils.rb'
 ORIG_NDK_DIR       = Pathname.new(orig_ndk_dir).realpath.to_s
 ORIG_TOOLS_DIR     = Pathname.new(orig_tools_dir).realpath.to_s
 ORIG_ENGINE_DIR    = Pathname.new(orig_engine_dir).realpath.to_s
-ORIG_FORMULA_DIR   = Pathname.new(File.join(orig_ndk_dir, 'tools', 'crew', 'formula', 'utilities')).realpath.to_s
+ORIG_FORMULA_DIR   = Pathname.new(File.join('..', 'formula', 'utilities')).realpath.to_s
 TOOLS_DIR          = Pathname.new(tools_dir).realpath.to_s
 UTILS_DOWNLOAD_DIR = Pathname.new(utils_download_dir).realpath.to_s
 DATA_DIR           = Pathname.new(Crew_test::DATA_DIR).realpath.to_s

@@ -12,17 +12,19 @@ if [ -z $SSL_CERT_FILE ]; then
     SSL_CERT_FILE="$CREW_FILE_DIR/etc/ca-certificates.crt"
 fi
 
+if [ -z CREW_NDK_DIR ]; then
+    CREW_NDK_DIR=$CREW_FILE_DIR/../..
+fi
+
 if [ -z $CREW_TOOLS_DIR ]; then
-   if [ -d "$CREW_FILE_DIR/../../prebuilt/$CREW_HOST_OS-$CREW_HOST_CPU" ]; then
-       CREW_TOOLS_DIR="$CREW_FILE_DIR/../../prebuilt/$CREW_HOST_OS-$CREW_HOST_CPU"
+   if [ -d "$CREW_NDK_DIR/prebuilt/$CREW_HOST_OS-$CREW_HOST_CPU" ]; then
+       CREW_TOOLS_DIR="$CREW_NDK_DIR/prebuilt/$CREW_HOST_OS-$CREW_HOST_CPU"
    else
-       CREW_TOOLS_DIR="$CREW_FILE_DIR/../../prebuilt/$CREW_HOST_OS-$CREW_32BIT_HOST_CPU"
+       CREW_TOOLS_DIR="$CREW_NDK_DIR/prebuilt/$CREW_HOST_OS-$CREW_32BIT_HOST_CPU"
    fi
 fi
 
-CREW_RUBY_VER=`cat $CREW_TOOLS_DIR/crew/ruby/active_version.txt`
-CREW_RUBY_DIR="$CREW_TOOLS_DIR/crew/ruby/$CREW_RUBY_VER/bin"
-
 export SSL_CERT_FILE
+export CREW_NDK_DIR
 
-exec $CREW_RUBY_DIR/ruby -W0 "$CREW_FILE_DIR/crew.rb" "$@"
+exec $CREW_TOOLS_DIR/bin/ruby -W0 "$CREW_FILE_DIR/crew.rb" "$@"

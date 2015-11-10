@@ -8,39 +8,43 @@ rspec_files = cmd_simple_spec.rb cmd_install_spec.rb cmd_remove_spec.rb cmd_list
 rspec_cmd_tests = $(patubst cmd_%_spec,test-%,$(basename $(rspec_files)))
 
 ifeq ($(OS),Windows_NT)
-  host_os = windows
+  host_os := windows
 else
-  host_os = $(shell uname -s | tr '[:upper:]' '[:lower:]')
+  host_os := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 endif
 
-ifneq ($(wildcard ../../../prebuilt/$(host_os)-x86_64),)
-  TOOLS_DIR = $(realpath ../../../prebuilt/$(host_os)-x86_64)
-  PLATFORM = $(host_os)-x86_64
+ifeq ($(origin CREW_NDK_DIR), undefined)
+  CREW_NDK_DIR := $(realpath ../../..)
+endif
+
+ifneq ($(wildcard $(CREW_NDK_DIR)/prebuilt/$(host_os)-x86_64),)
+  TOOLS_DIR := $(realpath $(CREW_NDK_DIR)/prebuilt/$(host_os)-x86_64)
+  PLATFORM := $(host_os)-x86_64
 else ifeq ($(host_os),windows)
-  TOOLS_DIR = $(realpath ../../../prebuilt/$(host_os))/
-  PLATFORM = $(host_os)
+  TOOLS_DIR := $(realpath $(CREW_NDK_DIR)/prebuilt/$(host_os))/
+  PLATFORM := $(host_os)
 else
-  TOOLS_DIR = $(realpath ../../../prebuilt/$(host_os)-x86)
-  PLATFORM = $(host_os)-x86
+  TOOLS_DIR := $(realpath $(CREW_NDK_DIR)/prebuilt/$(host_os)-x86)
+  PLATFORM := $(host_os)-x86
 endif
 
 ifeq ($(host_os),windows)
-  ruby_prog = ruby.exe
-  ruby_version = $(shell $(TOOLS_DIR)/bin/awk "{print}" $(TOOLS_DIR)/crew/ruby/active_version.txt)
+  ruby_prog := ruby.exe
+  ruby_version := $(shell $(TOOLS_DIR)/bin/awk "{print}" $(TOOLS_DIR)/crew/ruby/active_version.txt)
 else
-  ruby_prog = ruby
-  ruby_version = $(shell cat $(TOOLS_DIR)/crew/ruby/active_version.txt)
+  ruby_prog := ruby
+  ruby_version := $(shell cat $(TOOLS_DIR)/crew/ruby/active_version.txt)
 endif
 
-RUBY_DIR = $(TOOLS_DIR)/crew/ruby/$(ruby_version)/bin
-RUBY     = $(RUBY_DIR)/$(ruby_prog)
-RSPEC    = $(RUBY_DIR)/$(ruby_prog) $(RUBY_DIR)/rspec
+RUBY_DIR := $(TOOLS_DIR)/crew/ruby/$(ruby_version)/bin
+RUBY     := $(RUBY_DIR)/$(ruby_prog)
+RSPEC    := $(RUBY_DIR)/$(ruby_prog) $(RUBY_DIR)/rspec
 
 
-CREW_BASE_DIR  = crew
-CREW_NDK_DIR   = ndk
-SSL_CERT_FILE  = $(abspath ../etc/ca-certificates.crt)
-
+ORIG_NDK_DIR   := $(CREW_NDK_DIR)
+CREW_BASE_DIR  := crew
+CREW_NDK_DIR   := ndk
+SSL_CERT_FILE  := $(abspath ../etc/ca-certificates.crt)
 
 ifeq ($(host_os),windows)
   RM           = rd
@@ -51,7 +55,6 @@ ifeq ($(host_os),windows)
   CACHE_DIR    = crew\cache
   FORMULA_DIR  = crew\formula\utilities
   CREW_TOOLS_DIR = $(CREW_NDK_DIR)\prebuilt\$(PLATFORM)
-  CREW_RUBY_DIR  = $(CREW_TOOLS_DIR)\bin
 else
   RM             = rm
   MKDIR          = mkdir
@@ -61,11 +64,13 @@ else
   CACHE_DIR      = crew/cache
   FORMULA_DIR    = crew/formula/utilities
   CREW_TOOLS_DIR = $(CREW_NDK_DIR)/prebuilt/$(PLATFORM)
-  CREW_RUBY_DIR  = $(CREW_TOOLS_DIR)/bin
 endif
 
 
-export CREW_BASE_DIR CREW_NDK_DIR CREW_TOOLS_DIR CREW_RUBY_DIR
+export ORIG_NDK_DIR
+export CREW_NDK_DIR
+export CREW_TOOLS_DIR
+export CREW_BASE_DIR
 export SSL_CERT_FILE
 
 
@@ -79,10 +84,11 @@ clean: clean-test-data
 	$(RM) $(RMFLAGS) crew crew.git crew.net ndk
 
 env:
-	@echo CREW_BASE_DIR  = $(CREW_BASE_DIR)
+	@echo RUBY_DIR       = $(RUBY_DIR)
+	@echo ORIG_NDK_DIR   = $(ORIG_NDK_DIR)
 	@echo CREW_NDK_DIR   = $(CREW_NDK_DIR)
 	@echo CREW_TOOLS_DIR = $(CREW_TOOLS_DIR)
-	@echo CREW_RUBY_DIR  = $(CREW_RUBY_DIR)
+	@echo CREW_BASE_DIR  = $(CREW_BASE_DIR)
 
 unit-tests: test-data $(unit_test_files)
 	$(RUBY) -I ../library ts_crew.rb
