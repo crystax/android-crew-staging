@@ -5,23 +5,21 @@ unset GEM_PATH
 
 CREW_FILE_DIR=$(dirname $0)
 CREW_HOST_OS=`uname -s | tr '[:upper:]' '[:lower:]'`
-CREW_HOST_CPU=`uname -m`
-CREW_32BIT_HOST_CPU=${CREW_HOST_CPU%_64}
 
 if [ -z $SSL_CERT_FILE ]; then
     SSL_CERT_FILE="$CREW_FILE_DIR/etc/ca-certificates.crt"
 fi
 
-if [ -z CREW_NDK_DIR ]; then
+if [ -z $CREW_NDK_DIR ]; then
     CREW_NDK_DIR=$CREW_FILE_DIR/../..
 fi
 
 if [ -z $CREW_TOOLS_DIR ]; then
-   if [ -d "$CREW_NDK_DIR/prebuilt/$CREW_HOST_OS-$CREW_HOST_CPU" ]; then
-       CREW_TOOLS_DIR="$CREW_NDK_DIR/prebuilt/$CREW_HOST_OS-$CREW_HOST_CPU"
-   else
-       CREW_TOOLS_DIR="$CREW_NDK_DIR/prebuilt/$CREW_HOST_OS-$CREW_32BIT_HOST_CPU"
-   fi
+    CREW_HOST_CPU=`uname -m`
+    if [ ! -d "$CREW_NDK_DIR/prebuilt/$CREW_HOST_OS-$CREW_HOST_CPU" ]; then
+        CREW_HOST_CPU=${CREW_HOST_CPU%_64}
+    fi
+    CREW_TOOLS_DIR="$CREW_NDK_DIR/prebuilt/$CREW_HOST_OS-$CREW_HOST_CPU"
 fi
 
 export SSL_CERT_FILE
