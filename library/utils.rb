@@ -70,7 +70,7 @@ module Utils
   def self.to_cmd_s(*args)
     # todo: escape ( and ) too
     s = args.map { |a| a.to_s.gsub " ", "\\ " }.join(" ")
-    s.gsub(%r{/}) { '\\' } if Global::OS == 'windows'
+    s.gsub!(%r{/}) { '\\' } if Global::OS == 'windows'
     s
   end
 
