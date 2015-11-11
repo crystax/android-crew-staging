@@ -18,13 +18,13 @@ ifeq ($(origin CREW_NDK_DIR), undefined)
 endif
 
 ifneq ($(wildcard $(CREW_NDK_DIR)/prebuilt/$(host_os)-x86_64),)
-  TOOLS_DIR := $(realpath $(CREW_NDK_DIR)/prebuilt/$(host_os)-x86_64)
+  TOOLS_DIR := $(CREW_NDK_DIR)/prebuilt/$(host_os)-x86_64
   PLATFORM := $(host_os)-x86_64
 else ifeq ($(host_os),windows)
-  TOOLS_DIR := $(realpath $(CREW_NDK_DIR)/prebuilt/$(host_os))/
+  TOOLS_DIR := $(CREW_NDK_DIR)/prebuilt/$(host_os)
   PLATFORM := $(host_os)
 else
-  TOOLS_DIR := $(realpath $(CREW_NDK_DIR)/prebuilt/$(host_os)-x86)
+  TOOLS_DIR := $(CREW_NDK_DIR)/prebuilt/$(host_os)-x86
   PLATFORM := $(host_os)-x86
 endif
 
