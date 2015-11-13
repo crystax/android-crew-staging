@@ -69,9 +69,7 @@ module Utils
 
   def self.to_cmd_s(*args)
     # todo: escape ( and ) too
-    s = args.map { |a| a.to_s.gsub " ", "\\ " }.join(" ")
-    s.gsub!(%r{/}) { '\\' } if Global::OS == 'windows'
-    s
+    args.map { |a| a.to_s.gsub " ", "\\ " }.join(" ")
   end
 
   def self.add_path_to_xz

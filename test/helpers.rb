@@ -92,8 +92,6 @@ module Spec
     end
 
     def run_command(cmd)
-      cmd.gsub!(%r{/}) { '\\' } if Global::OS == 'windows'
-
       @command = cmd
       @out = ''
       @err = ''
