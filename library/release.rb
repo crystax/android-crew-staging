@@ -27,6 +27,10 @@ class Release
     @r[:installed]
   end
 
+  def source_installed?
+    @r[:source_installed]
+  end
+
   # 's' must be either a hash like this { platform_name: 'sha256_sum' } or just a string
   def shasum=(s)
     if s.is_a? Hash
@@ -38,6 +42,10 @@ class Release
 
   def installed=(v)
     @r[:installed] = v
+  end
+
+  def source_installed=(v)
+    @r[:source_installed] = v
   end
 
   def update(hash)

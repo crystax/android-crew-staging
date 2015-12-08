@@ -75,7 +75,7 @@ module Global
 
   PLATFORM = File.basename(TOOLS_DIR)
 
-  HOLD_DIR        = Pathname.new(File.join(NDK_DIR, 'sources')).realpath
+  HOLD_DIR        = Pathname.new(File.join(NDK_DIR, 'packages')).realpath
   ENGINE_DIR      = Pathname.new(File.join(TOOLS_DIR, 'crew')).realpath
   FORMULA_DIR     = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
   CACHE_DIR       = Pathname.new(File.join(BASE_DIR, 'cache')).realpath

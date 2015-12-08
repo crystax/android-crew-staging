@@ -5,22 +5,28 @@ Crystax NDK's Crew
 1. How to start
 --------------------------------
 
-Crew is intended to maintain NDK's toolchains, utilities required to run
-crew itself, and also native libraries that are not integral part of the
-Crystax NDK, like Boost, LIBPNG, Freetype, etc, but instead can be
-easily installed or removed if necessary.
+``crew`` is intended to maintain NDK's toolchains, utilities and libraries.
 
-CREW is a part of the Crystax NDK installation.
-To begin with crew just install Crystax NDK.
+Utilities are required to run ``crew`` itself. These includes ``ruby``,
+``curl``, ``tar`` and assorted archivers.
+
+Libraries are native libraries that are not integral part of the Crystax
+NDK but instead can be easily installed or removed if
+necessary. Examples of libraires are ``Boost``, ``libpng``,
+``freetype``.
+
+``crew`` is a part of the Crystax NDK installation. To begin with crew
+just install Crystax NDK.
 
 
 2. Commands
 --------------------------------
 
-NB For examples below to work correctly 'crew' command must in your PATH.
-
 All commands will return 0 code on successful completion, and non-zero
 positive code in case of error.
+
+In the examples below ``crew`` command is run from the top Crystax NDK
+directory.
 
 
 ### version
@@ -29,8 +35,9 @@ Show crew's internal version.
 
 Example:
 
-    $ crew version
+    $ ./crew version
     1.0
+
 
 ### help
 
@@ -38,7 +45,7 @@ Output short information about available commands.
 
 Example:
 
-    $ crew help
+    $ ./crew help
     Usage: crew [OPTIONS] COMMAND [parameters]
 
     where
@@ -59,30 +66,44 @@ Example:
                       install the specified formula(s)
       remove name[:version|:all] ...
                       uninstall the specified formulas
+      source name[:version][:crystax_version] ...
+                      install source code for the specified formula(s)
+      remove-source name[:version|:all] ...
+                      uninstall the source code for the specified formulas
       update          update crew repository information
       upgrade         install most recent versions
       cleanup [-n]    uninstall old versions and clean cache
-    
+
+
 ### list [libs|utils]
 
-List all available formulas, their upstream versions, crysta versions and status (installed or
-not). If 'libs' or 'utils' argument was specified the command will output information
-only about libraries or crew utilitites respectively.
+List all available formulas, their upstream versions, crystax versions,
+status (installed or not), sources status (installed or not, for
+libraries only).
+
+Aterisk (``*``) next to utility or library name means that respective
+release was installed.
+
+Word ``source`` to the right of a library data means that source code
+for the release was installed.
+
+If 'libs' or 'utils' argument was specified the command will output
+information only about libraries or crew utilitites respectively.
 
 Example:
 
     $ crew list
     Utilities:
-     * p7zib     9.20.1  1
-     * curl      7.42.0  1
-     * ruby      2.2.2   1
-       ruby      2.2.2   2
+     * curl        7.42.0  1
+     * libarchive  3.1.2   1
+     * ruby        2.2.2   1
+     * xz          5.2.2   1
     Libraries:
        icu       54.1    1
        icu       54.1    2
      * icu       54.1    3
      * boost     1.57.0  1
-     * boost     1.58.0  1
+     * boost     1.58.0  1  source
        boost     1.58.0  2
      * freetype  2.5.5   1
 
@@ -120,7 +141,7 @@ version was specified then the most recent version will be installed;
 otherwise the specified version will be installed; the same applies to
 crystax version.
 
-Install command works only with library formulas. You can not install utility.
+``install`` command works only with library formulas. You can not install utility.
 But you can upgrade utility (see below upgrade command description).
 
 You can install any number of avaliable versions of any library. For example,
@@ -142,7 +163,7 @@ Example:
 
 ### remove name[:version|:all] ...
 
-For every specified formula (and possibly version) the 'remove' command
+For every specified formula (and possibly version) the ``remove`` command
 works as follows:
 
 * if the specified formula is not installed then command will do nothing
@@ -182,6 +203,42 @@ Example:
     $ crew remove icu
     uninstalling icu-54.1 ...
     error: boost+icu4c depends on icu4c
+
+
+### source name[[:version]:crystax_version] ...
+
+Install the source code for the specified formula(s); if no ``version`` was
+specified then the most recent version will be installed; otherwise the
+specified version will be installed; the same applies to ``crystax_version``.
+
+``source`` command works only with library formulas.
+
+You can install sources code for any number of avaliable versions of any
+library. For example, you can install source code for boost 1.57.0,
+1.58.0 and 1.59.0 at the same time.
+
+You can install source code without installing respective library or
+vice versa.
+
+You can not install source code for the lilbrary that differs from
+installed binary package only in ``crystax_version``. That is if you
+have boost 1.60.0:2 installed, then you can not install sources for
+boost 1.60.0:1.
+
+Source code will be installed in the same directory where the specified
+library version was (would be) installed. For example, if you have boost
+1.60.0:1 installed then source code for the library will be installed into the
+``$NDK_ROOT/packages/boost/1.60.0/src`` directory.
+
+Example:
+    
+    $ crew source ruby
+    error: ruby is not available
+
+    $ crew source boost
+    source code for boost 1.60.0:1 will be installed
+    downloading: .....
+    unpacking: .....
 
 
 ### update

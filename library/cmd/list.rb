@@ -5,13 +5,14 @@ require_relative '../formulary.rb'
 
 class Element
 
-  attr_reader :name, :version, :crystax_version, :installed_sign
+  attr_reader :name, :version, :crystax_version, :installed_sign, :installed_source
 
-  def initialize(name, version, cversion, iflag)
+  def initialize(name, version, cversion, iflag, sflag)
     @name = name
     @version = version
     @crystax_version = cversion
     @installed_sign = iflag ? '*' : ' '
+    @installed_source = sflag ? 'source' : ''
   end
 
   def <=>(e)
@@ -55,12 +56,12 @@ module Crew
         max_ver_len = ver.size if ver.size > max_ver_len
         cxver = r.crystax_version
         max_cxver_len = cxver.to_s.size if cxver.to_s.size > max_cxver_len
-        list << Element.new(f.name, ver, cxver, r.installed?)
+        list << Element.new(f.name, ver, cxver, r.installed?, r.source_installed?)
       end
     end
 
     list.sort.each do |l|
-      printf " %s %-#{max_name_len}s  %-#{max_ver_len}s  %-#{max_cxver_len}s\n", l.installed_sign, l.name, l.version, l.crystax_version
+      printf " %s %-#{max_name_len}s  %-#{max_ver_len}s  %-#{max_cxver_len}s  %s\n", l.installed_sign, l.name, l.version, l.crystax_version, l.installed_source
     end
   end
 end

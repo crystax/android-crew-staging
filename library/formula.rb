@@ -35,7 +35,6 @@ class Formula
         prop = get_properties(dir)
         if r.crystax_version == prop[:crystax_version]
           r.update prop
-          r.installed = true
         end
       end
     end
@@ -104,8 +103,12 @@ class Formula
       raise "bad SHA256 sum of the downloaded file #{cachepath}"
     end
 
+    rel_dir = release_directory(release)
+    prop = get_properties(rel_dir)
     puts "unpacking archive"
-    install_archive release_directory(release), cachepath
+    install_archive rel_dir, cachepath
+    prop.update get_properties(rel_dir)
+    prop[:installed] = true
   end
 
   def uninstall(version)
@@ -184,11 +187,17 @@ class Formula
     rel
   end
 
-  private
-
   def get_properties(dir)
-    # use full path here to get better error message if case open fails
     propfile = File.join(dir, PROPERTIES_FILE)
-    JSON.parse(IO.read(propfile), symbolize_names: true)
+    if File.exists?(propfile)
+      JSON.parse(IO.read(propfile), symbolize_names: true)
+    else
+      {}
+    end
+  end
+
+  def save_properties(prop, dir)
+    propfile = File.join(dir, PROPERTIES_FILE)
+    File.open(propfile, "w") { |f| f.puts prop.to_json }
   end
 end

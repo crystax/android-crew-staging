@@ -1,11 +1,12 @@
 require 'open3'
+require 'uri'
 require_relative 'global.rb'
 require_relative 'exceptions.rb'
 
 module Utils
 
-  @@crew_curl_prog   = nil
-  @@crew_bsdtar_prog = nil
+  @@crew_curl_prog = nil
+  @@crew_tar_prog  = nil
 
 
   def self.run_command(prog, *args)
@@ -50,9 +51,9 @@ module Utils
   end
 
   def self.unpack(archive, outdir)
-    add_path_to_xz
+    add_path_to_archivers
     args = ["-C", "#{outdir}", "-xf", "#{archive}"]
-    run_command(crew_bsdtar_prog, *args)
+    run_command(crew_tar_prog, *args)
   end
 
   # private
@@ -62,17 +63,18 @@ module Utils
     @@crew_curl_prog
   end
 
-  def self.crew_bsdtar_prog
-    @@crew_bsdtar_prog = Pathname.new(Global.active_util_dir('libarchive')).realpath + "bsdtar#{Global::EXE_EXT}" unless @@crew_bsdtar_prog
-    @@crew_bsdtar_prog
+  def self.crew_tar_prog
+    @@crew_tar_prog = Pathname.new(Global.active_util_dir('libarchive')).realpath + "bsdtar#{Global::EXE_EXT}" unless @@crew_tar_prog
+    @@crew_tar_prog
   end
 
   def self.to_cmd_s(*args)
-    # todo: escape ( and ) too
+    # todo: escape '(' and ')' too
     args.map { |a| a.to_s.gsub " ", "\\ " }.join(" ")
   end
 
-  def self.add_path_to_xz
+  def self.add_path_to_archivers
+    # todo: add paths to other archivers
     xz_path = Pathname.new(Global.active_util_dir('xz')).realpath.to_s
     path = ENV['PATH']
     if not path.start_with?(xz_path)
