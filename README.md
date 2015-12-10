@@ -232,13 +232,35 @@ library version was (would be) installed. For example, if you have boost
 
 Example:
     
-    $ crew source ruby
+    $ ./crew source ruby
     error: ruby is not available
 
-    $ crew source boost
+    $ ./crew source boost
     source code for boost 1.60.0:1 will be installed
     downloading: .....
     unpacking: .....
+
+
+### build name[[:version]:crystax_version] ...
+
+Build the specified formula(s) from their installed sources code; if no
+``version`` was specified then the most recent version will be used;
+otherwise the specified version will be used; the same applies to
+``crystax_version``.
+
+``build`` command works only with library formulas.
+
+The resulting packages will be copied into a cache dir (usually,
+``/var/tmp/ndk-cache-$USER``) and unpacked into NDK's ``packages``
+directory exactly as ``install`` command would do.
+
+Example:
+
+    $ ./crew build boost
+    error: boost source is not installed
+  
+    $ ./crew build jpeg
+    Buiding JPEG for architectures: ...
 
 
 ### update

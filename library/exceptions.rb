@@ -6,6 +6,12 @@ class FormulaUnspecifiedError < UsageError
   end
 end
 
+class NoBuildOnWindows < UsageError
+  def initialize
+    super "to build you need to use Linux or OS X operating system"
+  end
+end
+
 class CommandRequresNoArguments < UsageError
   def initialize
     super "this command requires no arguments"
@@ -63,5 +69,11 @@ class DownloadError < RuntimeError
     @error_code = error_code
     msg = text ? "; text: #{text}" : ''
     super "failed to download #{url}: code: #{error_code}#{msg}"
+  end
+end
+
+class UnknownAbi < RuntimeError
+  def initialize(abi)
+    super "unknown abi #{abi}"
   end
 end

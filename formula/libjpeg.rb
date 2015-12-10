@@ -1,9 +1,10 @@
 require 'uri'
 require 'fileutils'
 require 'tmpdir'
-require_relative '../library/utils'
+require_relative '../library/utils.rb'
+require_relative '../library/build.rb'
 
-class Jpeg < Library
+class Libjpeg < Library
 
   desc "JPEG image manipulation library"
   homepage "http://www.ijg.org"
@@ -23,5 +24,13 @@ class Jpeg < Library
       FileUtils.mv Dir["#{verdir}/*"], dir
       FileUtils.rmdir verdir
     end
+  end
+
+  def build(src_dir, arch_list)
+    conf_args = ["--enable-shared", "--enable-static", "--with-pic", "--disable-ld-version-script"]
+    mk_modules = [ Build::AndroidMkModule.new(name) ]
+    #
+    builder = Build::Builder.new(name, src_dir, conf_args, mk_modules)
+    builder.prepare_package arch_list
   end
 end

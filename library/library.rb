@@ -1,5 +1,6 @@
 require_relative 'formula.rb'
 require_relative 'release.rb'
+require_relative 'build.rb'
 
 
 class Library < Formula
@@ -30,6 +31,17 @@ class Library < Formula
     install_source_code release, src_dir
     prop[:source_installed] = true
     save_properties prop, rel_dir
+  end
+
+  def build_package(release)
+    raise "source code not installed for #{name} #{release}" unless release.source_installed?
+
+    src_dir = "#{release_directory(release)}/src"
+    arch_list = Build::ARCH_LIST
+    puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
+    build(src_dir, arch_list)
+
+    #  pkg_dir = Build.package_dir(name)
   end
 
   private
