@@ -56,6 +56,12 @@ module Utils
     run_command(crew_tar_prog, *args)
   end
 
+  def self.pack(archive, indir)
+    FileUtils.rm archive, {force: true}
+    args = ["-C", "#{indir}", "-Jcf", "#{archive}", "."]
+    run_command(crew_tar_prog, *args)
+  end
+
   # private
 
   def self.crew_curl_prog

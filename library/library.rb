@@ -36,12 +36,27 @@ class Library < Formula
   def build_package(release)
     raise "source code not installed for #{name} #{release}" unless release.source_installed?
 
-    src_dir = "#{release_directory(release)}/src"
+    rel_dir = release_directory(release)
+    src_dir = "#{rel_dir}/src"
     arch_list = Build::ARCH_LIST
     puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
-    build(src_dir, arch_list)
+    pkg_dir = build(src_dir, arch_list)
 
-    #  pkg_dir = Build.package_dir(name)
+    # install into packages (and update props if any)
+    prop = get_properties(rel_dir)
+    FileUtils.rm_rf Dir["#{rel_dir}/*"].select{ |a| File.basename(a) != 'src' }
+    FileUtils.cp_r "#{pkg_dir}/.", rel_dir
+    prop.update get_properties(rel_dir)
+    prop[:installed] = true
+    release.installed = true
+    save_properties prop, rel_dir
+
+    # pack archive and copy into cache dir
+    archive = "#{Build::CACHE_DIR}/#{archive_filename(release)}"
+    Utils.pack(archive, pkg_dir)
+
+    # calculate and update shasum
+    # todo:
   end
 
   private

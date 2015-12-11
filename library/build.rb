@@ -50,21 +50,19 @@ module Build
       @src_dir = src_dir
       @configure_args = conf_args
       @mk_modules = mk_modules
-      # default lib names
+      # default libs names
       @libs = [ "#{name}.a", "#{name}.so" ]
     end
 
     def prepare_package(arch_list)
-      # build library for all archs
+      FileUtils.rm_rf package_dir
       arch_list.each do |arch|
         print "= building for architecture: #{arch.name}; abis: [ "
-        arch.abis.each do |abi|
-          print "#{abi} "
-          build_for_abi(arch, abi)
-        end
+        arch.abis.each { |abi| print "#{abi} "; build_for_abi(arch, abi) }
         puts "]"
       end
       gen_android_mk
+      package_dir
     end
 
     private
@@ -76,8 +74,7 @@ module Build
       build_dir = "#{base_dir}/build"
       install_dir = "#{base_dir}/install"
       FileUtils.mkdir_p install_dir
-      FileUtils.cp_r @src_dir, base_dir
-      FileUtils.cd(base_dir) { FileUtils.mv File.basename(@src_dir), File.basename(build_dir) }
+      FileUtils.cp_r "#{src_dir}/.", build_dir
       logfile = "#{base_dir}/build.log"
       # build
       FileUtils.cd(build_dir) do
@@ -89,6 +86,7 @@ module Build
       end
       # copy headers and abi specific libs to the package dir
       package_libs_and_headers abi, install_dir
+      # todo: clean if no-clean was not specified
     end
 
     def env_for_abi(arch, abi)
