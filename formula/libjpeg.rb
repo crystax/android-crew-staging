@@ -1,6 +1,3 @@
-require 'uri'
-require 'fileutils'
-require 'tmpdir'
 require_relative '../library/utils.rb'
 require_relative '../library/build.rb'
 
@@ -11,19 +8,10 @@ class Libjpeg < Library
 
   release version: '9a', crystax_version: 1, sha256: '6b390ea6655ee5b62ca04d92b01098b90155970a4241a40addfa156d62f660f3'
 
-  def install_source_code(release, dir)
+  def install_source_code(release, dirname)
     ver = release.version
     url = "http://www.ijg.org/files/jpegsrc.v#{ver}.tar.gz"
-    Dir.mktmpdir do |tmpdir|
-      archive = "#{tmpdir}/#{File.basename(URI.parse(url).path)}"
-      puts "= downloading #{url}"
-      Utils.download(url, archive)
-      puts "= unpacking #{File.basename(archive)} into #{dir}"
-      Utils.unpack(archive, dir)
-      verdir = "#{dir}/jpeg-#{ver}"
-      FileUtils.mv Dir["#{verdir}/*"], dir
-      FileUtils.rmdir verdir
-    end
+    std_download_source_code url, release_directory(release), "jpeg-#{ver}", dirname
   end
 
   def build(src_dir, arch_list)

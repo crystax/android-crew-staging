@@ -9,6 +9,11 @@ module Build
   MIN_32_API_LEVEL = 9
   MIN_64_API_LEVEL = 21
 
+  USER = ENV['USER']
+
+  BASE_DIR  = "/tmp/ndk-#{USER}/target"
+  CACHE_DIR = "/var/tmp/ndk-cache-#{USER}"
+
   class Arch
     attr_reader :name, :min_api_level, :host, :toolchain, :abis
 
@@ -21,14 +26,6 @@ module Build
     end
   end
 
-  class AndroidMkModule
-    attr_reader :name
-
-    def initialize(name)
-      @name = name
-    end
-  end
-
   ARCH_LIST = [ Arch.new('arm',    MIN_32_API_LEVEL, 'arm-linux-androideabi',  'arm-linux-androideabi',  ['armeabi', 'armeabi-v7a', 'armeabi-v7a-hard']),
                 Arch.new('x86',    MIN_32_API_LEVEL, 'i686-linux-android',     'x86',                    ['x86']),
                 Arch.new('mips',   MIN_32_API_LEVEL, 'mipsel-linux-android',   'mipsel-linux-android',   ['mips']),
@@ -37,18 +34,42 @@ module Build
                 Arch.new('mips64', MIN_64_API_LEVEL, 'mips64el-linux-android', 'mips64el-linux-android', ['mips64'])
               ]
 
-  USER = ENV['USER']
+  class AndroidMkModule
+    attr_reader :name, :params
 
-  BASE_DIR  = "/tmp/ndk-#{USER}/target"
-  CACHE_DIR = "/var/tmp/ndk-cache-#{USER}"
+    # for possible params key values see Builder::gen_android_mk method below
+    def initialize(name, params = {})
+      @name = name
+      @params = params
+    end
+  end
+
+  class Configure
+    attr_accessor :autogen_script
+
+    def initialize(args)
+      @args = args
+      @autogen_script = nil
+      @extra_args = Hash.new([])
+    end
+
+    def add_extra_args(h)
+      @extra_args.update h
+    end
+
+    def full_args(abi)
+      "#{@args.join(' ')} #{@extra_args[abi].join(' ')}"
+    end
+
+  end
 
   class Builder
-    attr_reader :pkg_name, :src_dir, :configure_args, :mk_modules
+    attr_reader :pkg_name, :src_dir, :configure, :mk_modules
 
-    def initialize(name, src_dir, conf_args, mk_modules)
+    def initialize(name, src_dir, configure, mk_modules)
       @pkg_name = name
       @src_dir = src_dir
-      @configure_args = conf_args
+      @configure = configure
       @mk_modules = mk_modules
       # default libs names
       @libs = [ "#{name}.a", "#{name}.so" ]
@@ -78,8 +99,10 @@ module Build
       logfile = "#{base_dir}/build.log"
       # build
       FileUtils.cd(build_dir) do
+        # usually autoconf/autogen scripts do not require special environment
+        run Hash.new, logfile, configure.autogen_script if configure.autogen_script
         env = env_for_abi(arch, abi)
-        run env, logfile, "./configure --prefix=#{install_dir} --host=#{arch.host} #{configure_args.join(' ')}"
+        run env, logfile, "./configure --prefix=#{install_dir} --host=#{arch.host} #{configure.full_args(abi)}"
         # todo: do not hardcode jobs number
         run env, logfile, "make --jobs=16"
         run env, logfile, "make install"
@@ -199,12 +222,14 @@ module Build
           f.puts "LOCAL_MODULE := #{m.name}_static"
           f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/#{m.name}.a"
           f.puts "LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include"
+          f.puts "LOCAL_EXPORT_LDLIBS := #{m.params[:export_ldlibs]}" if m.params[:export_ldlibs]
           f.puts "include $(PREBUILT_STATIC_LIBRARY)"
           f.puts ""
           f.puts "include $(CLEAR_VARS)"
           f.puts "LOCAL_MODULE := #{m.name}_shared"
           f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/#{m.name}.so"
           f.puts "LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include"
+          f.puts "LOCAL_EXPORT_LDLIBS := #{m.params[:export_ldlibs]}" if m.params[:export_ldlibs]
           f.puts "include $(PREBUILT_SHARED_LIBRARY)"
         end
       end
