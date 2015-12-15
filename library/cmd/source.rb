@@ -16,6 +16,18 @@ module Crew
       name, ver, cxver = n.split(':')
       formula = formulary[name]
       release = formula.find_release Release.new(ver, cxver)
+
+      if release.source_installed?
+        puts "sources for #{name}:#{release.version}:#{release.crystax_version} already installed"
+        next
+      end
+
+      formula.releases.select{ |r| r.installed? and r.version == release.version }.each do |c|
+        if c.crystax_version != release.crystax_version
+          raise "can't install source for #{name}:#{release} since #{c} installed"
+        end
+      end
+
       formula.install_source release
 
       puts "" if index + 1 < args.count

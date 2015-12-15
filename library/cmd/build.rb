@@ -15,6 +15,7 @@ module Crew
       name, ver, cxver = n.split(':')
       formula = formulary[name]
       release = formula.find_release Release.new(ver, cxver)
+      raise "source code not installed for #{name}:#{release}" unless release.source_installed?
       formula.build_package release
 
       puts "" if index + 1 < args.count

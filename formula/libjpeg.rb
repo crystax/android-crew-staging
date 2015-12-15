@@ -6,7 +6,7 @@ class Libjpeg < Library
   desc "JPEG image manipulation library"
   homepage "http://www.ijg.org"
 
-  release version: '9a', crystax_version: 1, sha256: '6b390ea6655ee5b62ca04d92b01098b90155970a4241a40addfa156d62f660f3'
+  release version: '9a', crystax_version: 1, sha256: '0'
 
   def install_source_code(release, dirname)
     ver = release.version
@@ -15,10 +15,10 @@ class Libjpeg < Library
   end
 
   def build(src_dir, arch_list)
-    conf_args = ["--enable-shared", "--enable-static", "--with-pic", "--disable-ld-version-script"]
+    configure = Build::Configure.new(['--enable-shared', '--enable-static', '--with-pic', '--disable-ld-version-script'])
     mk_modules = [ Build::AndroidMkModule.new(name) ]
     #
-    builder = Build::Builder.new(name, src_dir, conf_args, mk_modules)
+    builder = Build::Builder.new(name, src_dir, configure, mk_modules)
     builder.prepare_package arch_list
   end
 end

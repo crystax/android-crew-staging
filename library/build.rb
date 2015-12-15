@@ -45,11 +45,8 @@ module Build
   end
 
   class Configure
-    attr_accessor :autogen_script
-
     def initialize(args)
       @args = args
-      @autogen_script = nil
       @extra_args = Hash.new([])
     end
 
@@ -65,14 +62,15 @@ module Build
 
   class Builder
     attr_reader :pkg_name, :src_dir, :configure, :mk_modules
+    attr_accessor :libs_to_install
 
     def initialize(name, src_dir, configure, mk_modules)
       @pkg_name = name
       @src_dir = src_dir
       @configure = configure
       @mk_modules = mk_modules
-      # default libs names
-      @libs = [ "#{name}.a", "#{name}.so" ]
+      # default libs
+      @libs_to_install = [ "#{name}.a", "#{name}.so" ]
     end
 
     def prepare_package(arch_list)
@@ -99,8 +97,6 @@ module Build
       logfile = "#{base_dir}/build.log"
       # build
       FileUtils.cd(build_dir) do
-        # usually autoconf/autogen scripts do not require special environment
-        run Hash.new, logfile, configure.autogen_script if configure.autogen_script
         env = env_for_abi(arch, abi)
         run env, logfile, "./configure --prefix=#{install_dir} --host=#{arch.host} #{configure.full_args(abi)}"
         # todo: do not hardcode jobs number
@@ -113,12 +109,12 @@ module Build
     end
 
     def env_for_abi(arch, abi)
-      cflags  = "#{cflags(abi)} --sysroot=#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
+      cflags  = cflags(abi)
       ldflags = "#{ldflags(abi)} -L#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
 
       tc_prefix = "#{Global::NDK_DIR}/toolchains/#{arch.toolchain}-#{GCC_VERSION}/prebuilt/#{File.basename(Global::TOOLS_DIR)}"
-      gcc = "#{tc_prefix}/bin/#{arch.host}-gcc"
-      gcc_wrapper = "./cc"
+      gcc = "#{tc_prefix}/bin/#{arch.host}-gcc --sysroot=#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
+      gcc_wrapper = "#{Dir.pwd}/cc"
       gen_fix_soname_wrapper(gcc_wrapper, gcc)
 
       env = {'CC'      => gcc_wrapper,
@@ -141,7 +137,7 @@ module Build
       # copy libs
       libs_dir = "#{pkg_dir}/libs/#{abi}"
       FileUtils.mkdir_p libs_dir
-      @libs.each { |lib| FileUtils.cp "#{install_dir}/lib/#{lib}", libs_dir }
+      libs_to_install.each { |lib| FileUtils.cp "#{install_dir}/lib/#{lib}", libs_dir }
     end
 
     def package_dir

@@ -17,9 +17,15 @@ module Crew
       formula = formulary[name]
       release = formula.find_release Release.new(ver, cxver)
 
-      if formula.installed?(release)
-        puts "#{name}:#{release.version}:#{release.crystax_version} already installed"
+      if release.installed?
+        puts "#{name}:#{release} already installed"
         next
+      end
+
+      formula.releases.select{ |r| r.source_installed? and r.version == release.version }.each do |c|
+        if c.crystax_version != release.crystax_version
+          raise "can't install #{name}:#{release} since sources for #{c} installed"
+        end
       end
 
       puts "calculating dependencies for #{name}: "

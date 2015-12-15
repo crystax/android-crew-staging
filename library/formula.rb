@@ -111,19 +111,6 @@ class Formula
     prop[:installed] = true
   end
 
-  def uninstall(version)
-    puts "removing #{name}-#{version}"
-    dir = release_directory(Release.new(version))
-    props = get_properties(dir)
-    FileUtils.rm_rf dir
-    releases.each do |r|
-      if (r.version == version) and (r.crystax_version == props[:crystax_version])
-        r.installed = false
-        break
-      end
-    end
-  end
-
   def installed?(release = Release.new)
     releases.any? { |r| r.match?(release) and r.installed? }
   end
