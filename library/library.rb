@@ -49,7 +49,25 @@ class Library < Formula
       prop[:crystax_version] = release.crystax_version
       FileUtils.mkdir_p rel_dir
     end
-    install_source_code release, SRC_DIR_BASENAME
+
+    ver_url = version_url(release.version)
+    archive = "#{Global::CACHE_DIR}/#{File.basename(URI.parse(ver_url).path)}"
+    if File.exists? archive
+      puts "= using cached file #{archive}"
+    else
+      puts "= downloading #{ver_url}"
+      Utils.download(ver_url, archive)
+    end
+
+    # todo: handle option source_archive_without_top_dir: true
+    old_dir = Dir["#{rel_dir}/*"]
+    puts "= unpacking #{File.basename(archive)} into #{rel_dir}"
+    Utils.unpack(archive, rel_dir)
+    new_dir = Dir["#{rel_dir}/*"]
+    diff = old_dir.count == 0 ? new_dir : new_dir - old_dir
+    raise "source archive does not have top directory, diff: #{diff}" if diff.count != 1
+    FileUtils.cd(rel_dir) { FileUtils.mv diff[0], SRC_DIR_BASENAME }
+
     prop[:source_installed] = true
     save_properties prop, rel_dir
   end
@@ -61,18 +79,14 @@ class Library < Formula
     puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
     pkg_dir = build(src_dir, arch_list)
 
-    # install into packages (and update props if any)
-    prop = get_properties(rel_dir)
-    FileUtils.rm_rf binary_files(rel_dir)
-    FileUtils.cp_r "#{pkg_dir}/.", rel_dir
-    prop.update get_properties(rel_dir)
-    prop[:installed] = true
-    release.installed = true
-    save_properties prop, rel_dir
-
     # pack archive and copy into cache dir
     archive = "#{Build::CACHE_DIR}/#{archive_filename(release)}"
+    puts "Creating archive file #{archive}"
     Utils.pack(archive, pkg_dir)
+
+    # install into packages (and update props if any)
+    puts "Unpacking archive into #{release_dir(release)}"
+    install_release_archive release, archive
 
     # calculate and update shasum
     # todo:
@@ -83,15 +97,8 @@ class Library < Formula
 
   private
 
-  def std_download_source_code(url, rel_dir, vername, dirname)
-    Dir.mktmpdir do |tmpdir|
-      archive = "#{tmpdir}/#{File.basename(URI.parse(url).path)}"
-      puts "= downloading #{url}"
-      Utils.download(url, archive)
-      puts "= unpacking #{File.basename(archive)} into #{rel_dir}/#{dirname}"
-      Utils.unpack(archive, rel_dir)
-      FileUtils.cd(rel_dir) { FileUtils.mv vername, dirname }
-    end
+  def version_url(version)
+    url.gsub('{version}', version)
   end
 
   def archive_filename(release)
@@ -102,13 +109,33 @@ class Library < Formula
     release.shasum(:android)
   end
 
-  def install_archive(outdir, archive)
-    FileUtils.rm_rf outdir
-    FileUtils.mkdir_p outdir
-    Utils.unpack(archive, outdir)
+  def install_archive(release, archive)
+    rel_dir = release_directory(release)
+    FileUtils.rm_rf binary_files(rel_dir)
+    Utils.unpack archive, rel_dir
+    update_root_android_mk release
   end
 
   def binary_files(rel_dir)
     Dir["#{rel_dir}/*"].select{ |a| File.basename(a) != SRC_DIR_BASENAME }
+  end
+
+  # $(call import-module,libjpeg/9a)
+  def update_root_android_mk(release)
+    android_mk = "#{File.dirname(release_directory(release))}/Android.mk"
+    new_ver = release.version
+    if not File.exists? android_mk
+      write_root_android_mk android_mk, new_ver
+    else
+      prev_ver = File.read(android_mk).strip.delete("()").split('/')[1]
+      new_ver = release.version
+      if more_recent_version(prev_ver, new_ver) == new_ver
+        write_root_android_mk android_mk, new_ver
+      end
+    end
+  end
+
+  def write_android_mk(file, ver)
+    File.open(file, 'w') { |f| f.puts "include $(call my-dir)/#{ver}/Android.mk" }
   end
 end

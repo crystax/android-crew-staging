@@ -52,6 +52,10 @@ class Formula
     self.class.homepage
   end
 
+  def url
+    self.class.url
+  end
+
   # NB: releases are stored in the order they're written in the formula file
   def releases
     self.class.releases
@@ -103,12 +107,19 @@ class Formula
       raise "bad SHA256 sum of the downloaded file #{cachepath}"
     end
 
+    puts "unpacking archive"
+    install_release_archive release, cachepath
+
+  end
+
+  def install_release_archive(release, archive)
     rel_dir = release_directory(release)
     prop = get_properties(rel_dir)
-    puts "unpacking archive"
-    install_archive rel_dir, cachepath
+    install_archive release, cachepath
     prop.update get_properties(rel_dir)
     prop[:installed] = true
+    release.installed = true
+    save_properties prop, rel_dir
   end
 
   def installed?(release = Release.new)
@@ -129,7 +140,7 @@ class Formula
 
   class << self
 
-    attr_rw :name, :desc, :homepage, :space_reqired
+    attr_rw :name, :desc, :homepage, :url, :space_reqired
 
     attr_reader :releases, :dependencies
 

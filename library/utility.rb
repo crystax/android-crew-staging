@@ -46,11 +46,12 @@ class Utility < Formula
     release.shasum(Global::PLATFORM.gsub(/-/, '_').to_sym)
   end
 
-  def install_archive(outdir, archive)
-    FileUtils.rm_rf outdir
-    FileUtils.mkdir_p outdir
-    Utils.unpack(archive, Global::NDK_DIR)
-    write_active_file(File.basename(outdir))
+  def install_archive(release, archive)
+    rel_dir = release_directory(release)
+    FileUtils.rm_rf rel_dir
+    FileUtils.mkdir_p rel_dir
+    Utils.unpack archive, Global::NDK_DIR
+    write_active_file File.basename(rel_dir)
   end
 
   def write_active_file(version)

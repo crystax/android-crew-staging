@@ -5,14 +5,9 @@ class Libpng < Library
 
   desc "Library for manipulating PNG images"
   homepage "http://www.libpng.org/pub/png/libpng.html"
+  url "http://sourceforge.net/projects/libpng/files/libpng16/{version}/libpng-{version}.tar.xz"
 
   release version: '1.6.19', crystax_version: 1, sha256: '0'
-
-  def install_source_code(release, dirname)
-    ver = release.version
-    url = "http://sourceforge.net/projects/libpng/files/libpng16/#{ver}/libpng-#{ver}.tar.xz"
-    std_download_source_code url, release_directory(release), "#{name}-#{ver}", dirname
-  end
 
   def build(src_dir, arch_list)
     configure = Build::Configure.new(['--enable-shared', '--enable-static', '--enable-werror', '--enable-unversioned-links', '--with-pic'])

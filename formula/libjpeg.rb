@@ -5,14 +5,9 @@ class Libjpeg < Library
 
   desc "JPEG image manipulation library"
   homepage "http://www.ijg.org"
+  url "http://www.ijg.org/files/jpegsrc.v{version}.tar.gz"
 
   release version: '9a', crystax_version: 1, sha256: '0'
-
-  def install_source_code(release, dirname)
-    ver = release.version
-    url = "http://www.ijg.org/files/jpegsrc.v#{ver}.tar.gz"
-    std_download_source_code url, release_directory(release), "jpeg-#{ver}", dirname
-  end
 
   def build(src_dir, arch_list)
     configure = Build::Configure.new(['--enable-shared', '--enable-static', '--with-pic', '--disable-ld-version-script'])

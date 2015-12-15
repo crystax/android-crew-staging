@@ -5,14 +5,9 @@ class LibjpegTurbo < Library
 
   desc "JPEG image codec that aids compression and decompression"
   homepage "http://www.libjpeg-turbo.org/"
+  url "https://downloads.sourceforge.net/project/libjpeg-turbo/{version}/libjpeg-turbo-{version}.tar.gz"
 
   release version: '1.4.2', crystax_version: 1, sha256: '0'
-
-  def install_source_code(release, dirname)
-    ver = release.version
-    url = "https://downloads.sourceforge.net/project/libjpeg-turbo/#{ver}/libjpeg-turbo-#{ver}.tar.gz"
-    std_download_source_code url, release_directory(release), "#{name}-#{ver}", dirname
-  end
 
   def build(src_dir, arch_list)
     configure = Build::Configure.new(['--enable-shared', '--enable-static', '--with-pic', '--disable-ld-version-script'])
