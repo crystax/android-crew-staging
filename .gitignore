@@ -1,5 +1,5 @@
 .DS_Store
-cache/*.7z
+cache/*
 *~
 test/.testdataprepared
 test/crew
