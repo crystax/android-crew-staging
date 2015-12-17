@@ -34,202 +34,91 @@ module Build
                 Arch.new('mips64', MIN_64_API_LEVEL, 'mips64el-linux-android', 'mips64el-linux-android', ['mips64'])
               ]
 
-  class AndroidMkModule
-    attr_reader :name, :params
 
-    # for possible params key values see Builder::gen_android_mk method below
-    def initialize(name, params = {})
-      @name = name
-      @params = params
+  def self.cflags(abi)
+    case abi
+    when 'armeabi'
+      "-mthumb -march=armv5te -mtune=xscale -msoft-float"
+    when 'armeabi-v7a'
+      "-mthumb -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp"
+    when 'armeabi-v7a-hard'
+      "-mthumb -march=armv7-a -mfpu=vfpv3-d16 -mhard-float"
+    else
+      ""
     end
   end
 
-  class Configure
-    def initialize(args)
-      @args = args
-      @extra_args = Hash.new([])
+  def self.ldflags(abi)
+    f = "-L#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
+    case abi
+    when 'armeabi-v7a-hard'
+      f += ' -Wl,--no-warn-mismatch'
     end
-
-    def add_extra_args(h)
-      @extra_args.update h
-    end
-
-    def full_args(abi)
-      "#{@args.join(' ')} #{@extra_args[abi].join(' ')}"
-    end
-
+    f
   end
 
-  class Builder
-    attr_reader :pkg_name, :src_dir, :configure, :mk_modules
-    attr_accessor :libs_to_install
+  def self.tools(abi)
+    arch = arch_for_abi(abi)
+    tc_prefix = "#{Global::NDK_DIR}/toolchains/#{arch.toolchain}-#{GCC_VERSION}/prebuilt/#{File.basename(Global::TOOLS_DIR)}"
 
-    def initialize(name, src_dir, configure, mk_modules)
-      @pkg_name = name
-      @src_dir = src_dir
-      @configure = configure
-      @mk_modules = mk_modules
-      # default libs
-      @libs_to_install = [ "#{name}.a", "#{name}.so" ]
+    gcc    = "#{tc_prefix}/bin/#{arch.host}-gcc --sysroot=#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
+    ar     = "#{tc_prefix}/bin/#{arch.host}-ar"
+    ranlib = "#{tc_prefix}/bin/#{arch.host}-ranlib"
+
+    [gcc, ar, ranlib]
+  end
+
+  # this wrapper removes versions from sonames
+  def self.gen_fix_soname_wrapper(gcc_wrapper, gcc)
+    File.open(gcc_wrapper, "w") do |f|
+      f.puts '#!/bin/bash'
+      f.puts 'ARGS='
+      f.puts 'NEXT_ARG_IS_SONAME=no'
+      f.puts 'for p in "$@"; do'
+      f.puts '    case $p in'
+      f.puts '        -Wl,-soname)'
+      f.puts '            NEXT_ARG_IS_SONAME=yes'
+      f.puts '            ;;'
+      f.puts '        *)'
+      f.puts '            if [ "$NEXT_ARG_IS_SONAME" = "yes" ]; then'
+      f.puts '                p=$(echo $p | sed "s,\.so.*$,.so,")'
+      f.puts '                NEXT_ARG_IS_SONAME=no'
+      f.puts '            fi'
+      f.puts '    esac'
+      f.puts '    ARGS="$ARGS $p"'
+      f.puts 'done'
+      f.puts "exec #{gcc} $ARGS"
     end
+    FileUtils.chmod "a+x", gcc_wrapper
+  end
 
-    def prepare_package(arch_list)
-      FileUtils.rm_rf package_dir
-      arch_list.each do |arch|
-        print "= building for architecture: #{arch.name}; abis: [ "
-        arch.abis.each { |abi| print "#{abi} "; build_for_abi(arch, abi) }
-        puts "]"
-      end
-      gen_android_mk
-      package_dir
-    end
-
-    private
-
-    def build_for_abi(arch, abi)
-      # preprare directories
-      base_dir = "#{BASE_DIR}/#{pkg_name}/#{abi}"
-      FileUtils.rm_rf base_dir
-      build_dir = "#{base_dir}/build"
-      install_dir = "#{base_dir}/install"
-      FileUtils.mkdir_p install_dir
-      FileUtils.cp_r "#{src_dir}/.", build_dir
-      logfile = "#{base_dir}/build.log"
-      # build
-      FileUtils.cd(build_dir) do
-        env = env_for_abi(arch, abi)
-        run env, logfile, "./configure --prefix=#{install_dir} --host=#{arch.host} #{configure.full_args(abi)}"
-        # todo: do not hardcode jobs number
-        run env, logfile, "make --jobs=16"
-        run env, logfile, "make install"
-      end
-      # copy headers and abi specific libs to the package dir
-      package_libs_and_headers abi, install_dir
-      # todo: clean if no-clean was not specified
-    end
-
-    def env_for_abi(arch, abi)
-      cflags  = cflags(abi)
-      ldflags = "#{ldflags(abi)} -L#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
-
-      tc_prefix = "#{Global::NDK_DIR}/toolchains/#{arch.toolchain}-#{GCC_VERSION}/prebuilt/#{File.basename(Global::TOOLS_DIR)}"
-      gcc = "#{tc_prefix}/bin/#{arch.host}-gcc --sysroot=#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
-      gcc_wrapper = "#{Dir.pwd}/cc"
-      gen_fix_soname_wrapper(gcc_wrapper, gcc)
-
-      env = {'CC'      => gcc_wrapper,
-             'CPP'     => "#{gcc_wrapper} #{cflags} -E",
-             'AR'      => "#{tc_prefix}/bin/#{arch.host}-ar",
-             'RANLIB'  => "#{tc_prefix}/bin/#{arch.host}-ranlib",
-             'CFLAGS'  => cflags,
-             'LDFLAGS' => ldflags
-            }
-    end
-
-    def package_libs_and_headers(abi, install_dir)
-      pkg_dir = package_dir
-      # copy headers if they were not copied yet
-      inc_dir = "#{pkg_dir}/include"
-      if !Dir.exists? inc_dir
-        FileUtils.mkdir_p pkg_dir
-        FileUtils.cp_r "#{install_dir}/include", pkg_dir
-      end
-      # copy libs
-      libs_dir = "#{pkg_dir}/libs/#{abi}"
-      FileUtils.mkdir_p libs_dir
-      libs_to_install.each { |lib| FileUtils.cp "#{install_dir}/lib/#{lib}", libs_dir }
-    end
-
-    def package_dir
-      "#{BASE_DIR}/#{@pkg_name}/package"
-    end
-
-    def cflags(abi)
-      case abi
-      when 'armeabi'
-        "-mthumb -march=armv5te -mtune=xscale -msoft-float"
-      when 'armeabi-v7a'
-        "-mthumb -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp"
-      when 'armeabi-v7a-hard'
-        "-mthumb -march=armv7-a -mfpu=vfpv3-d16 -mhard-float"
-      else
-        ""
-      end
-    end
-
-    def ldflags(abi)
-      case abi
-      when 'armeabi-v7a-hard'
-        '-Wl,--no-warn-mismatch'
-      else
-        ''
-      end
-    end
-
-    def run(env, logfile, cmd)
-      File.open(logfile, "a") do |log|
-        log.puts "== env: #{env}"
-        log.puts "== cmd started: #{cmd}"
-
-        rc = 0
-        Open3.popen2e(env, cmd) do |_, out, wt|
-          ot = Thread.start { out.read.split("\n").each { |l| log.puts l } }
-          ot.join
-          rc = wt && wt.value.exitstatus
-        end
-        log.puts "== cmd finished: exit code: #{rc} cmd: #{cmd}"
-        raise "run failed with code: #{rc}; see #{logfile} for details" unless rc == 0
-      end
-    end
-
-    # this wrapper removes versions from sonames
-    def gen_fix_soname_wrapper(gcc_wrapper, gcc)
-      File.open(gcc_wrapper, "w") do |f|
-        f.puts '#!/bin/bash'
-        f.puts 'ARGS='
-        f.puts 'NEXT_ARG_IS_SONAME=no'
-        f.puts 'for p in "$@"; do'
-        f.puts '    case $p in'
-        f.puts '        -Wl,-soname)'
-        f.puts '            NEXT_ARG_IS_SONAME=yes'
-        f.puts '            ;;'
-        f.puts '        *)'
-        f.puts '            if [ "$NEXT_ARG_IS_SONAME" = "yes" ]; then'
-        f.puts '                p=$(echo $p | sed "s,\.so.*$,.so,")'
-        f.puts '                NEXT_ARG_IS_SONAME=no'
-        f.puts '            fi'
-        f.puts '    esac'
-        f.puts '    ARGS="$ARGS $p"'
-        f.puts 'done'
-        f.puts "exec #{gcc} $ARGS"
-      end
-      FileUtils.chmod "a+x", gcc_wrapper
-    end
-
-    def gen_android_mk
-      filename = "#{package_dir}/Android.mk"
-      File.open(filename, "w") do |f|
-        f.puts COPYRIGHT_STR
+  def self.gen_android_mk(filename, libs)
+    File.open(filename, "w") do |f|
+      f.puts COPYRIGHT_STR
+      f.puts ""
+      f.puts "LOCAL_PATH := $(call my-dir)"
+      f.puts ""
+      libs.each do |lib|
+        f.puts "include $(CLEAR_VARS)"
+        f.puts "LOCAL_MODULE := #{lib}_static"
+        f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/#{lib}.a"
+        f.puts "LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include"
+        #f.puts "LOCAL_EXPORT_LDLIBS := #{m.params[:export_ldlibs]}" if m.params[:export_ldlibs]
+        f.puts "include $(PREBUILT_STATIC_LIBRARY)"
         f.puts ""
-        f.puts "LOCAL_PATH := $(call my-dir)"
+        f.puts "include $(CLEAR_VARS)"
+        f.puts "LOCAL_MODULE := #{lib}_shared"
+        f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/#{lib}.so"
+        f.puts "LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include"
+        #f.puts "LOCAL_EXPORT_LDLIBS := #{m.params[:export_ldlibs]}" if m.params[:export_ldlibs]
+        f.puts "include $(PREBUILT_SHARED_LIBRARY)"
         f.puts ""
-        mk_modules.each do |m|
-          f.puts "include $(CLEAR_VARS)"
-          f.puts "LOCAL_MODULE := #{m.name}_static"
-          f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/#{m.name}.a"
-          f.puts "LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include"
-          f.puts "LOCAL_EXPORT_LDLIBS := #{m.params[:export_ldlibs]}" if m.params[:export_ldlibs]
-          f.puts "include $(PREBUILT_STATIC_LIBRARY)"
-          f.puts ""
-          f.puts "include $(CLEAR_VARS)"
-          f.puts "LOCAL_MODULE := #{m.name}_shared"
-          f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/#{m.name}.so"
-          f.puts "LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include"
-          f.puts "LOCAL_EXPORT_LDLIBS := #{m.params[:export_ldlibs]}" if m.params[:export_ldlibs]
-          f.puts "include $(PREBUILT_SHARED_LIBRARY)"
-        end
       end
     end
+  end
+
+  def self.arch_for_abi(abi)
+    ARCH_LIST.select { |arch| arch.abis.include? abi } [0]
   end
 
   COPYRIGHT_STR = <<-EOS

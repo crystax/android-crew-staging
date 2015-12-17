@@ -108,14 +108,14 @@ class Formula
     end
 
     puts "unpacking archive"
-    install_release_archive release, cachepath
+    nstall_release_archive release, cachepath
 
   end
 
   def install_release_archive(release, archive)
     rel_dir = release_directory(release)
     prop = get_properties(rel_dir)
-    install_archive release, cachepath
+    install_archive release, archive
     prop.update get_properties(rel_dir)
     prop[:installed] = true
     release.installed = true
@@ -124,6 +124,10 @@ class Formula
 
   def installed?(release = Release.new)
     releases.any? { |r| r.match?(release) and r.installed? }
+  end
+
+  def source_installed?(release = Release.new)
+    releases.any? { |r| r.match?(release) and r.source_installed? }
   end
 
   class Dependency

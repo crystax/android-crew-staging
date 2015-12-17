@@ -14,30 +14,25 @@ module Crew
 
     args.each do |n|
       name, version = n.split(':')
-      outname = name + ((version and version != 'all') ? ':' + version : "")
+      outname = name + (version ? ':' + version : "")
 
       formula = formulary[name]
-      release = (version == 'all') ? Release.new : Release.new(version)
-      if !formula.installed?(release)
-        raise "#{outname} not installed"
-      end
 
-      # currently we do not care for dependency version, only formula name
-      ivers = (formula.releases.map { |r| r.installed? ? r.version : nil }).compact
-      ideps = formulary.dependants_of(name).select { |f| f.installed? }
-      if ideps.count > 0 and (ivers.count == 1 or version == 'all')
+      release = Release.new(version)
+      raise "#{outname} is not installed" if !formula.installed?(release)
+
+      survive_rm = formula.releases.select { |r| r.installed? and !r.match(release) }
+      ideps = formulary.dependants_of(name).select { |d| d.installed? }
+      if ideps.count > 0 and survice_rm.count == 0
         raise "#{outname} has installed dependants: #{ideps.map{|f| f.name}.join(', ')}"
       end
 
-      if ivers.count == 1
-        formula.uninstall(ivers[0])
-      elsif !version
-        raise "more than one version of #{name} installed"
-      elsif version != 'all'
-        formula.uninstall(version)
-      else
-        ivers.each { |v| formula.uninstall(v) }
-      end
+      formula.release.each { |r| formula.uninstall(r) if r.installed? and r.match?(release) }
+
+      # todo: update root android.mk
+      # if options[:rm_binary]
+      #   formula.actualize_root_android_mk
+      # end
     end
   rescue FormulaUnavailableError => exc
     if not Formulary.utilities.member? exc.name

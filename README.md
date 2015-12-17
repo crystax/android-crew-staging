@@ -161,7 +161,7 @@ Example:
     unpacking: .....
 
 
-### remove name[:version|:all] ...
+### remove name[:version] ...
 
 For every specified formula (and possibly version) the ``remove`` command
 works as follows:
@@ -170,17 +170,11 @@ works as follows:
   and return with error message;
 
 * if there are installed formulas that depend on the specified release
-  and no more releases of the formula are installed then command will do
-  nothing and return with error message;
+  and as a result of the command execution all releases of the formula
+  will be removed then command will terminate with error message;
 
-* if only formula name was specified and more than one version is
-  installed then command will do nothing and return with error message;
-
-* if only formula name was specified and only one version is installed
-  then formula will be removed;
-
-* if formula was specified like this 'name:all' then all installed
-  versions will be removed;
+* if only formula name was specified then all installed versions will be
+  removed;
 
 * otherwise only the specified version will be removed.
 
@@ -189,20 +183,13 @@ Example:
     $ crew remove icu4c
     error: boost+icu4c depends on icu4c
 
-    $ crew remove boost
-    error: more than one version installed
-
-    $ crew remove boost:1.56.0
-    uninstalling boost-1.56.0 ...
-
-    $ crew remove boost:all
-    uninstalling boost-1.57.0 ...
-    uninstalling boost-1.58.0 ...
-    uninstalling boost-1.59.0 ...
+    $ crew remove boost+icu4c
+    uninstalling boost+icu4c-1.57.0 ...
+    uninstalling boost+icu4c-1.58.0 ...
+    uninstalling boost+icu4c-1.59.0 ...
 
     $ crew remove icu
     uninstalling icu-54.1 ...
-    error: boost+icu4c depends on icu4c
 
 
 ### source name[[:version]:crystax_version] ...
