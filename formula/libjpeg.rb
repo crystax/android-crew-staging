@@ -9,11 +9,17 @@ class Libjpeg < Library
 
   release version: '9a', crystax_version: 1, sha256: '0'
 
-  def build(src_dir, arch_list)
-    configure = Build::Configure.new(['--enable-shared', '--enable-static', '--with-pic', '--disable-ld-version-script'])
-    mk_modules = [ Build::AndroidMkModule.new(name) ]
-    #
-    builder = Build::Builder.new(name, src_dir, configure, mk_modules)
-    builder.prepare_package arch_list
+  def build_for_abi(abi)
+    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
+              "--host=#{host_for_abi(abi)}",
+              "--enable-shared",
+              "--enable-static",
+              "--with-pic",
+              "--disable-ld-version-script"
+            ]
+
+    system './configure', *args
+    system 'make'
+    system 'make', 'install'
   end
 end
