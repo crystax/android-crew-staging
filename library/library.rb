@@ -104,7 +104,7 @@ class Library < Formula
 
   def self.build_libs(*args)
     if args.size == 0
-      @build_libs ? @build_libs : []
+      @build_libs ? @build_libs : [ name ]
     else
       @build_libs = args
     end
