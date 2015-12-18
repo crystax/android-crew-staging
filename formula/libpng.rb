@@ -9,12 +9,21 @@ class Libpng < Library
 
   release version: '1.6.19', crystax_version: 1, sha256: '0'
 
-  def build(src_dir, arch_list)
-    configure = Build::Configure.new(['--enable-shared', '--enable-static', '--enable-werror', '--enable-unversioned-links', '--with-pic'])
-    configure.add_extra_args 'armeabi-v7a' => ['--enable-arm-neon=api'], 'armeabi-v7a-hard' => ['--enable-arm-neon=api']
-    mk_modules = [ Build::AndroidMkModule.new(name, export_ldlibs: "-lz") ]
-    #
-    builder = Build::Builder.new(name, src_dir, configure, mk_modules)
-    builder.prepare_package arch_list
+  build_options export_ldlibs: '-lz'
+
+  def build_for_abi(abi)
+    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
+              "--host=#{host_for_abi(abi)}",
+              "--enable-shared",
+              "--enable-static",
+              "--enable-werror",
+              "--with-pic",
+              "--enable-unversioned-links"
+            ]
+    args << '--enable-arm-neon=api' if abi == 'armeabi-v7a' or abi == 'armeabi-v7a-hard'
+
+    system './configure', *args
+    system 'make'
+    system 'make', 'install'
   end
 end
