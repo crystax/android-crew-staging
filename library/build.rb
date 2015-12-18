@@ -92,7 +92,7 @@ module Build
     FileUtils.chmod "a+x", gcc_wrapper
   end
 
-  def self.gen_android_mk(filename, libs)
+  def self.gen_android_mk(filename, libs, options)
     File.open(filename, "w") do |f|
       f.puts COPYRIGHT_STR
       f.puts ""
@@ -103,14 +103,14 @@ module Build
         f.puts "LOCAL_MODULE := #{lib}_static"
         f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/#{lib}.a"
         f.puts "LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include"
-        #f.puts "LOCAL_EXPORT_LDLIBS := #{m.params[:export_ldlibs]}" if m.params[:export_ldlibs]
+        f.puts "LOCAL_EXPORT_LDLIBS := #{options[:export_ldlibs]}" if options[:export_ldlibs]
         f.puts "include $(PREBUILT_STATIC_LIBRARY)"
         f.puts ""
         f.puts "include $(CLEAR_VARS)"
         f.puts "LOCAL_MODULE := #{lib}_shared"
         f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/#{lib}.so"
         f.puts "LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include"
-        #f.puts "LOCAL_EXPORT_LDLIBS := #{m.params[:export_ldlibs]}" if m.params[:export_ldlibs]
+        f.puts "LOCAL_EXPORT_LDLIBS := #{options[:export_ldlibs]}" if options[:export_ldlibs]
         f.puts "include $(PREBUILT_SHARED_LIBRARY)"
         f.puts ""
       end

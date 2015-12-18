@@ -85,7 +85,7 @@ class Library < Formula
       end
       puts "]"
     end
-    Build.gen_android_mk "#{package_dir}/Android.mk", build_libs
+    Build.gen_android_mk "#{package_dir}/Android.mk", build_libs, build_options
 
     # pack archive and copy into cache dir
     archive = "#{Build::CACHE_DIR}/#{archive_filename(release)}"
@@ -110,8 +110,16 @@ class Library < Formula
     end
   end
 
+  class << self
+    attr_rw :build_options
+  end
+
   def build_libs
     self.class.build_libs
+  end
+
+  def build_options
+    self.class.build_options
   end
 
   private
