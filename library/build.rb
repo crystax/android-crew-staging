@@ -14,8 +14,11 @@ module Build
   BASE_DIR  = "/tmp/ndk-#{USER}/target"
   CACHE_DIR = "/var/tmp/ndk-cache-#{USER}"
 
+  GNUSTL_TYPE = 'gnustl'
+
   class Arch
     attr_reader :name, :min_api_level, :host, :toolchain, :abis
+    attr_accessor :abis_to_build
 
     def initialize(name, api, host, toolchain, abis)
       @name = name
@@ -23,17 +26,36 @@ module Build
       @host = host
       @toolchain = toolchain
       @abis = abis
+      @abis_to_build = []
+    end
+
+    def dup
+      arch = Arch.new(name, min_api_level, host, toolchain, abis)
+      arch.abis_to_build = abis_to_build.dup
+      arch
     end
   end
 
-  ARCH_LIST = [ Arch.new('arm',    MIN_32_API_LEVEL, 'arm-linux-androideabi',  'arm-linux-androideabi',  ['armeabi', 'armeabi-v7a', 'armeabi-v7a-hard']),
-                Arch.new('x86',    MIN_32_API_LEVEL, 'i686-linux-android',     'x86',                    ['x86']),
-                Arch.new('mips',   MIN_32_API_LEVEL, 'mipsel-linux-android',   'mipsel-linux-android',   ['mips']),
-                Arch.new('arm64',  MIN_64_API_LEVEL, 'aarch64-linux-android',  'aarch64-linux-android',  ['arm64-v8a']),
-                Arch.new('x86_64', MIN_64_API_LEVEL, 'x86_64-linux-android',   'x86_64',                 ['x86_64']),
-                Arch.new('mips64', MIN_64_API_LEVEL, 'mips64el-linux-android', 'mips64el-linux-android', ['mips64'])
+  ARCH_LIST = [ Arch.new('arm',    MIN_32_API_LEVEL, 'arm-linux-androideabi',  'arm-linux-androideabi',  ['armeabi', 'armeabi-v7a', 'armeabi-v7a-hard'].freeze),
+                Arch.new('x86',    MIN_32_API_LEVEL, 'i686-linux-android',     'x86',                    ['x86']).freeze,
+                Arch.new('mips',   MIN_32_API_LEVEL, 'mipsel-linux-android',   'mipsel-linux-android',   ['mips']).freeze,
+                Arch.new('arm64',  MIN_64_API_LEVEL, 'aarch64-linux-android',  'aarch64-linux-android',  ['arm64-v8a']).freeze,
+                Arch.new('x86_64', MIN_64_API_LEVEL, 'x86_64-linux-android',   'x86_64',                 ['x86_64']).freeze,
+                Arch.new('mips64', MIN_64_API_LEVEL, 'mips64el-linux-android', 'mips64el-linux-android', ['mips64']).freeze
               ]
 
+  def self.def_arch_list_to_build
+    ARCH_LIST.map { |a| b = a.dup ; b.abis_to_build = b.abis ; b }
+  end
+
+  def self.abis_to_arch_list(abis)
+    arch_list = ARCH_LIST.map { |a| a.dup }
+    abis.each do |abi|
+      arch = arch_for_abi(abi, arch_list)
+      arch.abis_to_build << abi
+    end
+    arch_list.select { |a| not a.abis_to_build.empty? }
+  end
 
   def self.cflags(abi)
     case abi
@@ -57,19 +79,39 @@ module Build
     f
   end
 
+  def self.search_path_for_stl_includes(stl_type, abi)
+    case stl_type
+    when GNUSTL_TYPE
+      "-I#{Global::NDK_DIR}/sources/cxx-stl/gnu-libstdc++/#{GCC_VERSION}/include " \
+      "-I#{Global::NDK_DIR}/sources/cxx-stl/gnu-libstdc++/#{GCC_VERSION}/libs/#{abi}/include"
+    else
+      raise "unknow STL type: #{stl_type}"
+    end
+  end
+
+  def self.search_path_for_stl_libs(stl_type, abi)
+    case stl_type
+    when GNUSTL_TYPE
+      "-L#{Global::NDK_DIR}/sources/cxx-stl/gnu-libstdc++/#{GCC_VERSION}/libs/#{abi}"
+    else
+      raise "unknow STL type: #{stl_type}"
+    end
+  end
+
   def self.tools(abi)
     arch = arch_for_abi(abi)
     tc_prefix = "#{Global::NDK_DIR}/toolchains/#{arch.toolchain}-#{GCC_VERSION}/prebuilt/#{File.basename(Global::TOOLS_DIR)}"
 
-    gcc    = "#{tc_prefix}/bin/#{arch.host}-gcc --sysroot=#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
+    gcc    = "#{tc_prefix}/bin/#{arch.host}-gcc"
+    gxx    = "#{tc_prefix}/bin/#{arch.host}-g++"
     ar     = "#{tc_prefix}/bin/#{arch.host}-ar"
     ranlib = "#{tc_prefix}/bin/#{arch.host}-ranlib"
 
-    [gcc, ar, ranlib]
+    [gcc, gxx, ar, ranlib]
   end
 
   # this wrapper removes versions from sonames
-  def self.gen_fix_soname_wrapper(gcc_wrapper, gcc)
+  def self.gen_cc_wrapper__fix_soname(gcc_wrapper, gcc)
     File.open(gcc_wrapper, "w") do |f|
       f.puts '#!/bin/bash'
       f.puts 'ARGS='
@@ -90,6 +132,23 @@ module Build
       f.puts "exec #{gcc} $ARGS"
     end
     FileUtils.chmod "a+x", gcc_wrapper
+  end
+
+  def self.gen_cxx_wrapper__fix_stl(gxx_wrapper, gxx, stl)
+    File.open(gxx_wrapper, "w") do |f|
+      f.puts '#!/bin/bash'
+      f.puts 'ARGS=""'
+      f.puts 'for p in "$@"; do'
+      f.puts '  case $p in'
+      f.puts '    -lstdc++)'
+      f.puts "       p=\"-l#{stl}_shared $p\""
+      f.puts '       ;;'
+      f.puts '  esac'
+      f.puts '  ARGS="$ARGS $p"'
+      f.puts 'done'
+      f.puts ''
+      f.puts "exec #{gxx} $ARGS"
+    end
   end
 
   def self.gen_android_mk(filename, libs, options)
@@ -117,8 +176,13 @@ module Build
     end
   end
 
-  def self.arch_for_abi(abi)
-    ARCH_LIST.select { |arch| arch.abis.include? abi } [0]
+  def self.arch_for_abi(abi, arch_list = ARCH_LIST)
+    arch_list.select { |arch| arch.abis.include? abi } [0]
+  end
+
+  def self.sysroot(abi)
+    arch = arch_for_abi(abi)
+    " --sysroot=#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
   end
 
   COPYRIGHT_STR = <<-EOS

@@ -29,14 +29,8 @@ module Crew
       end
 
       puts "calculating dependencies for #{name}: "
-      deps, spacereq = formula.full_dependencies(formulary, release)
+      deps = formula.full_dependencies(formulary).select { |d| not d.installed? }
       puts "  dependencies to install: #{(deps.map { |d| d.name }).join(', ')}"
-      # todo: implement support
-      # puts "  space required: #{spacereq}"
-
-      if available_disk_space < spacereq
-        raise "not enough disk space to install #{name} and it's dependencies"
-      end
 
       if deps.count > 0
         puts "installing dependencies for #{name}:"
@@ -48,10 +42,5 @@ module Crew
 
       puts "" if index + 1 < args.count
     end
-  end
-
-  def self.available_disk_space
-    # todo: all
-    1
   end
 end

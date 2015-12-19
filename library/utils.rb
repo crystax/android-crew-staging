@@ -62,6 +62,17 @@ module Utils
     run_command(crew_tar_prog, *args)
   end
 
+   def self.processor_count
+    case Global::OS
+    when /darwin/
+      `sysctl -n hw.ncpu`.to_i
+    when /linux/
+      `cat /proc/cpuinfo | grep processor | wc -l`.to_i
+    else
+      raise "this OS (#{Global::OS}) is not supported to count processors"
+    end
+  end
+
   # private
 
   def self.crew_curl_prog

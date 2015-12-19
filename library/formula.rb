@@ -65,24 +65,21 @@ class Formula
     self.class.dependencies ? self.class.dependencies : []
   end
 
-  def full_dependencies(formulary, release)
+  def full_dependencies(formulary)
     result = []
-    size = 0 # todo: set to the size of the required release: {version:, crystax_version:}
     deps = dependencies
 
     while deps.size > 0
       n = deps.first.name
       deps = deps.slice(1, deps.size)
       f = formulary[n]
-      next if f.installed?
-      if !result.include?(f)
+      if not result.include? f
         result << f
-        # todo: update size
       end
       deps += f.dependencies
     end
 
-    [result, size]
+    result
   end
 
   def cache_file(release)
@@ -186,6 +183,12 @@ class Formula
   def find_release(release)
     rel = releases.reverse_each.find { |r| r.match?(release) }
     raise ReleaseNotFound.new(name, release) unless rel
+    rel
+  end
+
+  def highest_installed_release
+    rel = releases.select{ |r| r.installed? }.last
+    raise "#{name} has no installed releases" if not rel
     rel
   end
 

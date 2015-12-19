@@ -4,6 +4,7 @@ require 'fileutils'
 require_relative 'formula.rb'
 require_relative 'release.rb'
 require_relative 'build.rb'
+require_relative 'build_options.rb'
 
 
 class Library < Formula
@@ -67,51 +68,90 @@ class Library < Formula
     save_properties prop, rel_dir
   end
 
-  def build_package(release)
+  def build_package(release, options, dep_dirs)
     puts "Building #{name} #{release} for architectures: #{Build::ARCH_LIST.map{|a| a.name}.join(' ')}"
-    FileUtils.rm_rf "#{Build::BASE_DIR}/#{name}"
 
+    base_dir = "#{Build::BASE_DIR}/#{name}"
+    FileUtils.rm_rf base_dir
     src_dir = "#{release_directory(release)}/#{SRC_DIR_BASENAME}"
-    Build::ARCH_LIST.each do |arch|
+
+    arch_list = options.abis ? Build.abis_to_arch_list(options.abis) : Build.def_arch_list_to_build
+    arch_list.each do |arch|
       print "= building for architecture: #{arch.name}; abis: [ "
       arch.abis.each do |abi|
         print "#{abi} "
         FileUtils.mkdir_p base_dir_for_abi(abi)
         build_dir = build_dir_for_abi(abi)
         FileUtils.cp_r "#{src_dir}/.", build_dir
+        #patch.apply src_dir if patch
         prepare_env_for abi
-        FileUtils.cd(build_dir) { build_for_abi(abi) }
+        FileUtils.cd(build_dir) { build_for_abi(abi, dep_dirs) }
         package_libs_and_headers abi
+        FileUtils.rm_rf base_dir_for_abi(abi) unless options.no_clean?
       end
       puts "]"
     end
     Build.gen_android_mk "#{package_dir}/Android.mk", build_libs, build_options
 
-    # pack archive and copy into cache dir
-    archive = "#{Build::CACHE_DIR}/#{archive_filename(release)}"
-    puts "Creating archive file #{archive}"
-    Utils.pack(archive, package_dir)
+    if options.build_only?
+      puts "Build only, no packaging and installing"
+    else
+      # pack archive and copy into cache dir
+      archive = "#{Build::CACHE_DIR}/#{archive_filename(release)}"
+      puts "Creating archive file #{archive}"
+      Utils.pack(archive, package_dir)
 
-    # install into packages (and update props if any)
-    puts "Unpacking archive into #{release_directory(release)}"
-    install_release_archive release, archive
+      # install into packages (and update props if any)
+      puts "Unpacking archive into #{release_directory(release)}"
+      install_release_archive release, archive
+    end
 
     # calculate and update shasum if asked for
     # todo:
-    # full cleanup if no-clean was not specified
-    # todo:
-  end
 
-  def self.build_libs(*args)
-    if args.size == 0
-      @build_libs ? @build_libs : [ name ]
+    if options.no_clean?
+      puts "No cleanup, for build artifacts see #{base_dir}"
     else
-      @build_libs = args
+      FileUtils.rm_rf base_dir
     end
   end
 
+  DEF_BUILD_OPTIONS = { sysroot_in_cflags: true,
+                        use_cxx:           false,
+                        stl_type:          Build::GNUSTL_TYPE
+                      }.freeze
+
   class << self
-    attr_rw :build_options
+
+    def build_libs(*args)
+      if args.size == 0
+        @build_libs ? @build_libs : [ name ]
+      else
+        @build_libs = args
+      end
+    end
+
+    def build_options(hash = nil)
+      if hash == nil
+        @build_options ? @build_options : DEF_BUILD_OPTIONS.dup
+      else
+        @build_options = DEF_BUILD_OPTIONS.dup unless @build_options
+        @build_options.update hash
+      end
+    end
+
+    def num_jobs(n = nil)
+      n ? @num_jobs = n : (@num_jobs ? num_jobs : Utils.processor_count * 2)
+    end
+
+    def patch(type = nil)
+      if not type
+        @patch
+      else
+        raise "unsupported patch type: #{type}" unless type == :DATA
+        @patch = Crew::DataPatch.new
+      end
+    end
   end
 
   def build_libs
@@ -122,10 +162,18 @@ class Library < Formula
     self.class.build_options
   end
 
+  def num_jobs
+    self.class.num_jobs
+  end
+
+  def patch
+    self.class.patch
+  end
+
   private
 
   def version_url(version)
-    url.gsub('{version}', version)
+    url.gsub('${version}', version)
   end
 
   def archive_filename(release)
@@ -177,18 +225,41 @@ class Library < Formula
 
     cflags  = Build.cflags(abi)
     ldflags = Build.ldflags(abi)
-    gcc, ar, ranlib = Build.tools(abi)
+    gcc, gxx, ar, ranlib = Build.tools(abi)
 
-    gcc_wrapper = "#{build_dir_for_abi(abi)}/cc"
-    Build.gen_fix_soname_wrapper(gcc_wrapper, gcc)
+    if build_options[:sysroot_in_cflags]
+      cflags += ' ' + Build.sysroot(abi)
+    else
+      gcc += ' ' + Build.sysroot(abi)
+      gxx += ' ' + Build.sysroot(abi)
+    end
 
-    @env = {'CC'      => gcc_wrapper,
-            'CPP'     => "#{gcc_wrapper} #{cflags} -E",
+    stl_type = build_options[:stl_type]
+
+    if not build_options[:use_cxx]
+      cc = "#{build_dir_for_abi(abi)}/cc"
+      Build.gen_cc_wrapper__fix_soname(cc, gcc)
+    else
+      cc = gcc
+      cxx = "#{build_dir_for_abi(abi)}/c++"
+      Build.gen_cxx_wrapper__fix_stl(cxx, gxx, stl_type)
+      cxxflags = cflags + ' ' + Build.search_path_for_stl_includes(stl_type, abi)
+      ldflags += ' ' + Build.search_path_for_stl_libs(stl_type, abi)
+    end
+
+    @env = {'CC'      => cc,
+            'CPP'     => "#{cc} #{cflags} -E",
             'AR'      => ar,
             'RANLIB'  => ranlib,
             'CFLAGS'  => cflags,
             'LDFLAGS' => ldflags
            }
+
+    if build_options[:use_cxx]
+      @env['CXX'] = cxx
+      @env['CXXCPP'] = "#{cxx} #{cxxflags} -E"
+      @env['CXXFLAGS'] = cxxflags
+    end
   end
 
   def package_libs_and_headers(abi)
