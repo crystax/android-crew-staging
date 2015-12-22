@@ -52,10 +52,6 @@ class Formula
     self.class.homepage
   end
 
-  def url
-    self.class.url
-  end
-
   # NB: releases are stored in the order they're written in the formula file
   def releases
     self.class.releases
@@ -141,7 +137,7 @@ class Formula
 
   class << self
 
-    attr_rw :name, :desc, :homepage, :url, :space_reqired
+    attr_rw :name, :desc, :homepage, :space_reqired
 
     attr_reader :releases, :dependencies
 

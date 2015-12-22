@@ -126,6 +126,14 @@ class Library < Formula
 
   class << self
 
+    def url(url = nil, &block)
+      if url == nil
+        [@url, @block]
+      else
+        @url, @block = url, block
+      end
+    end
+
     def build_libs(*args)
       if args.size == 0
         @build_libs ? @build_libs : [ name ]
@@ -157,6 +165,10 @@ class Library < Formula
     end
   end
 
+  def url
+    self.class.url
+  end
+
   def build_libs
     self.class.build_libs
   end
@@ -176,7 +188,13 @@ class Library < Formula
   private
 
   def version_url(version)
-    url.gsub('${version}', version)
+    str, block = url
+    str.gsub! '${version}', version
+    if block
+      br = block.call(version)
+      str.gsub! '${block}', br
+    end
+    str
   end
 
   def archive_filename(release)
