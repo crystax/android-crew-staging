@@ -9,6 +9,7 @@ module Utils
   @@crew_tar_prog  = nil
 
   @@patch_prog = '/usr/bin/patch'
+  @@unzip_prog = '/usr/bin/unzip'
 
 
   def self.run_command(prog, *args)
@@ -53,9 +54,16 @@ module Utils
   end
 
   def self.unpack(archive, outdir)
-    add_path_to_archivers
-    args = ["-C", "#{outdir}", "-xf", "#{archive}"]
-    run_command(crew_tar_prog, *args)
+    case File.extname(archive)
+    when '.zip'
+      args = [archive, "-d", outdir]
+      prog = unzip_prog
+    else
+      add_path_to_archivers
+      args = ["-C", outdir, "-xf", archive]
+      prog = crew_tar_prog
+    end
+      run_command(prog, *args)
   end
 
   def self.pack(archive, indir)
@@ -64,7 +72,7 @@ module Utils
     run_command(crew_tar_prog, *args)
   end
 
-   def self.processor_count
+  def self.processor_count
     case Global::OS
     when /darwin/
       `sysctl -n hw.ncpu`.to_i
@@ -73,12 +81,17 @@ module Utils
     else
       raise "this OS (#{Global::OS}) is not supported to count processors"
     end
-   end
+  end
 
-   def self.patch_prog
-     # todo: use crew's own patch program?
-     @@patch_prog
-   end
+  def self.patch_prog
+    # todo: use crew's own patch program?
+    @@patch_prog
+  end
+
+  def self.unzip_prog
+    # todo: use crew's own patch program?
+    @@unzip_prog
+  end
 
   # private
 
