@@ -1,10 +1,12 @@
 require 'uri'
 require 'tmpdir'
 require 'fileutils'
+require 'open3'
 require_relative 'formula.rb'
 require_relative 'release.rb'
 require_relative 'build.rb'
 require_relative 'build_options.rb'
+require_relative 'patch.rb'
 
 
 class Library < Formula
@@ -69,21 +71,22 @@ class Library < Formula
   end
 
   def build_package(release, options, dep_dirs)
-    puts "Building #{name} #{release} for architectures: #{Build::ARCH_LIST.map{|a| a.name}.join(' ')}"
+    arch_list = options.abis ? Build.abis_to_arch_list(options.abis) : Build.def_arch_list_to_build
+    puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
 
     base_dir = "#{Build::BASE_DIR}/#{name}"
     FileUtils.rm_rf base_dir
     src_dir = "#{release_directory(release)}/#{SRC_DIR_BASENAME}"
 
-    arch_list = options.abis ? Build.abis_to_arch_list(options.abis) : Build.def_arch_list_to_build
     arch_list.each do |arch|
       print "= building for architecture: #{arch.name}; abis: [ "
-      arch.abis.each do |abi|
+      arch.abis_to_build.each do |abi|
         print "#{abi} "
         FileUtils.mkdir_p base_dir_for_abi(abi)
         build_dir = build_dir_for_abi(abi)
         FileUtils.cp_r "#{src_dir}/.", build_dir
-        #patch.apply src_dir if patch
+        @log_file = log_file_for_abi(abi)
+        patch.apply self, build_dir, @log_file if patch
         prepare_env_for abi
         FileUtils.cd(build_dir) { build_for_abi(abi, dep_dirs) }
         package_libs_and_headers abi
@@ -149,7 +152,7 @@ class Library < Formula
         @patch
       else
         raise "unsupported patch type: #{type}" unless type == :DATA
-        @patch = Crew::DataPatch.new
+        @patch = Patch::FromData.new
       end
     end
   end
@@ -221,8 +224,6 @@ class Library < Formula
   end
 
   def prepare_env_for(abi)
-    @log_file = log_file_for_abi(abi)
-
     cflags  = Build.cflags(abi)
     ldflags = Build.ldflags(abi)
     gcc, gxx, ar, ranlib = Build.tools(abi)

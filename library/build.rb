@@ -149,6 +149,7 @@ module Build
       f.puts ''
       f.puts "exec #{gxx} $ARGS"
     end
+    FileUtils.chmod "a+x", gxx_wrapper
   end
 
   def self.gen_android_mk(filename, libs, options)

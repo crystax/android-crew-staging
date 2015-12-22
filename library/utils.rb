@@ -8,6 +8,8 @@ module Utils
   @@crew_curl_prog = nil
   @@crew_tar_prog  = nil
 
+  @@patch_prog = '/usr/bin/patch'
+
 
   def self.run_command(prog, *args)
     cmd = to_cmd_s(prog, *args)
@@ -71,7 +73,12 @@ module Utils
     else
       raise "this OS (#{Global::OS}) is not supported to count processors"
     end
-  end
+   end
+
+   def self.patch_prog
+     # todo: use crew's own patch program?
+     @@patch_prog
+   end
 
   # private
 

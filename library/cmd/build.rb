@@ -36,6 +36,6 @@ module Crew
     opts = args.take_while { |a| a.start_with? '--' }
     args = args.drop_while { |a| a.start_with? '--' }
 
-    [Crew::Build_options.new(opts), args]
+    [Build_options.new(opts), args]
   end
 end
