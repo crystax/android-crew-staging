@@ -1,6 +1,3 @@
-require_relative '../library/utils.rb'
-require_relative '../library/build.rb'
-
 class Libjpeg < Library
 
   desc "JPEG image manipulation library"
