@@ -13,6 +13,11 @@ class Library < Formula
 
   SRC_DIR_BASENAME = 'src'
 
+  def initialize(path)
+    super path
+    @env = {}
+  end
+
   def release_directory(release)
     File.join(Global::HOLD_DIR, name, release.version)
   end
@@ -101,7 +106,7 @@ class Library < Formula
         FileUtils.cp_r "#{src_dir}/.", build_dir
         @log_file = log_file_for_abi(abi)
         patch.apply self, build_dir, @log_file if patch
-        prepare_env_for abi
+        prepare_env_for abi unless build_options[:ndk_build]
         FileUtils.cd(build_dir) { build_for_abi(abi, dep_dirs) }
         package_libs_and_headers abi
         FileUtils.rm_rf base_dir_for_abi(abi) unless options.no_clean?
@@ -135,7 +140,8 @@ class Library < Formula
 
   DEF_BUILD_OPTIONS = { sysroot_in_cflags: true,
                         use_cxx:           false,
-                        stl_type:          Build::GNUSTL_TYPE
+                        stl_type:          Build::GNUSTL_TYPE,
+                        ndk_build:         false
                       }.freeze
 
   class << self
