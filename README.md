@@ -250,6 +250,27 @@ Example:
     Buiding JPEG for architectures: ...
 
 
+### remove-source name[:version] ...
+
+For every specified formula (and possibly version) the ``remove-source`` command
+will remove installed source code.
+
+If source code for the specified formula is not installed then command
+will do nothing and return with error message.
+
+If only formula name was specified then command will remove all
+installed source code for the specified formula.
+
+Example:
+
+    $ crew remove-source boost:1.57.0
+    removing source code for boost-1.57.0 ...
+
+    $ crew remove-source boost
+    removing source code for boost-1.58.0 ...
+    removing source code for boost-1.59.0 ...
+
+
 ### update
 
 Update crew repository information; this command never installs any

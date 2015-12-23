@@ -31,9 +31,9 @@ class Library < Formula
     if not release.sources_installed?
       FileUtils.rm_rf rel_dir
     else
-      props = get_properties(rel_dir)
+      prop = get_properties(rel_dir)
       FileUtils.rm_rf binary_files(rel_dir)
-      props[:installed] = false
+      prop[:installed] = false
       save_properties prop, rel_dir
     end
     release.installed = false
@@ -68,6 +68,20 @@ class Library < Formula
 
     prop[:source_installed] = true
     save_properties prop, rel_dir
+  end
+
+  def uninstall_source(release)
+    puts "uninstalling source code for #{name}:#{release.version}"
+    rel_dir = release_directory(release)
+    if not release.installed?
+      FileUtils.rm_rf rel_dir
+    else
+      prop = get_properties(rel_dir)
+      FileUtils.rm_rf "#{rel_dir}/SRC_DIR_BASENAME"
+      prop[:source_installed] = false
+      save_properties prop, rel_dir
+    end
+    release.source_installed = false
   end
 
   def build_package(release, options, dep_dirs)

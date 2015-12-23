@@ -27,12 +27,14 @@ module Crew
         raise "#{outname} has installed dependants: #{ideps.map{|f| f.name}.join(', ')}"
       end
 
-      formula.release.each { |r| formula.uninstall(r) if r.installed? and r.match?(release) }
+      formula.releases.each { |r| formula.uninstall(r) if r.installed? and r.match?(release) }
 
       # todo: update root android.mk
       # if options[:rm_binary]
       #   formula.actualize_root_android_mk
       # end
+
+      # todo: clean empty dirs
     end
   rescue FormulaUnavailableError => exc
     if not Formulary.utilities.member? exc.name
