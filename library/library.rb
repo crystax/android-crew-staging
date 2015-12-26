@@ -13,9 +13,27 @@ class Library < Formula
 
   SRC_DIR_BASENAME = 'src'
 
+  DEF_BUILD_OPTIONS = { gen_c_wrapper:      true,
+                        sysroot_in_cflags:  true,
+                        use_cxx:            false,
+                        gen_cxx_wrapper:    true,
+                        stl_type:           Build::GNUSTL_TYPE,
+                        ndk_build:          false,
+                        wrapper_fix_soname: true,
+                        wrapper_fix_stl:    nil,
+                        wrapper_filter_out: nil
+                      }.freeze
+
+  attr_reader :prebuild_result
+  attr_accessor :build_env
+  attr_rw :num_jobs
+
   def initialize(path)
     super path
-    @env = {}
+
+    @build_env = {}
+    @prebuild_result = nil
+    @num_jobs = Utils.processor_count * 2
   end
 
   def release_directory(release)
@@ -33,7 +51,7 @@ class Library < Formula
   def uninstall(release)
     puts "removing #{name}:#{release.version}"
     rel_dir = release_directory(release)
-    if not release.sources_installed?
+    if not release.source_installed?
       FileUtils.rm_rf rel_dir
     else
       prop = get_properties(rel_dir)
@@ -70,6 +88,11 @@ class Library < Formula
     diff = old_dir.empty? ? new_dir : new_dir - old_dir
     raise "source archive does not have top directory, diff: #{diff}" if diff.count != 1
     FileUtils.cd(rel_dir) { FileUtils.mv diff[0], SRC_DIR_BASENAME }
+    if patch
+      src_dir = "#{rel_dir}/#{SRC_DIR_BASENAME}"
+      puts "= patching in dir #{src_dir}"
+      patch.apply self, src_dir
+    end
 
     prop[:source_installed] = true
     save_properties prop, rel_dir
@@ -89,13 +112,20 @@ class Library < Formula
     release.source_installed = false
   end
 
+  def prebuild(src_dir)
+    nil
+  end
+
   def build_package(release, options, dep_dirs)
     arch_list = options.abis ? Build.abis_to_arch_list(options.abis) : Build.def_arch_list_to_build
     puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
 
-    base_dir = "#{Build::BASE_DIR}/#{name}"
+    base_dir = build_base_dir
     FileUtils.rm_rf base_dir
     src_dir = "#{release_directory(release)}/#{SRC_DIR_BASENAME}"
+    @log_file = build_log_file
+
+    @prebuild_result = prebuild(src_dir)
 
     arch_list.each do |arch|
       print "= building for architecture: #{arch.name}; abis: [ "
@@ -104,8 +134,6 @@ class Library < Formula
         FileUtils.mkdir_p base_dir_for_abi(abi)
         build_dir = build_dir_for_abi(abi)
         FileUtils.cp_r "#{src_dir}/.", build_dir
-        @log_file = log_file_for_abi(abi)
-        patch.apply self, build_dir, @log_file if patch
         prepare_env_for abi unless build_options[:ndk_build]
         FileUtils.cd(build_dir) { build_for_abi(abi, dep_dirs) }
         package_libs_and_headers abi
@@ -138,12 +166,6 @@ class Library < Formula
     end
   end
 
-  DEF_BUILD_OPTIONS = { sysroot_in_cflags: true,
-                        use_cxx:           false,
-                        stl_type:          Build::GNUSTL_TYPE,
-                        ndk_build:         false
-                      }.freeze
-
   class << self
 
     def url(url = nil, &block)
@@ -171,10 +193,6 @@ class Library < Formula
       end
     end
 
-    def num_jobs(n = nil)
-      n ? @num_jobs = n : (@num_jobs ? num_jobs : Utils.processor_count * 2)
-    end
-
     def patch(type = nil)
       if not type
         @patch
@@ -195,10 +213,6 @@ class Library < Formula
 
   def build_options
     self.class.build_options
-  end
-
-  def num_jobs
-    self.class.num_jobs
   end
 
   def patch
@@ -241,8 +255,12 @@ class Library < Formula
     "#{Build::BASE_DIR}/#{name}/package"
   end
 
+  def build_base_dir
+    "#{Build::BASE_DIR}/#{name}"
+  end
+
   def base_dir_for_abi(abi)
-    "#{Build::BASE_DIR}/#{name}/#{abi}"
+    "#{build_base_dir}/#{abi}"
   end
 
   def build_dir_for_abi(abi)
@@ -253,8 +271,8 @@ class Library < Formula
     "#{base_dir_for_abi(abi)}/install"
   end
 
-  def log_file_for_abi(abi)
-    "#{base_dir_for_abi(abi)}/build.log"
+  def build_log_file
+    "#{build_base_dir}/build.log"
   end
 
   def host_for_abi(abi)
@@ -273,31 +291,37 @@ class Library < Formula
       gxx += ' ' + Build.sysroot(abi)
     end
 
-    stl_type = build_options[:stl_type]
-
-    if not build_options[:use_cxx]
-      cc = "#{build_dir_for_abi(abi)}/cc"
-      Build.gen_cc_wrapper__fix_soname(cc, gcc)
-    else
+    if not build_options[:gen_c_wrapper]
       cc = gcc
-      cxx = "#{build_dir_for_abi(abi)}/c++"
-      Build.gen_cxx_wrapper__fix_stl(cxx, gxx, stl_type)
+    else
+      cc = "#{build_dir_for_abi(abi)}/cc"
+      Build.gen_compiler_wrapper(cc, gcc, build_options)
+    end
+
+    if build_options[:use_cxx]
+      if not build_options[:gen_cxx_wrapper]
+        cxx = gxx
+      else
+        cxx = "#{build_dir_for_abi(abi)}/c++"
+        Build.gen_compiler_wrapper(cxx, gxx, build_options)
+      end
+      stl_type = build_options[:stl_type]
       cxxflags = cflags + ' ' + Build.search_path_for_stl_includes(stl_type, abi)
       ldflags += ' ' + Build.search_path_for_stl_libs(stl_type, abi)
     end
 
-    @env = {'CC'      => cc,
-            'CPP'     => "#{cc} #{cflags} -E",
-            'AR'      => ar,
-            'RANLIB'  => ranlib,
-            'CFLAGS'  => cflags,
-            'LDFLAGS' => ldflags
-           }
+    @build_env = {'CC'      => cc,
+                  'CPP'     => "#{cc} #{cflags} -E",
+                  'AR'      => ar,
+                  'RANLIB'  => ranlib,
+                  'CFLAGS'  => cflags,
+                  'LDFLAGS' => ldflags
+                 }
 
     if build_options[:use_cxx]
-      @env['CXX'] = cxx
-      @env['CXXCPP'] = "#{cxx} #{cxxflags} -E"
-      @env['CXXFLAGS'] = cxxflags
+      build_env['CXX'] = cxx
+      build_env['CXXCPP'] = "#{cxx} #{cxxflags} -E"
+      build_env['CXXFLAGS'] = cxxflags
     end
   end
 
@@ -322,11 +346,11 @@ class Library < Formula
   def system(*args)
     cmd = args.join(' ')
     File.open(@log_file, "a") do |log|
-      log.puts "== env: #{@env}"
+      log.puts "== env: #{build_env}"
       log.puts "== cmd started: #{cmd}"
 
       rc = 0
-      Open3.popen2e(@env, cmd) do |_, out, wt|
+      Open3.popen2e(build_env, cmd) do |_, out, wt|
         ot = Thread.start { out.read.split("\n").each { |l| log.puts l } }
         ot.join
         rc = wt && wt.value.exitstatus

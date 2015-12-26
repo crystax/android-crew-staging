@@ -110,6 +110,55 @@ module Build
     [gcc, gxx, ar, ranlib]
   end
 
+  def self.gen_compiler_wrapper(wrapper, compiler, options)
+    File.open(wrapper, "w") do |f|
+      f.puts '#!/bin/bash'
+      f.puts 'PARAMS=$@'
+      if opts = options[:wrapper_filter_out]
+        f.puts ''
+        str = 'PARAMS=`echo "$PARAMS" | tr \' \' \'\n\''
+        opts.each { |opt| str += " | grep -v -x -e #{opt}" }
+        str += " | tr '\n' ' '`"
+        f.puts str
+      end
+      if options[:wrapper_fix_soname]
+        f.puts ''
+        f.puts 'NO_SONAME_PARAMS='
+        f.puts 'NEXT_ARG_IS_SONAME=no'
+        f.puts 'for p in "$PARAMS"; do'
+        f.puts '    case $p in'
+        f.puts '        -Wl,-soname)'
+        f.puts '            NEXT_ARG_IS_SONAME=yes'
+        f.puts '            ;;'
+        f.puts '        *)'
+        f.puts '            if [ "$NEXT_ARG_IS_SONAME" = "yes" ]; then'
+        f.puts '                p=$(echo $p | sed "s,\.so.*$,.so,")'
+        f.puts '                NEXT_ARG_IS_SONAME=no'
+        f.puts '            fi'
+        f.puts '    esac'
+        f.puts '    NO_SONAME_PARAMS="$NO_SONAME_PARAMS $p"'
+        f.puts 'done'
+        f.puts 'PARAMS=$NO_SONAME_PARAMS'
+      end
+      if options[:wrapper_fix_stl]
+        f.puts ''
+        f.puts 'FIXED_STL_PARAMS='
+        f.puts 'for p in "$PARAMS"; do'
+        f.puts '  case $p in'
+        f.puts '    -lstdc++)'
+        f.puts "       p=\"-l#{options[:stl_type]}_shared $p\""
+        f.puts '       ;;'
+        f.puts '  esac'
+        f.puts '  FIXED_STL_PARAMS="$FIXED_STL_PARAMS $p"'
+        f.puts 'done'
+        f.puts 'PARAMS=$FIXED_STL_PARAMS'
+      end
+      f.puts ''
+      f.puts "exec #{compiler} $PARAMS"
+    end
+    FileUtils.chmod "a+x", wrapper
+  end
+
   # this wrapper removes versions from sonames
   def self.gen_cc_wrapper__fix_soname(gcc_wrapper, gcc)
     File.open(gcc_wrapper, "w") do |f|

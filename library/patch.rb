@@ -18,21 +18,17 @@ module Patch
       data
     end
 
-    def apply(formula, src_dir, log_file)
+    def apply(formula, src_dir)
       data = contents(formula.path)
-      cmd = [Utils.patch_prog, '--strip=1']
-      File.open(log_file, "a") do |log|
-        log.puts "== cmd started: #{cmd.join(' ')}"
-        rc = 0
-        Open3.popen2e(*cmd, :chdir => src_dir) do |cin, cout, wt|
-          it = Thread.start { cin.write(data) ; cin.close }
-          ot = Thread.start { cout.read.split("\n").each { |l| log.puts l } }
-          it.join
-          ot.join
-          rc = wt && wt.value.exitstatus
-        end
-        log.puts "== cmd finished: exit code: #{rc} cmd: #{cmd}"
-        raise "command failed with code: #{rc}; see #{log_file} for details" unless rc == 0
+      cmd = [Utils.patch_prog, '--strip=1', '--verbose', '-l']
+      Open3.popen2e(*cmd, :chdir => src_dir) do |cin, cout, wt|
+        output = ''
+        it = Thread.start { cin.write(data); cin.close }
+        ot = Thread.start { cout.read.split("\n").each { |l| output << l } }
+        it.join
+        ot.join
+        rc = wt && wt.value.exitstatus
+        raise "patch command failed with code: #{rc}; cmd: #{cmd}; output: #{output}" unless rc == 0
       end
     end
   end

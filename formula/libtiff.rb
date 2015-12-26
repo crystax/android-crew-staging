@@ -16,20 +16,20 @@ class Libtiff < Library
 
   def build_for_abi(abi, dep_dirs)
     libjpeg_dir = dep_dirs['libjpeg']
-    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
-              "--host=#{host_for_abi(abi)}",
-              "--enable-shared",
-              "--enable-static",
-              "--with-pic",
-              "--with-jpeg-include-dir=#{libjpeg_dir}/include",
-              "--with-jpeg-lib-dir=#{libjpeg_dir}/libs/#{abi}",
-              "--disable-jbig",
-              "--disable-lzma",
-              "--enable-cxx"
-            ]
+    args = [ "--prefix=#{install_dir_for_abi(abi)}",
+             "--host=#{host_for_abi(abi)}",
+             "--enable-shared",
+             "--enable-static",
+             "--with-pic",
+             "--with-jpeg-include-dir=#{libjpeg_dir}/include",
+             "--with-jpeg-lib-dir=#{libjpeg_dir}/libs/#{abi}",
+             "--disable-jbig",
+             "--disable-lzma",
+             "--enable-cxx"
+           ]
 
     system './configure', *args
-    system 'make', '-j', 1
+    system 'make', '-j', num_jobs
     system 'make', 'install'
   end
 end
