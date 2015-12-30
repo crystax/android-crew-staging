@@ -14,7 +14,7 @@ class Libtiff < Library
   build_options use_cxx: true
   patch :DATA
 
-  def build_for_abi(abi, dep_dirs)
+  def build_for_abi(abi, _toolchain, _release, dep_dirs)
     libjpeg_dir = dep_dirs['libjpeg']
     args = [ "--prefix=#{install_dir_for_abi(abi)}",
              "--host=#{host_for_abi(abi)}",
@@ -56,4 +56,3 @@ index 6759825..779b034 100755
  	| bfin \
  	| c4x | clipper \
  	| d10v | d30v | dlx | dsp16xx \
-

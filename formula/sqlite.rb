@@ -10,7 +10,7 @@ class Sqlite < Library
   build_libs 'libsqlite3'
   patch :DATA
 
-  def build_for_abi(abi, dep_dirs)
+  def build_for_abi(abi, _toolchain, _release, _dep_dirs)
     cwd = Dir.pwd
     ['static', 'shared'].each do |libtype|
       FileUtils.mkdir_p "#{cwd}/#{libtype}/jni"

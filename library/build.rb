@@ -1,11 +1,13 @@
+
 require 'date'
 require_relative 'exceptions.rb'
 require_relative 'global.rb'
+require_relative 'arch.rb'
+require_relative 'toolchain.rb'
 
 
 module Build
 
-  GCC_VERSION = '4.9'
   MIN_32_API_LEVEL = 9
   MIN_64_API_LEVEL = 21
 
@@ -14,35 +16,17 @@ module Build
   BASE_DIR  = "/tmp/ndk-#{USER}/target"
   CACHE_DIR = "/var/tmp/ndk-cache-#{USER}"
 
-  GNUSTL_TYPE = 'gnustl'
-
-  class Arch
-    attr_reader :name, :min_api_level, :host, :toolchain, :abis
-    attr_accessor :abis_to_build
-
-    def initialize(name, api, host, toolchain, abis)
-      @name = name
-      @min_api_level = api
-      @host = host
-      @toolchain = toolchain
-      @abis = abis
-      @abis_to_build = []
-    end
-
-    def dup
-      arch = Arch.new(name, min_api_level, host, toolchain, abis)
-      arch.abis_to_build = abis_to_build.dup
-      arch
-    end
-  end
-
-  ARCH_LIST = [ Arch.new('arm',    MIN_32_API_LEVEL, 'arm-linux-androideabi',  'arm-linux-androideabi',  ['armeabi', 'armeabi-v7a', 'armeabi-v7a-hard'].freeze),
-                Arch.new('x86',    MIN_32_API_LEVEL, 'i686-linux-android',     'x86',                    ['x86']).freeze,
-                Arch.new('mips',   MIN_32_API_LEVEL, 'mipsel-linux-android',   'mipsel-linux-android',   ['mips']).freeze,
-                Arch.new('arm64',  MIN_64_API_LEVEL, 'aarch64-linux-android',  'aarch64-linux-android',  ['arm64-v8a']).freeze,
-                Arch.new('x86_64', MIN_64_API_LEVEL, 'x86_64-linux-android',   'x86_64',                 ['x86_64']).freeze,
-                Arch.new('mips64', MIN_64_API_LEVEL, 'mips64el-linux-android', 'mips64el-linux-android', ['mips64']).freeze
+  ARCH_LIST = [ Arch.new('arm',    32, MIN_32_API_LEVEL, 'arm-linux-androideabi',  'arm-linux-androideabi',  ['armeabi', 'armeabi-v7a', 'armeabi-v7a-hard'].freeze),
+                Arch.new('x86',    32, MIN_32_API_LEVEL, 'i686-linux-android',     'x86',                    ['x86']).freeze,
+                Arch.new('mips',   32, MIN_32_API_LEVEL, 'mipsel-linux-android',   'mipsel-linux-android',   ['mips']).freeze,
+                Arch.new('arm64',  64, MIN_64_API_LEVEL, 'aarch64-linux-android',  'aarch64-linux-android',  ['arm64-v8a']).freeze,
+                Arch.new('x86_64', 64, MIN_64_API_LEVEL, 'x86_64-linux-android',   'x86_64',                 ['x86_64']).freeze,
+                Arch.new('mips64', 64, MIN_64_API_LEVEL, 'mips64el-linux-android', 'mips64el-linux-android', ['mips64']).freeze
               ]
+
+  DEFAULT_TOOLCHAIN = Toolchain::GCC_4_9
+  TOOLCHAIN_LIST = [ Toolchain::GCC_4_9, Toolchain::GCC_5 ]
+
 
   def self.def_arch_list_to_build
     ARCH_LIST.map { |a| b = a.dup ; b.abis_to_build = b.abis ; b }
@@ -79,38 +63,7 @@ module Build
     f
   end
 
-  def self.search_path_for_stl_includes(stl_type, abi)
-    case stl_type
-    when GNUSTL_TYPE
-      "-I#{Global::NDK_DIR}/sources/cxx-stl/gnu-libstdc++/#{GCC_VERSION}/include " \
-      "-I#{Global::NDK_DIR}/sources/cxx-stl/gnu-libstdc++/#{GCC_VERSION}/libs/#{abi}/include"
-    else
-      raise "unknow STL type: #{stl_type}"
-    end
-  end
-
-  def self.search_path_for_stl_libs(stl_type, abi)
-    case stl_type
-    when GNUSTL_TYPE
-      "-L#{Global::NDK_DIR}/sources/cxx-stl/gnu-libstdc++/#{GCC_VERSION}/libs/#{abi}"
-    else
-      raise "unknow STL type: #{stl_type}"
-    end
-  end
-
-  def self.tools(abi)
-    arch = arch_for_abi(abi)
-    tc_prefix = "#{Global::NDK_DIR}/toolchains/#{arch.toolchain}-#{GCC_VERSION}/prebuilt/#{File.basename(Global::TOOLS_DIR)}"
-
-    gcc    = "#{tc_prefix}/bin/#{arch.host}-gcc"
-    gxx    = "#{tc_prefix}/bin/#{arch.host}-g++"
-    ar     = "#{tc_prefix}/bin/#{arch.host}-ar"
-    ranlib = "#{tc_prefix}/bin/#{arch.host}-ranlib"
-
-    [gcc, gxx, ar, ranlib]
-  end
-
-  def self.gen_compiler_wrapper(wrapper, compiler, options)
+  def self.gen_compiler_wrapper(wrapper, compiler, toolchain, options)
     File.open(wrapper, "w") do |f|
       f.puts '#!/bin/bash'
       f.puts 'PARAMS=$@'
@@ -146,7 +99,7 @@ module Build
         f.puts 'for p in "$PARAMS"; do'
         f.puts '  case $p in'
         f.puts '    -lstdc++)'
-        f.puts "       p=\"-l#{options[:stl_type]}_shared $p\""
+        f.puts "       p=\"-l#{toolchain.stl_lib_name}_shared $p\""
         f.puts '       ;;'
         f.puts '  esac'
         f.puts '  FIXED_STL_PARAMS="$FIXED_STL_PARAMS $p"'

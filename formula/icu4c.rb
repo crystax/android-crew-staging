@@ -29,7 +29,7 @@ class Icu4c < Library
     build_dir
   end
 
-  def build_for_abi(abi, dep_dirs)
+  def build_for_abi(abi, _toolchain, _release, _dep_dirs)
     native_build_dir = prebuild_result
 
     args = [ "--prefix=#{install_dir_for_abi(abi)}",

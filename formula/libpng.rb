@@ -9,7 +9,7 @@ class Libpng < Library
   build_options export_ldlibs: '-lz'
   build_libs 'libpng'
 
-  def build_for_abi(abi, _)
+  def build_for_abi(abi, _toolchain, _release, _dep_dirs)
     args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
               "--enable-shared",

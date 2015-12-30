@@ -17,11 +17,11 @@ class Library < Formula
                         sysroot_in_cflags:  true,
                         use_cxx:            false,
                         gen_cxx_wrapper:    true,
-                        stl_type:           Build::GNUSTL_TYPE,
                         ndk_build:          false,
                         wrapper_fix_soname: true,
-                        wrapper_fix_stl:    nil,
-                        wrapper_filter_out: nil
+                        wrapper_fix_stl:    false,
+                        wrapper_filter_out: nil,
+                        pack_libs:          :copy_named_libs  # :copy_lib_dir
                       }.freeze
 
   attr_reader :prebuild_result
@@ -125,21 +125,24 @@ class Library < Formula
     src_dir = "#{release_directory(release)}/#{SRC_DIR_BASENAME}"
     @log_file = build_log_file
 
+    print "= executing prebuild step: "
     @prebuild_result = prebuild(src_dir)
+    puts @prebuild_result ? @prebuild_result : 'none'
+
+    toolchain = Build::DEFAULT_TOOLCHAIN
 
     arch_list.each do |arch|
-      print "= building for architecture: #{arch.name}; abis: [ "
+      puts "= building for architecture: #{arch.name}"
       arch.abis_to_build.each do |abi|
-        print "#{abi} "
+        puts "  building for #{abi}"
         FileUtils.mkdir_p base_dir_for_abi(abi)
         build_dir = build_dir_for_abi(abi)
         FileUtils.cp_r "#{src_dir}/.", build_dir
-        prepare_env_for abi unless build_options[:ndk_build]
-        FileUtils.cd(build_dir) { build_for_abi(abi, dep_dirs) }
+        setup_build_env abi, toolchain unless build_options[:ndk_build]
+        FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, dep_dirs }
         package_libs_and_headers abi
         FileUtils.rm_rf base_dir_for_abi(abi) unless options.no_clean?
       end
-      puts "]"
     end
     Build.gen_android_mk "#{package_dir}/Android.mk", build_libs, build_options
 
@@ -166,6 +169,55 @@ class Library < Formula
     end
   end
 
+  def setup_build_env(abi, toolchain)
+    cflags  = Build.cflags(abi)
+    ldflags = Build.ldflags(abi)
+
+    arch = Build.arch_for_abi(abi)
+    c_comp = toolchain.c_compiler(arch)
+    ar, ranlib = toolchain.tools(arch)
+
+    if build_options[:sysroot_in_cflags]
+      cflags += ' ' + Build.sysroot(abi)
+    else
+      c_comp += ' ' + Build.sysroot(abi)
+    end
+
+    if not build_options[:gen_c_wrapper]
+      cc = c_comp
+    else
+      cc = "#{build_dir_for_abi(abi)}/cc"
+      Build.gen_compiler_wrapper(cc, c_comp, toolchain, build_options)
+    end
+
+    @build_env = {'CC'      => cc,
+                  'CPP'     => "#{cc} #{cflags} -E",
+                  'AR'      => ar,
+                  'RANLIB'  => ranlib,
+                  'CFLAGS'  => cflags,
+                  'LDFLAGS' => ldflags
+                 }
+
+    if build_options[:use_cxx]
+      cxx_comp = toolchain.cxx_compiler(arch)
+      cxx_comp += ' ' + Build.sysroot(abi) unless build_options[:sysroot_in_cflags]
+
+      if not build_options[:gen_cxx_wrapper]
+        cxx = cxx_comp
+      else
+        cxx = "#{build_dir_for_abi(abi)}/c++"
+        Build.gen_compiler_wrapper(cxx, cxx_comp, toolchain, build_options)
+      end
+
+      cxxflags = cflags + ' ' + toolchain.search_path_for_stl_includes(abi)
+
+      build_env['CXX']      = cxx
+      build_env['CXXCPP']   = "#{cxx} #{cxxflags} -E"
+      build_env['CXXFLAGS'] = cxxflags
+      build_env['LDFLAGS'] += ' ' + toolchain.search_path_for_stl_libs(abi)
+    end
+  end
+
   class << self
 
     def url(url = nil, &block)
@@ -173,6 +225,14 @@ class Library < Formula
         [@url, @block]
       else
         @url, @block = url, block
+      end
+    end
+
+    def build_toolchains(*args)
+      if args.size == 0
+        @build_toolchains ? @build_toolchains : [ Build::DEFAULT_TOOLCHAIN ]
+      else
+        @build_toolchains = args.flatten
       end
     end
 
@@ -205,6 +265,10 @@ class Library < Formula
 
   def url
     self.class.url
+  end
+
+  def build_toolchains
+    self.class.build_toolchains
   end
 
   def build_libs
@@ -277,52 +341,6 @@ class Library < Formula
 
   def host_for_abi(abi)
     Build.arch_for_abi(abi).host
-  end
-
-  def prepare_env_for(abi)
-    cflags  = Build.cflags(abi)
-    ldflags = Build.ldflags(abi)
-    gcc, gxx, ar, ranlib = Build.tools(abi)
-
-    if build_options[:sysroot_in_cflags]
-      cflags += ' ' + Build.sysroot(abi)
-    else
-      gcc += ' ' + Build.sysroot(abi)
-      gxx += ' ' + Build.sysroot(abi)
-    end
-
-    if not build_options[:gen_c_wrapper]
-      cc = gcc
-    else
-      cc = "#{build_dir_for_abi(abi)}/cc"
-      Build.gen_compiler_wrapper(cc, gcc, build_options)
-    end
-
-    if build_options[:use_cxx]
-      if not build_options[:gen_cxx_wrapper]
-        cxx = gxx
-      else
-        cxx = "#{build_dir_for_abi(abi)}/c++"
-        Build.gen_compiler_wrapper(cxx, gxx, build_options)
-      end
-      stl_type = build_options[:stl_type]
-      cxxflags = cflags + ' ' + Build.search_path_for_stl_includes(stl_type, abi)
-      ldflags += ' ' + Build.search_path_for_stl_libs(stl_type, abi)
-    end
-
-    @build_env = {'CC'      => cc,
-                  'CPP'     => "#{cc} #{cflags} -E",
-                  'AR'      => ar,
-                  'RANLIB'  => ranlib,
-                  'CFLAGS'  => cflags,
-                  'LDFLAGS' => ldflags
-                 }
-
-    if build_options[:use_cxx]
-      build_env['CXX'] = cxx
-      build_env['CXXCPP'] = "#{cxx} #{cxxflags} -E"
-      build_env['CXXFLAGS'] = cxxflags
-    end
   end
 
   def package_libs_and_headers(abi)

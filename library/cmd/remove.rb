@@ -23,7 +23,7 @@ module Crew
 
       survive_rm = formula.releases.select { |r| r.installed? and !r.match?(release) }
       ideps = formulary.dependants_of(name).select { |d| d.installed? }
-      if ideps.count > 0 and survice_rm.count == 0
+      if ideps.count > 0 and survive_rm.count == 0
         raise "#{outname} has installed dependants: #{ideps.map{|f| f.name}.join(', ')}"
       end
 
