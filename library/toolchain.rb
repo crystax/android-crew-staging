@@ -28,8 +28,24 @@ module Toolchain
       [ar, ranlib]
     end
 
+    def tool_path(name, arch)
+      "#{tc_prefix(arch)}/bin/#{arch.host}-#{name}"
+    end
+
+    def c_compiler_name
+      'gcc'
+    end
+
+    def cxx_compiler_name
+      'g++'
+    end
+
     def stl_lib_name
       'gnustl'
+    end
+
+    def stl_name
+      "gnu-#{version}"
     end
 
     def search_path_for_stl_includes(abi)

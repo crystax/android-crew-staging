@@ -63,9 +63,48 @@ module Build
     f
   end
 
-  def self.gen_compiler_wrapper(wrapper, compiler, toolchain, options)
+  def self.arch_for_abi(abi, arch_list = ARCH_LIST)
+    arch_list.select { |arch| arch.abis.include? abi } [0]
+  end
+
+  def self.sysroot(abi)
+    arch = arch_for_abi(abi)
+    " --sysroot=#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
+  end
+
+  def self.gen_host_compiler_wrapper(wrapper, compiler, *opts)
+    # todo: we do not have platform/prebuilts in NDK distribution
+    ndk_root_dir = Pathname.new(Global::NDK_DIR).realpath.dirname.dirname.to_s
+    case Global::OS
+    when 'darwin'
+      cc = "#{ndk_root_dir}/platform/prebuilts/gcc/darwin-x86/host/x86_64-apple-darwin-4.9.3/bin/#{compiler}"
+      args = "-isysroot #{ndk_root_dir}/platform/prebuilts/sysroot/darwin-x86/MacOSX10.6.sdk " \
+             "-mmacosx-version-min=10.6 " \
+             "-DMACOSX_DEPLOYMENT_TARGET=10.6 " \
+             "-Wl,-syslibroot,#{ndk_root_dir}/platform/prebuilts/sysroot/darwin-x86/MacOSX10.6.sdk " \
+             "-mmacosx-version-min=10.6"
+    else
+      raise "unsuppoerted OS: #{Global::OS}"
+    end
+    File.open(wrapper, 'w') do |f|
+      f.puts '#!/bin/sh'
+      f.puts ''
+      f.puts "exec #{cc} #{args} #{opts.join(' ')} \"$@\""
+    end
+    FileUtils.chmod "a+x", wrapper
+  end
+
+  def self.gen_compiler_wrapper(wrapper, compiler, toolchain, options, cflags = '', ldflags = '')
     File.open(wrapper, "w") do |f|
       f.puts '#!/bin/bash'
+      f.puts 'if echo "$@" | tr \' \' \'\n\' | grep -q -x -e -c; then'
+      f.puts '    LINKER=no'
+      f.puts 'elif echo "$@" | tr \' \' \'\n\' | grep -q -x -e -emit-pth; then'
+      f.puts '    LINKER=no'
+      f.puts 'else'
+      f.puts '    LINKER=yes'
+      f.puts 'fi'
+      f.puts ''
       f.puts 'PARAMS=$@'
       if opts = options[:wrapper_filter_out]
         f.puts ''
@@ -73,6 +112,22 @@ module Build
         opts.each { |opt| str += " | grep -v -x -e #{opt}" }
         str += " | tr '\n' ' '`"
         f.puts str
+      end
+      if opts = options[:wrapper_replace]
+        keys =
+        f.puts ''
+        f.puts 'REPLACED_PARAMS='
+        f.puts 'for p in "$PARAMS"; do'
+        f.puts '    case $p in'
+        opts.keys.each do |key|
+          f.puts "        #{key})"
+          f.puts "            p=#{opts[key]}"
+          f.puts "            ;;"
+        end
+        f.puts '    esac'
+        f.puts '    REPLACED_PARAMS="$REPLACED_PARAMS $p"'
+        f.puts 'done'
+        f.puts 'PARAMS=$REPLACED_PARAMS'
       end
       if options[:wrapper_fix_soname]
         f.puts ''
@@ -107,51 +162,24 @@ module Build
         f.puts 'PARAMS=$FIXED_STL_PARAMS'
       end
       f.puts ''
+      f.puts 'if [ "x$LINKER" = "xyes" ]; then'
+      f.puts "    PARAMS=\"#{ldflags} $PARAMS\""
+      f.puts 'else'
+      f.puts "    PARAMS=\"#{cflags} $PARAMS\""
+      f.puts 'fi'
+      f.puts ''
       f.puts "exec #{compiler} $PARAMS"
     end
     FileUtils.chmod "a+x", wrapper
   end
 
-  # this wrapper removes versions from sonames
-  def self.gen_cc_wrapper__fix_soname(gcc_wrapper, gcc)
-    File.open(gcc_wrapper, "w") do |f|
-      f.puts '#!/bin/bash'
-      f.puts 'ARGS='
-      f.puts 'NEXT_ARG_IS_SONAME=no'
-      f.puts 'for p in "$@"; do'
-      f.puts '    case $p in'
-      f.puts '        -Wl,-soname)'
-      f.puts '            NEXT_ARG_IS_SONAME=yes'
-      f.puts '            ;;'
-      f.puts '        *)'
-      f.puts '            if [ "$NEXT_ARG_IS_SONAME" = "yes" ]; then'
-      f.puts '                p=$(echo $p | sed "s,\.so.*$,.so,")'
-      f.puts '                NEXT_ARG_IS_SONAME=no'
-      f.puts '            fi'
-      f.puts '    esac'
-      f.puts '    ARGS="$ARGS $p"'
-      f.puts 'done'
-      f.puts "exec #{gcc} $ARGS"
+  def self.gen_tool_wrapper(dir, tool, toolchain, arch)
+    filename = "#{dir}/#{tool}"
+    File.open(filename, "w") do |f|
+      f.puts "#!/bin/sh"
+      f.puts "exec #{toolchain.tool_path(tool, arch)} \"$@\""
     end
-    FileUtils.chmod "a+x", gcc_wrapper
-  end
-
-  def self.gen_cxx_wrapper__fix_stl(gxx_wrapper, gxx, stl)
-    File.open(gxx_wrapper, "w") do |f|
-      f.puts '#!/bin/bash'
-      f.puts 'ARGS=""'
-      f.puts 'for p in "$@"; do'
-      f.puts '  case $p in'
-      f.puts '    -lstdc++)'
-      f.puts "       p=\"-l#{stl}_shared $p\""
-      f.puts '       ;;'
-      f.puts '  esac'
-      f.puts '  ARGS="$ARGS $p"'
-      f.puts 'done'
-      f.puts ''
-      f.puts "exec #{gxx} $ARGS"
-    end
-    FileUtils.chmod "a+x", gxx_wrapper
+    FileUtils.chmod "a+x", filename
   end
 
   def self.gen_android_mk(filename, libs, options)
@@ -177,15 +205,6 @@ module Build
         f.puts ""
       end
     end
-  end
-
-  def self.arch_for_abi(abi, arch_list = ARCH_LIST)
-    arch_list.select { |arch| arch.abis.include? abi } [0]
-  end
-
-  def self.sysroot(abi)
-    arch = arch_for_abi(abi)
-    " --sysroot=#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
   end
 
   COPYRIGHT_STR = <<-EOS

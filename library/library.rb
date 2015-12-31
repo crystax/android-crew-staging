@@ -13,11 +13,11 @@ class Library < Formula
 
   SRC_DIR_BASENAME = 'src'
 
-  DEF_BUILD_OPTIONS = { gen_c_wrapper:      true,
+  DEF_BUILD_OPTIONS = { c_wrapper:          'cc',
                         sysroot_in_cflags:  true,
                         use_cxx:            false,
-                        gen_cxx_wrapper:    true,
-                        ndk_build:          false,
+                        cxx_wrapper:        'c++',
+                        setup_env:          true,
                         wrapper_fix_soname: true,
                         wrapper_fix_stl:    false,
                         wrapper_filter_out: nil,
@@ -25,8 +25,7 @@ class Library < Formula
                       }.freeze
 
   attr_reader :prebuild_result
-  attr_accessor :build_env
-  attr_rw :num_jobs
+  attr_accessor :build_env, :num_jobs
 
   def initialize(path)
     super path
@@ -134,16 +133,19 @@ class Library < Formula
     arch_list.each do |arch|
       puts "= building for architecture: #{arch.name}"
       arch.abis_to_build.each do |abi|
-        puts "  building for #{abi}"
+        puts "  building for abi: #{abi}"
         FileUtils.mkdir_p base_dir_for_abi(abi)
         build_dir = build_dir_for_abi(abi)
         FileUtils.cp_r "#{src_dir}/.", build_dir
-        setup_build_env abi, toolchain unless build_options[:ndk_build]
+        setup_build_env abi, toolchain if build_options[:setup_env]
         FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, dep_dirs }
         package_libs_and_headers abi
         FileUtils.rm_rf base_dir_for_abi(abi) unless options.no_clean?
       end
     end
+
+    exit
+
     Build.gen_android_mk "#{package_dir}/Android.mk", build_libs, build_options
 
     if options.build_only?
@@ -183,11 +185,11 @@ class Library < Formula
       c_comp += ' ' + Build.sysroot(abi)
     end
 
-    if not build_options[:gen_c_wrapper]
+    if build_options[:c_wrapper] == nil
       cc = c_comp
     else
-      cc = "#{build_dir_for_abi(abi)}/cc"
-      Build.gen_compiler_wrapper(cc, c_comp, toolchain, build_options)
+      cc = build_options[:c_wrapper] == true ? toolchain.c_compiler_name : build_options[:c_wrapper]
+      Build.gen_compiler_wrapper "#{build_dir_for_abi(abi)}/#{cc}", c_comp, toolchain, build_options
     end
 
     @build_env = {'CC'      => cc,
@@ -202,11 +204,11 @@ class Library < Formula
       cxx_comp = toolchain.cxx_compiler(arch)
       cxx_comp += ' ' + Build.sysroot(abi) unless build_options[:sysroot_in_cflags]
 
-      if not build_options[:gen_cxx_wrapper]
+      if build_options[:cxx_wrapper] == nil
         cxx = cxx_comp
       else
-        cxx = "#{build_dir_for_abi(abi)}/c++"
-        Build.gen_compiler_wrapper(cxx, cxx_comp, toolchain, build_options)
+        cxx = build_options[:cxx_wrapper] == true ? toolchain.cxx_compiler_name : build_options[:cxx_wrapper]
+        Build.gen_compiler_wrapper "#{build_dir_for_abi(abi)}/#{cxx}", cxx_comp, toolchain, build_options
       end
 
       cxxflags = cflags + ' ' + toolchain.search_path_for_stl_includes(abi)

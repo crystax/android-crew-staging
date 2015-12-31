@@ -1,12 +1,16 @@
+require_relative 'utils.rb'
+
+
 class Build_options
 
-  attr_accessor :abis
+  attr_accessor :abis, :num_jobs
   attr_writer :build_only, :no_clean
 
   def initialize(opts)
     @abis = nil
     @build_only = false
     @no_clean = false
+    @num_jobs = Utils.processor_count * 2
 
     opts.each do |opt|
       case opt
@@ -16,6 +20,8 @@ class Build_options
         @build_only = true
       when '--no-clean'
         @no_clean = true
+      when /^--num-jobs=/
+        @num_jobs = opt.split('=')[1]
       else
         raise "unknow option: #{opt}"
       end

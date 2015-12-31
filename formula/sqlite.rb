@@ -6,7 +6,7 @@ class Sqlite < Library
 
   release version: '3.9.2', crystax_version: 1, sha256: '0'
 
-  build_options ndk_build: true
+  build_options setup_env: false
   build_libs 'libsqlite3'
   patch :DATA
 

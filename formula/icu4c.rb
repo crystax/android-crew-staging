@@ -17,8 +17,8 @@ class Icu4c < Library
     FileUtils.mkdir_p build_dir
     FileUtils.cp_r "#{src_dir}/.", build_dir
 
-    write_host_wrapper 'gcc', build_dir
-    write_host_wrapper 'g++', build_dir
+    Build.gen_host_compiler_wrapper "#{build_dir}/gcc", 'gcc', '-m32'
+    Build.gen_host_compiler_wrapper "#{build_dir}/g++", 'g++', '-m32'
     build_env['PATH'] = "#{build_dir}:#{ENV['PATH']}"
 
     FileUtils.cd(build_dir) do
@@ -66,16 +66,16 @@ class Icu4c < Library
     end
   end
 
-  def write_host_wrapper(name, dir)
-    cc = "/Volumes/Source-HD/src/ndk/platform/prebuilts/gcc/darwin-x86/host/x86_64-apple-darwin-4.9.3/bin/#{name}"
-    filename = "#{dir}/#{name}"
-    File.open(filename, 'w') do |f|
-      f.puts '#!/bin/sh'
-      f.puts ''
-      f.puts "exec #{cc} -m32 -isysroot /Volumes/Source-HD/src/ndk/platform/prebuilts/sysroot/darwin-x86/MacOSX10.6.sdk -mmacosx-version-min=10.6 -DMACOSX_DEPLOYMENT_TARGET=10.6  -Wl,-syslibroot,/Volumes/Source-HD/src/ndk/platform/prebuilts/sysroot/darwin-x86/MacOSX10.6.sdk -mmacosx-version-min=10.6 \"$@\""
-    end
-    FileUtils.chmod "a+x", filename
-  end
+  # def write_host_wrapper(name, dir)
+  #   cc = "/Volumes/Source-HD/src/ndk/platform/prebuilts/gcc/darwin-x86/host/x86_64-apple-darwin-4.9.3/bin/#{name}"
+  #   filename = "#{dir}/#{name}"
+  #   File.open(filename, 'w') do |f|
+  #     f.puts '#!/bin/sh'
+  #     f.puts ''
+  #     f.puts "exec #{cc} -m32 -isysroot /Volumes/Source-HD/src/ndk/platform/prebuilts/sysroot/darwin-x86/MacOSX10.6.sdk -mmacosx-version-min=10.6 -DMACOSX_DEPLOYMENT_TARGET=10.6  -Wl,-syslibroot,/Volumes/Source-HD/src/ndk/platform/prebuilts/sysroot/darwin-x86/MacOSX10.6.sdk -mmacosx-version-min=10.6 \"$@\""
+  #   end
+  #   FileUtils.chmod "a+x", filename
+  # end
 end
 
 __END__
