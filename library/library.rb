@@ -18,10 +18,10 @@ class Library < Formula
                         use_cxx:            false,
                         cxx_wrapper:        'c++',
                         setup_env:          true,
+                        copy_incs_and_libs: true,
                         wrapper_fix_soname: true,
                         wrapper_fix_stl:    false,
-                        wrapper_filter_out: nil,
-                        pack_libs:          :copy_named_libs  # :copy_lib_dir
+                        wrapper_filter_out: nil
                       }.freeze
 
   attr_reader :prebuild_result
@@ -139,7 +139,7 @@ class Library < Formula
         FileUtils.cp_r "#{src_dir}/.", build_dir
         setup_build_env abi, toolchain if build_options[:setup_env]
         FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, dep_dirs }
-        package_libs_and_headers abi
+        package_libs_and_headers abi if build_options[:copy_incs_and_libs]
         FileUtils.rm_rf base_dir_for_abi(abi) unless options.no_clean?
       end
     end
@@ -217,6 +217,24 @@ class Library < Formula
       build_env['CXXCPP']   = "#{cxx} #{cxxflags} -E"
       build_env['CXXFLAGS'] = cxxflags
       build_env['LDFLAGS'] += ' ' + toolchain.search_path_for_stl_libs(abi)
+    end
+  end
+
+  def package_libs_and_headers(abi)
+    pkg_dir = package_dir
+    install_dir = install_dir_for_abi(abi)
+    # copy headers if they were not copied yet
+    inc_dir = "#{pkg_dir}/include"
+    if !Dir.exists? inc_dir
+      FileUtils.mkdir_p pkg_dir
+      FileUtils.cp_r "#{install_dir}/include", pkg_dir
+    end
+    # copy libs
+    libs_dir = "#{pkg_dir}/libs/#{abi}"
+    FileUtils.mkdir_p libs_dir
+    build_libs.each do |lib|
+      FileUtils.cp "#{install_dir}/lib/#{lib}.a",  libs_dir
+      FileUtils.cp "#{install_dir}/lib/#{lib}.so", libs_dir
     end
   end
 
@@ -343,24 +361,6 @@ class Library < Formula
 
   def host_for_abi(abi)
     Build.arch_for_abi(abi).host
-  end
-
-  def package_libs_and_headers(abi)
-    pkg_dir = package_dir
-    install_dir = install_dir_for_abi(abi)
-    # copy headers if they were not copied yet
-    inc_dir = "#{pkg_dir}/include"
-    if !Dir.exists? inc_dir
-      FileUtils.mkdir_p pkg_dir
-      FileUtils.cp_r "#{install_dir}/include", pkg_dir
-    end
-    # copy libs
-    libs_dir = "#{pkg_dir}/libs/#{abi}"
-    FileUtils.mkdir_p libs_dir
-    build_libs.each do |lib|
-      FileUtils.cp "#{install_dir}/lib/#{lib}.a",  libs_dir
-      FileUtils.cp "#{install_dir}/lib/#{lib}.so", libs_dir
-    end
   end
 
   def system(*args)

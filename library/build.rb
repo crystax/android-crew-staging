@@ -106,18 +106,11 @@ module Build
       f.puts 'fi'
       f.puts ''
       f.puts 'PARAMS=$@'
-      if opts = options[:wrapper_filter_out]
-        f.puts ''
-        str = 'PARAMS=`echo "$PARAMS" | tr \' \' \'\n\''
-        opts.each { |opt| str += " | grep -v -x -e #{opt}" }
-        str += " | tr '\n' ' '`"
-        f.puts str
-      end
+      f.puts 'echo "PARAMS: $PARAMS" >> /tmp/wrapper.log'
       if opts = options[:wrapper_replace]
-        keys =
         f.puts ''
         f.puts 'REPLACED_PARAMS='
-        f.puts 'for p in "$PARAMS"; do'
+        f.puts 'for p in $PARAMS; do'
         f.puts '    case $p in'
         opts.keys.each do |key|
           f.puts "        #{key})"
@@ -127,13 +120,15 @@ module Build
         f.puts '    esac'
         f.puts '    REPLACED_PARAMS="$REPLACED_PARAMS $p"'
         f.puts 'done'
+        f.puts 'echo "REPLACED_PARAMS: $REPLACED_PARAMS" >> /tmp/wrapper.log'
         f.puts 'PARAMS=$REPLACED_PARAMS'
       end
       if options[:wrapper_fix_soname]
         f.puts ''
+        f.puts 'echo "PARAMS: $PARAMS" >> /tmp/wrapper.log'
         f.puts 'NO_SONAME_PARAMS='
         f.puts 'NEXT_ARG_IS_SONAME=no'
-        f.puts 'for p in "$PARAMS"; do'
+        f.puts 'for p in $PARAMS; do'
         f.puts '    case $p in'
         f.puts '        -Wl,-soname)'
         f.puts '            NEXT_ARG_IS_SONAME=yes'
@@ -146,12 +141,14 @@ module Build
         f.puts '    esac'
         f.puts '    NO_SONAME_PARAMS="$NO_SONAME_PARAMS $p"'
         f.puts 'done'
+        f.puts 'echo "NO_SONAME_PARAMS: $NO_SONAME_PARAMS" >> /tmp/wrapper.log'
         f.puts 'PARAMS=$NO_SONAME_PARAMS'
       end
       if options[:wrapper_fix_stl]
         f.puts ''
+        f.puts 'echo "PARAMS: $PARAMS" >> /tmp/wrapper.log'
         f.puts 'FIXED_STL_PARAMS='
-        f.puts 'for p in "$PARAMS"; do'
+        f.puts 'for p in $PARAMS; do'
         f.puts '  case $p in'
         f.puts '    -lstdc++)'
         f.puts "       p=\"-l#{toolchain.stl_lib_name}_shared $p\""
@@ -159,15 +156,17 @@ module Build
         f.puts '  esac'
         f.puts '  FIXED_STL_PARAMS="$FIXED_STL_PARAMS $p"'
         f.puts 'done'
+        f.puts 'echo "FIXED_STL_PARAMS: $FIXED_STL_PARAMS" >> /tmp/wrapper.log'
         f.puts 'PARAMS=$FIXED_STL_PARAMS'
       end
       f.puts ''
       f.puts 'if [ "x$LINKER" = "xyes" ]; then'
-      f.puts "    PARAMS=\"#{ldflags} $PARAMS\""
+      f.puts "    PARAMS=\"#{ldflags[:before]} $PARAMS #{ldflags[:after]}\""
       f.puts 'else'
       f.puts "    PARAMS=\"#{cflags} $PARAMS\""
       f.puts 'fi'
       f.puts ''
+      f.puts 'echo "PARAMS: $PARAMS" >> /tmp/wrapper.log'
       f.puts "exec #{compiler} $PARAMS"
     end
     FileUtils.chmod "a+x", wrapper

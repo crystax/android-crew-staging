@@ -7,6 +7,7 @@ class Boost < Library
   release version: '1.60.0', crystax_version: 1, sha256: '0'
 
   build_options setup_env: false,
+                copy_incs_and_libs: false,
                 wrapper_replace: { '-dynamiclib'    => '-shared',
                                    '-undefined'     => '-u',
                                    '-m32'           => '',
@@ -14,8 +15,7 @@ class Boost < Library
                                    '-single_module' => '',
                                    '-lpthread'      => '',
                                    '-lutil'         => ''
-                                 },
-                pack_libs: :copy_lib_dir
+                                 }
 
 
   def build_for_abi(abi, toolchain, release, _dep_dirs)
@@ -32,7 +32,7 @@ class Boost < Library
 
     common_args = [ "-d+2",
                     "-q",
-                    "-j1",                   ##{num_jobs}",
+                    "-j#{num_jobs}",
                     "variant=release",
                     "link=static,shared",
                     "runtime-link=shared",
@@ -47,8 +47,6 @@ class Boost < Library
                     without_libs(release, arch).map { |lib| "--without-#{lib}" },
              "install"
            ].flatten
-
-    #stls = Build.cxx_std_libs.map { |l| Build.toolchain_for_cxx_std_lib(l) }
 
     [Build::DEFAULT_TOOLCHAIN].each do |toolchain|
       stl_name = toolchain.stl_name
@@ -70,7 +68,10 @@ class Boost < Library
       build_env.clear
       cxx = "#{build_dir_for_abi(abi)}/#{toolchain.cxx_compiler_name}"
       cxxflags = Build.cflags(abi) + ' ' + Build.sysroot(abi) + ' ' + toolchain.search_path_for_stl_includes(abi) + ' -fPIC -Wno-long-long'
-      ldflags  = Build.ldflags(abi) + ' ' + toolchain.search_path_for_stl_libs(abi)
+
+      ldflags  = { before: Build.ldflags(abi) + ' ' + Build.sysroot(abi) + ' ' + toolchain.search_path_for_stl_libs(abi) + ' ' + "-L#{Global::NDK_DIR}/sources/crystax/libs/#{abi}",
+                   after:  '-lgnustl_shared'
+                 }
 
       Build.gen_compiler_wrapper cxx, toolchain.cxx_compiler(arch), toolchain, build_options, cxxflags, ldflags
       #['as', 'ar', 'ranlib', 'strip'].each { |tool| Build.gen_tool_wrapper build_dir_for_abi(abi), tool, toolchain, arch }
@@ -82,11 +83,19 @@ class Boost < Library
       args = common_args + ["--prefix=#{prefix_dir}", "--build-dir=#{build_dir}"]
 
       system './b2', *args
-      # todo: copy libs to
-    end
 
-    # todo: copy headers
-    # install_dir_for_abi(abi)
+      # copy headers if they were not copied yet
+      inc_dir = "#{package_dir}/include"
+      if !Dir.exists? inc_dir
+        FileUtils.mkdir_p package_dir
+        FileUtils.cp_r "#{prefix_dir}/include", package_dir
+      end
+      # copy libs
+      libs_dir = "#{package_dir}/libs/#{abi}/#{stl_name}"
+      FileUtils.mkdir_p libs_dir
+      FileUtils.cp Dir["#{prefix_dir}/lib/*.a"],  libs_dir
+      FileUtils.cp Dir["#{prefix_dir}/lib/*.so"], libs_dir
+    end
   end
 
   def bjam_data(arch)
