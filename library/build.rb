@@ -44,11 +44,11 @@ module Build
   def self.cflags(abi)
     case abi
     when 'armeabi'
-      "-mthumb -march=armv5te -mtune=xscale -msoft-float"
+      '-march=armv5te -mtune=xscale -msoft-float'
     when 'armeabi-v7a'
-      "-mthumb -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp"
+      '-march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp'
     when 'armeabi-v7a-hard'
-      "-mthumb -march=armv7-a -mfpu=vfpv3-d16 -mhard-float"
+      '-march=armv7-a -mfpu=vfpv3-d16 -mhard-float'
     else
       ""
     end
@@ -57,8 +57,10 @@ module Build
   def self.ldflags(abi)
     f = "-L#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
     case abi
+    when 'armeabi-v7a'
+      f += ' -Wl,--fix-cortex-a8'
     when 'armeabi-v7a-hard'
-      f += ' -Wl,--no-warn-mismatch'
+      f += ' -Wl,--fix-cortex-a8 -Wl,--no-warn-mismatch'
     end
     f
   end
@@ -70,6 +72,10 @@ module Build
   def self.sysroot(abi)
     arch = arch_for_abi(abi)
     " --sysroot=#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
+  end
+
+  def self.search_path_for_crystax_libs(abi)
+    "-L#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
   end
 
   def self.gen_host_compiler_wrapper(wrapper, compiler, *opts)
@@ -94,7 +100,7 @@ module Build
     FileUtils.chmod "a+x", wrapper
   end
 
-  def self.gen_compiler_wrapper(wrapper, compiler, toolchain, options, cflags = '', ldflags = '')
+  def self.gen_compiler_wrapper(wrapper, compiler, toolchain, options, cflags = '', ldflags = Hash.new(''))
     File.open(wrapper, "w") do |f|
       f.puts '#!/bin/bash'
       f.puts 'if echo "$@" | tr \' \' \'\n\' | grep -q -x -e -c; then'

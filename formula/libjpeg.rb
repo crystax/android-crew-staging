@@ -17,6 +17,8 @@ class Libjpeg < Library
               "--disable-ld-version-script"
             ]
 
+    build_env['CFLAGS'] << ' -mthumb' if abi =~ /^armeabi/
+
     system './configure', *args
     system 'make', '-j', num_jobs
     system 'make', 'install'

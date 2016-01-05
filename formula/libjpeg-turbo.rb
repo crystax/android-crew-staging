@@ -19,6 +19,8 @@ class LibjpegTurbo < Library
             ]
     args << '--without-simd' if abi == 'mips'
 
+    build_env['CFLAGS'] << ' -mthumb' if abi =~ /^armeabi/
+
     system './configure', *args
     system 'make', '-j', num_jobs
     system 'make', 'install'

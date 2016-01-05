@@ -9,7 +9,9 @@ class Icu4c < Library
   patch :DATA
   build_libs 'libicudata', 'libicui18n', 'libicuio', 'libicule', 'libiculx', 'libicutest', 'libicutu', 'libicuuc'
   build_options use_cxx: true,
-                wrapper_filter_out: ['-m32', '-m64']
+                wrapper_replace: { '-m32' => '',
+                                   '-m64' => ''
+                                 }
 
   def prebuild(src_dir)
     base_dir = build_base_dir
@@ -42,12 +44,11 @@ class Icu4c < Library
     build_env['CFLAGS'] << ' -fPIC -DU_USING_ICU_NAMESPACE=0 -DU_CHARSET_IS_UTF8=1'
     build_env['LDFLAGS'] << ' -lgnustl_shared'
 
+    build_env['CFLAGS'] << ' -mthumb'            if abi =~ /^armeabi/
     build_env['CFLAGS'] << ' -m32'               if abi == 'x86'
     build_env['CFLAGS'] << ' -m64'               if abi == 'x86_64'
     build_env['CFLAGS'] << ' -mabi=32 -mips32'   if abi == 'mips'
     build_env['CFLAGS'] << ' -mabi=64 -mips64r6' if abi == 'mips64'
-
-    build_env['LDFLAGS'] << " -Wl,--fix-cortex-a8" if ['armeabi-v7a', 'armeabi-v7a-hard'].include? abi
 
     system './source/configure', *args
     system 'make', '-j', num_jobs

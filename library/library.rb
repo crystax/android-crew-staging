@@ -144,8 +144,6 @@ class Library < Formula
       end
     end
 
-    exit
-
     Build.gen_android_mk "#{package_dir}/Android.mk", build_libs, build_options
 
     if options.build_only?
@@ -189,7 +187,8 @@ class Library < Formula
       cc = c_comp
     else
       cc = build_options[:c_wrapper] == true ? toolchain.c_compiler_name : build_options[:c_wrapper]
-      Build.gen_compiler_wrapper "#{build_dir_for_abi(abi)}/#{cc}", c_comp, toolchain, build_options
+      cc = "#{build_dir_for_abi(abi)}/#{cc}"
+      Build.gen_compiler_wrapper cc, c_comp, toolchain, build_options
     end
 
     @build_env = {'CC'      => cc,
@@ -204,11 +203,12 @@ class Library < Formula
       cxx_comp = toolchain.cxx_compiler(arch)
       cxx_comp += ' ' + Build.sysroot(abi) unless build_options[:sysroot_in_cflags]
 
-      if build_options[:cxx_wrapper] == nil
+      if not build_options[:cxx_wrapper]
         cxx = cxx_comp
       else
         cxx = build_options[:cxx_wrapper] == true ? toolchain.cxx_compiler_name : build_options[:cxx_wrapper]
-        Build.gen_compiler_wrapper "#{build_dir_for_abi(abi)}/#{cxx}", cxx_comp, toolchain, build_options
+        cxx = "#{build_dir_for_abi(abi)}/#{cxx}"
+        Build.gen_compiler_wrapper cxx, cxx_comp, toolchain, build_options
       end
 
       cxxflags = cflags + ' ' + toolchain.search_path_for_stl_includes(abi)
