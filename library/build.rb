@@ -24,8 +24,8 @@ module Build
                 Arch.new('mips64', 64, MIN_64_API_LEVEL, 'mips64el-linux-android', 'mips64el-linux-android', ['mips64']).freeze
               ]
 
-  DEFAULT_TOOLCHAIN = Toolchain::GCC_4_9
-  TOOLCHAIN_LIST = [ Toolchain::GCC_4_9, Toolchain::GCC_5 ]
+  DEFAULT_TOOLCHAIN = Toolchain::DEFAULT_GCC
+  TOOLCHAIN_LIST = [ Toolchain::GCC_4_9, Toolchain::GCC_5, Toolchain::LLVM_3_6, Toolchain::LLVM_3_7 ]
 
 
   def self.def_arch_list_to_build
@@ -41,29 +41,29 @@ module Build
     arch_list.select { |a| not a.abis_to_build.empty? }
   end
 
-  def self.cflags(abi)
-    case abi
-    when 'armeabi'
-      '-march=armv5te -mtune=xscale -msoft-float'
-    when 'armeabi-v7a'
-      '-march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp'
-    when 'armeabi-v7a-hard'
-      '-march=armv7-a -mfpu=vfpv3-d16 -mhard-float'
-    else
-      ""
-    end
-  end
+  # def self.cflags(abi)
+  #   case abi
+  #   when 'armeabi'
+  #     '-march=armv5te -mtune=xscale -msoft-float'
+  #   when 'armeabi-v7a'
+  #     '-march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp'
+  #   when 'armeabi-v7a-hard'
+  #     '-march=armv7-a -mfpu=vfpv3-d16 -mhard-float'
+  #   else
+  #     ""
+  #   end
+  # end
 
-  def self.ldflags(abi)
-    f = "-L#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
-    case abi
-    when 'armeabi-v7a'
-      f += ' -Wl,--fix-cortex-a8'
-    when 'armeabi-v7a-hard'
-      f += ' -Wl,--fix-cortex-a8 -Wl,--no-warn-mismatch'
-    end
-    f
-  end
+  # def self.ldflags(abi)
+  #   f = "-L#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
+  #   case abi
+  #   when 'armeabi-v7a'
+  #     f += ' -Wl,--fix-cortex-a8'
+  #   when 'armeabi-v7a-hard'
+  #     f += ' -Wl,--fix-cortex-a8 -Wl,--no-warn-mismatch'
+  #   end
+  #   f
+  # end
 
   def self.arch_for_abi(abi, arch_list = ARCH_LIST)
     arch_list.select { |arch| arch.abis.include? abi } [0]
@@ -74,9 +74,10 @@ module Build
     " --sysroot=#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
   end
 
-  def self.search_path_for_crystax_libs(abi)
-    "-L#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
-  end
+  # todo: remove
+  # def self.search_path_for_crystax_libs(abi)
+  #   "-L#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
+  # end
 
   def self.gen_host_compiler_wrapper(wrapper, compiler, *opts)
     # todo: we do not have platform/prebuilts in NDK distribution
@@ -132,23 +133,28 @@ module Build
       if options[:wrapper_fix_soname]
         f.puts ''
         f.puts 'echo "PARAMS: $PARAMS" >> /tmp/wrapper.log'
-        f.puts 'NO_SONAME_PARAMS='
-        f.puts 'NEXT_ARG_IS_SONAME=no'
+        f.puts 'FIXED_SONAME_PARAMS='
+        f.puts 'NEXT_PARAM_IS_LIBNAME=no'
         f.puts 'for p in $PARAMS; do'
-        f.puts '    case $p in'
-        f.puts '        -Wl,-soname)'
-        f.puts '            NEXT_ARG_IS_SONAME=yes'
-        f.puts '            ;;'
-        f.puts '        *)'
-        f.puts '            if [ "$NEXT_ARG_IS_SONAME" = "yes" ]; then'
-        f.puts '                p=$(echo $p | sed "s,\.so.*$,.so,")'
-        f.puts '                NEXT_ARG_IS_SONAME=no'
-        f.puts '            fi'
-        f.puts '    esac'
-        f.puts '    NO_SONAME_PARAMS="$NO_SONAME_PARAMS $p"'
+        f.puts '    if [ "x$NEXT_PARAM_IS_LIBNAME" = "xyes" ]; then'
+        f.puts '        LIBNAME=`expr "x$p" : "^x.*\\(lib[^\\.]*\\.so\\)"`'
+        f.puts '        p="-Wl,$LIBNAME"'
+        f.puts '        NEXT_PARAM_IS_LIBNAME=no'
+        f.puts '    else'
+        f.puts '        case $p in'
+        f.puts '            -Wl,-soname|-Wl,-h|-install_name)'
+        f.puts '                p="-Wl,-soname"'
+        f.puts '                NEXT_PARAM_IS_LIBNAME=yes'
+        f.puts '                ;;'
+        f.puts '            -Wl,-soname,lib*|-Wl,-h,lib*)'
+        f.puts '                LIBNAME=`expr "x$p" : "^x.*\\(lib[^\\.]*\\.so\\)"`'
+        f.puts '                p="-Wl,-soname,-l$LIBNAME"'
+        f.puts '                ;;'
+        f.puts '        esac'
+        f.puts '    fi'
+        f.puts '    FIXED_SONAME_PARAMS="$FIXED_SONAME_PARAMS $p"'
         f.puts 'done'
-        f.puts 'echo "NO_SONAME_PARAMS: $NO_SONAME_PARAMS" >> /tmp/wrapper.log'
-        f.puts 'PARAMS=$NO_SONAME_PARAMS'
+        f.puts 'PARAMS=$FIXED_SONAME_PARAMS'
       end
       if options[:wrapper_fix_stl]
         f.puts ''
@@ -178,14 +184,15 @@ module Build
     FileUtils.chmod "a+x", wrapper
   end
 
-  def self.gen_tool_wrapper(dir, tool, toolchain, arch)
-    filename = "#{dir}/#{tool}"
-    File.open(filename, "w") do |f|
-      f.puts "#!/bin/sh"
-      f.puts "exec #{toolchain.tool_path(tool, arch)} \"$@\""
-    end
-    FileUtils.chmod "a+x", filename
-  end
+  # todo: remove?
+  # def self.gen_tool_wrapper(dir, tool, toolchain, arch)
+  #   filename = "#{dir}/#{tool}"
+  #   File.open(filename, "w") do |f|
+  #     f.puts "#!/bin/sh"
+  #     f.puts "exec #{toolchain.tool_path(tool, arch)} \"$@\""
+  #   end
+  #   FileUtils.chmod "a+x", filename
+  # end
 
   def self.gen_android_mk(filename, libs, options)
     File.open(filename, "w") do |f|

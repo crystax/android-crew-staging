@@ -13,7 +13,7 @@ class Icu4c < Library
                                    '-m64' => ''
                                  }
 
-  def prebuild(src_dir)
+  def pre_build(src_dir, _release)
     base_dir = build_base_dir
     build_dir = "#{build_base_dir}/native"
     FileUtils.mkdir_p build_dir
@@ -32,7 +32,7 @@ class Icu4c < Library
   end
 
   def build_for_abi(abi, _toolchain, _release, _dep_dirs)
-    native_build_dir = prebuild_result
+    native_build_dir = pre_build_result
 
     args = [ "--prefix=#{install_dir_for_abi(abi)}",
              "--host=#{host_for_abi(abi)}",

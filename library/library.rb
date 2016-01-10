@@ -24,14 +24,14 @@ class Library < Formula
                         wrapper_filter_out: nil
                       }.freeze
 
-  attr_reader :prebuild_result
+  attr_reader :pre_build_result
   attr_accessor :build_env, :num_jobs
 
   def initialize(path)
     super path
 
     @build_env = {}
-    @prebuild_result = nil
+    @pre_build_result = nil
     @num_jobs = Utils.processor_count * 2
   end
 
@@ -111,7 +111,11 @@ class Library < Formula
     release.source_installed = false
   end
 
-  def prebuild(src_dir)
+  def pre_build(src_dir, release)
+    nil
+  end
+
+  def post_build(pkg_dir, release)
     nil
   end
 
@@ -124,9 +128,9 @@ class Library < Formula
     src_dir = "#{release_directory(release)}/#{SRC_DIR_BASENAME}"
     @log_file = build_log_file
 
-    print "= executing prebuild step: "
-    @prebuild_result = prebuild(src_dir)
-    puts @prebuild_result ? @prebuild_result : 'none'
+    print "= executing pre build step: "
+    @pre_build_result = pre_build(src_dir, release)
+    puts @pre_build_result ? @pre_build_result : 'none'
 
     toolchain = Build::DEFAULT_TOOLCHAIN
 
@@ -145,6 +149,9 @@ class Library < Formula
     end
 
     Build.gen_android_mk "#{package_dir}/Android.mk", build_libs, build_options
+
+    puts "= executing post build step"
+    post_build package_dir, release
 
     if options.build_only?
       puts "Build only, no packaging and installing"
@@ -170,11 +177,11 @@ class Library < Formula
   end
 
   def setup_build_env(abi, toolchain)
-    cflags  = Build.cflags(abi)
-    ldflags = Build.ldflags(abi)
+    cflags  = toolchain.cflags(abi)
+    ldflags = toolchain.ldflags(abi)
 
     arch = Build.arch_for_abi(abi)
-    c_comp = toolchain.c_compiler(arch)
+    c_comp = toolchain.c_compiler(arch, abi)
     ar, ranlib = toolchain.tools(arch)
 
     if build_options[:sysroot_in_cflags]
@@ -200,7 +207,7 @@ class Library < Formula
                  }
 
     if build_options[:use_cxx]
-      cxx_comp = toolchain.cxx_compiler(arch)
+      cxx_comp = toolchain.cxx_compiler(arch, abi)
       cxx_comp += ' ' + Build.sysroot(abi) unless build_options[:sysroot_in_cflags]
 
       if not build_options[:cxx_wrapper]

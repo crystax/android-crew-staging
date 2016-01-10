@@ -7,18 +7,18 @@ module Toolchain
   class GCC
     attr_reader :type, :version, :name
 
-    def initialize(type, version)
-      @type = type
+    def initialize(version)
+      @type = 'gcc'
       @version = version
       @name = "#{type}-#{version}"
     end
 
-    def c_compiler(arch)
-      "#{tc_prefix(arch)}/bin/#{arch.host}-gcc"
+    def c_compiler(arch, _abi)
+      "#{tc_prefix(arch)}/bin/#{arch.host}-#{c_compiler_name}"
     end
 
-    def cxx_compiler(arch)
-      "#{tc_prefix(arch)}/bin/#{arch.host}-g++"
+    def cxx_compiler(arch, _abi)
+      "#{tc_prefix(arch)}/bin/#{arch.host}-#{cxx_compiler_name}"
     end
 
     def tools(arch)
@@ -28,9 +28,10 @@ module Toolchain
       [ar, ranlib]
     end
 
-    def tool_path(name, arch)
-      "#{tc_prefix(arch)}/bin/#{arch.host}-#{name}"
-    end
+    # todo: remove?
+    # def tool_path(name, arch)
+    #   "#{tc_prefix(arch)}/bin/#{arch.host}-#{name}"
+    # end
 
     def c_compiler_name
       'gcc'
@@ -57,7 +58,36 @@ module Toolchain
       "-L#{Global::NDK_DIR}/sources/cxx-stl/gnu-libstdc++/#{version}/libs/#{abi}"
     end
 
-    private
+    def cflags(abi)
+      case abi
+      when 'armeabi'
+        '-march=armv5te -mtune=xscale -msoft-float'
+      when 'armeabi-v7a'
+        '-march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp'
+      when 'armeabi-v7a-hard'
+        '-march=armv7-a -mfpu=vfpv3-d16 -mhard-float'
+      else
+        ""
+      end
+    end
+
+    def ldflags(abi)
+      f = "-L#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
+      case abi
+      when 'armeabi-v7a'
+        f += ' -Wl,--fix-cortex-a8'
+      when 'armeabi-v7a-hard'
+        f += ' -Wl,--fix-cortex-a8 -Wl,--no-warn-mismatch'
+      end
+      f
+    end
+
+    def find_so_needs(lib, arch)
+      objdump = "#{tc_prefix(arch)}/bin/#{arch.host}-objdump"
+      Utils.run_command(objdump, '-p', lib).split("\n").select { |l| l =~ /NEEDED/ }.map { |l| l.split(' ')[1].split('.')[0] }
+    end
+
+    # private
 
     def tc_prefix(arch)
       "#{Global::NDK_DIR}/toolchains/#{arch.toolchain}-#{version}/prebuilt/#{File.basename(Global::TOOLS_DIR)}"
@@ -65,33 +95,118 @@ module Toolchain
   end
 
 
-  # todo:
   class LLVM
-    attr_reader :type, :version, :name
+    attr_reader :type, :version, :name, :gcc_toolchain
 
-    def initialize(name, version, gcc_toolchain)
-      @name = name
+    def initialize(version, gcc_toolchain)
+      @type = 'llvm'
       @version = version
       @gcc_toolchain = gcc_toolchain
-      @name = name
+      @name = "#{type}-#{version}"
     end
 
-    def c_compiler
+    def c_compiler(arch, abi)
+      "#{tc_prefix(abi)}/bin/#{c_compiler_name} -target #{target(abi)} -gcc-toolchain #{gcc_toolchain.tc_prefix(arch)}"
     end
 
-    def cxx_compiler
+    def cxx_compiler(arch, abi)
+      "#{tc_prefix(abi)}/bin/#{cxx_compiler_name} -target #{target(abi)} -gcc-toolchain #{gcc_toolchain.tc_prefix(arch)}"
     end
 
-    def tools
+    def tools(arch)
+      gcc_toolchain.tools(arch)
+    end
+
+    # todo: remove?
+    # def tool_path(name, arch)
+    #   "#{tc_prefix(arch)}/bin/#{arch.host}-#{name}"
+    # end
+
+    def c_compiler_name
+      'clang'
+    end
+
+    def cxx_compiler_name
+      'clang++'
+    end
+
+    def stl_lib_name
+      'c++'
+    end
+
+    def stl_name
+      "llvm-#{version}"
     end
 
     def search_path_for_stl_includes(abi)
+      "-I#{Global::NDK_DIR}/sources/cxx-stl/llvm-libc++/#{version}/libcxx/include " \
+      "-I#{Global::NDK_DIR}/sources/cxx-stl/llvm-libc++abi/libcxxabi/include"
     end
 
     def search_path_for_stl_libs(abi)
+      "-L#{Global::NDK_DIR}/sources/cxx-stl/llvm-libc++/#{version}/libs/#{abi}"
+    end
+
+    def cflags(abi)
+      f = "#{gcc_toolchain.cflags(abi)} -fno-integrated-as"
+      case abi
+      when 'x86'
+        f += ' -m32'
+      when 'x86_64'
+        f += ' -m64'
+      when 'mips'
+        f += ' -mabi=32 -mips32'
+      when 'mips64'
+        f += ' -mabi=64 -mips64r6'
+      end
+      f
+    end
+
+    def ldflags(abi)
+      gcc_toolchain.ldflags(abi)
+    end
+
+    def find_so_needs(lib, arch)
+      gcc_toolchain.find_so_needs lib, arch
+    end
+
+      # private
+
+    def tc_prefix(_arch)
+      "#{Global::NDK_DIR}/toolchains/llvm-#{version}/prebuilt/#{File.basename(Global::TOOLS_DIR)}"
+    end
+
+    private
+
+    def target(abi)
+      case abi
+      when 'armeabi'
+        'armv5te-none-linux-androideabi'
+      when /^armeabi-v7a/
+        'armv7-none-linux-androideabi'
+      when 'arm64-v8a'
+        'aarch64-none-linux-android'
+      when 'x86'
+        'i686-none-linux-android'
+      when 'x86_64'
+        'x86_64-none-linux-android'
+      when 'mips'
+            'mipsel-none-linux-android'
+      when 'mips64'
+        'mips64el-none-linux-android'
+      else
+        raise UnknownAbi.new(abi)
+      end
     end
   end
 
-  GCC_4_9 = GCC.new('gcc', '4.9')
-  GCC_5   = GCC.new('gcc', '5')
+  GCC_4_9 = GCC.new('4.9')
+  GCC_5   = GCC.new('5')
+
+  DEFAULT_GCC = GCC_4_9
+
+  LLVM_3_6 = LLVM.new('3.6', DEFAULT_GCC)
+  LLVM_3_7 = LLVM.new('3.7', DEFAULT_GCC)
+
+  DEFAULT_LLVM = LLVM_3_7
 end
