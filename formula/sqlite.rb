@@ -4,11 +4,10 @@ class Sqlite < Library
   homepage "https://sqlite.org/"
   url "https://sqlite.org/2015/sqlite-amalgamation-${block}.zip" do |v| ('%-2s%-2s%-3s' % v.split('.')).gsub(' ', '0') end
 
-  release version: '3.9.2', crystax_version: 1, sha256: '0'
+  release version: '3.9.2', crystax_version: 1, sha256: '90e89c0554bbdbb74941ff93672583c3a1ed6255d3696cabab5751130ea5a0dc'
 
   build_options setup_env: false
   build_libs 'libsqlite3'
-  patch :DATA
 
   def build_for_abi(abi, _toolchain, _release, _dep_dirs)
     cwd = Dir.pwd
@@ -37,32 +36,3 @@ class Sqlite < Library
     end
   end
 end
-
-__END__
-diff --git a/sqlite3.c b/sqlite3.c
-index 0ae407d..a0de2e0 100644
---- a/sqlite3.c
-+++ b/sqlite3.c
-@@ -9561,7 +9561,14 @@ SQLITE_PRIVATE void sqlite3HashClear(Hash*);
- /*
- ** Macros to compute minimum and maximum of two numbers.
- */
-+#ifdef MIN
-+#undef MIN
-+#endif
- #define MIN(A,B) ((A)<(B)?(A):(B))
-+
-+#ifdef MAX
-+#undef MAX
-+#endif
- #define MAX(A,B) ((A)>(B)?(A):(B))
-
- /*
-@@ -122137,6 +122144,7 @@ static void constructAutomaticIndex(
-     VdbeCoverage(v);
-     VdbeComment((v, "next row of \"%s\"", pTabItem->pTab->zName));
-   }else{
-+    addrCounter = 0;
-     addrTop = sqlite3VdbeAddOp1(v, OP_Rewind, pLevel->iTabCur); VdbeCoverage(v);
-   }
-   if( pPartial ){

@@ -4,22 +4,15 @@ require 'open3'
 
 module Patch
 
-  class FromData
+  class File
     attr_reader :path
 
-    def contents(path)
-      data = ""
-      File.open(path, "rb") do |f|
-        begin
-          line = f.gets
-        end until line.nil? || /^__END__$/ === line
-        data << line while line = f.gets
-      end
-      data
+    def initialize(path)
+      @path = path
     end
 
-    def apply(formula, src_dir)
-      data = contents(formula.path)
+    def apply(src_dir)
+      data = ::File.read(@path)
       cmd = [Utils.patch_prog, '--strip=1', '--verbose', '-l']
       Open3.popen2e(*cmd, :chdir => src_dir) do |cin, cout, wt|
         output = ''

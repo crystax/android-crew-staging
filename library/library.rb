@@ -2,6 +2,7 @@ require 'uri'
 require 'tmpdir'
 require 'fileutils'
 require 'open3'
+require 'digest'
 require_relative 'formula.rb'
 require_relative 'release.rb'
 require_relative 'build.rb'
@@ -87,10 +88,13 @@ class Library < Formula
     diff = old_dir.empty? ? new_dir : new_dir - old_dir
     raise "source archive does not have top directory, diff: #{diff}" if diff.count != 1
     FileUtils.cd(rel_dir) { FileUtils.mv diff[0], SRC_DIR_BASENAME }
-    if patch
+    if patches.size > 0
       src_dir = "#{rel_dir}/#{SRC_DIR_BASENAME}"
       puts "= patching in dir #{src_dir}"
-      patch.apply self, src_dir
+      patches.each do |p|
+        puts "  applying #{File.basename(p.path)}"
+        p.apply src_dir
+      end
     end
 
     prop[:source_installed] = true
@@ -154,6 +158,8 @@ class Library < Formula
     puts "= executing post build step"
     post_build package_dir, release
 
+    build_copy.each { |f| FileUtils.cp "#{src_dir}/#{f}", package_dir }
+
     if options.build_only?
       puts "Build only, no packaging and installing"
     else
@@ -167,8 +173,7 @@ class Library < Formula
       install_release_archive release, archive
     end
 
-    # calculate and update shasum if asked for
-    # todo:
+    update_shasum Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) if options.update_shasum?
 
     if options.no_clean?
       puts "No cleanup, for build artifacts see #{base_dir}"
@@ -256,11 +261,11 @@ class Library < Formula
       end
     end
 
-    def build_toolchains(*args)
+    def build_copy(*args)
       if args.size == 0
-        @build_toolchains ? @build_toolchains : [ Build::DEFAULT_TOOLCHAIN ]
+        @build_copy ? @build_copy : []
       else
-        @build_toolchains = args.flatten
+        @build_copy = args
       end
     end
 
@@ -280,23 +285,14 @@ class Library < Formula
         @build_options.update hash
       end
     end
-
-    def patch(type = nil)
-      if not type
-        @patch
-      else
-        raise "unsupported patch type: #{type}" unless type == :DATA
-        @patch = Patch::FromData.new
-      end
-    end
   end
 
   def url
     self.class.url
   end
 
-  def build_toolchains
-    self.class.build_toolchains
+  def build_copy
+    self.class.build_copy
   end
 
   def build_libs
@@ -305,10 +301,6 @@ class Library < Formula
 
   def build_options
     self.class.build_options
-  end
-
-  def patch
-    self.class.patch
   end
 
   private
@@ -337,6 +329,17 @@ class Library < Formula
     Utils.unpack archive, rel_dir
     # todo:
     #update_root_android_mk release
+  end
+
+  def patches
+    if @patches == nil
+      @patches = []
+      Dir["#{Global::BASE_DIR}/patches/#{name}/*.patch"].each { |p| @patches << Patch::File.new(p) }
+    end
+    @patches
+  end
+
+  def read_patches
   end
 
   def binary_files(rel_dir)
@@ -387,6 +390,13 @@ class Library < Formula
       raise "command failed with code: #{rc}; see #{@log_file} for details" unless rc == 0
     end
   end
+
+  def update_shasum(sum)
+    s = File.read(path).sub(/sha256:\s+'\h+'/, "sha256: '#{sum}'")
+    File.open(path, 'w') { |f| f.puts s }
+  end
+
+
 
   # # $(call import-module,libjpeg/9a)
   # def update_root_android_mk(release)

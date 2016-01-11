@@ -4,10 +4,10 @@ class Libpng < Library
   homepage "http://www.libpng.org/pub/png/libpng.html"
   url "http://sourceforge.net/projects/libpng/files/libpng16/${version}/libpng-${version}.tar.xz"
 
-  release version: '1.6.19', crystax_version: 1, sha256: '0'
+  release version: '1.6.19', crystax_version: 1, sha256: '62a4f9128500bc7583dd1ce3f7a7f56566b1abb8d8ba9358a93b5ef201d7f51c'
 
+  build_copy 'LICENSE'
   build_options export_ldlibs: '-lz'
-  build_libs 'libpng'
 
   def build_for_abi(abi, _toolchain, _release, _dep_dirs)
     args =  [ "--prefix=#{install_dir_for_abi(abi)}",

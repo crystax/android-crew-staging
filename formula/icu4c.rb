@@ -4,10 +4,10 @@ class Icu4c < Library
   homepage "http://site.icu-project.org/"
   url "https://ssl.icu-project.org/files/icu4c/${version}/icu4c-${block}-src.tgz" do |v| v.gsub('.', '_') end
 
-  release version: '56.1', crystax_version: 1, sha256: '0'
+  release version: '56.1', crystax_version: 1, sha256: '9ae697577aa2f1dcbad63cf2d3bfd292dc7042796e3a1e8cf25218c57e17df69'
 
-  patch :DATA
   build_libs 'libicudata', 'libicui18n', 'libicuio', 'libicule', 'libiculx', 'libicutest', 'libicutu', 'libicuuc'
+  build_copy 'license.html'
   build_options use_cxx: true,
                 wrapper_replace: { '-m32' => '',
                                    '-m64' => ''
@@ -78,19 +78,3 @@ class Icu4c < Library
   #   FileUtils.chmod "a+x", filename
   # end
 end
-
-__END__
-diff -wr -U 4 a/source/tools/toolutil/flagparser.c b/source/tools/toolutil/flagparser.c
---- a/source/tools/toolutil/flagparser.c	2015-10-08 06:54:06.000000000 +0300
-+++ b/source/tools/toolutil/flagparser.c	2015-12-26 00:04:09.000000000 +0300
-@@ -96,9 +96,9 @@
-     uprv_free(buffer);
-
-     T_FileStream_close(f);
-
--    if (U_FAILURE(*status)) {
-+    if (U_FAILURE(*status) && (*status != U_BUFFER_OVERFLOW_ERROR)) {
-         return -1;
-     }
-
-     if (U_SUCCESS(*status) && result == 0) {
