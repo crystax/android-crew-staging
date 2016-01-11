@@ -127,6 +127,7 @@ class Library < Formula
     FileUtils.rm_rf base_dir
     src_dir = "#{release_directory(release)}/#{SRC_DIR_BASENAME}"
     @log_file = build_log_file
+    @num_jobs = options.num_jobs
 
     print "= executing pre build step: "
     @pre_build_result = pre_build(src_dir, release)
@@ -220,10 +221,10 @@ class Library < Formula
 
       cxxflags = cflags + ' ' + toolchain.search_path_for_stl_includes(abi)
 
-      build_env['CXX']      = cxx
-      build_env['CXXCPP']   = "#{cxx} #{cxxflags} -E"
-      build_env['CXXFLAGS'] = cxxflags
-      build_env['LDFLAGS'] += ' ' + toolchain.search_path_for_stl_libs(abi)
+      @build_env['CXX']      = cxx
+      @build_env['CXXCPP']   = "#{cxx} #{cxxflags} -E"
+      @build_env['CXXFLAGS'] = cxxflags
+      @build_env['LDFLAGS'] += ' ' + toolchain.search_path_for_stl_libs(abi)
     end
   end
 
