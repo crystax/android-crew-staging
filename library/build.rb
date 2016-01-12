@@ -24,13 +24,11 @@ module Build
                 Arch.new('mips64', 64, MIN_64_API_LEVEL, 'mips64el-linux-android', 'mips64el-linux-android', ['mips64']).freeze
               ]
 
+  ABI_LIST = ARCH_LIST.map { |a| a.abis }.flatten
+
   DEFAULT_TOOLCHAIN = Toolchain::DEFAULT_GCC
   TOOLCHAIN_LIST = [ Toolchain::GCC_4_9, Toolchain::GCC_5, Toolchain::LLVM_3_6, Toolchain::LLVM_3_7 ]
 
-
-  def self.def_arch_list_to_build
-    ARCH_LIST.map { |a| b = a.dup ; b.abis_to_build = b.abis ; b }
-  end
 
   def self.abis_to_arch_list(abis)
     arch_list = ARCH_LIST.map { |a| a.dup }
@@ -41,30 +39,6 @@ module Build
     arch_list.select { |a| not a.abis_to_build.empty? }
   end
 
-  # def self.cflags(abi)
-  #   case abi
-  #   when 'armeabi'
-  #     '-march=armv5te -mtune=xscale -msoft-float'
-  #   when 'armeabi-v7a'
-  #     '-march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp'
-  #   when 'armeabi-v7a-hard'
-  #     '-march=armv7-a -mfpu=vfpv3-d16 -mhard-float'
-  #   else
-  #     ""
-  #   end
-  # end
-
-  # def self.ldflags(abi)
-  #   f = "-L#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
-  #   case abi
-  #   when 'armeabi-v7a'
-  #     f += ' -Wl,--fix-cortex-a8'
-  #   when 'armeabi-v7a-hard'
-  #     f += ' -Wl,--fix-cortex-a8 -Wl,--no-warn-mismatch'
-  #   end
-  #   f
-  # end
-
   def self.arch_for_abi(abi, arch_list = ARCH_LIST)
     arch_list.select { |arch| arch.abis.include? abi } [0]
   end
@@ -73,11 +47,6 @@ module Build
     arch = arch_for_abi(abi)
     " --sysroot=#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
   end
-
-  # todo: remove
-  # def self.search_path_for_crystax_libs(abi)
-  #   "-L#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
-  # end
 
   def self.gen_host_compiler_wrapper(wrapper, compiler, *opts)
     # todo: we do not have platform/prebuilts in NDK distribution
@@ -183,16 +152,6 @@ module Build
     end
     FileUtils.chmod "a+x", wrapper
   end
-
-  # todo: remove?
-  # def self.gen_tool_wrapper(dir, tool, toolchain, arch)
-  #   filename = "#{dir}/#{tool}"
-  #   File.open(filename, "w") do |f|
-  #     f.puts "#!/bin/sh"
-  #     f.puts "exec #{toolchain.tool_path(tool, arch)} \"$@\""
-  #   end
-  #   FileUtils.chmod "a+x", filename
-  # end
 
   def self.gen_android_mk(filename, libs, options)
     File.open(filename, "w") do |f|

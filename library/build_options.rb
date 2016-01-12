@@ -1,4 +1,5 @@
 require_relative 'utils.rb'
+require_relative 'build.rb'
 
 
 class Build_options
@@ -7,7 +8,7 @@ class Build_options
   attr_writer :build_only, :no_clean, :update_shasum
 
   def initialize(opts)
-    @abis = nil
+    @abis = Build::ABI_LIST
     @build_only = false
     @no_clean = false
     @update_shasum = false
@@ -24,7 +25,7 @@ class Build_options
       when '--update-shasum'
         @update_shasum = true
       when /^--num-jobs=/
-        @num_jobs = opt.split('=')[1]
+        @num_jobs = opt.split('=')[1].to_i
       else
         raise "unknow option: #{opt}"
       end

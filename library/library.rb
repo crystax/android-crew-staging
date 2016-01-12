@@ -124,7 +124,7 @@ class Library < Formula
   end
 
   def build_package(release, options, dep_dirs)
-    arch_list = options.abis ? Build.abis_to_arch_list(options.abis) : Build.def_arch_list_to_build
+    arch_list = Build.abis_to_arch_list(options.abis)
     puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
 
     base_dir = build_base_dir
