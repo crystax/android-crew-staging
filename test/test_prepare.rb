@@ -24,6 +24,7 @@ orig_engine_dir    = File.join(orig_tools_dir, 'crew')
 FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'cache')
 FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'formula', 'utilities')
 FileUtils.mkdir_p File.join(Crew_test::NDK_DIR, 'sources')
+FileUtils.mkdir_p File.join(Crew_test::NDK_DIR, 'packages')
 FileUtils.mkdir_p File.dirname(File.join(tools_dir, 'crew'))
 FileUtils.mkdir_p utils_download_dir
 FileUtils.cp_r File.join(orig_tools_dir, 'crew'), File.join(tools_dir, 'crew')
