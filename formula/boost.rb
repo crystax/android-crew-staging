@@ -4,9 +4,8 @@ class Boost < Library
   homepage "http://www.boost.org"
   url "https://downloads.sourceforge.net/project/boost/boost/${version}/boost_${block}.tar.bz2" do |v| v.gsub('.', '_') end
 
-  release version: '1.60.0', crystax_version: 1, sha256: '0'
+  release version: '1.60.0', crystax_version: 1, sha256: 'd036b179cdee6ae68f380b61b387561a62a87d1de442d7ca01fcb777b583b620'
 
-  patch :DATA
   build_options setup_env: false,
                 copy_incs_and_libs: false,
                 wrapper_replace: { '-dynamiclib'    => '-shared',
@@ -17,6 +16,7 @@ class Boost < Library
                                    '-lpthread'      => '',
                                    '-lutil'         => ''
                                  }
+  build_copy 'LICENSE_1_0.txt'
   build_libs 'atomic',
              'chrono',
              'container',
@@ -304,60 +304,3 @@ class Boost < Library
     end
   end
 end
-
-__END__
-From ee108969816ed2aad8a4e8495b1050047abe72af Mon Sep 17 00:00:00 2001
-From: Dmitry Moskalchuk <dm@crystax.net>
-Date: Mon, 7 Sep 2015 00:42:35 +0300
-Subject: [PATCH] [android][x86_64] Workaround for clang bug
-
-See https://tracker.crystax.net/issues/1044
-
-Signed-off-by: Dmitry Moskalchuk <dm@crystax.net>
----
- libs/locale/src/util/numeric.hpp | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
-
-diff --git a/libs/locale/src/util/numeric.hpp b/libs/locale/src/util/numeric.hpp
-index 892427d..fb7c019 100644
---- a/libs/locale/src/util/numeric.hpp
-+++ b/libs/locale/src/util/numeric.hpp
-@@ -254,6 +254,24 @@ private:
-
- };  /// num_format
-
-+#if defined(__ANDROID__) && defined(__x86_64__) && defined(__clang__)
-+namespace base_num_parse_details
-+{
-+
-+template <typename ValueType>
-+struct cast_helper
-+{
-+    static ValueType cast(long double val) { return static_cast<ValueType>(val); }
-+};
-+
-+template <>
-+struct cast_helper<unsigned short>
-+{
-+    static unsigned short cast(long double val) { return static_cast<unsigned short>(static_cast<unsigned int>(val)); }
-+};
-+
-+} // namespace base_num_parse_details
-+#endif /* defined(__ANDROID__) && defined(__x86_64__) && defined(__clang__) */
-
- template<typename CharType>
- class base_num_parse : public std::num_get<CharType>
-@@ -342,7 +360,11 @@ private:
-                 else
-                     in = parse_currency<true>(in,end,ios,err,ret_val);
-                 if(!(err & std::ios_base::failbit))
-+#if defined(__ANDROID__) && defined(__x86_64__) && defined(__clang__)
-+                    val = base_num_parse_details::cast_helper<ValueType>::cast(ret_val);
-+#else
-                     val = static_cast<ValueType>(ret_val);
-+#endif
-                 return in;
-             }
-
---
-2.6.4
