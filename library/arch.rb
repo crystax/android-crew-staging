@@ -1,6 +1,6 @@
 class Arch
-  attr_reader :name, :num_bits, :min_api_level, :host, :toolchain, :abis
-  attr_accessor :abis_to_build
+  attr_reader :name, :num_bits, :min_api_level, :host, :toolchain, :abis, :abis_to_build
+  attr_accessor
 
   def initialize(name, bits, api, host, toolchain, abis)
     @name = name
@@ -10,6 +10,13 @@ class Arch
     @toolchain = toolchain
     @abis = abis
     @abis_to_build = []
+  end
+
+  def abis_to_build=(v)
+    v.each do |abi|
+      raise "unsupported abi #{abi} for #{@name}" unless @abis.include? abi
+      @abis_to_build << abi
+    end
   end
 
   def dup
