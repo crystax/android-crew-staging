@@ -25,13 +25,9 @@ module Toolchain
       tp = tc_prefix(arch)
       ar = "#{tp}/bin/#{arch.host}-ar"
       ranlib = "#{tp}/bin/#{arch.host}-ranlib"
-      [ar, ranlib]
+      readelf = "#{tp}/bin/#{arch.host}-readelf"
+      [ar, ranlib, readelf]
     end
-
-    # todo: remove?
-    # def tool_path(name, arch)
-    #   "#{tc_prefix(arch)}/bin/#{arch.host}-#{name}"
-    # end
 
     def c_compiler_name
       'gcc'
