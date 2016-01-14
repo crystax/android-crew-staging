@@ -82,7 +82,6 @@ module Build
       f.puts 'fi'
       f.puts ''
       f.puts 'PARAMS=$@'
-      f.puts 'echo "PARAMS: $PARAMS" >> /tmp/wrapper.log'
       if opts = options[:wrapper_replace]
         f.puts ''
         f.puts 'REPLACED_PARAMS='
@@ -96,12 +95,10 @@ module Build
         f.puts '    esac'
         f.puts '    REPLACED_PARAMS="$REPLACED_PARAMS $p"'
         f.puts 'done'
-        f.puts 'echo "REPLACED_PARAMS: $REPLACED_PARAMS" >> /tmp/wrapper.log'
         f.puts 'PARAMS=$REPLACED_PARAMS'
       end
       if options[:wrapper_fix_soname]
         f.puts ''
-        f.puts 'echo "PARAMS: $PARAMS" >> /tmp/wrapper.log'
         f.puts 'FIXED_SONAME_PARAMS='
         f.puts 'NEXT_PARAM_IS_LIBNAME=no'
         f.puts 'for p in $PARAMS; do'
@@ -127,7 +124,6 @@ module Build
       end
       if options[:wrapper_fix_stl]
         f.puts ''
-        f.puts 'echo "PARAMS: $PARAMS" >> /tmp/wrapper.log'
         f.puts 'FIXED_STL_PARAMS='
         f.puts 'for p in $PARAMS; do'
         f.puts '  case $p in'
@@ -137,7 +133,6 @@ module Build
         f.puts '  esac'
         f.puts '  FIXED_STL_PARAMS="$FIXED_STL_PARAMS $p"'
         f.puts 'done'
-        f.puts 'echo "FIXED_STL_PARAMS: $FIXED_STL_PARAMS" >> /tmp/wrapper.log'
         f.puts 'PARAMS=$FIXED_STL_PARAMS'
       end
       f.puts ''
@@ -147,7 +142,6 @@ module Build
       f.puts "    PARAMS=\"#{cflags} $PARAMS\""
       f.puts 'fi'
       f.puts ''
-      f.puts 'echo "PARAMS: $PARAMS" >> /tmp/wrapper.log'
       f.puts "exec #{compiler} $PARAMS"
     end
     FileUtils.chmod "a+x", wrapper
