@@ -8,6 +8,7 @@ class Boost < Library
 
   build_options setup_env: false,
                 copy_incs_and_libs: false,
+                gen_android_mk: false,
                 wrapper_replace: { '-dynamiclib'    => '-shared',
                                    '-undefined'     => '-u',
                                    '-m32'           => '',

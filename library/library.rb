@@ -20,6 +20,7 @@ class Library < Formula
                         cxx_wrapper:        'c++',
                         setup_env:          true,
                         copy_incs_and_libs: true,
+                        gen_android_mk:     false,
                         wrapper_fix_soname: true,
                         wrapper_fix_stl:    false,
                         wrapper_filter_out: nil
@@ -153,12 +154,13 @@ class Library < Formula
       end
     end
 
-    Build.gen_android_mk "#{package_dir}/Android.mk", build_libs, build_options
+    Build.gen_android_mk "#{package_dir}/Android.mk", build_libs, build_options if build_options[:gen_android_mk]
 
     puts "= executing post build step"
     post_build package_dir, release
 
     build_copy.each { |f| FileUtils.cp "#{src_dir}/#{f}", package_dir }
+    copy_tests
 
     if options.build_only?
       puts "Build only, no packaging and installing"
@@ -188,7 +190,7 @@ class Library < Formula
 
     arch = Build.arch_for_abi(abi)
     c_comp = toolchain.c_compiler(arch, abi)
-    ar, ranlib = toolchain.tools(arch)
+    ar, ranlib, readelf = toolchain.tools(arch)
 
     if build_options[:sysroot_in_cflags]
       cflags += ' ' + Build.sysroot(abi)
@@ -208,6 +210,7 @@ class Library < Formula
                   'CPP'     => "#{cc} #{cflags} -E",
                   'AR'      => ar,
                   'RANLIB'  => ranlib,
+                  'READELF' => readelf,
                   'CFLAGS'  => cflags,
                   'LDFLAGS' => ldflags
                  }
@@ -249,6 +252,24 @@ class Library < Formula
       FileUtils.cp "#{install_dir}/lib/#{lib}.a",  libs_dir
       FileUtils.cp "#{install_dir}/lib/#{lib}.so", libs_dir
     end
+  end
+
+  def copy_tests
+    # todo: check tests repo in NDK_ROOT directory
+    #       checkout repo using Global::VENDOR_TEST_URL
+    #       check of dir with tests exists
+    #       log that no tests found
+    src_tests_dir = "/var/tmp/vendor-tests/#{name}"
+    if Dir.exists? src_tests_dir
+      dst_tests_dir = "#{package_dir}/tests"
+      FileUtils.mkdir dst_tests_dir
+      FileUtils.cp_r "#{src_tests_dir}/.", "#{dst_tests_dir}/"
+    end
+  end
+
+  def update_shasum(sum)
+    s = File.read(path).sub(/sha256:\s+'\h+'/, "sha256: '#{sum}'")
+    File.open(path, 'w') { |f| f.puts s }
   end
 
   class << self
@@ -377,8 +398,11 @@ class Library < Formula
   def system(*args)
     cmd = args.join(' ')
     File.open(@log_file, "a") do |log|
-      log.puts "== env: #{build_env}"
-      log.puts "== cmd started: #{cmd}"
+      log.puts "== build env:"
+      build_env.keys.sort.each { |k| log.puts "  #{k} = #{build_env[k]}" }
+      log.puts "== cmd started:"
+      log.puts "  #{cmd}"
+      log.puts "=="
 
       rc = 0
       Open3.popen2e(build_env, cmd) do |_, out, wt|
@@ -386,17 +410,12 @@ class Library < Formula
         ot.join
         rc = wt && wt.value.exitstatus
       end
-      log.puts "== cmd finished: exit code: #{rc} cmd: #{cmd}"
+      log.puts "== cmd finished:"
+      log.puts "  exit code: #{rc} cmd: #{cmd}"
+      log.puts "=="
       raise "command failed with code: #{rc}; see #{@log_file} for details" unless rc == 0
     end
   end
-
-  def update_shasum(sum)
-    s = File.read(path).sub(/sha256:\s+'\h+'/, "sha256: '#{sum}'")
-    File.open(path, 'w') { |f| f.puts s }
-  end
-
-
 
   # # $(call import-module,libjpeg/9a)
   # def update_root_android_mk(release)
