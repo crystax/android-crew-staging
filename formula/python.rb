@@ -5,6 +5,7 @@ class Python < Library
   url "https://www.python.org/ftp/python/${version}/Python-${version}.tgz"
 
   release version: '2.7.11', crystax_version: 1, sha256: '0'
+  release version: '3.5.1',  crystax_version: 1, sha256: '0'
 
   depends_on 'sqlite'
 
@@ -140,7 +141,7 @@ class Python < Library
 
   def gen_core_android_mk(filename, major_ver, python_abi, src_dir, support_dir)
     local_cflags  = '-DPy_BUILD_CORE -DPy_ENABLE_SHARED -DPLATFORM="linux"'
-    local_cflags += " -DSOABI=cpython-#{python_abi}m" if major_ver > 2
+    local_cflags += " -DSOABI=\\\"cpython-#{python_abi}m\\\"" if major_ver > 2
 
     File.open(filename, 'w') do |f|
       f.puts 'LOCAL_PATH := $(call my-dir)'
