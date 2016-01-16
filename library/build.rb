@@ -13,8 +13,9 @@ module Build
 
   USER = ENV['USER']
 
-  BASE_DIR  = "/tmp/ndk-#{USER}/target"
-  CACHE_DIR = "/var/tmp/ndk-cache-#{USER}"
+  BASE_DIR         = "/tmp/ndk-#{USER}/target"
+  CACHE_DIR        = "/var/tmp/ndk-cache-#{USER}"
+  VENDOR_TESTS_DIR = "#{Global::NDK_DIR}/../../vendor/tests"
 
   ARCH_LIST = [ Arch.new('arm',    32, MIN_32_API_LEVEL, 'arm-linux-androideabi',  'arm-linux-androideabi',  ['armeabi', 'armeabi-v7a', 'armeabi-v7a-hard'].freeze),
                 Arch.new('x86',    32, MIN_32_API_LEVEL, 'i686-linux-android',     'x86',                    ['x86']).freeze,

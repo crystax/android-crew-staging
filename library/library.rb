@@ -255,11 +255,7 @@ class Library < Formula
   end
 
   def copy_tests
-    # todo: check tests repo in NDK_ROOT directory
-    #       checkout repo using Global::VENDOR_TEST_URL
-    #       check of dir with tests exists
-    #       log that no tests found
-    src_tests_dir = "/var/tmp/vendor-tests/#{name}"
+    src_tests_dir = "#{Build::VENDOR_TESTS_DIR}/#{name}"
     if Dir.exists? src_tests_dir
       dst_tests_dir = "#{package_dir}/tests"
       FileUtils.mkdir dst_tests_dir
