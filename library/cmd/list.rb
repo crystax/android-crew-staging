@@ -16,7 +16,7 @@ class Element
   end
 
   def <=>(e)
-    "#{name} #{version} #{crystax_version.to_s.rjust(4, '0')}" <=> "#{e.name} #{e.version} #{e.crystax_version.to_s.rjust(4, '0')}"
+    "#{name} #{version}" <=> "#{e.name} #{e.version}"
   end
 end
 
@@ -54,7 +54,14 @@ module Crew
         max_name_len = f.name.size if f.name.size > max_name_len
         ver = r.version
         max_ver_len = ver.size if ver.size > max_ver_len
-        cxver = r.crystax_version
+        if not r.installed?
+          cxver = r.crystax_version.to_s
+        else
+          cxver = r.installed_crystax_version.to_s
+          if r.installed_crystax_version != r.crystax_version
+            cxver += " (#{r.crystax_version})"
+          end
+        end
         max_cxver_len = cxver.to_s.size if cxver.to_s.size > max_cxver_len
         list << Element.new(f.name, ver, cxver, r.installed?, r.source_installed?)
       end

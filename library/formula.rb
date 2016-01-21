@@ -19,7 +19,7 @@ class Formula
     raise "bad package version string: #{pkgver}" if r.size < 2
     cxver = r.pop.to_i
     ver = r.join('_')
-    Release.new(ver, cxver)
+    [ver, cxver]
   end
 
   attr_reader :path
@@ -27,17 +27,6 @@ class Formula
   def initialize(path)
     @path = path
     self.class.name File.basename(path, '.rb') unless name
-
-    # mark installed releases
-    releases.each do |r|
-      dir = release_directory(r)
-      if Dir.exists? dir
-        prop = get_properties(dir)
-        if r.crystax_version == prop[:crystax_version]
-          r.update prop
-        end
-      end
-    end
   end
 
   def name
@@ -97,22 +86,13 @@ class Formula
 
     puts "checking integrity of the archive file #{file}"
     if Digest::SHA256.hexdigest(File.read(cachepath, mode: "rb")) != sha256_sum(release)
-      raise "bad SHA256 sum of the downloaded file #{cachepath}"
+      raise "bad SHA256 sum of the file #{cachepath}"
     end
 
     puts "unpacking archive"
-    nstall_release_archive release, cachepath
+    install_archive release, cachepath
 
-  end
-
-  def install_release_archive(release, archive)
-    rel_dir = release_directory(release)
-    prop = get_properties(rel_dir)
-    install_archive release, archive
-    prop.update get_properties(rel_dir)
-    prop[:installed] = true
-    release.installed = true
-    save_properties prop, rel_dir
+    release.installed = release.crystax_version
   end
 
   def installed?(release = Release.new)
@@ -146,6 +126,7 @@ class Formula
       raise ":crystax_version key not present in the release" unless r.has_key?(:crystax_version)
       raise ":sha256 key not present in the release"          unless r.has_key?(:sha256)
       @releases = [] if !@releases
+      raise "more than one version #{r[:version]}" if @releases.any? { |rel| rel.version == r[:version] }
       @releases << Release.new(r[:version], r[:crystax_version], r[:sha256])
     end
 
@@ -190,10 +171,10 @@ class Formula
 
   def get_properties(dir)
     propfile = File.join(dir, PROPERTIES_FILE)
-    if File.exists?(propfile)
-      JSON.parse(IO.read(propfile), symbolize_names: true)
-    else
+    if not File.exists? propfile
       {}
+    else
+      JSON.parse(IO.read(propfile), symbolize_names: true)
     end
   end
 

@@ -3,20 +3,17 @@ require_relative 'formula.rb'
 
 class Utility < Formula
 
-  # formula's ctor marked as 'installed' all releases that are unpacked (resp. dir exixts)
-  # but for utilities a release considered 'installed' only if it's version is equal
-  # to the one saved in the 'active' file
+  # For utilities a release considered as 'installed' only if it's version is equal
+  # to the one saved in the 'active' file.
   #
-  # formula's ctor called with :no_active_file from the NDK's build scripts
-  # in tht case we should just mark all releases as 'uninstalled'
+  # Utility ctor called with :no_active_file from the NDK's build scripts
+  # in the case we should just mark all releases as 'uninstalled'
   def initialize(path, *options)
     super(path)
 
-    if options.include? :no_active_file
-      releases.each { |r| r.installed = false }
-    else
-      active_version = Global::active_util_version(name)
-      releases.each { |r| r.installed = (r.to_s == active_version) }
+    if not options.include? :no_active_file
+      ver, cxver = Formula.split_package_version(Global::active_util_version(name))
+      releases.each { |r| r.installed = cxver if r.version == ver }
     end
   end
 
@@ -24,8 +21,12 @@ class Utility < Formula
     self.class.programs
   end
 
+  def home_directory
+    File.join(Global::ENGINE_DIR, name)
+  end
+
   def release_directory(release)
-    File.join(Global::ENGINE_DIR, name, release.to_s)
+    File.join(home_directory, release.to_s)
   end
 
   def download_base

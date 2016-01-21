@@ -12,10 +12,10 @@ module Crew
 
     formulary = Formulary.libraries
 
-    args.each.with_index do |n, index|
-      name, ver, cxver = n.split(':')
+    args.each do |n|
+      name, ver = n.split(':')
       formula = formulary[name]
-      release = formula.find_release Release.new(ver, cxver)
+      release = formula.find_release Release.new(ver)
 
       if release.source_installed?
         puts "sources for #{name}:#{release.version}:#{release.crystax_version} already installed"
@@ -30,7 +30,7 @@ module Crew
 
       formula.install_source release
 
-      puts "" if index + 1 < args.count
+      puts "" unless n == args.last
     end
   end
 end

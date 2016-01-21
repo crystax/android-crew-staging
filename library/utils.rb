@@ -54,6 +54,7 @@ module Utils
   end
 
   def self.unpack(archive, outdir)
+    FileUtils.mkdir_p outdir if not Dir.exists? outdir
     case File.extname(archive)
     when '.zip'
       args = [archive, "-d", outdir]

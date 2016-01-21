@@ -39,7 +39,7 @@ Example:
     1.0
 
 
-### help
+### help [command]
 
 Output short information about available commands.
 
@@ -78,11 +78,13 @@ Example:
 ### list [libs|utils]
 
 List all available formulas, their upstream versions, crystax versions,
-status (installed or not), sources status (installed or not, for
-libraries only).
+status (installed or not), sources status (installed or not).
 
 Aterisk (``*``) next to utility or library name means that respective
 release was installed.
+
+Number in braces along with crystax versions mean that there is more
+recent (crystax) version of the package.
 
 Word ``source`` to the right of a library data means that source code
 for the release was installed.
@@ -96,16 +98,13 @@ Example:
     Utilities:
      * curl        7.42.0  1
      * libarchive  3.1.2   1
-     * ruby        2.2.2   1
+     * ruby        2.2.2   1 (3)
      * xz          5.2.2   1
     Libraries:
-       icu       54.1    1
-       icu       54.1    2
-     * icu       54.1    3
-     * boost     1.57.0  1
-     * boost     1.58.0  1  source
-       boost     1.58.0  2
-     * freetype  2.5.5   1
+     * icu       54.1    3 (4)
+     * boost     1.58.0  1      source
+     * boost     1.60.0  1 (2)  source
+       sqlite    3.9.2   1
 
 
 ### info name ...
@@ -134,15 +133,14 @@ Example:
       icu (*)
            
 
-### install name[[:version]:crystax_version] ...
+### install name[:version] ...
 
 Install the specified formula(s) and all it's dependencies; if no
 version was specified then the most recent version will be installed;
-otherwise the specified version will be installed; the same applies to
-crystax version.
+otherwise the specified version will be installed.
 
 ``install`` command works only with library formulas. You can not install utility.
-But you can upgrade utility (see below upgrade command description).
+But you can upgrade utility (see below ``upgrade`` command description).
 
 You can install any number of avaliable versions of any library. For example,
 you can install boost 1.57.0, 1.58.0 and 1.59.0 at the same time. But you can
@@ -169,7 +167,7 @@ works as follows:
 * if the specified formula is not installed then command will do nothing
   and return with error message;
 
-* if there are installed formulas that depend on the specified release
+* if there are installed formulas that depend on the specified formula
   and as a result of the command execution all releases of the formula
   will be removed then command will terminate with error message;
 
@@ -192,11 +190,12 @@ Example:
     uninstalling icu-54.1 ...
 
 
-### source name[[:version]:crystax_version] ...
+### source name[:version] ...
 
-Install the source code for the specified formula(s); if no ``version`` was
-specified then the most recent version will be installed; otherwise the
-specified version will be installed; the same applies to ``crystax_version``.
+Install the source code for the specified formula(s); if no ``version``
+was specified then source code for the most recent version will be
+installed; otherwise source code for the specified version will be
+installed.
 
 ``source`` command works only with library formulas.
 
@@ -207,10 +206,10 @@ library. For example, you can install source code for boost 1.57.0,
 You can install source code without installing respective library or
 vice versa.
 
-You can not install source code for the lilbrary that differs from
+You can not install source code for the library that differs from
 installed binary package only in ``crystax_version``. That is if you
-have boost 1.60.0:2 installed, then you can not install sources for
-boost 1.60.0:1.
+have boost 1.60.0:1 installed, then you can not install sources for
+boost 1.60.0:2.
 
 Source code will be installed in the same directory where the specified
 library version was (would be) installed. For example, if you have boost
@@ -228,12 +227,11 @@ Example:
     unpacking: .....
 
 
-### build name[[:version]:crystax_version] ...
+### build name[:version] ...
 
 Build the specified formula(s) from their installed sources code; if no
 ``version`` was specified then the most recent version will be used;
-otherwise the specified version will be used; the same applies to
-``crystax_version``.
+otherwise the specified version will be used.
 
 ``build`` command works only with library formulas.
 

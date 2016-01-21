@@ -32,13 +32,20 @@ class Library < Formula
   def initialize(path)
     super path
 
+    # mark installed releases and sources
+    releases.each { |r| r.update get_properties(release_directory(r)) }
+
     @build_env = {}
     @pre_build_result = nil
     @num_jobs = Utils.processor_count * 2
   end
 
+  def home_directory
+    File.join(Global::HOLD_DIR, name)
+  end
+
   def release_directory(release)
-    File.join(Global::HOLD_DIR, name, release.version)
+    File.join(home_directory, release.version)
   end
 
   def download_base
@@ -47,6 +54,20 @@ class Library < Formula
 
   def type
     :library
+  end
+
+  def install_archive(release, archive)
+    rel_dir = release_directory(release)
+    prop = get_properties(rel_dir)
+
+    FileUtils.rm_rf binary_files(rel_dir)
+    Utils.unpack archive, rel_dir
+    # todo:
+    #update_root_android_mk release
+
+    prop.update get_properties(rel_dir)
+    prop[:installed] = true
+    save_properties prop, rel_dir
   end
 
   def uninstall(release)
@@ -63,17 +84,18 @@ class Library < Formula
     release.installed = false
   end
 
+
   def install_source(release)
     puts "installing source code for #{name}:#{release}"
     rel_dir = release_directory(release)
     prop = get_properties(rel_dir)
-    if prop[:crystax_version] == nil
-      prop[:crystax_version] = release.crystax_version
+    if prop[:installed_crystax_version] == nil
+      prop[:installed_crystax_version] = release.crystax_version
       FileUtils.mkdir_p rel_dir
     end
 
     ver_url = version_url(release.version)
-    archive = "#{Global::CACHE_DIR}/#{File.basename(URI.parse(ver_url).path)}"
+    archive = File.join(Global::CACHE_DIR, File.basename(URI.parse(ver_url).path))
     if File.exists? archive
       puts "= using cached file #{archive}"
     else
@@ -98,6 +120,7 @@ class Library < Formula
       end
     end
 
+    release.source_installed = release.crystax_version
     prop[:source_installed] = true
     save_properties prop, rel_dir
   end
@@ -171,8 +194,11 @@ class Library < Formula
       Utils.pack(archive, package_dir)
 
       # install into packages (and update props if any)
+      # we do not use Formula's install method here to bypass SHA256 sum checks,
+      # build command is intended for a developers
       puts "Unpacking archive into #{release_directory(release)}"
-      install_release_archive release, archive
+      install_archive release, archive
+      release.installed = release.crystax_version
     end
 
     update_shasum Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) if options.update_shasum?
@@ -338,14 +364,6 @@ class Library < Formula
 
   def sha256_sum(release)
     release.shasum(:android)
-  end
-
-  def install_archive(release, archive)
-    rel_dir = release_directory(release)
-    FileUtils.rm_rf binary_files(rel_dir)
-    Utils.unpack archive, rel_dir
-    # todo:
-    #update_root_android_mk release
   end
 
   def patches

@@ -14,10 +14,10 @@ module Crew
 
     formulary = Formulary.libraries
 
-    args.each.with_index do |n, index|
-      name, ver, cxver = n.split(':')
+    args.each do |n|
+      name, ver = n.split(':')
       formula = formulary[name]
-      release = formula.find_release Release.new(ver, cxver)
+      release = formula.find_release Release.new(ver)
       raise "source code not installed for #{name}:#{release}" unless release.source_installed?
 
       absent = formula.dependencies.select { |d| not formulary[d.name].installed? }
@@ -28,7 +28,7 @@ module Crew
 
       formula.build_package release, options, dep_dirs
 
-      puts "" if index + 1 < args.count
+      puts "" unless n == args.last
     end
   end
 

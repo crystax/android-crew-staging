@@ -1,3 +1,4 @@
+
 require_relative '../exceptions.rb'
 require_relative '../release.rb'
 require_relative '../formulary.rb'
@@ -17,11 +18,14 @@ module Crew
       outname = name + (version ? ':' + version : "")
 
       formula = formulary[name]
-
       release = Release.new(version)
-      raise "#{outname} is not installed" if !formula.installed?(release)
 
-      survive_rm = formula.releases.select { |r| r.installed? and !r.match?(release) }
+      if not formula.installed?(release)
+        puts "#{outname} is not installed"
+        next
+      end
+
+      survive_rm = formula.releases.select { |r| r.installed? and not r.match?(release) }
       ideps = formulary.dependants_of(name).select { |d| d.installed? }
       if ideps.count > 0 and survive_rm.count == 0
         raise "#{outname} has installed dependants: #{ideps.map{|f| f.name}.join(', ')}"
@@ -34,7 +38,7 @@ module Crew
       #   formula.actualize_root_android_mk
       # end
 
-      # todo: clean empty dirs
+      Dir.rmdir formula.home_directory if Dir[File.join(formula.home_directory, '*')].empty?
     end
   rescue FormulaUnavailableError => exc
     if not Formulary.utilities.member? exc.name

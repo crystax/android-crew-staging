@@ -13,16 +13,16 @@ module Crew
     formulary = Formulary.libraries
 
     args.each.with_index do |n, index|
-      name, ver, cxver = n.split(':')
+      name, ver = n.split(':')
       formula = formulary[name]
-      release = formula.find_release Release.new(ver, cxver)
+      release = formula.find_release(Release.new(ver))
 
       if release.installed?
         puts "#{name}:#{release} already installed"
         next
       end
 
-      formula.releases.select{ |r| r.source_installed? and r.version == release.version }.each do |c|
+      formula.releases.select { |r| r.source_installed? and r.version == release.version }.each do |c|
         if c.crystax_version != release.crystax_version
           raise "can't install #{name}:#{release} since sources for #{c} installed"
         end

@@ -23,7 +23,7 @@ module Crew
 
       formula.releases.each { |r| formula.uninstall_source(r) if r.source_installed? and r.match?(release) }
 
-      # todo: clean empty dirs
+      Dir.rmdir formula.home_directory if Dir[File.join(formula.home_directory, '*')].empty?
     end
   rescue FormulaUnavailableError => exc
     if not Formulary.utilities.member? exc.name
