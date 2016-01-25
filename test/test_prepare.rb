@@ -100,11 +100,11 @@ def create_archive(orig_release, release, util)
   FileUtils.cd(util_dir) do
     # rename to new release
     FileUtils.mv old, new if old != new
-    # fix crystax_version in properties file
-    propsfile = File.join(new, 'properties.json')
-    props = JSON.parse(IO.read(propsfile), symbolize_names: true)
-    props[:crystax_version] = release.crystax_version
-    File.open(propsfile, 'w') { |f| f.puts props.to_json }
+    # # fix crystax_version in properties file
+    # propsfile = File.join(new, 'properties.json')
+    # props = JSON.parse(IO.read(propsfile), symbolize_names: true)
+    # props[:crystax_version] = release.crystax_version
+    # File.open(propsfile, 'w') { |f| f.puts props.to_json }
   end
   # make archive
   dir_to_archive = File.join('prebuilt', PLATFORM, 'crew', util, new)

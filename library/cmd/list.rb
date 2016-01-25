@@ -12,7 +12,7 @@ class Element
     @version = version
     @crystax_version = cversion
     @installed_sign = iflag ? '*' : ' '
-    @installed_source = sflag ? 'source' : ''
+    @installed_source = sflag ? '  source' : ''
   end
 
   def <=>(e)
@@ -68,7 +68,7 @@ module Crew
     end
 
     list.sort.each do |l|
-      printf " %s %-#{max_name_len}s  %-#{max_ver_len}s  %-#{max_cxver_len}s  %s\n", l.installed_sign, l.name, l.version, l.crystax_version, l.installed_source
+      printf " %s %-#{max_name_len}s  %-#{max_ver_len}s  %-#{max_cxver_len}s%s\n", l.installed_sign, l.name, l.version, l.crystax_version, l.installed_source
     end
   end
 end

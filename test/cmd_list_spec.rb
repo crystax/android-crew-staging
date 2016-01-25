@@ -67,7 +67,7 @@ describe "crew list" do
         copy_formulas 'libone.rb'
         crew 'list', 'libs'
         expect(result).to eq(:ok)
-        expect(out).to eq("   libone  1.0.0  1\n")
+        expect(out.split("\n")).to eq(["   libone  1.0.0  1"])
       end
     end
 
@@ -76,9 +76,9 @@ describe "crew list" do
         copy_formulas 'libthree.rb'
         crew 'list', 'libs'
         expect(result).to eq(:ok)
-        expect(out).to eq("   libthree  1.1.1  1\n" \
-                          "   libthree  2.2.2  1\n" \
-                          "   libthree  3.3.3  1\n")
+        expect(out.split("\n")).to eq(["   libthree  1.1.1  1",
+                                       "   libthree  2.2.2  1",
+                                       "   libthree  3.3.3  1"])
       end
     end
 
@@ -102,26 +102,20 @@ describe "crew list" do
         crew_checked 'install', 'libone'
         crew 'list', 'libs'
         expect(result).to eq(:ok)
-        expect(out).to eq(" * libone  1.0.0  1\n")
+        expect(out.split("\n")).to eq([" * libone  1.0.0  1"])
       end
     end
 
-    context "one formula with 3 version and 10 releases and one release installed" do
-      it "outputs info about 10 releases and marks one as installed" do
+    context "one formula with 4 releases and one release installed" do
+      it "outputs info about 4 releases and marks one as installed" do
         copy_formulas 'libfour.rb'
-        crew_checked 'install', 'libfour:4.4.4:2'
+        crew_checked 'install', 'libfour:4.4.4'
         crew 'list', 'libs'
         expect(result).to eq(:ok)
-        expect(out).to eq("   libfour  1.1.1  1\n" \
-                          "   libfour  2.2.2  1\n" \
-                          "   libfour  2.2.2  2\n" \
-                          "   libfour  3.3.3  1\n" \
-                          "   libfour  3.3.3  2\n" \
-                          "   libfour  3.3.3  3\n" \
-                          "   libfour  4.4.4  1\n" \
-                          " * libfour  4.4.4  2\n" \
-                          "   libfour  4.4.4  3\n" \
-                          "   libfour  4.4.4  4\n")
+        expect(out.split("\n")).to eq(["   libfour  1.1.1  1",
+                                       "   libfour  2.2.2  2",
+                                       "   libfour  3.3.3  3",
+                                       " * libfour  4.4.4  4"])
       end
     end
 
@@ -136,7 +130,7 @@ describe "crew list" do
                                        "   libthree  2.2.2  1",
                                        "   libthree  3.3.3  1",
                                        " * libtwo    1.1.0  1",
-                                       " * libtwo    2.2.0  1"])
+                                       "   libtwo    2.2.0  1"])
       end
     end
 
@@ -147,14 +141,8 @@ describe "crew list" do
         crew 'list', 'libs'
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["   libfour   1.1.1  1",
-                                       "   libfour   2.2.2  1",
                                        "   libfour   2.2.2  2",
-                                       "   libfour   3.3.3  1",
-                                       "   libfour   3.3.3  2",
                                        "   libfour   3.3.3  3",
-                                       "   libfour   4.4.4  1",
-                                       "   libfour   4.4.4  2",
-                                       "   libfour   4.4.4  3",
                                        " * libfour   4.4.4  4",
                                        " * libone    1.0.0  1",
                                        "   libthree  1.1.1  1",
@@ -199,14 +187,8 @@ describe "crew list" do
                                        " * xz          5.2.2   1",
                                        "Libraries:",
                                        "   libfour   1.1.1  1",
-                                       "   libfour   2.2.2  1",
                                        "   libfour   2.2.2  2",
-                                       "   libfour   3.3.3  1",
-                                       "   libfour   3.3.3  2",
                                        "   libfour   3.3.3  3",
-                                       "   libfour   4.4.4  1",
-                                       "   libfour   4.4.4  2",
-                                       "   libfour   4.4.4  3",
                                        " * libfour   4.4.4  4",
                                        " * libone    1.0.0  1",
                                        "   libthree  1.1.1  1",

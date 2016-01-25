@@ -58,15 +58,16 @@ class Library < Formula
 
   def install_archive(release, archive)
     rel_dir = release_directory(release)
-    prop = get_properties(rel_dir)
-
     FileUtils.rm_rf binary_files(rel_dir)
     Utils.unpack archive, rel_dir
+
     # todo:
     #update_root_android_mk release
 
-    prop.update get_properties(rel_dir)
+    prop = get_properties(rel_dir)
     prop[:installed] = true
+    prop[:source_installed] = release.source_installed?
+    prop[:installed_crystax_version] = release.crystax_version
     save_properties prop, rel_dir
   end
 
