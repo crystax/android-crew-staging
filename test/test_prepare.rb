@@ -148,8 +148,8 @@ curl_releases = [Release.new('7.42.0', 1), Release.new('7.42.0', 3), Release.new
 end
 curl_formula = File.join(ORIG_FORMULA_DIR, 'curl.rb')
 File.open(File.join(DATA_DIR, 'curl-1.rb'), 'w') { |f| f.puts replace_releases(curl_formula, curl_releases.slice(0, 1)) }
-File.open(File.join(DATA_DIR, 'curl-2.rb'), 'w') { |f| f.puts replace_releases(curl_formula, curl_releases.slice(0, 2)) }
-File.open(File.join(DATA_DIR, 'curl-3.rb'), 'w') { |f| f.puts replace_releases(curl_formula, curl_releases) }
+File.open(File.join(DATA_DIR, 'curl-2.rb'), 'w') { |f| f.puts replace_releases(curl_formula, curl_releases.slice(1, 1)) }
+File.open(File.join(DATA_DIR, 'curl-3.rb'), 'w') { |f| f.puts replace_releases(curl_formula, curl_releases.slice(1, 2)) }
 
 # create archives and formulas for libarchive
 libarchive_releases = [Release.new('3.1.2', 1), Release.new('3.1.3', 1)].map do |r|

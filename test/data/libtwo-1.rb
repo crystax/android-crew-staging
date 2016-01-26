@@ -3,7 +3,7 @@ class Libtwo < Library
   desc "Library Two"
   homepage "http://www.libtwo.org"
 
-  release version: '1.1.0', crystax_version: 1, sha256: '5bf047f31f2ac9c5768e2db82b11d04b6fe6de2ed1f28c2eb153c2e587d75c17'
+  release version: '1.1.0', crystax_version: 1, sha256: 'd3e8662c117ac67c10925b8dd3f0bce0717ad0be3a9d103c06abbe959804a0ff'
 
   depends_on 'libone'
 end
