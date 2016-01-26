@@ -36,7 +36,7 @@ describe "crew install" do
       file = File.join(Global::CACHE_DIR, "libbad-1.0.0_1.#{Global::ARCH_EXT}")
       crew 'install', 'libbad'
       expect(exitstatus).to_not be_zero
-      expect(err.chomp).to eq("error: bad SHA256 sum of the downloaded file #{file}")
+      expect(err.chomp).to eq("error: bad SHA256 sum of the file #{file}")
       expect(in_cache?(:library, 'libbad', '1.0.0', 1)).to eq(true)
     end
   end
@@ -95,15 +95,6 @@ describe "crew install" do
       crew 'install', 'libone:2.0.0'
       expect(exitstatus).to_not be_zero
       expect(err.chomp).to eq('error: libone has no release with version 2.0.0')
-    end
-  end
-
-  context "existing formula with one release, no dependencies, specifing non existing crystax_version" do
-    it "outputs info about installing existing release" do
-      copy_formulas 'libone.rb'
-      crew 'install', 'libone:1.0.0:10'
-      expect(exitstatus).to_not be_zero
-      expect(err.chomp).to eq('error: libone has no release 1.0.0:10')
     end
   end
 
@@ -194,7 +185,7 @@ describe "crew install" do
     end
   end
 
-  context "existing formula with four versions, 11 releases, specifying name and version" do
+  context "existing formula with four versions, specifying name and version" do
     it "outputs info about installing latest crystax_version of the specified version" do
       copy_formulas 'libfour.rb'
       file = "libfour-3.3.3_3.#{Global::ARCH_EXT}"
@@ -207,22 +198,6 @@ describe "crew install" do
                         "checking integrity of the archive file #{file}\n" \
                         "unpacking archive\n")
       expect(in_cache?(:library, 'libfour', '3.3.3', 3)).to eq(true)
-    end
-  end
-
-  context "existing formula with four versions, 11 releases, specifying name, version, crystax_version" do
-    it "outputs info about installing the specified release" do
-      copy_formulas 'libfour.rb'
-      file = "libfour-2.2.2_1.#{Global::ARCH_EXT}"
-      url = "#{Global::DOWNLOAD_BASE}/packages/libfour/#{file}"
-      crew 'install', 'libfour:2.2.2:1'
-      expect(result).to eq(:ok)
-      expect(out).to eq("calculating dependencies for libfour: \n"         \
-                        "  dependencies to install: \n"                    \
-                        "downloading #{url}\n"                             \
-                        "checking integrity of the archive file #{file}\n" \
-                        "unpacking archive\n")
-      expect(in_cache?(:library, 'libfour', '2.2.2', 1)).to eq(true)
     end
   end
 end
