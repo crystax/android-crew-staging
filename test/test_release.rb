@@ -114,7 +114,7 @@ class TestRelease < MiniTest::Test
     r.installed = false
     assert_equal(nil,   r.installed_crystax_version)
     assert_equal(false, r.installed?)
-    assert_equal(false, r.source_installed?)
+    assert_equal(nil  , r.source_installed?)
     #
     r.source_installed = 6
     assert_equal(6,     r.installed_crystax_version)
