@@ -17,16 +17,16 @@ class Utility < Formula
     end
   end
 
-  def programs
-    self.class.programs
-  end
-
   def home_directory
     File.join(Global::ENGINE_DIR, name)
   end
 
   def release_directory(release)
     File.join(home_directory, release.to_s)
+  end
+
+  def active_version
+    File.read(Global.active_file_path(name)).split("\n")[0]
   end
 
   def download_base

@@ -37,56 +37,41 @@ module Crew
   # private
 
   def self.remove_old_utilities(formula, dryrun)
-    # releases are sorted from oldest to most recent order
-    incache = []
-    irels = []
-    formula.releases.each do |release|
-      if not release.installed?
-        # archives for not installed releases should be removed during cleanup
-        cachefile = formula.cache_file(release)
-        incache << cachefile if File.exists?(cachefile)
-        if Dir.exists?(formula.release_directory(release))
-          irels << release
-        end
-      end
-    end
-    irels.each do |release|
-      dir = formula.release_directory(release)
+    active_ver = formula.active_version
+    #
+    Dir[File.join(formula.home_directory, '*')].select { |d| File.directory?(d) and (File.basename(d) != active_ver) }.sort.each do |dir|
       if (dryrun)
         puts "would remove: #{dir}"
       else
         puts "removing: #{dir}"
-        FileUtils.rm_rf(dir)
+        FileUtils.rm_rf dir
       end
     end
-
-    incache
+    #
+    mask = "#{formula.name}-*-#{Global::PLATFORM}.tar.xz"
+    active = "#{formula.name}-#{active_ver}-#{Global::PLATFORM}.tar.xz"
+    Dir[File.join(Global::CACHE_DIR, mask)].select { |f| File.basename(f) != active }
   end
 
   def self.remove_old_libraries(formula, dryrun)
-    # releases are sorted from oldest to most recent order
     incache = []
-    irels = []
-    formula.releases.each do |release|
-      if release.installed?
-        irels << release
-      else
-        # archives for not installed releases should be removed during cleanup
-        cachefile = formula.cache_file(release)
-        incache << cachefile if File.exists?(cachefile)
+    # releases are sorted from oldest to most recent order
+    latest_rel = formula.releases.select { |r| r.installed? }.last
+    if not latest_rel
+      incache = Dir[File.join(Global::CACHE_DIR, "#{formula.name}-*.tar.xz")].sort
+    else
+      Dir[File.join(formula.home_directory, '*')].select { |d| File.basename(d) != latest_rel.version }.sort.each do |dir|
+        if (dryrun)
+          puts "would remove: #{dir}"
+        else
+          puts "removing: #{dir}"
+          FileUtils.rm_rf dir
+        end
       end
-    end
-    irels.pop # exclude latest release
-    irels.each do |release|
-      cachefile = formula.cache_file(release)
-      incache << cachefile if File.exists?(cachefile)
-      dir = formula.release_directory(release)
-      if (dryrun)
-        puts "would remove: #{dir}"
-      else
-        puts "removing: #{dir}"
-        FileUtils.rm_rf(dir)
-      end
+      latest = "#{formula.name}-#{latest_rel.version}_#{latest_rel.installed_crystax_version}.tar.xz"
+      #puts "latest: #{latest}"
+      #puts "file: " + Dir[File.join(Global::CACHE_DIR, "#{formula.name}-*.tar.xz")].to_s
+      incache = Dir[File.join(Global::CACHE_DIR, "#{formula.name}-*.tar.xz")].select { |f| File.basename(f) != latest }.sort
     end
 
     incache
