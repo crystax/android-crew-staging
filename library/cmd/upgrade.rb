@@ -20,7 +20,8 @@ module Crew
     formulas = []
     formulary.each do |formula|
       if formula.installed?
-        if not formula.releases.last.installed?
+        lr = formula.releases.last
+        if not lr.installed? or (lr.installed_crystax_version < lr.crystax_version)
           formulas << formula
           names << last_release_name(formula)
         end
