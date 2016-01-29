@@ -160,7 +160,7 @@ describe "crew cleanup" do
       expect(result).to eq(:ok)
       expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/7.42.0_1\n" \
                         "removing: #{Global::ENGINE_DIR}/curl/7.42.0_3\n" \
-                        "removing: #{Global::CACHE_DIR}/curl-7.42.0_3-#{Global::PLATFORM}.#{Global::ARCH_EXT}\n")
+                        "removing: #{Global::CACHE_DIR}/curl-7.42.0_3-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}\n")
       expect(in_cache?(:utility, 'curl', '8.21.0', 1)).to eq(true)
     end
   end
@@ -181,7 +181,7 @@ describe "crew cleanup" do
                         "removing: #{Global::ENGINE_DIR}/libarchive/3.1.2_1\n" \
                         "removing: #{Global::ENGINE_DIR}/ruby/2.2.2_1\n"       \
                         "removing: #{Global::ENGINE_DIR}/xz/5.2.2_1\n"         \
-                        "removing: #{Global::CACHE_DIR}/curl-7.42.0_3-#{Global::PLATFORM}.#{Global::ARCH_EXT}\n")
+                        "removing: #{Global::CACHE_DIR}/curl-7.42.0_3-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}\n")
       expect(in_cache?(:utility, 'curl',       '8.21.0', 1)).to eq(true)
       expect(in_cache?(:utility, 'libarchive', '3.1.3',  1)).to eq(true)
       expect(in_cache?(:utility, 'ruby',       '2.2.3',  1)).to eq(true)
@@ -237,7 +237,7 @@ describe "crew cleanup" do
                                      "removing: #{Global::HOLD_DIR}/libthree/1.1.1",
                                      "removing: #{Global::HOLD_DIR}/libthree/2.2.2",
                                      "removing: #{Global::HOLD_DIR}/libtwo/1.1.0",
-                                     "removing: #{Global::CACHE_DIR}/curl-7.42.0_3-#{Global::PLATFORM}.#{Global::ARCH_EXT}",
+                                     "removing: #{Global::CACHE_DIR}/curl-7.42.0_3-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}",
                                      "removing: #{Global::CACHE_DIR}/libthree-1.1.1_1.#{Global::ARCH_EXT}",
                                      "removing: #{Global::CACHE_DIR}/libthree-2.2.2_1.#{Global::ARCH_EXT}",
                                      "removing: #{Global::CACHE_DIR}/libtwo-1.1.0_1.#{Global::ARCH_EXT}"

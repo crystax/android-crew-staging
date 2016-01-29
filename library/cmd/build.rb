@@ -12,21 +12,31 @@ module Crew
     options, args = parse_args(args)
     raise FormulaUnspecifiedError if args.count < 1
 
-    formulary = Formulary.libraries
+    libraries = Formulary.libraries
+    utilities = Formulary.utilities
 
     args.each do |n|
       name, ver = n.split(':')
-      formula = formulary[name]
-      release = formula.find_release Release.new(ver)
-      raise "source code not installed for #{name}:#{release}" unless release.source_installed?
 
-      absent = formula.dependencies.select { |d| not formulary[d.name].installed? }
-      raise "uninstalled dependencies: #{absent}" unless absent.empty?
-
-      dep_dirs = {}
-      formula.full_dependencies(formulary).each { |f| dep_dirs[f.name] = f.release_directory(f.highest_installed_release) }
-
-      formula.build_package release, options, dep_dirs
+      if utilities.member? name
+        formula = utilities[name]
+        release = formula.find_release(Release.new(ver))
+        formula.build_package release, options
+      elsif libraries.member? name
+        formula = libraries[name]
+        release = formula.find_release(Release.new(ver))
+        raise "source code not installed for #{name}:#{release}" unless release.source_installed?
+        #
+        absent = formula.dependencies.select { |d| not formulary[d.name].installed? }
+        raise "uninstalled dependencies: #{absent.map{|d| d.name}.join(',')}" unless absent.empty?
+        #
+        dep_dirs = {}
+        formula.full_dependencies(formulary).each { |f| dep_dirs[f.name] = f.release_directory(f.highest_installed_release) }
+        #
+        formula.build_package release, options, dep_dirs
+      else
+        raise "#{name} not found amongst utilities nor librarires"
+      end
 
       puts "" unless n == args.last
     end

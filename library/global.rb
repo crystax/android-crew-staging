@@ -73,7 +73,10 @@ module Global
   NDK_DIR       = [nil, ''].include?(ENV['CREW_NDK_DIR'])       ? Pathname.new(BASE_DIR).realpath.dirname.dirname.to_s : Pathname.new(ENV['CREW_NDK_DIR']).realpath.to_s
   TOOLS_DIR     = def_tools_dir(NDK_DIR, OS)
 
-  PLATFORM = File.basename(TOOLS_DIR)
+  # todo:
+  PLATFORM_PREBUILTS_DIR = "#{NDK_DIR}/../../platform/prebuilts"
+
+  PLATFORM_NAME = File.basename(TOOLS_DIR)
 
   HOLD_DIR        = Pathname.new(File.join(NDK_DIR, 'packages')).realpath
   ENGINE_DIR      = Pathname.new(File.join(TOOLS_DIR, 'crew')).realpath

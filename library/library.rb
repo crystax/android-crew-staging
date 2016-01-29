@@ -1,13 +1,9 @@
-require 'uri'
-require 'tmpdir'
 require 'fileutils'
-require 'open3'
 require 'digest'
 require_relative 'formula.rb'
 require_relative 'release.rb'
 require_relative 'build.rb'
 require_relative 'build_options.rb'
-require_relative 'patch.rb'
 
 
 class Library < Formula
@@ -27,7 +23,6 @@ class Library < Formula
                       }.freeze
 
   attr_reader :pre_build_result
-  attr_accessor :build_env, :num_jobs
 
   def initialize(path)
     super path
@@ -35,9 +30,7 @@ class Library < Formula
     # mark installed releases and sources
     releases.each { |r| r.update get_properties(release_directory(r)) }
 
-    @build_env = {}
     @pre_build_result = nil
-    @num_jobs = Utils.processor_count * 2
   end
 
   def home_directory
@@ -85,7 +78,6 @@ class Library < Formula
     release.installed = false
   end
 
-
   def install_source(release)
     puts "installing source code for #{name}:#{release}"
     rel_dir = release_directory(release)
@@ -95,31 +87,7 @@ class Library < Formula
       FileUtils.mkdir_p rel_dir
     end
 
-    ver_url = version_url(release.version)
-    archive = File.join(Global::CACHE_DIR, File.basename(URI.parse(ver_url).path))
-    if File.exists? archive
-      puts "= using cached file #{archive}"
-    else
-      puts "= downloading #{ver_url}"
-      Utils.download(ver_url, archive)
-    end
-
-    # todo: handle option source_archive_without_top_dir: true
-    old_dir = Dir["#{rel_dir}/*"]
-    puts "= unpacking #{File.basename(archive)} into #{rel_dir}"
-    Utils.unpack(archive, rel_dir)
-    new_dir = Dir["#{rel_dir}/*"]
-    diff = old_dir.empty? ? new_dir : new_dir - old_dir
-    raise "source archive does not have top directory, diff: #{diff}" if diff.count != 1
-    FileUtils.cd(rel_dir) { FileUtils.mv diff[0], SRC_DIR_BASENAME }
-    if patches.size > 0
-      src_dir = "#{rel_dir}/#{SRC_DIR_BASENAME}"
-      puts "= patching in dir #{src_dir}"
-      patches.each do |p|
-        puts "  applying #{File.basename(p.path)}"
-        p.apply src_dir
-      end
-    end
+    prepare_source_code release, rel_dir, SRC_DIR_BASENAME, '='
 
     release.source_installed = release.crystax_version
     prop[:source_installed] = true
@@ -297,14 +265,6 @@ class Library < Formula
 
   class << self
 
-    def url(url = nil, &block)
-      if url == nil
-        [@url, @block]
-      else
-        @url, @block = url, block
-      end
-    end
-
     def build_copy(*args)
       if args.size == 0
         @build_copy ? @build_copy : []
@@ -331,10 +291,6 @@ class Library < Formula
     end
   end
 
-  def url
-    self.class.url
-  end
-
   def build_copy
     self.class.build_copy
   end
@@ -349,16 +305,6 @@ class Library < Formula
 
   private
 
-  def version_url(version)
-    str, block = url
-    str.gsub! '${version}', version
-    if block
-      br = block.call(version)
-      str.gsub! '${block}', br
-    end
-    str
-  end
-
   def archive_filename(release)
     "#{name}-#{Formula.package_version(release)}.tar.xz"
   end
@@ -367,27 +313,16 @@ class Library < Formula
     release.shasum(:android)
   end
 
-  def patches
-    if @patches == nil
-      @patches = []
-      Dir["#{Global::BASE_DIR}/patches/#{name}/*.patch"].each { |p| @patches << Patch::File.new(p) }
-    end
-    @patches
-  end
-
-  def read_patches
-  end
-
   def binary_files(rel_dir)
     Dir["#{rel_dir}/*"].select{ |a| File.basename(a) != SRC_DIR_BASENAME }
   end
 
-  def package_dir
-    "#{Build::BASE_DIR}/#{name}/package"
+  def build_base_dir
+    "#{Build::BASE_TARGET_DIR}/#{name}"
   end
 
-  def build_base_dir
-    "#{Build::BASE_DIR}/#{name}"
+  def package_dir
+    "#{build_base_dir}/package"
   end
 
   def base_dir_for_abi(abi)
@@ -408,28 +343,6 @@ class Library < Formula
 
   def host_for_abi(abi)
     Build.arch_for_abi(abi).host
-  end
-
-  def system(*args)
-    cmd = args.join(' ')
-    File.open(@log_file, "a") do |log|
-      log.puts "== build env:"
-      build_env.keys.sort.each { |k| log.puts "  #{k} = #{build_env[k]}" }
-      log.puts "== cmd started:"
-      log.puts "  #{cmd}"
-      log.puts "=="
-
-      rc = 0
-      Open3.popen2e(build_env, cmd) do |_, out, wt|
-        ot = Thread.start { out.read.split("\n").each { |l| log.puts l } }
-        ot.join
-        rc = wt && wt.value.exitstatus
-      end
-      log.puts "== cmd finished:"
-      log.puts "  exit code: #{rc} cmd: #{cmd}"
-      log.puts "=="
-      raise "command failed with code: #{rc}; see #{@log_file} for details" unless rc == 0
-    end
   end
 
   # # $(call import-module,libjpeg/9a)

@@ -2,12 +2,51 @@ class Xz < Utility
 
   desc "General-purpose data compression with high compression ratio"
   homepage "http://tukaani.org/xz/"
+  url "http://tukaani.org/xz/xz-${version}.tar.xz"
 
-  release version: '5.2.2', crystax_version: 1, sha256: { linux_x86_64:   'cfb9bb0b4988a5bdba3ff76aead8ab04db103aba893a0e18d22b6cf66a3878db',
-                                                          linux_x86:      '6822c67c53ce2c2742c29ed171c5ba90bd274404a9e65644d44edf462b44b981',
-                                                          darwin_x86_64:  'e2a9b93ec1adecbdd6e58ab0175141c66f15efa523f70988dfe834b258a33f39',
-                                                          darwin_x86:     'cede694c6d37788e799c819e5418b0d53fe82f0dcf378cf0a990f1cf29654482',
-                                                          windows_x86_64: 'c022d9de3c4e258612740f6da35f93b0b502b815f24e7909a632b4f0f9517fa5',
-                                                          windows:        '73424dc48553b3f7c59d42ef137b898a2905f2be3c7594841d6ee9617144c802'
-                                                         }
+  release version: '5.2.2', crystax_version: 1, sha256: { linux_x86_64:   '0',
+                                                          linux_x86:      '0',
+                                                          darwin_x86_64:  '0',
+                                                          darwin_x86:     '0',
+                                                          windows_x86_64: '0',
+                                                          windows:        '0'
+                                                        }
+
+  def build_for_platform(platform, release, options)
+    install_dir = install_dir_for_platform(platform, release)
+
+    build_env['CC']     = platform.cc
+    build_env['CFLAGS'] = platform.cflags
+    build_env['LANG']   = 'C'
+
+    # case platform.target_os
+    # when 'darwin'
+    #   env['PATH'] = "#{gettetx_path}:#{ENV['PATH']}"
+    # when 'windows'
+    #   env['PATH'] = Builder.toolchain_path_and_path(options)
+    #   env['RC'] = "x86_64-w64-mingw32-windres -F pe-i386" if options.target_cpu == 'x86'
+    # end
+
+    #system './autogen.sh'
+
+    args = ["--prefix=#{install_dir}",
+            "--host=#{platform.configure_host}",
+            "--disable-nls",
+            "--disable-xzdec",
+            "--disable-lzmadec",
+            "--disable-lzmainfo",
+            "--disable-lzma-links",
+            "--disable-scripts",
+            "--disable-doc",
+            "--disable-shared",
+            "--with-sysroot"
+           ]
+    system "#{src_dir}/configure", *args
+    system 'make', '-j', num_jobs
+    #system 'make', 'check' unless options.no_check?
+    system 'make', 'install'
+
+    # remove unneeded files before packaging
+    FileUtils.cd(install_dir) { FileUtils.rm_rf ['bin/unxz', 'bin/xzcat', 'lib/liblzma.la', 'lib/pkgconfig', 'share'] }
+  end
 end

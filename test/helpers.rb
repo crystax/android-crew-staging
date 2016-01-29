@@ -126,7 +126,7 @@ module Spec
                when :library
                  ''
                when :utility
-                 "-#{Global::PLATFORM}"
+                 "-#{Global::PLATFORM_NAME}"
                else
                  raise "bad archive type #{type}"
                end
@@ -152,8 +152,8 @@ module Spec
     end
 
     def clean_engine
-      orig_engine_dir = "#{Crew_test::NDK_COPY_DIR}/prebuilt/#{Global::PLATFORM}/crew"
-      engine_dir = "#{Crew_test::NDK_DIR}/prebuilt/#{Global::PLATFORM}/crew"
+      orig_engine_dir = "#{Crew_test::NDK_COPY_DIR}/prebuilt/#{Global::PLATFORM_NAME}/crew"
+      engine_dir = "#{Crew_test::NDK_DIR}/prebuilt/#{Global::PLATFORM_NAME}/crew"
       Crew_test::UTILS.each do |util|
         version = Global.active_util_version(util, orig_engine_dir)
         File.open(Global.active_file_path(util, engine_dir), 'w') { |f| f.puts version }

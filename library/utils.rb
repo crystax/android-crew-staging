@@ -69,7 +69,7 @@ module Utils
 
   def self.pack(archive, indir)
     FileUtils.rm archive, {force: true}
-    args = ["-C", "#{indir}", "-Jcf", "#{archive}", "."]
+    args = ['-C', indir, '-Jcf', archive, '.']
     run_command(crew_tar_prog, *args)
   end
 

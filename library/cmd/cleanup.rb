@@ -48,8 +48,8 @@ module Crew
       end
     end
     #
-    mask = "#{formula.name}-*-#{Global::PLATFORM}.tar.xz"
-    active = "#{formula.name}-#{active_ver}-#{Global::PLATFORM}.tar.xz"
+    mask = "#{formula.name}-*-#{Global::PLATFORM_NAME}.tar.xz"
+    active = "#{formula.name}-#{active_ver}-#{Global::PLATFORM_NAME}.tar.xz"
     Dir[File.join(Global::CACHE_DIR, mask)].select { |f| File.basename(f) != active }
   end
 

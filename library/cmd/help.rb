@@ -44,11 +44,7 @@ EOS
 BUILD_HELP = <<-EOS
 The command support the following options:
 
---abis=LIST      the list of ABIs, for which to build formula;
-                 ABIs must be separted with comma;
-                 available ABIs are armeabi, armeabi-v7a, armeabi-v7a-hard,
-                 x86, mips, arm64-v8a, x86_64, mips64
-                 by default the formula will be built for all ABIs
+Common options:
 
 --build-only     do not create package in the cache dir and do not install
                  formula
@@ -60,6 +56,15 @@ The command support the following options:
 --num-jobs=N     set number of jobs for a make commad;
                  default value depends on the machine used
 
+Options for building utilities:
+
+Options for building libraries:
+
+--abis=LIST      the list of ABIs, for which to build formula;
+                 ABIs must be separted with comma;
+                 available ABIs are armeabi, armeabi-v7a, armeabi-v7a-hard,
+                 x86, mips, arm64-v8a, x86_64, mips64
+                 by default the formula will be built for all ABIs
 EOS
 
 CMD_HELP = {

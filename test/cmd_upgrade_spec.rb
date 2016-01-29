@@ -82,7 +82,7 @@ describe "crew upgrade" do
         crew '-b', 'upgrade'
         ver = "7.42.0"
         cxver = 3
-        file = "curl-#{ver}_#{cxver}-#{Global::PLATFORM}.#{Global::ARCH_EXT}"
+        file = "curl-#{ver}_#{cxver}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         expect(result).to eq(:ok)
         expect(out).to eq("Will install: curl:#{ver}:#{cxver}\n"                          \
                           "downloading #{Global::DOWNLOAD_BASE}/utilities/curl/#{file}\n" \
@@ -103,7 +103,7 @@ describe "crew upgrade" do
         crew '-b', 'upgrade'
         ver = "8.21.0"
         cxver = 1
-        file = "curl-#{ver}_#{cxver}-#{Global::PLATFORM}.#{Global::ARCH_EXT}"
+        file = "curl-#{ver}_#{cxver}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         expect(result).to eq(:ok)
         expect(out).to eq("Will install: curl:#{ver}:#{cxver}\n"                          \
                           "downloading #{Global::DOWNLOAD_BASE}/utilities/curl/#{file}\n" \
@@ -122,10 +122,10 @@ describe "crew upgrade" do
         repository_add_formula :utility, 'curl-3.rb:curl.rb', 'libarchive-2.rb:libarchive.rb', 'ruby-2.rb:ruby.rb', 'xz-2.rb:xz.rb'
         crew_checked 'update'
         crew '-b', 'upgrade'
-        curl_file = "curl-8.21.0_1-#{Global::PLATFORM}.#{Global::ARCH_EXT}"
-        libarchive_file = "libarchive-3.1.3_1-#{Global::PLATFORM}.#{Global::ARCH_EXT}"
-        ruby_file = "ruby-2.2.3_1-#{Global::PLATFORM}.#{Global::ARCH_EXT}"
-        xz_file = "xz-5.2.3_1-#{Global::PLATFORM}.#{Global::ARCH_EXT}"
+        curl_file = "curl-8.21.0_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        libarchive_file = "libarchive-3.1.3_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        ruby_file = "ruby-2.2.3_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        xz_file = "xz-5.2.3_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         expect(result).to eq(:ok)
         expect(out).to eq(
                          "Will install: curl:8.21.0:1, libarchive:3.1.3:1, ruby:2.2.3:1, xz:5.2.3:1\n"    \
@@ -169,7 +169,7 @@ describe "crew upgrade" do
         repository_add_formula :utility, 'curl-2.rb:curl.rb'
         crew_checked 'update'
         crew 'upgrade'
-        curlfile = "curl-7.42.0_3-#{Global::PLATFORM}.#{Global::ARCH_EXT}"
+        curlfile = "curl-7.42.0_3-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         libtwofile = "libtwo-2.2.0_1.#{Global::ARCH_EXT}"
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["Will install: curl:7.42.0:3",
@@ -201,10 +201,10 @@ describe "crew upgrade" do
         crew 'upgrade'
         lib3file = "libthree-3.3.3_1.#{Global::ARCH_EXT}"
         lib2file = "libtwo-2.2.0_1.#{Global::ARCH_EXT}"
-        curlfile = "curl-8.21.0_1-#{Global::PLATFORM}.#{Global::ARCH_EXT}"
-        libarchivefile = "libarchive-3.1.3_1-#{Global::PLATFORM}.#{Global::ARCH_EXT}"
-        rubyfile = "ruby-2.2.3_1-#{Global::PLATFORM}.#{Global::ARCH_EXT}"
-        xzfile = "xz-5.2.3_1-#{Global::PLATFORM}.#{Global::ARCH_EXT}"
+        curlfile = "curl-8.21.0_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        libarchivefile = "libarchive-3.1.3_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        rubyfile = "ruby-2.2.3_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        xzfile = "xz-5.2.3_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["Will install: curl:8.21.0:1, libarchive:3.1.3:1, ruby:2.2.3:1, xz:5.2.3:1",
                                        "downloading #{Global::DOWNLOAD_BASE}/utilities/curl/#{curlfile}",

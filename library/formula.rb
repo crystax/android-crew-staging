@@ -1,14 +1,19 @@
+require 'uri'
 require 'json'
 require 'digest'
 require 'fileutils'
+require 'open3'
 require_relative 'extend/module.rb'
 require_relative 'release.rb'
 require_relative 'utils.rb'
+require_relative 'patch.rb'
 
 
 class Formula
 
   PROPERTIES_FILE = 'properties.json'
+  TYPE_DIR = { library: 'packages', utility: 'utilities' }
+
 
   def self.package_version(release)
     release.to_s
@@ -23,9 +28,12 @@ class Formula
   end
 
   attr_reader :path
+  attr_accessor :build_env, :num_jobs
 
   def initialize(path)
     @path = path
+    @num_jobs = 1
+    @build_env = {}
     self.class.name File.basename(path, '.rb') unless name
   end
 
@@ -39,6 +47,10 @@ class Formula
 
   def homepage
     self.class.homepage
+  end
+
+  def url
+    self.class.url
   end
 
   # NB: releases are stored in the order they're written in the formula file
@@ -121,6 +133,14 @@ class Formula
 
     attr_reader :releases, :dependencies
 
+    def url(url = nil, &block)
+      if url == nil
+        [@url, @block]
+      else
+        @url, @block = url, block
+      end
+    end
+
     def release(r)
       raise ":version key not present in the release"         unless r.has_key?(:version)
       raise ":crystax_version key not present in the release" unless r.has_key?(:crystax_version)
@@ -181,5 +201,79 @@ class Formula
   def save_properties(prop, dir)
     propfile = File.join(dir, PROPERTIES_FILE)
     File.open(propfile, "w") { |f| f.puts prop.to_json }
+  end
+
+  private
+
+  def version_url(version)
+    str, block = url
+    str.gsub! '${version}', version
+    if block
+      br = block.call(version)
+      str.gsub! '${block}', br
+    end
+    str
+  end
+
+  def prepare_source_code(release, dir, src_name, log_prefix)
+    ver_url = version_url(release.version)
+    archive = File.join(Global::CACHE_DIR, File.basename(URI.parse(ver_url).path))
+    if File.exists? archive
+      puts "#{log_prefix} using cached file #{archive}"
+    else
+      puts "#{log_prefix} downloading #{ver_url}"
+      Utils.download(ver_url, archive)
+    end
+
+    # todo: handle option source_archive_without_top_dir: true
+    mask = File.join(dir, '*')
+    old_dir = Dir[mask]
+    puts "#{log_prefix} unpacking #{File.basename(archive)} into #{dir}"
+    Utils.unpack(archive, dir)
+    new_dir = Dir[mask]
+    diff = old_dir.empty? ? new_dir : new_dir - old_dir
+    raise "source archive does not have top directory, diff: #{diff}" if diff.count != 1
+    FileUtils.cd(dir) { FileUtils.mv diff[0], src_name }
+
+    if patches.size > 0
+      src_dir = File.join(dir, src_name)
+      puts "#{log_prefix} patching in dir #{src_dir}"
+      patches.each do |p|
+        puts "#{log_prefix}   applying #{File.basename(p.path)}"
+        p.apply src_dir
+      end
+    end
+  end
+
+  def patches
+    if @patches == nil
+      @patches = []
+      # todo: add version subdir
+      mask = File.join(Global::BASE_DIR, 'patches', TYPE_DIR[type], name, '*.patch')
+      Dir[mask].each { |p| @patches << Patch::File.new(p) }
+    end
+    @patches
+  end
+
+  def system(*args)
+    cmd = args.join(' ')
+    File.open(@log_file, "a") do |log|
+      log.puts "== build env:"
+      build_env.keys.sort.each { |k| log.puts "  #{k} = #{build_env[k]}" }
+      log.puts "== cmd started:"
+      log.puts "  #{cmd}"
+      log.puts "=="
+
+      rc = 0
+      Open3.popen2e(build_env, cmd) do |_, out, wt|
+        ot = Thread.start { out.read.split("\n").each { |l| log.puts l } }
+        ot.join
+        rc = wt && wt.value.exitstatus
+      end
+      log.puts "== cmd finished:"
+      log.puts "  exit code: #{rc} cmd: #{cmd}"
+      log.puts "===="
+      raise "command failed with code: #{rc}; see #{@log_file} for details" unless rc == 0
+    end
   end
 end
