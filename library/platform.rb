@@ -5,16 +5,20 @@ class Platform
   NAMES = ['darwin-x86_64', 'darwin-x86', 'linux-x86_64', 'linux-x86', 'windows-x86_64', 'windows']
   MACOSX_VERSION_MIN = '10.6'
 
-  attr_reader :name, :cc, :cflags, :configure_host
+  attr_reader :name, :target_os, :target_cpu, :cc, :cflags, :configure_host
 
   def initialize(name)
     raise "unsupported platform #{name}" unless NAMES.include? name
 
     @name = name
-    @target_os, @target_cpu = name.split('_')
+    @target_os, @target_cpu = name.split('-')
     @cc = init_cc
     @cflags = init_cflags
     @configure_host = init_configure_host
+  end
+
+  def to_sym
+    @name.gsub(/-/, '_').to_sym
   end
 
   private

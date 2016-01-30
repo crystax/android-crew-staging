@@ -20,14 +20,10 @@ class Xz < Utility
     build_env['LANG']   = 'C'
 
     # case platform.target_os
-    # when 'darwin'
-    #   env['PATH'] = "#{gettetx_path}:#{ENV['PATH']}"
     # when 'windows'
     #   env['PATH'] = Builder.toolchain_path_and_path(options)
     #   env['RC'] = "x86_64-w64-mingw32-windres -F pe-i386" if options.target_cpu == 'x86'
     # end
-
-    #system './autogen.sh'
 
     args = ["--prefix=#{install_dir}",
             "--host=#{platform.configure_host}",
@@ -43,7 +39,7 @@ class Xz < Utility
            ]
     system "#{src_dir}/configure", *args
     system 'make', '-j', num_jobs
-    #system 'make', 'check' unless options.no_check?
+    system 'make', 'check' if options.check? platform
     system 'make', 'install'
 
     # remove unneeded files before packaging

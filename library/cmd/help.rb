@@ -58,10 +58,22 @@ Common options:
 
 Options for building utilities:
 
+--platforms=LIST the list of platforms for which to build formulas;
+                 platforms must be separated with comma;
+                 available platforms on darwin hosts are darwin-x86_64
+                 and darwin-x86;
+                 available platforms on linux hosts are linux-x86_64,
+                 linux-x86, windows-x86_64, windows;
+                 by default all platforms available on the given host
+                 will be built
+
+--check          run tests if host OS and platform OS are the same;
+                 by default tests will not be run
+
 Options for building libraries:
 
---abis=LIST      the list of ABIs, for which to build formula;
-                 ABIs must be separted with comma;
+--abis=LIST      the list of ABIs for which to build formulas;
+                 ABIs must be separated with comma;
                  available ABIs are armeabi, armeabi-v7a, armeabi-v7a-hard,
                  x86, mips, arm64-v8a, x86_64, mips64
                  by default the formula will be built for all ABIs
