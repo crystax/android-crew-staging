@@ -6,7 +6,7 @@ require_relative 'build.rb'
 require_relative 'build_options.rb'
 
 
-class Library < Formula
+class Package < Formula
 
   SRC_DIR_BASENAME = 'src'
 
@@ -34,7 +34,7 @@ class Library < Formula
   end
 
   def home_directory
-    File.join(Global::HOLD_DIR, name)
+    File.join(Global::HOLD_DIR, file_name)
   end
 
   def release_directory(release)
@@ -46,7 +46,7 @@ class Library < Formula
   end
 
   def type
-    :library
+    :package
   end
 
   def install_archive(release, archive)
@@ -170,7 +170,10 @@ class Library < Formula
       release.installed = release.crystax_version
     end
 
-    update_shasum Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) if options.update_shasum?
+    if options.update_shasum?
+      release.shasum = Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
+      update_shasum release
+    end
 
     if options.no_clean?
       puts "No cleanup, for build artifacts see #{base_dir}"
@@ -250,7 +253,7 @@ class Library < Formula
   end
 
   def copy_tests
-    src_tests_dir = "#{Build::VENDOR_TESTS_DIR}/#{name}"
+    src_tests_dir = "#{Build::VENDOR_TESTS_DIR}/#{file_name}"
     if Dir.exists? src_tests_dir
       dst_tests_dir = "#{package_dir}/tests"
       FileUtils.mkdir dst_tests_dir
@@ -258,8 +261,8 @@ class Library < Formula
     end
   end
 
-  def update_shasum(sum)
-    s = File.read(path).sub(/sha256:\s+'\h+'/, "sha256: '#{sum}'")
+  def update_shasum(release)
+    s = File.read(path).sub(/sha256:\s+'\h+'/, "sha256: '#{release.shasum}'")
     File.open(path, 'w') { |f| f.puts s }
   end
 
@@ -306,7 +309,7 @@ class Library < Formula
   private
 
   def archive_filename(release)
-    "#{name}-#{Formula.package_version(release)}.tar.xz"
+    "#{file_name}-#{Formula.package_version(release)}.tar.xz"
   end
 
   def sha256_sum(release)
@@ -318,7 +321,7 @@ class Library < Formula
   end
 
   def build_base_dir
-    "#{Build::BASE_TARGET_DIR}/#{name}"
+    "#{Build::BASE_TARGET_DIR}/#{file_name}"
   end
 
   def package_dir

@@ -13,28 +13,9 @@ module Utils
 
 
   def self.run_command(prog, *args)
-    cmd = to_cmd_s(prog, *args)
-
-    outstr = ""
-    Open3.popen3(cmd) do |_, out, err, t|
-      ot = Thread.start do
-        while c = out.getc
-          outstr += "#{c}"
-        end
-      end
-
-      errstr = ""
-      et = Thread.start do
-        while c = err.getc
-          errstr += "#{c}"
-        end
-      end
-
-      ot.join
-      et.join
-
-      raise ErrorDuringExecution.new(cmd, t.value.exitstatus, errstr) unless t.value.success?
-    end
+    cmd = ([prog.to_s] + args).map { |e| to_cmd_s(e) }
+    outstr, errstr, status = Open3.capture3(*cmd)
+    raise ErrorDuringExecution.new(cmd, status.exitstatus, errstr) unless status.success?
 
     outstr
   end
@@ -54,22 +35,23 @@ module Utils
   end
 
   def self.unpack(archive, outdir)
-    FileUtils.mkdir_p outdir if not Dir.exists? outdir
+    FileUtils.mkdir_p outdir unless Dir.exists? outdir
     case File.extname(archive)
     when '.zip'
       args = [archive, "-d", outdir]
       prog = unzip_prog
     else
-      add_path_to_archivers
+      # todo: remove
+      #add_path_to_archivers
       args = ["-C", outdir, "-xf", archive]
       prog = crew_tar_prog
     end
       run_command(prog, *args)
   end
 
-  def self.pack(archive, indir)
-    FileUtils.rm archive, {force: true}
-    args = ['-C', indir, '-Jcf', archive, '.']
+  def self.pack(archive, indir, what = '.')
+    FileUtils.rm_f archive
+    args = ['-C', indir, '-Jcf', archive, what]
     run_command(crew_tar_prog, *args)
   end
 
@@ -111,13 +93,14 @@ module Utils
     args.map { |a| a.to_s.gsub " ", "\\ " }.join(" ")
   end
 
-  def self.add_path_to_archivers
-    # todo: add paths to other archivers
-    xz_path = Pathname.new(Global.active_util_dir('xz')).realpath.to_s
-    path = ENV['PATH']
-    if not path.start_with?(xz_path)
-      sep = (Global::OS == 'windows') ? ';' : ':'
-      ENV['PATH'] = "#{xz_path}#{sep}#{path}"
-    end
-  end
+  # todo: remove
+  # def self.add_path_to_archivers
+  #   # todo: add paths to other archivers
+  #   xz_path = Pathname.new(Global.active_util_dir('xz')).realpath.to_s
+  #   path = ENV['PATH']
+  #   if not path.start_with?(xz_path)
+  #     sep = (Global::OS == 'windows') ? ';' : ':'
+  #     ENV['PATH'] = "#{xz_path}#{sep}#{path}"
+  #   end
+  # end
 end

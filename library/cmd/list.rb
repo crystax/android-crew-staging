@@ -26,18 +26,18 @@ module Crew
   def self.list(args)
     case args.length
     when 0
+      puts "Packages:"
+      list_elements Formulary.packages
       puts "Utilities:"
       list_elements Formulary.utilities
-      puts "Libraries:"
-      list_elements Formulary.libraries
     when 1
       case args[0]
       when 'utils'
         list_elements Formulary.utilities
-      when 'libs'
-        list_elements Formulary.libraries
+      when 'packages'
+        list_elements Formulary.packages
       else
-        raise "argument must either 'libs' or 'utils'"
+        raise "argument must either 'packages' or 'utils'"
       end
     else
       raise CommandRequresOneOrNoArguments

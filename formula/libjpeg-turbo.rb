@@ -1,4 +1,4 @@
-class LibjpegTurbo < Library
+class LibjpegTurbo < Package
 
   desc "JPEG image codec that aids compression and decompression"
   homepage "http://www.libjpeg-turbo.org/"

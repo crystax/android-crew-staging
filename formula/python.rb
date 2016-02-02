@@ -1,4 +1,4 @@
-class Python < Library
+class Python < Package
 
   desc "Interpreted, interactive, object-oriented programming language"
   homepage "https://www.python.org"

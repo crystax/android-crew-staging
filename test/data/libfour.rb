@@ -1,4 +1,4 @@
-class Libfour < Library
+class Libfour < Package
 
   desc "Library Four"
   homepage "http://www.libfour.org"

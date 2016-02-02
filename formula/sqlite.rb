@@ -1,4 +1,4 @@
-class Sqlite < Library
+class Sqlite < Package
 
   desc "SQLite library"
   homepage "https://sqlite.org/"

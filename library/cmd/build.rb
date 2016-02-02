@@ -12,34 +12,56 @@ module Crew
     options, args = parse_args(args)
     raise FormulaUnspecifiedError if args.count < 1
 
-    libraries = Formulary.libraries
+    packages = Formulary.packages
     utilities = Formulary.utilities
 
     args.each do |n|
       name, ver = n.split(':')
 
-      if utilities.member? name
-        formula = utilities[name]
-        release = formula.find_release(Release.new(ver))
-        formula.build_package release, options
-      elsif libraries.member? name
-        formula = libraries[name]
-        release = formula.find_release(Release.new(ver))
-        raise "source code not installed for #{name}:#{release}" unless release.source_installed?
-        #
-        absent = formula.dependencies.select { |d| not formulary[d.name].installed? }
-        raise "uninstalled dependencies: #{absent.map{|d| d.name}.join(',')}" unless absent.empty?
-        #
-        dep_dirs = {}
-        formula.full_dependencies(formulary).each { |f| dep_dirs[f.name] = f.release_directory(f.highest_installed_release) }
-        #
-        formula.build_package release, options, dep_dirs
+      if packages.member? name
+        build_package packages[name], ver, packages, options
+      elsif utilities.member? name
+        build_utility utilities[name], ver, utilities, options
       else
-        raise "#{name} not found amongst utilities nor librarires"
+        raise "#{name} not found amongst packages nor utilities"
       end
 
       puts "" unless n == args.last
     end
+  end
+
+  def self.build_package(formula, ver, formulary, options)
+    release = formula.find_release(Release.new(ver))
+    raise "source code not installed for #{name}:#{release}" unless release.source_installed?
+    check_dependencies formula.build_dependencies, formulary
+
+    dep_dirs = {}
+    Formula.full_dependencies(formulary, formula.dependencies).each do |f|
+      dep_dirs[f.name] = f.release_directory(f.highest_installed_release)
+    end
+
+    formula.build_package release, options, dep_dirs
+  end
+
+  def self.build_utility(formula, ver, formulary, options)
+    release = formula.find_release(Release.new(ver))
+    check_dependencies formula.build_dependencies, formulary
+
+    # really stupid hash behaviour: just Hash.new({}) does not work
+    dep_dirs = Hash.new { |h, k| h[k] = Hash.new }
+    Formula.full_dependencies(formulary, formula.build_dependencies).each do |f|
+      options.platforms.each do |platform|
+        dep = { f.name => f.release_directory(f.highest_installed_release, platform) }
+        dep_dirs[platform].update dep
+      end
+    end
+
+    formula.build_package release, options, dep_dirs
+  end
+
+  def self.check_dependencies(dependencies, formulary)
+    absent = dependencies.select { |d| not formulary[d.name].installed? }
+    raise "uninstalled build dependencies: #{absent.map{|d| d.name}.join(',')}" unless absent.empty?
   end
 
   def self.parse_args(args)

@@ -27,6 +27,23 @@ class Formula
     [ver, cxver]
   end
 
+  def self.full_dependencies(formulary, dependencies)
+    result = []
+    deps = dependencies
+
+    while deps.size > 0
+      n = deps.first.name
+      deps = deps.slice(1, deps.size)
+      f = formulary[n]
+      if not result.include? f
+        result << f
+      end
+      deps += f.dependencies
+    end
+
+    result
+  end
+
   attr_reader :path
   attr_accessor :build_env, :num_jobs
 
@@ -34,11 +51,15 @@ class Formula
     @path = path
     @num_jobs = 1
     @build_env = {}
-    self.class.name File.basename(path, '.rb') unless name
+    self.class.name File.basename(@path, '.rb') unless name
   end
 
   def name
     self.class.name
+  end
+
+  def file_name
+    File.basename(@path, '.rb')
   end
 
   def desc
@@ -60,23 +81,6 @@ class Formula
 
   def dependencies
     self.class.dependencies ? self.class.dependencies : []
-  end
-
-  def full_dependencies(formulary)
-    result = []
-    deps = dependencies
-
-    while deps.size > 0
-      n = deps.first.name
-      deps = deps.slice(1, deps.size)
-      f = formulary[n]
-      if not result.include? f
-        result << f
-      end
-      deps += f.dependencies
-    end
-
-    result
   end
 
   def cache_file(release)
@@ -249,7 +253,7 @@ class Formula
     if @patches == nil
       @patches = []
       # todo: add version subdir
-      mask = File.join(Global::BASE_DIR, 'patches', TYPE_DIR[type], name, '*.patch')
+      mask = File.join(Global::BASE_DIR, 'patches', TYPE_DIR[type], file_name, '*.patch')
       Dir[mask].each { |p| @patches << Patch::File.new(p) }
     end
     @patches
@@ -264,16 +268,20 @@ class Formula
       log.puts "  #{cmd}"
       log.puts "=="
 
-      rc = 0
-      Open3.popen2e(build_env, cmd) do |_, out, wt|
-        ot = Thread.start { out.read.split("\n").each { |l| log.puts l } }
+      status = nil
+      Open3.popen2e(build_env, cmd) do |cin, cout, wt|
+        cin.close
+        ot = Thread.start do
+          line = nil
+          log.puts line while line = cout.gets
+        end
         ot.join
-        rc = wt && wt.value.exitstatus
+        status = wt.value
       end
       log.puts "== cmd finished:"
-      log.puts "  exit code: #{rc} cmd: #{cmd}"
+      log.puts "  exit code: #{status.exitstatus} cmd: #{cmd}"
       log.puts "===="
-      raise "command failed with code: #{rc}; see #{@log_file} for details" unless rc == 0
+      raise "command failed with code: #{status.exitstatus}; see #{@log_file} for details" unless status.success?
     end
   end
 end

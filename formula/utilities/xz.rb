@@ -12,7 +12,7 @@ class Xz < Utility
                                                           windows:        '0'
                                                         }
 
-  def build_for_platform(platform, release, options)
+  def build_for_platform(platform, release, options, _)
     install_dir = install_dir_for_platform(platform, release)
 
     build_env['CC']     = platform.cc

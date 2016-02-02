@@ -3,8 +3,8 @@
 require_relative 'exceptions.rb'
 require_relative 'global.rb'
 require_relative 'formula.rb'
+require_relative 'package.rb'
 require_relative 'utility.rb'
-require_relative 'library.rb'
 
 class Formulary
 
@@ -12,7 +12,7 @@ class Formulary
     Formulary.new(Global::UTILITIES_DIR)
   end
 
-  def self.libraries
+  def self.packages
     Formulary.new(Global::FORMULA_DIR)
   end
 
@@ -20,6 +20,9 @@ class Formulary
     @formulary = {}
     Dir[File.join(dir, '*.rb')].sort.each do |path|
       formula = Formulary.factory(path)
+      if f = @formulary[formula.name]
+        raise "#{formula.name} has bad user name #{formula.user_name}: the same user name already defined in #{f.path}"
+      end
       @formulary[formula.name] = formula
     end
   end

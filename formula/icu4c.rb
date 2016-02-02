@@ -1,4 +1,4 @@
-class Icu4c < Library
+class Icu4c < Package
 
   desc "C/C++ and Java libraries for Unicode and globalization"
   homepage "http://site.icu-project.org/"

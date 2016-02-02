@@ -1,7 +1,7 @@
 require 'fileutils'
 require_relative '../release.rb'
 require_relative '../formulary.rb'
-require_relative '../library.rb'
+require_relative '../package.rb'
 require_relative '../utility.rb'
 
 module Crew

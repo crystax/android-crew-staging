@@ -18,21 +18,21 @@ class Utility < Formula
     super(path)
 
     if not options.include? :no_active_file
-      ver, cxver = Formula.split_package_version(Global::active_util_version(name))
+      ver, cxver = Formula.split_package_version(Global::active_util_version(file_name))
       releases.each { |r| r.installed = cxver if r.version == ver }
     end
   end
 
-  def home_directory
-    File.join(Global::ENGINE_DIR, name)
+  def home_directory(platform_name)
+    File.join(engine_dir(platform_name), file_name)
   end
 
-  def release_directory(release)
-    File.join(home_directory, release.to_s)
+  def release_directory(release, platform_name = Global::PLATFORM_NAME)
+    File.join(home_directory(platform_name), release.to_s)
   end
 
-  def active_version
-    File.read(Global.active_file_path(name)).split("\n")[0]
+  def active_version(platform_name = Global::PLATFORM_NAME)
+    File.read(Global.active_file_path(file_name, engine_dir(platform_name))).split("\n")[0]
   end
 
   def download_base
@@ -43,7 +43,29 @@ class Utility < Formula
     :utility
   end
 
-  def build_package(release, options)
+  def role
+    self.class.role
+  end
+
+  def is_core?
+    role == :core
+  end
+
+  def build_dependencies
+    self.class.build_dependencies ? self.class.build_dependencies : []
+  end
+
+  class << self
+    attr_rw :role
+    attr_reader :build_dependencies
+
+    def build_depends_on(name, options = {})
+      @build_dependencies = [] unless @build_dependencies
+      @build_dependencies << Formula::Dependency.new(name, options)
+    end
+  end
+
+  def build_package(release, options, dep_dirs)
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"
 
@@ -61,20 +83,18 @@ class Utility < Formula
       install_dir = install_dir_for_platform(platform, release)
       FileUtils.mkdir_p [build_dir, install_dir]
       @log_file = build_log_file(platform)
-      # build
-      FileUtils.cd(build_dir) { build_for_platform platform, release, options }
+      #
+      FileUtils.cd(build_dir) { build_for_platform platform, release, options, dep_dirs }
       next if options.build_only?
-      # package
+      #
       archive = File.join(Global::CACHE_DIR, archive_filename(release, platform.name))
-      FileUtils.rm_f archive
-      args = ['-C', base_dir, '-Jcf', archive, ARCHIVE_TOP_DIR]
-      Utils.run_command 'tar', *args
+      Utils.pack archive, base_dir, ARCHIVE_TOP_DIR
       #
       if options.update_shasum?
         release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
         update_shasum release, platform
       end
-      install_archive release, archive if Global::PLATFORM_NAME == platform.name
+      install_archive release, archive
       FileUtils.rm_rf base_dir unless options.no_clean?
     end
 
@@ -87,8 +107,12 @@ class Utility < Formula
 
   private
 
+  def engine_dir(platform_name)
+    File.join(Global::NDK_DIR, 'prebuilt', platform_name, 'crew')
+  end
+
   def archive_filename(release, platform_name = Global::PLATFORM_NAME)
-    "#{name}-#{Formula.package_version(release)}-#{platform_name}.tar.xz"
+    "#{file_name}-#{Formula.package_version(release)}-#{platform_name}.tar.xz"
   end
 
   def sha256_sum(release)
@@ -97,7 +121,7 @@ class Utility < Formula
 
   def install_archive(release, archive)
     rel_dir = release_directory(release)
-    # else we'll fail while updating 'xz'
+    # else we'll fail while updating 'bsdtar'
     if active_version != release.to_s
       FileUtils.rm_rf rel_dir
       FileUtils.mkdir_p rel_dir
@@ -107,11 +131,11 @@ class Utility < Formula
   end
 
   def write_active_file(version)
-    File.open(Global.active_file_path(name), 'w') { |f| f.puts version }
+    File.open(Global.active_file_path(file_name), 'w') { |f| f.puts version }
   end
 
   def build_base_dir
-    File.join Build::BASE_HOST_DIR, name
+    File.join Build::BASE_HOST_DIR, file_name
   end
 
   def src_dir
@@ -127,7 +151,7 @@ class Utility < Formula
   end
 
   def install_dir_for_platform(platform, release)
-    File.join base_dir_for_platform(platform), 'prebuilt', platform.name, 'crew', name, release.to_s
+    File.join base_dir_for_platform(platform), 'prebuilt', platform.name, 'crew', file_name, release.to_s
   end
 
   def build_log_file(platform)
@@ -166,7 +190,7 @@ class Utility < Formula
           lines << l.gsub(/'[[:xdigit:]]+'/, "'#{sum}'")
         end
       else
-        raise "in formula #{File.basename(formula_file)} bad state #{state} on line: #{l}"
+        raise "in formula #{File.basename(file_name)} bad state #{state} on line: #{l}"
       end
     end
 

@@ -1,4 +1,4 @@
-class Boost < Library
+class Boost < Package
 
   desc "Boost libraries built without ICU4C"
   homepage "http://www.boost.org"

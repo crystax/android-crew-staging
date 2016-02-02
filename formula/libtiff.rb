@@ -1,7 +1,7 @@
 require_relative '../library/utils.rb'
 require_relative '../library/build.rb'
 
-class Libtiff < Library
+class Libtiff < Package
 
   desc "TIFF library"
   homepage "http://www.remotesensing.org/libtiff/"

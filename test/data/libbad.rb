@@ -1,4 +1,4 @@
-class Libbad < Library
+class Libbad < Package
 
   desc "Bad Library"
   homepage "http://www.bad.org"

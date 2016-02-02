@@ -1,4 +1,4 @@
-class Libjpeg < Library
+class Libjpeg < Package
 
   desc "JPEG image manipulation library"
   homepage "http://www.ijg.org"

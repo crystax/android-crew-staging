@@ -1,4 +1,4 @@
-class Libpng < Library
+class Libpng < Package
 
   desc "Library for manipulating PNG images"
   homepage "http://www.libpng.org/pub/png/libpng.html"

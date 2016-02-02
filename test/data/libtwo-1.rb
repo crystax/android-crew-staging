@@ -1,4 +1,4 @@
-class Libtwo < Library
+class Libtwo < Package
 
   desc "Library Two"
   homepage "http://www.libtwo.org"

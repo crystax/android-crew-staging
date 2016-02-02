@@ -1,4 +1,4 @@
-class Libthree < Library
+class Libthree < Package
 
   desc "Library Three"
   homepage "http://www.libthree.org"

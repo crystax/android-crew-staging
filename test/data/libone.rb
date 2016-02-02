@@ -1,4 +1,4 @@
-class Libone < Library
+class Libone < Package
 
   desc "Library One"
   homepage "http://www.libone.org"
