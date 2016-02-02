@@ -18,8 +18,11 @@ class Utility < Formula
     super(path)
 
     if not options.include? :no_active_file
-      ver, cxver = Formula.split_package_version(Global::active_util_version(file_name))
-      releases.each { |r| r.installed = cxver if r.version == ver }
+      # todo: handle platform dependant installations for non-core utilities (and may core too)
+      if core?
+        ver, cxver = Formula.split_package_version(Global::active_util_version(file_name))
+        releases.each { |r| r.installed = cxver if r.version == ver }
+      end
     end
   end
 
@@ -32,7 +35,12 @@ class Utility < Formula
   end
 
   def active_version(platform_name = Global::PLATFORM_NAME)
-    File.read(Global.active_file_path(file_name, engine_dir(platform_name))).split("\n")[0]
+    file = Global.active_file_path(file_name, engine_dir(platform_name))
+    if not File.exists? file
+      nil
+    else
+      File.read(file).split("\n")[0]
+    end
   end
 
   def download_base
@@ -47,7 +55,7 @@ class Utility < Formula
     self.class.role
   end
 
-  def is_core?
+  def core?
     role == :core
   end
 
