@@ -1,7 +1,7 @@
 class Zlib < Utility
 
-  desc "A Massively Spiffy Yet Delicately Unobtrusive Compression Library"
-  homepage "http://zlib.net/"
+  desc 'A Massively Spiffy Yet Delicately Unobtrusive Compression Library'
+  homepage 'http://zlib.net/'
   url 'http://zlib.net/zlib-${version}.tar.xz'
 
   release version: '1.2.8', crystax_version: 1, sha256: { linux_x86_64:   '0',
