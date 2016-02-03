@@ -18,46 +18,31 @@ class Curl < Utility
   build_depends_on 'libssh2'
 
   def build_for_platform(platform, release, options, dep_dirs)
-  #   paths[:zlib]    = Builder.build_zlib    options, paths
-  #   paths[:openssl] = Builder.build_openssl options, paths
-  #   paths[:libssh2] = Builder.build_libssh2 options, paths
+    install_dir = install_dir_for_platform(platform, release)
+    zlib_dir    = dep_dirs[platform.name]['zlib']
+    openssl_dir = dep_dirs[platform.name]['openssl']
+    libssh2_dir = dep_dirs[platform.name]['libssh2']
 
-  #   Logger.log_msg "= building #{archive}; args: #{ARGV}"
-  #   check_version paths[:src], release.version
-  #   Builder.copy_sources paths[:src], paths[:build_base]
-  #   FileUtils.mkdir_p(paths[:install])
-  #   prefix = Pathname.new(paths[:install]).realpath
-  #   FileUtils.cd(paths[:build]) do
-  #     Commander.run "./buildconf"
-  #     env = { 'CC' => Builder.cc(options),
-  #             'CFLAGS' => "#{Builder.cflags(options)} -DCURL_STATICLIB",
-  #             'LANG' => 'C'
-  #           }
-  #     env['LDFLAGS'] = ' -ldl' if options.target_os == 'linux'
-  #     args = ["--prefix=#{prefix}",
-  #             "--host=#{Builder.configure_host(options)}",
-  #             "--disable-shared",
-  #             "--disable-ldap",
-  #             "--with-ssl=#{paths[:openssl]}",
-  #             "--with-zlib=#{paths[:zlib]}",
-  #             "--with-libssh2=#{paths[:libssh2]}"
-  #            ]
-  #     Commander.run env, "./configure #{args.join(' ')}"
-  #     Commander.run env, "make -j #{options.num_jobs}"
-  #     Commander.run env, "make test" unless options.no_check?
-  #     Commander.run env, "make install"
-  #     # remove unneeded files before packaging
-  #     FileUtils.cd(prefix) { FileUtils.rm_rf(['include', 'lib', 'share']) }
-  #   end
+    build_env['CC']      = platform.cc
+    build_env['CFLAGS']  = "-DCURL_STATICLIB #{platform.cflags}"
+    build_env['LANG']    = 'C'
+    build_env['LDFLAGS'] = '-ldl' if platform.target_os == 'linux'
 
-  #   platform_sym = options.target_platform_as_sym
-  #   release.shasum = { platform_sym => Cache.add(archive, paths[:build_base]) }
-  #   Common.update_release_shasum formula.path, release, platform_sym if options.update_sha256_sums?
-  # end
+    args = ["--prefix=#{install_dir}",
+            "--host=#{platform.configure_host}",
+            "--disable-shared",
+            "--disable-ldap",
+            "--with-ssl=#{openssl_dir}",
+            "--with-zlib=#{zlib_dir}",
+            "--with-libssh2=#{libssh2_dir}"
+           ]
 
-  # if options.same_platform?
-  #   Cache.unpack(archive, Common::NDK_DIR)
-  #   Common.write_active_file(Common::NDK_DIR, options.host_platform, PKG_NAME, release)
-  # end
+    system "#{src_dir}/configure",  *args
+    system 'make', '-j', num_jobs
+    system 'make', 'test' if options.check? platform
+    system 'make', 'install'
+
+    # remove unneeded files before packaging
+    FileUtils.cd(install_dir) { FileUtils.rm_rf(['include', 'lib', 'share']) }
   end
 end
