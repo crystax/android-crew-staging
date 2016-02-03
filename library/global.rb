@@ -34,16 +34,20 @@ module Global
 
   # public
 
-  def self.active_file_path(uname, engine_dir = ENGINE_DIR)
-    File.join(engine_dir, uname, ACTIVE_UTIL_FILE)
-  end
+  # def self.active_file_path(uname, engine_dir = ENGINE_DIR)
+  #   File.join(engine_dir, uname, ACTIVE_UTIL_FILE)
+  # end
 
-  def self.active_util_version(uname, engine_dir = ENGINE_DIR)
-    File.read(active_file_path(uname, engine_dir)).split("\n")[0]
-  end
+  # def self.active_util_version(uname, engine_dir = ENGINE_DIR)
+  #   File.read(active_file_path(uname, engine_dir)).split("\n")[0]
+  # end
 
-  def self.active_util_dir(uname, engine_dir = ENGINE_DIR)
-    File.join(engine_dir, uname, active_util_version(uname, engine_dir), 'bin')
+  # def self.active_util_dir(uname, engine_dir = ENGINE_DIR)
+  #   File.join(engine_dir, uname, active_util_version(uname, engine_dir), 'bin')
+  # end
+
+  def self.engine_dir(platform_name)
+    File.join(NDK_DIR, 'prebuilt', platform_name, 'crew')
   end
 
   def self.raise_env_var_not_set(var)
@@ -87,8 +91,6 @@ module Global
 
   EXE_EXT  = RUBY_PLATFORM =~ /mingw/ ? '.exe' : ''
   ARCH_EXT = 'tar.xz'
-
-  ACTIVE_UTIL_FILE = 'active_version.txt'
 
   # private
 

@@ -45,6 +45,7 @@ module Crew
 
   def self.build_utility(formula, ver, formulary, options)
     release = formula.find_release(Release.new(ver))
+    # todo: check installed for all required platforms
     check_dependencies formula.build_dependencies, formulary
 
     # really stupid hash behaviour: just Hash.new({}) does not work

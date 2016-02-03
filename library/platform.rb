@@ -21,6 +21,10 @@ class Platform
     @name.gsub(/-/, '_').to_sym
   end
 
+  def target_name
+    @name == 'windows-x86' ? 'windows' : @name
+  end
+
   private
 
   def init_cc

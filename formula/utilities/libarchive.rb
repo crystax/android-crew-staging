@@ -41,10 +41,8 @@ class Libarchive < Utility
     system 'make', 'check' if options.check? platform
     system 'make', 'install'
                                     
-    # install tar program
-    # tarprog = platform.target_os == 'windows' ? 'bsdtar.exe' : 'bsdtar'
-    # bindir = File.join(install_dir, 'bin')
-    # FileUtils.mkdir_p bindir
-    # FileUtils.cp tarprog, bindir
+    # remove unneeded files
+    FileUtils.rm_rf [File.join(install_dir, 'include'), File.join(install_dir, 'lib'), File.join(install_dir, 'share')]
+    FileUtils.rm_f  File.join(install_dir, 'bin', 'bsdcpio')
   end
 end

@@ -8,6 +8,16 @@ require_relative 'build_options.rb'
 class Utility < Formula
 
   ARCHIVE_TOP_DIR = 'prebuilt'
+  ACTIVE_FILE_NAME = 'active_version.txt'
+
+  def self.active_version(util_name, engine_dir = Global::ENGINE_DIR)
+    file = File.join(engine_dir, util_name, ACTIVE_FILE_NAME)
+    File.exists?(file) ? File.read(file).split("\n")[0] : nil
+  end
+
+  def self.active_dir(util_name, engine_dir = Global::ENGINE_DIR)
+    File.join(engine_dir, util_name, active_version(util_name, engine_dir), 'bin')
+  end
 
   # For utilities a release considered as 'installed' only if it's version is equal
   # to the one saved in the 'active' file.
@@ -18,29 +28,26 @@ class Utility < Formula
     super(path)
 
     if not options.include? :no_active_file
-      # todo: handle platform dependant installations for non-core utilities (and may core too)
-      if core?
-        ver, cxver = Formula.split_package_version(Global::active_util_version(file_name))
+      # todo: handle platform dependant installations
+      if not av = Utility.active_version(file_name)
+        raise "core utility #{name} not installed" if core?
+      else
+        ver, cxver = Formula.split_package_version(av)
         releases.each { |r| r.installed = cxver if r.version == ver }
       end
     end
   end
 
   def home_directory(platform_name)
-    File.join(engine_dir(platform_name), file_name)
+    File.join(Global.engine_dir(platform_name), file_name)
   end
 
   def release_directory(release, platform_name = Global::PLATFORM_NAME)
     File.join(home_directory(platform_name), release.to_s)
   end
 
-  def active_version(platform_name = Global::PLATFORM_NAME)
-    file = Global.active_file_path(file_name, engine_dir(platform_name))
-    if not File.exists? file
-      nil
-    else
-      File.read(file).split("\n")[0]
-    end
+  def active_version(engine_dir = Global::ENGINE_DIR)
+    Utility.active_version file_name, engine_dir
   end
 
   def download_base
@@ -102,7 +109,7 @@ class Utility < Formula
         release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
         update_shasum release, platform
       end
-      install_archive release, archive
+      install_archive release, archive, platform.name
       FileUtils.rm_rf base_dir unless options.no_clean?
     end
 
@@ -115,10 +122,6 @@ class Utility < Formula
 
   private
 
-  def engine_dir(platform_name)
-    File.join(Global::NDK_DIR, 'prebuilt', platform_name, 'crew')
-  end
-
   def archive_filename(release, platform_name = Global::PLATFORM_NAME)
     "#{file_name}-#{Formula.package_version(release)}-#{platform_name}.tar.xz"
   end
@@ -127,19 +130,17 @@ class Utility < Formula
     release.shasum(Global::PLATFORM.gsub(/-/, '_').to_sym)
   end
 
-  def install_archive(release, archive)
-    rel_dir = release_directory(release)
+  def install_archive(release, archive, platform_name = Global::PLATFORM_NAME)
+    rel_dir = release_directory(release, platform_name)
     # else we'll fail while updating 'bsdtar'
-    if active_version != release.to_s
-      FileUtils.rm_rf rel_dir
-      FileUtils.mkdir_p rel_dir
-    end
+    FileUtils.rm_rf rel_dir unless (platform_name == Global::PLATFORM_NAME) and (active_version == release.to_s)
     Utils.unpack archive, Global::NDK_DIR
-    write_active_file File.basename(rel_dir)
+    write_active_file File.dirname(rel_dir), release
   end
 
-  def write_active_file(version)
-    File.open(Global.active_file_path(file_name), 'w') { |f| f.puts version }
+  def write_active_file(home_dir, release)
+    file = File.join(home_dir, ACTIVE_FILE_NAME)
+    File.open(file, 'w') { |f| f.puts release.to_s }
   end
 
   def build_base_dir

@@ -79,12 +79,12 @@ module Utils
   # private
 
   def self.crew_curl_prog
-    @@crew_curl_prog = Pathname.new(Global.active_util_dir('curl')).realpath  + "curl#{Global::EXE_EXT}" unless @@crew_curl_prog
+    @@crew_curl_prog = Pathname.new(Utility.active_dir('curl')).realpath  + "curl#{Global::EXE_EXT}" unless @@crew_curl_prog
     @@crew_curl_prog
   end
 
   def self.crew_tar_prog
-    @@crew_tar_prog = Pathname.new(Global.active_util_dir('libarchive')).realpath + "bsdtar#{Global::EXE_EXT}" unless @@crew_tar_prog
+    @@crew_tar_prog = Pathname.new(Utility.active_dir('libarchive')).realpath + "bsdtar#{Global::EXE_EXT}" unless @@crew_tar_prog
     @@crew_tar_prog
   end
 
