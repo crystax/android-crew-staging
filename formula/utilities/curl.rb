@@ -3,6 +3,7 @@ class Curl < Utility
   desc 'Get a file from an HTTP, HTTPS or FTP server'
   homepage 'http://curl.haxx.se/'
   url 'https://curl.haxx.se/download/curl-${version}.tar.bz2'
+
   role :core
 
   release version: '7.42.0', crystax_version: 1, sha256: { linux_x86_64:   '0',

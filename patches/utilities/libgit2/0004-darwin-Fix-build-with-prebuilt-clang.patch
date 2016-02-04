@@ -1,0 +1,38 @@
+From 694279748745f94dd5c323e890df9f82347285c6 Mon Sep 17 00:00:00 2001
+From: Dmitry Moskalchuk <dm@crystax.net>
+Date: Sat, 26 Sep 2015 15:23:50 -0400
+Subject: [PATCH 4/4] [darwin] Fix build with prebuilt clang
+
+Signed-off-by: Dmitry Moskalchuk <dm@crystax.net>
+---
+ Makefile.crystax | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile.crystax b/Makefile.crystax
+index f5fb86a..df33494 100644
+--- a/Makefile.crystax
++++ b/Makefile.crystax
+@@ -1,6 +1,6 @@
+ # -*- makefile-gmake -*-
+ 
+-ifeq ($(CC),clang)
++ifeq (1,$(shell echo __clang__ | $(CC) -x c -E - | tail -n 1))
+ PREFIX =
+ else
+ PREFIX = $(subst -gcc,-,$(CC))
+@@ -20,10 +20,10 @@ DEFINES= $(INCLUDES) -DNO_VIZ -DSTDC -DNO_GZIP -D_FILE_OFFSET_BITS=64 -D_GNU_SOU
+ CFLAGS= -g $(DEFINES) -Wall -Wextra -Wno-missing-field-initializers -O2 $(EXTRA_CFLAGS)
+ 
+ #  src/hash/hash_generic.c
+-SRCS = $(wildcard src/*.c) $(wildcard src/transports/*.c) $(wildcard src/xdiff/*.c) $(wildcard deps/http-parser/*.c) $(wildcard deps/zlib/*.c)
++SRCS = $(wildcard src/*.c src/transports/*.c src/xdiff/*.c deps/http-parser/*.c deps/zlib/*.c)
+ 
+ ifeq ($(MINGW),1)
+-  SRCS += $(wildcard src/win32/*.c) $(wildcard src/compat/*.c) deps/regex/regex.c
++  SRCS += $(wildcard src/win32/*.c src/compat/*.c deps/regex/regex.c)
+   INCLUDES += -Ideps/regex
+   DEFINES += -DWIN32 -D_WIN32_WINNT=0x0601 -D__USE_MINGW_ANSI_STDIO=1
+ else
+-- 
+2.7.0
+

@@ -1,0 +1,26 @@
+From 2b5b6eedffb4e192e8fea0a91a4b8d0beee90d90 Mon Sep 17 00:00:00 2001
+From: Alexander Zhukov <zuav@crystax.net>
+Date: Thu, 25 Jun 2015 18:30:38 +0300
+Subject: [PATCH 3/4] Use -D_WIN32_WINNT=0x0601; this allows for correct struct
+ stat64 being used
+
+---
+ Makefile.crystax | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.crystax b/Makefile.crystax
+index 4bce6e5..f5fb86a 100644
+--- a/Makefile.crystax
++++ b/Makefile.crystax
+@@ -25,7 +25,7 @@ SRCS = $(wildcard src/*.c) $(wildcard src/transports/*.c) $(wildcard src/xdiff/*
+ ifeq ($(MINGW),1)
+   SRCS += $(wildcard src/win32/*.c) $(wildcard src/compat/*.c) deps/regex/regex.c
+   INCLUDES += -Ideps/regex
+-  DEFINES += -DWIN32 -D_WIN32_WINNT=0x0501 -D__USE_MINGW_ANSI_STDIO=1
++  DEFINES += -DWIN32 -D_WIN32_WINNT=0x0601 -D__USE_MINGW_ANSI_STDIO=1
+ else
+   SRCS += $(wildcard src/unix/*.c)
+   #CFLAGS += -fPIC
+-- 
+2.7.0
+
