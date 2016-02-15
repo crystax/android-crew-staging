@@ -38,7 +38,7 @@ class Curl < Utility
             "--with-libssh2=#{libssh2_dir}"
            ]
 
-    system "#{src_dir}/configure",  *args
+    system "#{src_dir}/configure", *args
     system 'make', '-j', num_jobs
     system 'make', 'test' if options.check? platform
     system 'make', 'install'
