@@ -18,8 +18,8 @@ class Build_options
     @num_jobs = Utils.processor_count * 2
 
     @platforms = case Global::OS
-                 when 'linux'  then ['linux-x86_64', 'linux-x86', 'windows-x86_64', 'windows']
-                 when 'darwin' then ['darwin-x86_64', 'darwin-x86']
+                 when 'linux'  then ['linux-x86_64', 'windows-x86_64', 'windows']
+                 when 'darwin' then ['darwin-x86_64']
                  else []
                  end
 

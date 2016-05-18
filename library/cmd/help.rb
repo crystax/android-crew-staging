@@ -60,10 +60,9 @@ Options for building utilities:
 
 --platforms=LIST the list of platforms for which to build formulas;
                  platforms must be separated with comma;
-                 available platforms on darwin hosts are darwin-x86_64
-                 and darwin-x86;
+                 available platforms on darwin hosts are darwin-x86_64;
                  available platforms on linux hosts are linux-x86_64,
-                 linux-x86, windows-x86_64, windows;
+                 windows-x86_64, windows;
                  by default all platforms available on the given host
                  will be built
 
