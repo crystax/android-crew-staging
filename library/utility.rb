@@ -22,19 +22,15 @@ class Utility < Formula
   # For utilities a release considered as 'installed' only if it's version is equal
   # to the one saved in the 'active' file.
   #
-  # Utility ctor called with :no_active_file from the NDK's build scripts
-  # in the case we should just mark all releases as 'uninstalled'
-  def initialize(path, *options)
+  def initialize(path)
     super(path)
 
-    if not options.include? :no_active_file
-      # todo: handle platform dependant installations
-      if not av = Utility.active_version(file_name)
-        raise "core utility #{name} not installed" if core?
-      else
-        ver, cxver = Formula.split_package_version(av)
-        releases.each { |r| r.installed = cxver if r.version == ver }
-      end
+    # todo: handle platform dependant installations
+    if not av = Utility.active_version(file_name)
+      # todo: output warning
+    else
+      ver, cxver = Formula.split_package_version(av)
+      releases.each { |r| r.installed = cxver if r.version == ver }
     end
   end
 
