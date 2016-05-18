@@ -4,10 +4,8 @@ class Libssh2 < Utility
   homepage 'http://www.libssh2.org/'
   url 'http://www.libssh2.org/download/libssh2-${version}.tar.gz'
 
-  release version: '1.6.0', crystax_version: 1, sha256: { linux_x86_64:   '0',
-                                                          linux_x86:      '0',
+  release version: '1.7.0', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                           darwin_x86_64:  '0',
-                                                          darwin_x86:     '0',
                                                           windows_x86_64: '0',
                                                           windows:        '0'
                                                         }

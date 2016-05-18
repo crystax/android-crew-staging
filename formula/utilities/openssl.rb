@@ -4,10 +4,8 @@ class Openssl < Utility
   homepage "https://openssl.org/"
   url 'https://openssl.org/source/openssl-${version}.tar.gz'
 
-  release version: '1.0.2f', crystax_version: 1, sha256: { linux_x86_64:   '0',
-                                                           linux_x86:      '0',
+  release version: '1.0.2h', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                            darwin_x86_64:  '0',
-                                                           darwin_x86:     '0',
                                                            windows_x86_64: '0',
                                                            windows:        '0'
                                                          }

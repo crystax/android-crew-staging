@@ -2,12 +2,10 @@ class Libgit2 < Utility
 
   desc "A portable, pure C implementation of the Git core methods provided as a re-entrant linkable library with a solid API"
   homepage 'https://libgit2.github.com/'
-  url 'https://github.com/libgit2/libgit2/archive/v0.23.4.tar.gz'
+  url 'https://github.com/libgit2/libgit2/archive/v${version}.tar.gz'
 
-  release version: '0.23.4', crystax_version: 1, sha256: { linux_x86_64:   '0',
-                                                           linux_x86:      '0',
+  release version: '0.24.1', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                            darwin_x86_64:  '0',
-                                                           darwin_x86:     '0',
                                                            windows_x86_64: '0',
                                                            windows:        '0'
                                                          }

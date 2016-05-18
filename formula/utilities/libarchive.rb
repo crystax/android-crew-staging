@@ -6,10 +6,8 @@ class Libarchive < Utility
   url 'http://www.libarchive.org/downloads/libarchive-${version}.tar.gz'
   role :core
 
-  release version: '3.1.2', crystax_version: 1, sha256: { linux_x86_64:   '0',
-                                                          linux_x86:      '0',
+  release version: '3.2.0', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                           darwin_x86_64:  '0',
-                                                          darwin_x86:     '0',
                                                           windows_x86_64: '0',
                                                           windows:        '0'
                                                         }
@@ -40,7 +38,7 @@ class Libarchive < Utility
     system 'make', '-j', num_jobs
     system 'make', 'check' if options.check? platform
     system 'make', 'install'
-                                    
+
     # remove unneeded files
     FileUtils.rm_rf [File.join(install_dir, 'include'), File.join(install_dir, 'lib'), File.join(install_dir, 'share')]
     FileUtils.rm_f  File.join(install_dir, 'bin', 'bsdcpio')

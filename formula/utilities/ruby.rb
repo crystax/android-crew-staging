@@ -7,9 +7,7 @@ class Ruby < Utility
   role :core
 
   release version: '2.2.2', crystax_version: 1, sha256: { linux_x86_64:   '0',
-                                                          linux_x86:      '0',
                                                           darwin_x86_64:  '0',
-                                                          darwin_x86:     '0',
                                                           windows_x86_64: '0',
                                                           windows:        '0'
                                                         }
@@ -39,10 +37,6 @@ class Ruby < Utility
     build_env['LDFLAGS']       = ldflags
     build_env['LIBS']          = libs
     build_env['SSL_CERT_FILE'] = host_ssl_cert_file
-
-    #build_env['PATH']          = Builder.toolchain_path_and_path(options),
-    #build_env['RUGGED_CFLAGS']   = "#{cflags} -DRUBY_UNTYPED_DATA_WARNING=0 -I#{openssl_dir}/include -I#{libssh2_dir}/include -I#{libgit2_dir}/include",
-    #build_env['RUGGED_MAKEFILE'] = "#{paths[:build]}/ext/rugged/Makefile",
 
     args = ["--prefix=#{install_dir}",
             "--host=#{platform.configure_host}",
