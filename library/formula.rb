@@ -253,7 +253,7 @@ class Formula
     if @patches == nil
       @patches = []
       # todo: add version subdir
-      mask = File.join(Global::BASE_DIR, 'patches', TYPE_DIR[type], file_name, '*.patch')
+      mask = File.join(Global::PATCHES_DIR, TYPE_DIR[type], file_name, '*.patch')
       Dir[mask].each { |p| @patches << Patch::File.new(p) }
     end
     @patches

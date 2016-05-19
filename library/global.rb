@@ -84,13 +84,16 @@ module Global
 
   ENGINE_DIR = Pathname.new(File.join(TOOLS_DIR, 'crew'))
   FileUtils.mkdir_p ENGINE_DIR unless ENGINE_DIR.directory?
+  HOLD_DIR = Pathname.new(File.join(NDK_DIR, 'packages'))
+  FileUtils.mkdir_p HOLD_DIR unless HOLD_DIR.directory?
 
   ENGINE_DIR      = ENGINE_DIR.realpath
-  HOLD_DIR        = Pathname.new(File.join(NDK_DIR, 'packages')).realpath
+  HOLD_DIR        = HOLD_DIR.realpath
   FORMULA_DIR     = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
   CACHE_DIR       = Pathname.new(File.join(BASE_DIR, 'cache')).realpath
   UTILITIES_DIR   = Pathname.new(File.join(FORMULA_DIR, 'utilities')).realpath
   REPOSITORY_DIR  = Pathname.new(BASE_DIR).realpath
+  PATCHES_DIR     = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
 
   EXE_EXT  = RUBY_PLATFORM =~ /mingw/ ? '.exe' : ''
   ARCH_EXT = 'tar.xz'
