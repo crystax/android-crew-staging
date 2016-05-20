@@ -36,6 +36,9 @@ class Openssl < Utility
       system 'make', '-j', num_jobs
       system 'make', 'test' if options.check? platform
       system "make install"
+
+      # remove unneeded files
+      FileUtils.rm_rf [File.join(install_dir, 'lib', 'pkgconfig'), File.join(install_dir, 'lib', 'engines')]
   end
 
   def openssl_platform(platform)
