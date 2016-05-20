@@ -22,10 +22,11 @@ class Curl < Utility
     openssl_dir = dep_dirs[platform.name]['openssl']
     libssh2_dir = dep_dirs[platform.name]['libssh2']
 
-    build_env['CC']      = platform.cc
-    build_env['CFLAGS']  = "-DCURL_STATICLIB #{platform.cflags}"
-    build_env['LANG']    = 'C'
-    build_env['LDFLAGS'] = '-ldl' if platform.target_os == 'linux'
+    build_env['CC']       = platform.cc
+    build_env['CFLAGS']   = platform.cflags
+    build_env['CPPFLAGS'] = "-DCURL_STATICLIB"
+    build_env['LANG']     = 'C'
+    build_env['LIBS']     = '-ldl' if platform.target_os == 'linux'
 
     args = ["--prefix=#{install_dir}",
             "--host=#{platform.configure_host}",
