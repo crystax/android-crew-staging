@@ -17,11 +17,10 @@ class Xz < Utility
     build_env['CFLAGS'] = platform.cflags
     build_env['LANG']   = 'C'
 
-    # case platform.target_os
-    # when 'windows'
-    #   env['PATH'] = Builder.toolchain_path_and_path(options)
-    #   env['RC'] = "x86_64-w64-mingw32-windres -F pe-i386" if options.target_cpu == 'x86'
-    # end
+    if platform.target_os == 'windows'
+      build_env['PATH'] = "#{File.dirname(platform.cc)}:#{ENV['PATH']}"
+      build_env['RC'] = "x86_64-w64-mingw32-windres -F pe-i386" if platform.target_cpu == 'x86'
+    end
 
     args = ["--prefix=#{install_dir}",
             "--host=#{platform.configure_host}",
