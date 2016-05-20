@@ -10,6 +10,8 @@ class Openssl < Utility
                                                            windows:        '0'
                                                          }
 
+  build_depends_on 'zlib'
+
   def build_for_platform(platform, release, options, dep_dirs)
     install_dir = install_dir_for_platform(platform, release)
     zlib_dir = dep_dirs[platform.name]['zlib']
@@ -43,7 +45,7 @@ class Openssl < Utility
     when 'linux-x86_64'   then 'linux-x86_64'
     when 'linux-x86'      then 'linux-generic32'
     when 'windows-x86_64' then 'mingw64'
-    when 'windows-x86'    then 'mingw'
+    when 'windows'        then 'mingw'
     else
       raise "unknown platform #{platform.name}"
     end
