@@ -17,18 +17,20 @@ class Zlib < Utility
     FileUtils.cp_r File.join(src_dir, '.'), '.'
 
     if platform.target_os == 'windows'
-      puts "implement it"
-      exit
-      # fname = 'win32/Makefile.gcc'
-      # text = File.read(fname).gsub(/^PREFIX/, '#PREFIX')
-      # File.open(fname, "w") {|f| f.puts text }
-      # # chop 'gcc' from the end of the string
-      # env = { 'PREFIX' => cc(options).chop.chop.chop }
-      # loc = options.target_cpu == 'x86' ? 'LOC=-m32' : 'LOC=-m64'
-      # Commander::run env, "make -j #{options.num_jobs} #{loc} -f win32/Makefile.gcc libz.a"
-      # FileUtils.mkdir_p ["#{install_dir}/lib", "#{install_dir}/include"]
-      # FileUtils.cp 'libz.a', "#{install_dir}/lib/"
-      # FileUtils.cp ['zlib.h', 'zconf.h'], "#{install_dir}/include/"
+      fname = 'win32/Makefile.gcc'
+      text = File.read(fname).gsub(/^PREFIX/, '#PREFIX')
+      File.open(fname, "w") {|f| f.puts text }
+
+      # chop 'gcc' from the end of the string
+      build_env['PREFIX'] = platform.cc.chop.chop.chop
+
+      loc = platform.target_cpu == 'x86' ? 'LOC=-m32' : 'LOC=-m64'
+
+      system 'make', '-j', num_jobs, loc, '-f', 'win32/Makefile.gcc', 'libz.a'
+
+      FileUtils.mkdir_p ["#{install_dir}/lib", "#{install_dir}/include"]
+      FileUtils.cp 'libz.a', "#{install_dir}/lib/"
+      FileUtils.cp ['zlib.h', 'zconf.h'], "#{install_dir}/include/"
     else
       build_env['CC']     = platform.cc
       build_env['CFLAGS'] = platform.cflags
