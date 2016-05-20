@@ -12,6 +12,7 @@ class Platform
 
     @name = name
     @target_os, @target_cpu = name.split('-')
+    @target_cpu = 'x86' if @target_cpu == nil
     @cc = init_cc
     @cflags = init_cflags
     @configure_host = init_configure_host
@@ -33,7 +34,7 @@ class Platform
     case @target_os
     when 'darwin'  then 'clang'
     when 'linux'   then "#{Global::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/bin/x86_64-linux-gcc"
-    when 'windows' then "#{Global::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-w64-mingw32-4.8/bin/x86_64-w64-mingw32-gcc"
+    when 'windows' then "#{Global::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-w64-mingw32-4.9.3/bin/x86_64-w64-mingw32-gcc"
     end
   end
 
