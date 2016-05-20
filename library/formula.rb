@@ -254,7 +254,7 @@ class Formula
       @patches = []
       # todo: add version subdir
       mask = File.join(Global::PATCHES_DIR, TYPE_DIR[type], file_name, '*.patch')
-      Dir[mask].each { |p| @patches << Patch::File.new(p) }
+      Dir[mask].sort.each { |p| @patches << Patch::File.new(p) }
     end
     @patches
   end
