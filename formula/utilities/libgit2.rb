@@ -32,7 +32,7 @@ class Libgit2 < Utility
     make_args = ['-f', 'Makefile.crystax']
 
     if platform.target_os == 'windows'
-      build_env['EXTRA_DEFINES'] += " -DGIT WIN32"
+      build_env['EXTRA_DEFINES'] += " -DGIT_WIN32"
       make_args << 'MINGW=1'
     end
 
