@@ -21,10 +21,8 @@ class Libssh2 < Utility
     build_env['CC']      = platform.cc
     build_env['CFLAGS']  = "-I#{openssl_dir}/include -I#{zlib_dir}/include #{platform.cflags}"
     build_env['LDFLAGS'] = "-L#{openssl_dir}/lib -L#{zlib_dir}/lib -lz"
-    build_env['LIBS']    = "-lgdi32" if platform.target_os == 'windows'
-    build_env['LIBS']    = "-ldl"    if platform.target_os == 'linux'
-    #build_env['DESTDIR'] = install_dir
-    #build_env['PATH']    = '/bin:/usr/bin:/sbin:/usr/sbin'
+    build_env['LIBS']    = "-lcrypt32 -lgdi32" if platform.target_os == 'windows'
+    build_env['LIBS']    = "-ldl"              if platform.target_os == 'linux'
 
     args = ["--prefix=#{install_dir}",
             "--host=#{platform.configure_host}",
@@ -35,7 +33,7 @@ class Libssh2 < Utility
            ]
 
     system "#{src_dir}/configure",  *args
-    system 'make', '-j', num_jobs
+    system 'make', '-j', num_jobs, 'V=1'
     system 'make', 'check' if options.check? platform
     system 'make', 'install'
   end
