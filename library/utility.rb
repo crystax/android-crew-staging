@@ -95,6 +95,7 @@ class Utility < Formula
       FileUtils.mkdir_p [build_dir, install_dir]
       @log_file = build_log_file(platform)
       #
+      build_env.clear
       FileUtils.cd(build_dir) { build_for_platform platform, release, options, dep_dirs }
       next if options.build_only?
       #
