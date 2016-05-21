@@ -129,10 +129,12 @@ class Utility < Formula
 
   def install_archive(release, archive, platform_name = Global::PLATFORM_NAME)
     rel_dir = release_directory(release, platform_name)
-    # else we'll fail while updating 'bsdtar'
-    FileUtils.rm_rf rel_dir unless (platform_name == Global::PLATFORM_NAME) and (active_version == release.to_s)
+    FileUtils.rm_rf rel_dir
+    # use system tar while updating bsdtar utility
+    Utils.reset_tar_prog if name == 'bsdtar'
     Utils.unpack archive, Global::NDK_DIR
     write_active_file File.dirname(rel_dir), release
+    Utils.reset_tar_prog if name == 'bsdtar'
   end
 
   def write_active_file(home_dir, release)
