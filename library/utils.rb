@@ -5,8 +5,8 @@ require_relative 'exceptions.rb'
 
 module Utils
 
-  @@crew_curl_prog = nil
-  @@crew_tar_prog  = nil
+  @@curl_prog = nil
+  @@tar_prog  = nil
 
   @@patch_prog = '/usr/bin/patch'
   @@unzip_prog = '/usr/bin/unzip'
@@ -22,7 +22,7 @@ module Utils
 
   def self.download(url, outpath)
     args = [url, '-o', outpath, '--silent', '--fail', '-L']
-    run_command(crew_curl_prog, *args)
+    run_command(curl_prog, *args)
   rescue ErrorDuringExecution => e
     case e.exit_code
     when 7
@@ -44,7 +44,7 @@ module Utils
       # todo: remove
       #add_path_to_archivers
       args = ["-C", outdir, "-xf", archive]
-      prog = crew_tar_prog
+      prog = tar_prog
     end
       run_command(prog, *args)
   end
@@ -52,7 +52,7 @@ module Utils
   def self.pack(archive, indir, what = '.')
     FileUtils.rm_f archive
     args = ['-C', indir, '-Jcf', archive, what]
-    run_command(crew_tar_prog, *args)
+    run_command(tar_prog, *args)
   end
 
   def self.processor_count
@@ -78,20 +78,24 @@ module Utils
 
   # private
 
-  def self.crew_curl_prog
-    @@crew_curl_prog = Pathname.new(Utility.active_dir('curl')).realpath  + "curl#{Global::EXE_EXT}" unless @@crew_curl_prog
-    @@crew_curl_prog
+  def self.curl_prog
+    @@curl_prog = Pathname.new(Utility.active_dir('curl')).realpath  + "curl#{Global::EXE_EXT}" unless @@curl_prog
+    @@curl_prog
   rescue
     # todo: output warning?
-    @@crew_curl_prog = 'curl'
+    @@curl_prog = 'curl'
   end
 
-  def self.crew_tar_prog
-    @@crew_tar_prog = Pathname.new(Utility.active_dir('libarchive')).realpath + "bsdtar#{Global::EXE_EXT}" unless @@crew_tar_prog
-    @@crew_tar_prog
+  def self.tar_prog
+    @@tar_prog = Pathname.new(Utility.active_dir('libarchive')).realpath + "bsdtar#{Global::EXE_EXT}" unless @@tar_prog
+    @@tar_prog
   rescue
     # todo: output warning?
-    @@crew_tar_prog = 'tar'
+    @@tar_prog = 'tar'
+  end
+
+  def self.reset_tar_prog
+    @@tar_prog = nil
   end
 
   def self.to_cmd_s(*args)

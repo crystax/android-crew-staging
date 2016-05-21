@@ -35,8 +35,8 @@ if __FILE__ == $0
     Global.set_options(goptions)
 
     # todo:
-    #Global.check_program(Utils.crew_curl_prog)
-    #Global.check_program(Utils.crew_bsdtar_prog)
+    #Global.check_program(Utils.curl_prog)
+    #Global.check_program(Utils.bsdtar_prog)
 
     FileUtils.cd(Global::REPOSITORY_DIR) do
       require_command(cmd)
