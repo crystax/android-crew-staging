@@ -26,7 +26,8 @@ class Curl < Utility
     build_env['CFLAGS']   = platform.cflags
     build_env['CPPFLAGS'] = "-DCURL_STATICLIB"
     build_env['LANG']     = 'C'
-    build_env['LIBS']     = '-ldl' if platform.target_os == 'linux'
+    build_env['LIBS']     = '-ldl'      if platform.target_os == 'linux'
+    build_env['LIBS']     = "-lcrypt32" if platform.target_os == 'windows'
 
     args = ["--prefix=#{install_dir}",
             "--host=#{platform.configure_host}",
