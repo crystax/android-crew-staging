@@ -14,8 +14,9 @@ module Utils
 
   def self.run_command(prog, *args)
     cmd = ([prog.to_s] + args).map { |e| to_cmd_s(e) }
+
     outstr, errstr, status = Open3.capture3(*cmd)
-    raise ErrorDuringExecution.new(cmd, status.exitstatus, errstr) unless status.success?
+    raise ErrorDuringExecution.new(cmd.join(' '), status.exitstatus, errstr) unless status.success?
 
     outstr
   end
@@ -30,7 +31,7 @@ module Utils
     when 22
       raise DownloadError.new(url, e.exit_code, "HTTP page not retrieved")
     else
-      raise DownloadError.new(url, e.exit_code)
+      raise
     end
   end
 
