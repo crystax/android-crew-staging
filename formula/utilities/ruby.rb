@@ -84,8 +84,10 @@ class Ruby < Utility
     build_env['SSL_CERT_FILE']   = host_ssl_cert_file
     build_env['RUGGED_CFLAGS']   = "#{cflags} -DRUBY_UNTYPED_DATA_WARNING=0 -I#{openssl_dir}/include -I#{libssh2_dir}/include -I#{libgit2_dir}/include"
     build_env['RUGGED_MAKEFILE'] = "#{src_dir}/ext/rugged/Makefile"
+    build_env['DESTDIR']         = install_dir
+    build_env['PATH']            = "#{File.dirname(platform.cc)}:#{ENV['PATH']}" if platform.target_os == 'windows'
 
-    args = ["--prefix=#{install_dir}",
+    args = ["--prefix=/",
             "--host=#{platform.configure_host}",
             "--disable-install-doc",
             "--enable-load-relative",
@@ -98,7 +100,7 @@ class Ruby < Utility
            ]
 
     system "#{src_dir}/configure", *args
-    #fix_winres_params if options.target_platform == 'windows'
+    fix_winres_params if platform.target_os == 'windows' and platform.target_cpu == 'x86'
     system 'make', '-j', num_jobs, 'V=1'
     system 'make', 'test' if options.check? platform
     system 'make', 'install'
@@ -135,4 +137,25 @@ class Ruby < Utility
       raise "unsupported host OS for ssl sert file: #{Global::OS}"
     end
   end
+
+  # by default windres included with 64bit gcc toolchain (mingw) generates 64-bit obj files
+  # we need to provide '-F pe-i386' to windres to generate 32bit output
+  def fix_winres_params
+    file = 'GNUmakefile'
+    lines = []
+    replaced = false
+    File.foreach(file) do |l|
+      if not l.start_with?('WINDRES = ')
+        lines << l
+      else
+        lines << l.gsub('windres ', 'windres -F pe-i386 ')
+        replaced = true
+      end
+    end
+
+    raise "not found WINDRES line in GNUmakefile" unless replaced
+
+    File.open(file, 'w') { |f| f.puts lines }
+  end
+
 end
