@@ -36,5 +36,9 @@ class Libssh2 < Utility
     system 'make', '-j', num_jobs, 'V=1'
     system 'make', 'check' if options.check? platform
     system 'make', 'install'
+
+    # remove unneeded files
+    FileUtils.rm_rf File.join(install_dir, 'lib', 'pkgconfig')
+    FileUtils.rm_rf File.join(install_dir, 'share')
   end
 end

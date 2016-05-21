@@ -103,6 +103,10 @@ class Ruby < Utility
     system 'make', 'test' if options.check? platform
     system 'make', 'install'
 
+    # remove unneeded files
+    FileUtils.rm_rf File.join(install_dir, 'lib', 'pkgconfig')
+    FileUtils.rm_rf File.join(install_dir, 'share')
+
     install_gems install_dir, 'rspec', 'minitest'
   end
 
