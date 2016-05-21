@@ -62,6 +62,8 @@ class Package < Formula
     prop[:source_installed] = release.source_installed?
     prop[:installed_crystax_version] = release.crystax_version
     save_properties prop, rel_dir
+
+    release.installed = release.crystax_version
   end
 
   def uninstall(release)
@@ -167,7 +169,6 @@ class Package < Formula
       # build command is intended for a developers
       puts "Unpacking archive into #{release_directory(release)}"
       install_archive release, archive
-      release.installed = release.crystax_version
     end
 
     if options.update_shasum?

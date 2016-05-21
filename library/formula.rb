@@ -107,8 +107,6 @@ class Formula
 
     puts "unpacking archive"
     install_archive release, cachepath
-
-    release.installed = release.crystax_version
   end
 
   def installed?(release = Release.new)

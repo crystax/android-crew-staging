@@ -135,6 +135,7 @@ class Utility < Formula
     Utils.unpack archive, Global::NDK_DIR
     write_active_file File.dirname(rel_dir), release
     Utils.reset_tar_prog if name == 'bsdtar'
+    release.installed = release.crystax_version
   end
 
   def write_active_file(home_dir, release)
