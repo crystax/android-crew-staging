@@ -10,7 +10,7 @@ module Crew
       raise FormulaUnspecifiedError
     end
 
-    formulary = Formulary.libraries
+    formulary = Formulary.packages
 
     args.each.with_index do |n, index|
       name, ver = n.split(':')

@@ -9,7 +9,7 @@ module Crew
     end
 
     utils = Formulary.utilities
-    libs = Formulary.libraries
+    libs = Formulary.packages
 
     args.each.with_index do |name, index|
       # look for name in utities

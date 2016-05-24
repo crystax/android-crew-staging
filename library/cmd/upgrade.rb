@@ -10,7 +10,7 @@ module Crew
     end
 
     install_latest(Formulary.utilities)
-    install_latest(Formulary.libraries)
+    install_latest(Formulary.packages)
   end
 
   # private

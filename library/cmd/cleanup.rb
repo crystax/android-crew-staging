@@ -22,7 +22,7 @@ module Crew
 
     incache = []
     Formulary.utilities.each { |formula| incache += remove_old_utilities(formula, dryrun) }
-    Formulary.libraries.each { |formula| incache += remove_old_libraries(formula, dryrun) }
+    Formulary.packages.each { |formula| incache += remove_old_libraries(formula, dryrun) }
 
     incache.each do |f|
       if (dryrun)
