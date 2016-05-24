@@ -7,7 +7,7 @@ class Libtiff < Package
   homepage "http://www.remotesensing.org/libtiff/"
   url "http://download.osgeo.org/libtiff/tiff-${version}.tar.gz"
 
-  release version: '4.0.6', crystax_version: 1, sha256: '6b9da164f04c17e7f00d2968df235d95add26caaa3c6390991c3c6f0c6f753ec'
+  release version: '4.0.6', crystax_version: 1, sha256: '0'
 
   depends_on 'libjpeg'
 

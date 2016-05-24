@@ -4,7 +4,7 @@ class LibjpegTurbo < Package
   homepage "http://www.libjpeg-turbo.org/"
   url "https://downloads.sourceforge.net/project/libjpeg-turbo/${version}/libjpeg-turbo-${version}.tar.gz"
 
-  release version: '1.4.2', crystax_version: 1, sha256: '30d8b801c59e22ee530805ffeb03f8cc5331bf83968897acf4178a9222b5f022'
+  release version: '1.4.2', crystax_version: 1, sha256: '0'
 
   build_libs 'libturbojpeg', 'libjpeg'
   build_copy 'LICENSE.txt'

@@ -4,7 +4,7 @@ class Libpng < Package
   homepage "http://www.libpng.org/pub/png/libpng.html"
   url "http://sourceforge.net/projects/libpng/files/libpng16/${version}/libpng-${version}.tar.xz"
 
-  release version: '1.6.19', crystax_version: 1, sha256: '62a4f9128500bc7583dd1ce3f7a7f56566b1abb8d8ba9358a93b5ef201d7f51c'
+  release version: '1.6.21', crystax_version: 1, sha256: '0'
 
   build_copy 'LICENSE'
   build_options export_ldlibs: '-lz'
