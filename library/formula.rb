@@ -12,7 +12,7 @@ require_relative 'patch.rb'
 class Formula
 
   PROPERTIES_FILE = 'properties.json'
-  TYPE_DIR = { library: 'packages', utility: 'utilities' }
+  TYPE_DIR = { package: 'packages', utility: 'utilities' }
 
 
   def self.package_version(release)
