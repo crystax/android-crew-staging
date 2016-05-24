@@ -33,7 +33,7 @@ module Crew
   def self.build_package(formula, ver, formulary, options)
     release = formula.find_release(Release.new(ver))
     raise "source code not installed for #{name}:#{release}" unless release.source_installed?
-    check_dependencies formula.build_dependencies, formulary
+    check_dependencies formula.dependencies, formulary
 
     dep_dirs = {}
     Formula.full_dependencies(formulary, formula.dependencies).each do |f|
