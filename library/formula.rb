@@ -51,6 +51,7 @@ class Formula
     @path = path
     @num_jobs = 1
     @build_env = {}
+    @patches = {}
     self.class.name File.basename(@path, '.rb') unless name
   end
 
@@ -237,24 +238,24 @@ class Formula
     raise "source archive does not have top directory, diff: #{diff}" if diff.count != 1
     FileUtils.cd(dir) { FileUtils.mv diff[0], src_name }
 
-    if patches.size > 0
+    if patches(release.version).size > 0
       src_dir = File.join(dir, src_name)
       puts "#{log_prefix} patching in dir #{src_dir}"
-      patches.each do |p|
+      patches(release.version).each do |p|
         puts "#{log_prefix}   applying #{File.basename(p.path)}"
         p.apply src_dir
       end
     end
   end
 
-  def patches
-    if @patches == nil
-      @patches = []
-      # todo: add version subdir
-      mask = File.join(Global::PATCHES_DIR, TYPE_DIR[type], file_name, '*.patch')
-      Dir[mask].sort.each { |p| @patches << Patch::File.new(p) }
+  def patches(version)
+    if @patches[version] == nil
+      patches = []
+      mask = File.join(Global::PATCHES_DIR, TYPE_DIR[type], file_name, version, '*.patch')
+      Dir[mask].sort.each { |f| patches << Patch::File.new(f) }
+      @patches[version] = patches
     end
-    @patches
+    @patches[version]
   end
 
   def system(*args)

@@ -17,15 +17,6 @@ class Ruby < Utility
   build_depends_on 'libssh2'
   build_depends_on 'libgit2'
 
-  def download_rugged(rugged_ver, dir, log_prefix)
-  end
-
-  def copy_rugged(src, dst)
-  end
-
-  def patch_rugged(rugged_dst)
-  end
-
   def prepare_source_code(release, dir, src_name, log_prefix)
     super(release, dir, src_name, log_prefix)
 
@@ -53,8 +44,8 @@ class Ruby < Utility
 
     # patch rugged sources
     patches = []
-    mask = File.join(Global::PATCHES_DIR, TYPE_DIR[type], 'rugged', '*.patch')
-    Dir[mask].each { |p| patches << Patch::File.new(p) }
+    mask = File.join(Global::PATCHES_DIR, TYPE_DIR[type], 'rugged', release.version, '*.patch')
+    Dir[mask].each { |f| patches << Patch::File.new(f) }
     puts "#{log_prefix} patching in dir #{rugged_dst}"
     patches.each do |p|
       puts "#{log_prefix}   applying #{File.basename(p.path)}"
