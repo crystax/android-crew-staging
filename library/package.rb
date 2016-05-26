@@ -16,6 +16,7 @@ class Package < Formula
                         cxx_wrapper:        'c++',
                         setup_env:          true,
                         copy_incs_and_libs: true,
+                        copy_posix_bin:     false,
                         gen_android_mk:     false,
                         wrapper_fix_soname: true,
                         wrapper_fix_stl:    false,
@@ -134,6 +135,7 @@ class Package < Formula
 
     toolchain = Build::DEFAULT_TOOLCHAIN
 
+    FileUtils.mkdir_p package_dir
     arch_list.each do |arch|
       puts "= building for architecture: #{arch.name}"
       arch.abis_to_build.each do |abi|
@@ -144,6 +146,7 @@ class Package < Formula
         setup_build_env abi, toolchain if build_options[:setup_env]
         FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, dep_dirs }
         package_libs_and_headers abi if build_options[:copy_incs_and_libs]
+        package_posix_bin        abi if build_options[:copy_posix_bin]
         FileUtils.rm_rf base_dir_for_abi(abi) unless options.no_clean?
       end
     end
@@ -251,6 +254,13 @@ class Package < Formula
       FileUtils.cp "#{install_dir}/lib/#{lib}.a",  libs_dir
       FileUtils.cp "#{install_dir}/lib/#{lib}.so", libs_dir
     end
+  end
+
+  def package_posix_bin(abi)
+    install_dir = install_dir_for_abi(abi)
+    posix_dir = "#{package_dir}/prebuilt/#{abi}/posix"
+    FileUtils.mkdir_p posix_dir
+    FileUtils.cp_r "#{install_dir}/bin", posix_dir
   end
 
   def copy_tests
