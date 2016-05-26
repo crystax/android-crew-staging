@@ -52,7 +52,7 @@ class Python < Package
 
     # Step 2: build python-core
     # todo: use some dir inside crew repository for python support dir
-    support_dir = "#{Global::NDK_DIR}/build/tools/build-python"
+    support_dir = "#{Global::NDK_DIR}/build/instruments/build-python"
     build_core_dir = "#{build_dir}/core"
     build_core_jni_dir = "#{build_core_dir}/jni"
     FileUtils.mkdir_p build_core_jni_dir
