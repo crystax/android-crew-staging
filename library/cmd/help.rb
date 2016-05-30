@@ -2,6 +2,8 @@ require_relative '../exceptions.rb'
 require_relative '../build.rb'
 
 
+BUILD_SYNTAX = 'build [build_options] name[:version] ...'.freeze
+
 CREW_HELP = <<-EOS
 Usage: crew [OPTIONS] COMMAND [parameters]
 
@@ -27,7 +29,7 @@ COMMAND is one of the following:
                   uninstall the specified formulas
   source name[:version] ...
                   install source code for the specified formula(s)
-  build [build_options] name[:version] ...
+  #{BUILD_SYNTAX}
                   build the specified formula(s) from the source code
   remove-source name[:version] ...
                   remove source code for the specified formulas
@@ -42,9 +44,33 @@ There is no additional info the command.
 EOS
 
 BUILD_HELP = <<-EOS
-The command support the following options:
+#{BUILD_SYNTAX}
+
+Name for a formula to build can specified in two ways. First, it can be
+specified with formula type, like this:
+
+  package/openssl
+
+or
+
+  utility/openssl
+
+Second, it can be specified without any type prefix, like this:
+
+  libjpeg
+
+If type is not specified, then BUILD command will find out formula's type
+automatically. Specifing formula type is required only if formula with
+the same name exists for more than one type.
+
+The BUILD command support the following options:
 
 Common options:
+
+--utility        look for the specified formulas only in formula/utility
+                 directory
+
+--package        look for the specified formulas only in formula directory
 
 --build-only     do not create package in the cache dir and do not install
                  formula
@@ -102,8 +128,6 @@ module Crew
     else
       args.each do |cmd|
         raise "unknown command '#{cmd}'" unless CMD_HELP.keys.include? cmd
-        puts "'#{cmd.upcase}'"
-        puts ''
         puts CMD_HELP[cmd]
       end
     end

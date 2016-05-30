@@ -16,18 +16,38 @@ module Crew
     utilities = Formulary.utilities
 
     args.each do |n|
-      name, ver = n.split(':')
+      item, ver = n.split(':')
 
-      if packages.member? name
+      type, name = formula_type(item, packages, utilities)
+      case type
+      when :package
         build_package packages[name], ver, packages, options
-      elsif utilities.member? name
+      when :utility
         build_utility utilities[name], ver, utilities, options
       else
-        raise "#{name} not found amongst packages nor utilities"
+        raise "unexpected formula type #{type} for #{name}"
       end
 
       puts "" unless n == args.last
     end
+  end
+
+  def self.formula_type(item, packages, utilities)
+    type, name = Formula.type_name(item)
+    if type == :unspecified
+      in_packages = packages.member?(name)
+      in_utilities = utilities.member?(name)
+      if in_packages and in_utilities
+        raise "#{name} found both packages and utitlities; please, specify required formula type"
+      elsif in_packages
+        type = :package
+      elsif in_utilities
+        type = :utility
+      else
+        raise "#{name} not found amongst packages nor utilities"
+      end
+    end
+    [type, name]
   end
 
   def self.build_package(formula, ver, formulary, options)

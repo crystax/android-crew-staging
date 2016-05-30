@@ -256,11 +256,11 @@ class Package < Formula
     end
   end
 
-  def package_posix_bin(abi)
+  def package_bin(abi)
     install_dir = install_dir_for_abi(abi)
-    posix_dir = "#{package_dir}/prebuilt/#{abi}/posix"
-    FileUtils.mkdir_p posix_dir
-    FileUtils.cp_r "#{install_dir}/bin", posix_dir
+    bin_dir = "#{package_dir}/bin/#{abi}"
+    FileUtils.mkdir_p bin_dir
+    FileUtils.cp Dir["#{install_dir}/bin/*"], bin_dir
   end
 
   def copy_tests

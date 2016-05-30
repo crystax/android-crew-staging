@@ -14,6 +14,27 @@ class Formula
   PROPERTIES_FILE = 'properties.json'
   TYPE_DIR = { package: 'packages', utility: 'utilities' }
 
+  def self.type_name(item)
+    a = item.split('/')
+    case a.size
+    when 1
+      type = :unspecified
+      name = item
+    when 2
+      name = a[1]
+      case a[0]
+      when :package.to_s
+        type = :package
+      when :utility.to_s
+        type = :utility
+      else
+        raise "bad formula type #{a[0]}"
+      end
+    else
+      raise "bad formula name #{name}"
+    end
+    [type, name]
+  end
 
   def self.package_version(release)
     release.to_s
