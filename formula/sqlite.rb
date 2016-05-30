@@ -19,8 +19,7 @@ class Sqlite < Package
         f.puts 'LOCAL_MODULE := sqlite3'
         f.puts "LOCAL_SRC_FILES := #{cwd}/sqlite3.c"
         f.puts "LOCAL_INCLUDES := #{cwd}/"
-        f.puts 'LOCAL_CFLAGS := -Wall -Wno-unused -Wno-multichar -Wstrict-aliasing=2 -Werror'
-        f.puts 'LOCAL_CFLAGS += -Wno-strict-aliasing' if ['x86', 'x86_64', 'arm64-v8a'].include? abi
+        f.puts 'LOCAL_CFLAGS := -Wall -Wno-unused -Wno-multichar -Wno-strict-aliasing -Werror'
         f.puts 'LOCAL_CFLAGS += -fno-exceptions -fmessage-length=0'
         f.puts 'LOCAL_CFLAGS += -DSQLITE_THREADSAFE=1'
         f.puts "include $(BUILD_#{libtype.upcase}_LIBRARY)"
