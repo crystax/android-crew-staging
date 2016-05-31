@@ -16,7 +16,7 @@ class Package < Formula
                         cxx_wrapper:        'c++',
                         setup_env:          true,
                         copy_incs_and_libs: true,
-                        copy_posix_bin:     false,
+                        copy_bin:           false,
                         gen_android_mk:     false,
                         wrapper_fix_soname: true,
                         wrapper_fix_stl:    false,
@@ -146,7 +146,7 @@ class Package < Formula
         setup_build_env abi, toolchain if build_options[:setup_env]
         FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, dep_dirs }
         package_libs_and_headers abi if build_options[:copy_incs_and_libs]
-        package_posix_bin        abi if build_options[:copy_posix_bin]
+        package_bin abi if build_options[:copy_bin]
         FileUtils.rm_rf base_dir_for_abi(abi) unless options.no_clean?
       end
     end
