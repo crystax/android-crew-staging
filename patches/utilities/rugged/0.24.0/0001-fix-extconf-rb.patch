@@ -1,6 +1,6 @@
-diff -r --unified a/extconf.rb b/extconf.rb
---- a/extconf.rb	2016-05-19 21:48:48.000000000 +0300
-+++ b/extconf.rb	2016-05-19 21:57:04.000000000 +0300
+diff -r --unified a/ext/rugged/extconf.rb b/ext/rugged/extconf.rb
+--- a/ext/rugged/extconf.rb	2016-05-19 21:48:48.000000000 +0300
++++ b/ext/rugged/extconf.rb	2016-05-19 21:57:04.000000000 +0300
 @@ -1,105 +1,39 @@
 +# -*- ruby -*-
 +

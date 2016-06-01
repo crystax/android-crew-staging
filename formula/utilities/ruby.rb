@@ -35,22 +35,22 @@ class Ruby < Utility
     puts "#{log_prefix} unpacking #{File.basename(rugged_archive)} into #{dir}"
     Utils.unpack(rugged_archive, dir)
 
-    # copy rugged sources into ruby source code tree
+    # patch rugged sources
+    patches = []
     rugged_src = File.join(dir, "rugged-#{rugged_ver}")
+    mask = File.join(Global::PATCHES_DIR, TYPE_DIR[type], 'rugged', rugged_ver, '*.patch')
+    Dir[mask].each { |f| patches << Patch::File.new(f) }
+    puts "#{log_prefix} patching in dir #{rugged_src}"
+    patches.each do |p|
+      puts "#{log_prefix}   applying #{File.basename(p.path)}"
+      p.apply rugged_src
+    end
+
+    # copy rugged sources into ruby source code tree
     rugged_dst = "#{src_dir}/ext/rugged"
     FileUtils.mkdir_p "#{rugged_dst}/lib"
     FileUtils.cp_r Dir["#{rugged_src}/ext/rugged/*"], "#{rugged_dst}/"
     FileUtils.cp_r Dir["#{rugged_src}/lib/*"], "#{rugged_dst}/lib/"
-
-    # patch rugged sources
-    patches = []
-    mask = File.join(Global::PATCHES_DIR, TYPE_DIR[type], 'rugged', release.version, '*.patch')
-    Dir[mask].each { |f| patches << Patch::File.new(f) }
-    puts "#{log_prefix} patching in dir #{rugged_dst}"
-    patches.each do |p|
-      puts "#{log_prefix}   applying #{File.basename(p.path)}"
-      p.apply rugged_dst
-    end
   end
 
   def build_for_platform(platform, release, options, dep_dirs)
@@ -74,7 +74,7 @@ class Ruby < Utility
     build_env['LIBS']            = libs
     build_env['SSL_CERT_FILE']   = host_ssl_cert_file
     build_env['RUGGED_CFLAGS']   = "#{cflags} -DRUBY_UNTYPED_DATA_WARNING=0 -I#{openssl_dir}/include -I#{libssh2_dir}/include -I#{libgit2_dir}/include"
-    build_env['RUGGED_MAKEFILE'] = "#{src_dir}/ext/rugged/Makefile"
+    build_env['RUGGED_MAKEFILE'] = "#{build_dir_for_platform(platform)}/ext/rugged/Makefile"
     build_env['DESTDIR']         = install_dir
     build_env['PATH']            = "#{File.dirname(platform.cc)}:#{ENV['PATH']}" if platform.target_os == 'windows'
 
