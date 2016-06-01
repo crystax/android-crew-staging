@@ -24,6 +24,7 @@ FileUtils.rm_rf Crew_test::CREW_DIR
 FileUtils.mkdir_p File.join(Crew_test::NDK_DIR, 'sources')
 FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'formula', 'utilities')
 FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'cache')
+FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'patches')
 
 ENV['CREW_DOWNLOAD_BASE'] = Crew_test::DOWNLOAD_BASE
 ENV['CREW_BASE_DIR'] = Crew_test::CREW_DIR

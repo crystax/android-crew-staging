@@ -1,6 +1,6 @@
 module Crew_test
 
-  UTILS           = ['curl', 'libarchive', 'ruby', 'xz']
+  UTILS           = ['curl', 'libarchive', 'ruby']
   PORT            = 9999
   DOWNLOAD_BASE   = "http://localhost:#{PORT}"
   DATA_DIR        = 'data'

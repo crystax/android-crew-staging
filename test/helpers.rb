@@ -5,6 +5,7 @@ require 'rugged'
 require 'digest'
 require 'find'
 require_relative '../library/release.rb'
+require_relative '../library/utility.rb'
 
 module Spec
 
@@ -155,8 +156,8 @@ module Spec
       orig_engine_dir = "#{Crew_test::NDK_COPY_DIR}/prebuilt/#{Global::PLATFORM_NAME}/crew"
       engine_dir = "#{Crew_test::NDK_DIR}/prebuilt/#{Global::PLATFORM_NAME}/crew"
       Crew_test::UTILS.each do |util|
-        version = Global.active_util_version(util, orig_engine_dir)
-        File.open(Global.active_file_path(util, engine_dir), 'w') { |f| f.puts version }
+        version = Utility.active_version(util, orig_engine_dir)
+        File.open(File.join(Utility.active_dir(util, engine_dir), Utility::ACTIVE_FILE_NAME), 'w') { |f| f.puts version }
         FileUtils.cd("#{engine_dir}/#{util}") do
           dirs = Dir['*'].select { |d| File.directory?(d) }
           d = dirs.pop
@@ -264,10 +265,10 @@ module Spec
 
     def repository_add_initial_files(dir, repo)
       utils_dir = File.join(dir, 'formula', 'utilities')
-      FileUtils.mkdir_p [File.join(dir, 'cache'), utils_dir]
+      FileUtils.mkdir_p [File.join(dir, 'cache'), File.join(dir, 'patches'), utils_dir]
       Crew_test::UTILS.each { |u| FileUtils.cp File.join('data', "#{u}-1.rb"), File.join(utils_dir,  "#{u}.rb") }
       FileUtils.cd(dir) do
-        [File.join('cache', '.placeholder'), File.join('formula', '.placeholder')].each do |file|
+        [File.join('cache', '.placeholder'), File.join('formula', '.placeholder'), File.join('patches', '.placeholder')].each do |file|
           FileUtils.touch file
           repo.add file
         end

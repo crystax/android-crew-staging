@@ -22,6 +22,7 @@ orig_engine_dir    = File.join(orig_tools_dir, 'crew')
 
 # copy utils from NDK dir to tests directory structure
 FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'cache')
+FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'patches')
 FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'formula', 'utilities')
 FileUtils.mkdir_p File.join(Crew_test::NDK_DIR, 'sources')
 FileUtils.mkdir_p File.join(Crew_test::NDK_DIR, 'packages')
@@ -34,6 +35,7 @@ FileUtils.cp_r Crew_test::NDK_DIR, Crew_test::NDK_COPY_DIR
 
 require_relative '../library/release.rb'
 require_relative '../library/utils.rb'
+require_relative '../library/utility.rb'
 
 
 ORIG_NDK_DIR       = Pathname.new(orig_ndk_dir).realpath.to_s
@@ -112,7 +114,7 @@ def create_archive(orig_release, release, util)
   FileUtils.mkdir_p File.dirname(archive_path)
   FileUtils.cd('tmp') do
     args = ['-Jcf', archive_path, dir_to_archive]
-    Utils.run_command(File.join(Global::active_util_dir('libarchive', ORIG_ENGINE_DIR), 'bsdtar'), *args)
+    Utils.run_command(File.join(Utility::active_dir('libarchive', ORIG_ENGINE_DIR), 'bsdtar'), *args)
   end
   # rename new release back to old
   FileUtils.cd(util_dir) { FileUtils.mv new, old if old != new }
@@ -124,12 +126,12 @@ end
 # create test data for utilities
 #
 
-xz_path = Pathname.new(Global.active_util_dir('xz', ORIG_ENGINE_DIR)).realpath.to_s
-path = ENV['PATH']
-if not path.start_with?(xz_path)
-  sep = (PLATFORM =~ /windows/) ? ';' : ':'
-  ENV['PATH'] = "#{xz_path}#{sep}#{path}"
-end
+# xz_path = Pathname.new(Global.active_util_dir('xz', ORIG_ENGINE_DIR)).realpath.to_s
+# path = ENV['PATH']
+# if not path.start_with?(xz_path)
+#   sep = (PLATFORM =~ /windows/) ? ';' : ':'
+#   ENV['PATH'] = "#{xz_path}#{sep}#{path}"
+# end
 
 orig_releases = {}
 Crew_test::UTILS.each do |u|
