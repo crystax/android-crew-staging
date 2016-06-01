@@ -86,6 +86,10 @@ class Utility < Formula
     FileUtils.rm_rf build_base_dir
     puts "= preparing source code"
     prepare_source_code release, File.dirname(src_dir), File.basename(src_dir), ' '
+    if options.source_only?
+      puts "Only sources were requested, loook for them in #{build_base_dir}"
+      return
+    end
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"

@@ -7,10 +7,11 @@ require_relative 'platform.rb'
 class Build_options
 
   attr_accessor :platforms, :abis, :num_jobs
-  attr_writer :build_only, :no_clean, :update_shasum, :check
+  attr_writer :source_only, :build_only, :no_clean, :update_shasum, :check
 
   def initialize(opts)
     @abis = Build::ABI_LIST
+    @source_only = false
     @build_only = false
     @no_clean = false
     @check = false
@@ -25,6 +26,9 @@ class Build_options
 
     opts.each do |opt|
       case opt
+      when '--source-only'
+        @source_only = true
+        @no_clean = true
       when '--build-only'
         @build_only = true
       when '--no-clean'
@@ -43,6 +47,10 @@ class Build_options
         raise "unknow option: #{opt}"
       end
     end
+  end
+
+  def source_only?
+    @source_only
   end
 
   def build_only?

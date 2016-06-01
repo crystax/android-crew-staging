@@ -67,10 +67,8 @@ The BUILD command support the following options:
 
 Common options:
 
---utility        look for the specified formulas only in formula/utility
-                 directory
-
---package        look for the specified formulas only in formula directory
+--source-only    just prepare sources for building and do nothing else;
+                 implies --no-clean
 
 --build-only     do not create package in the cache dir and do not install
                  formula
