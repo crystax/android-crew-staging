@@ -29,7 +29,7 @@ module Crew
       end
 
       puts "calculating dependencies for #{name}: "
-      deps = formula.full_dependencies(formulary).select { |d| not d.installed? }
+      deps = Formula.full_dependencies(formulary, formula.dependencies).select { |d| not d.installed? }
       puts "  dependencies to install: #{(deps.map { |d| d.name }).join(', ')}"
 
       if deps.count > 0

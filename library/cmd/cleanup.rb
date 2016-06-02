@@ -38,8 +38,9 @@ module Crew
 
   def self.remove_old_utilities(formula, dryrun)
     active_ver = formula.active_version
+    home_dir = formula.home_directory(Global::PLATFORM_NAME)
     #
-    Dir[File.join(formula.home_directory, '*')].select { |d| File.directory?(d) and (File.basename(d) != active_ver) }.sort.each do |dir|
+    Dir[File.join(home_dir, '*')].select { |d| File.directory?(d) and (File.basename(d) != active_ver) }.sort.each do |dir|
       if (dryrun)
         puts "would remove: #{dir}"
       else
