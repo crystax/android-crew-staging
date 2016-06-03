@@ -1,5 +1,5 @@
 require 'fileutils'
-require_relative 'test_consts.rb'
+require_relative 'spec_consts.rb'
 
 
 FileUtils.rm_rf 'tmp'

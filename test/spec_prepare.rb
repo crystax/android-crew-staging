@@ -2,7 +2,7 @@ require 'fileutils'
 require 'digest'
 require 'pathname'
 require 'json'
-require_relative 'test_consts.rb'
+require_relative 'spec_consts.rb'
 
 
 if File.exists? Crew_test::DATA_READY_FILE
@@ -26,10 +26,11 @@ FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'patches')
 FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'formula', 'utilities')
 FileUtils.mkdir_p File.join(Crew_test::NDK_DIR, 'sources')
 FileUtils.mkdir_p File.join(Crew_test::NDK_DIR, 'packages')
-FileUtils.mkdir_p File.dirname(File.join(tools_dir, 'crew'))
+FileUtils.mkdir_p File.join(tools_dir, 'crew')
 FileUtils.mkdir_p utils_download_dir
-FileUtils.cp_r File.join(orig_tools_dir, 'crew'), File.join(tools_dir, 'crew')
 FileUtils.cp_r File.join(orig_tools_dir, 'bin'),  tools_dir
+# copy only core utilites
+Crew_test::UTILS.each { |cu| FileUtils.cp_r File.join(orig_tools_dir, 'crew', cu), File.join(tools_dir, 'crew') }
 FileUtils.cp_r Crew_test::NDK_DIR, Crew_test::NDK_COPY_DIR
 
 
@@ -102,11 +103,6 @@ def create_archive(orig_release, release, util)
   FileUtils.cd(util_dir) do
     # rename to new release
     FileUtils.mv old, new if old != new
-    # # fix crystax_version in properties file
-    # propsfile = File.join(new, 'properties.json')
-    # props = JSON.parse(IO.read(propsfile), symbolize_names: true)
-    # props[:crystax_version] = release.crystax_version
-    # File.open(propsfile, 'w') { |f| f.puts props.to_json }
   end
   # make archive
   dir_to_archive = File.join('prebuilt', PLATFORM, 'crew', util, new)
@@ -126,13 +122,6 @@ end
 # create test data for utilities
 #
 
-# xz_path = Pathname.new(Global.active_util_dir('xz', ORIG_ENGINE_DIR)).realpath.to_s
-# path = ENV['PATH']
-# if not path.start_with?(xz_path)
-#   sep = (PLATFORM =~ /windows/) ? ';' : ':'
-#   ENV['PATH'] = "#{xz_path}#{sep}#{path}"
-# end
-
 orig_releases = {}
 Crew_test::UTILS.each do |u|
   formula = File.join(ORIG_FORMULA_DIR, "#{u}.rb")
@@ -144,8 +133,9 @@ Crew_test::UTILS.each do |u|
 end
 
 # create archives and formulas for curl
-curl_releases = [Release.new('7.42.0', 1), Release.new('7.42.0', 3), Release.new('8.21.0', 1)].map do |r|
-  r.shasum = { PLATFORM_SYM => create_archive(orig_releases['curl'], r, 'curl') }
+base = orig_releases['curl']
+curl_releases = [base, Release.new(base.version, base.crystax_version + 2), Release.new(base.version + 'a', 1)].map do |r|
+  r.shasum = { PLATFORM_SYM => create_archive(base, r, 'curl') }
   r
 end
 curl_formula = File.join(ORIG_FORMULA_DIR, 'curl.rb')
@@ -154,8 +144,9 @@ File.open(File.join(DATA_DIR, 'curl-2.rb'), 'w') { |f| f.puts replace_releases(c
 File.open(File.join(DATA_DIR, 'curl-3.rb'), 'w') { |f| f.puts replace_releases(curl_formula, curl_releases.slice(1, 2)) }
 
 # create archives and formulas for libarchive
-libarchive_releases = [Release.new('3.1.2', 1), Release.new('3.1.3', 1)].map do |r|
-  r.shasum = { PLATFORM_SYM => create_archive(orig_releases['libarchive'], r, 'libarchive') }
+base = orig_releases['libarchive']
+libarchive_releases = [base, Release.new(base.version + 'a', 1)].map do |r|
+  r.shasum = { PLATFORM_SYM => create_archive(base, r, 'libarchive') }
   r
 end
 libarchive_formula = File.join(ORIG_FORMULA_DIR, 'libarchive.rb')
@@ -163,21 +154,13 @@ File.open(File.join(DATA_DIR, 'libarchive-1.rb'), 'w') { |f| f.puts replace_rele
 File.open(File.join(DATA_DIR, 'libarchive-2.rb'), 'w') { |f| f.puts replace_releases(libarchive_formula, libarchive_releases.slice(0, 2)) }
 
 # create archives and formulas for ruby
-ruby_releases = [Release.new('2.2.2', 1), Release.new('2.2.3', 1)].map do |r|
-  r.shasum = { PLATFORM_SYM => create_archive(orig_releases['ruby'], r, 'ruby') }
+base = orig_releases['ruby']
+ruby_releases = [base, Release.new(base.version + 'a', 1)].map do |r|
+  r.shasum = { PLATFORM_SYM => create_archive(base, r, 'ruby') }
   r
 end
 ruby_formula = File.join(ORIG_FORMULA_DIR, 'ruby.rb')
 File.open(File.join(DATA_DIR, 'ruby-1.rb'), 'w') { |f| f.puts replace_releases(ruby_formula, ruby_releases.slice(0, 1)) }
 File.open(File.join(DATA_DIR, 'ruby-2.rb'), 'w') { |f| f.puts replace_releases(ruby_formula, ruby_releases.slice(0, 2)) }
-
-# create archives and formulas for xz
-xz_releases = [Release.new('5.2.2', 1), Release.new('5.2.3', 1)].map do |r|
-  r.shasum = { PLATFORM_SYM => create_archive(orig_releases['xz'], r, 'xz') }
-  r
-end
-xz_formula = File.join(ORIG_FORMULA_DIR, 'xz.rb')
-File.open(File.join(DATA_DIR, 'xz-1.rb'), 'w') { |f| f.puts replace_releases(xz_formula, xz_releases.slice(0, 1)) }
-File.open(File.join(DATA_DIR, 'xz-2.rb'), 'w') { |f| f.puts replace_releases(xz_formula, xz_releases.slice(0, 2)) }
 
 FileUtils.touch Crew_test::DATA_READY_FILE
