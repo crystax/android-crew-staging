@@ -163,4 +163,25 @@ ruby_formula = File.join(ORIG_FORMULA_DIR, 'ruby.rb')
 File.open(File.join(DATA_DIR, 'ruby-1.rb'), 'w') { |f| f.puts replace_releases(ruby_formula, ruby_releases.slice(0, 1)) }
 File.open(File.join(DATA_DIR, 'ruby-2.rb'), 'w') { |f| f.puts replace_releases(ruby_formula, ruby_releases.slice(0, 2)) }
 
+# generate ruby source file with releases info
+curl_releases_str       = curl_releases.map       { |r| "Release.new(\'#{r.version}\', #{r.crystax_version})" }.join(', ')
+libarchive_releases_str = libarchive_releases.map { |r| "Release.new(\'#{r.version}\', #{r.crystax_version})" }.join(', ')
+ruby_releases_str       = ruby_releases.map       { |r| "Release.new(\'#{r.version}\', #{r.crystax_version})" }.join(', ')
+
+RELEASES_DATA = <<-EOS
+# Automatocally generated! Do not edit.
+
+module Crew_test
+
+  UTILS_RELEASES = {
+    'curl'       => [ #{curl_releases_str} ],
+    'libarchive' => [ #{libarchive_releases_str} ],
+    'ruby'       => [ #{ruby_releases_str} ]
+  }
+end
+
+EOS
+
+File.open(Crew_test::UTILS_RELEASES_FILE, 'w') { |f| f.write(RELEASES_DATA) }
+
 FileUtils.touch Crew_test::DATA_READY_FILE

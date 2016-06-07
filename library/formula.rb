@@ -117,7 +117,7 @@ class Formula
     if File.exists? cachepath
       puts "using cached file #{file}"
     else
-      url = "#{download_base}/#{name}/#{file}"
+      url = "#{download_base}/#{file_name}/#{file}"
       puts "downloading #{url}"
       Utils.download(url, cachepath)
     end

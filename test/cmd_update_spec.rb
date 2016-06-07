@@ -102,12 +102,12 @@ describe "crew update" do
 
     context "when there are four updated utilities" do
       it "says about updated utilities" do
-        repository_add_formula :utility, 'curl-2.rb:curl.rb', 'libarchive-2.rb:libarchive.rb', 'ruby-2.rb:ruby.rb', 'xz-2.rb:xz.rb'
+        repository_add_formula :utility, 'curl-2.rb:curl.rb', 'libarchive-2.rb:libarchive.rb', 'ruby-2.rb:ruby.rb'
         crew 'update'
         expect(result).to eq(:ok)
         expect(out).to match("Updated Crew from .* to .*.\n" \
                              "==> Updated Utilities\n"       \
-                             "curl, libarchive, ruby, xz\n")
+                             "curl, libarchive, ruby\n")
       end
     end
   end
@@ -120,12 +120,12 @@ describe "crew update" do
         repository_clone
         repository_add_formula :library, 'libone.rb', 'libtwo.rb'
         repository_del_formula 'libthree.rb'
-        repository_add_formula :utility, 'curl-2.rb:curl.rb', 'ruby-2.rb:ruby.rb', 'xz-2.rb:xz.rb'
+        repository_add_formula :utility, 'curl-2.rb:curl.rb', 'ruby-2.rb:ruby.rb'
         crew 'update'
         expect(result).to eq(:ok)
         expect(out).to match("Updated Crew from .* to .*.\n" \
                              "==> Updated Utilities\n"       \
-                             "curl, ruby, xz\n"              \
+                             "curl, ruby\n"                  \
                              "==> New Formulae\n"            \
                              "libone\n"                      \
                              "==> Updated Formulae\n"        \

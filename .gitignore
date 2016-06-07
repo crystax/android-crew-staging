@@ -13,4 +13,5 @@ test/data/curl-*.rb
 test/data/libarchive-*.rb
 test/data/ruby-*.rb
 test/data/xz-*.rb
+test/data/releases_info.rb
 test/tmp

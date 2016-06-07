@@ -23,8 +23,9 @@ if [ -z $CREW_TOOLS_DIR ]; then
 fi
 
 if [ -f $CREW_TOOLS_DIR/bin/ruby ]; then
-    CREW_RUBY=CREW_TOOLS_DIR/bin/ruby
+    CREW_RUBY=$CREW_TOOLS_DIR/bin/ruby
 else
+    echo "Warning: using system ruby"
     CREW_RUBY=ruby
 fi
 

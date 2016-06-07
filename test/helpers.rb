@@ -157,7 +157,7 @@ module Spec
       engine_dir = "#{Crew_test::NDK_DIR}/prebuilt/#{Global::PLATFORM_NAME}/crew"
       Crew_test::UTILS.each do |util|
         version = Utility.active_version(util, orig_engine_dir)
-        File.open(File.join(Utility.active_dir(util, engine_dir), Utility::ACTIVE_FILE_NAME), 'w') { |f| f.puts version }
+        File.open(Utility.active_path(util, engine_dir), 'w') { |f| f.puts version }
         FileUtils.cd("#{engine_dir}/#{util}") do
           dirs = Dir['*'].select { |d| File.directory?(d) }
           d = dirs.pop

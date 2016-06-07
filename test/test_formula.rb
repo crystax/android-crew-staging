@@ -1,5 +1,5 @@
 require 'minitest/unit'
-require_relative 'test_consts.rb'
+require_relative 'spec_consts.rb'
 require_relative '../library/formulary.rb'
 require_relative '../library/formula.rb'
 

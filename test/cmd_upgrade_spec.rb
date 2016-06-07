@@ -1,5 +1,6 @@
 require_relative 'spec_helper.rb'
 require_relative '../library/global.rb'
+require_relative 'data/releases_info.rb'
 
 describe "crew upgrade" do
   before(:all) do
@@ -80,8 +81,8 @@ describe "crew upgrade" do
         repository_add_formula :utility, 'curl-2.rb:curl.rb'
         crew_checked 'update'
         crew '-b', 'upgrade'
-        ver = "7.42.0"
-        cxver = 3
+        ver = Crew_test::UTILS_RELEASES['curl'][1].version
+        cxver = Crew_test::UTILS_RELEASES['curl'][1].crystax_version
         file = "curl-#{ver}_#{cxver}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         expect(result).to eq(:ok)
         expect(out).to eq("Will install: curl:#{ver}:#{cxver}\n"                          \
@@ -90,7 +91,7 @@ describe "crew upgrade" do
                           "unpacking archive\n")
         expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{ver}_1")).to eq(true)
         expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{ver}_#{cxver}")).to eq(true)
-        expect(Global.active_util_version('curl')).to eq("#{ver}_#{cxver}")
+        expect(Utility.active_version('curl')).to eq("#{ver}_#{cxver}")
         expect(in_cache?(:utility, 'curl', ver, cxver)).to eq(true)
       end
     end
@@ -101,17 +102,18 @@ describe "crew upgrade" do
         repository_add_formula :utility, 'curl-3.rb:curl.rb'
         crew_checked 'update'
         crew '-b', 'upgrade'
-        ver = "8.21.0"
-        cxver = 1
+        old_rel = Crew_test::UTILS_RELEASES['curl'][0].to_s
+        ver = Crew_test::UTILS_RELEASES['curl'][2].version
+        cxver = Crew_test::UTILS_RELEASES['curl'][2].crystax_version
         file = "curl-#{ver}_#{cxver}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         expect(result).to eq(:ok)
         expect(out).to eq("Will install: curl:#{ver}:#{cxver}\n"                          \
                           "downloading #{Global::DOWNLOAD_BASE}/utilities/curl/#{file}\n" \
                           "checking integrity of the archive file #{file}\n"              \
                           "unpacking archive\n")
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/7.42.0_1")).to eq(true)
+        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{old_rel}")).to eq(true)
         expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{ver}_#{cxver}")).to eq(true)
-        expect(Global.active_util_version('curl')).to eq("#{ver}_#{cxver}")
+        expect(Utility.active_version('curl')).to eq("#{ver}_#{cxver}")
         expect(in_cache?(:utility, 'curl', ver, cxver)).to eq(true)
       end
     end
@@ -119,40 +121,41 @@ describe "crew upgrade" do
     context "when there are new releases for all utilities" do
       it "says about installing new releases" do
         repository_clone
-        repository_add_formula :utility, 'curl-3.rb:curl.rb', 'libarchive-2.rb:libarchive.rb', 'ruby-2.rb:ruby.rb', 'xz-2.rb:xz.rb'
+        repository_add_formula :utility, 'libarchive-2.rb:libarchive.rb', 'curl-3.rb:curl.rb', 'ruby-2.rb:ruby.rb'
         crew_checked 'update'
         crew '-b', 'upgrade'
-        curl_file = "curl-8.21.0_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
-        libarchive_file = "libarchive-3.1.3_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
-        ruby_file = "ruby-2.2.3_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
-        xz_file = "xz-5.2.3_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        libarchive_new_rel = Crew_test::UTILS_RELEASES['libarchive'][1]
+        libarchive_old_rel = Crew_test::UTILS_RELEASES['libarchive'][0]
+        libarchive_file = "libarchive-#{libarchive_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        libarchive_ver = "#{libarchive_new_rel.version}:#{libarchive_new_rel.crystax_version}"
+        curl_new_rel = Crew_test::UTILS_RELEASES['curl'][2]
+        curl_old_rel = Crew_test::UTILS_RELEASES['curl'][0]
+        curl_file = "curl-#{curl_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        curl_ver = "#{curl_new_rel.version}:#{curl_new_rel.crystax_version}"
+        ruby_new_rel = Crew_test::UTILS_RELEASES['ruby'][1]
+        ruby_old_rel = Crew_test::UTILS_RELEASES['ruby'][0]
+        ruby_file = "ruby-#{ruby_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        ruby_ver = "#{ruby_new_rel.version}:#{ruby_new_rel.crystax_version}"
         expect(result).to eq(:ok)
-        expect(out).to eq(
-                         "Will install: curl:8.21.0:1, libarchive:3.1.3:1, ruby:2.2.3:1, xz:5.2.3:1\n"    \
-                         "downloading #{Global::DOWNLOAD_BASE}/utilities/curl/#{curl_file}\n"             \
-                         "checking integrity of the archive file #{curl_file}\n"                          \
-                         "unpacking archive\n"                                                            \
-                         "downloading #{Global::DOWNLOAD_BASE}/utilities/libarchive/#{libarchive_file}\n" \
-                         "checking integrity of the archive file #{libarchive_file}\n"                    \
-                         "unpacking archive\n"                                                            \
-                         "downloading #{Global::DOWNLOAD_BASE}/utilities/ruby/#{ruby_file}\n"             \
-                         "checking integrity of the archive file #{ruby_file}\n"                          \
-                         "unpacking archive\n"                                                            \
-                         "downloading #{Global::DOWNLOAD_BASE}/utilities/xz/#{xz_file}\n"                 \
-                         "checking integrity of the archive file #{xz_file}\n"                            \
-                         "unpacking archive\n")
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/7.42.0_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/8.21.0_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/libarchive/3.1.2_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/libarchive/3.1.3_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/2.2.2_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/2.2.3_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/xz/5.2.2_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/xz/5.2.3_1")).to eq(true)
-        expect(in_cache?(:utility, 'curl',       '8.21.0', 1)).to eq(true)
-        expect(in_cache?(:utility, 'libarchive', '3.1.3',  1)).to eq(true)
-        expect(in_cache?(:utility, 'ruby',       '2.2.3',  1)).to eq(true)
-        expect(in_cache?(:utility, 'xz',         '5.2.3',  1)).to eq(true)
+        expect(out).to eq("Will install: bsdtar:#{libarchive_ver}, curl:#{curl_ver}, ruby:#{ruby_ver}\n"   \
+                          "downloading #{Global::DOWNLOAD_BASE}/utilities/libarchive/#{libarchive_file}\n" \
+                          "checking integrity of the archive file #{libarchive_file}\n"                    \
+                          "unpacking archive\n"                                                            \
+                          "downloading #{Global::DOWNLOAD_BASE}/utilities/curl/#{curl_file}\n"             \
+                          "checking integrity of the archive file #{curl_file}\n"                          \
+                          "unpacking archive\n"                                                            \
+                          "downloading #{Global::DOWNLOAD_BASE}/utilities/ruby/#{ruby_file}\n"             \
+                          "checking integrity of the archive file #{ruby_file}\n"                          \
+                          "unpacking archive\n")
+        expect(Dir.exists?("#{Global::ENGINE_DIR}/libarchive/#{libarchive_old_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::ENGINE_DIR}/libarchive/#{libarchive_new_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_old_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_new_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/#{ruby_old_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/#{ruby_new_rel}")).to eq(true)
+        expect(in_cache?(:utility, 'libarchive', libarchive_new_rel.version,  libarchive_new_rel.crystax_version)).to eq(true)
+        expect(in_cache?(:utility, 'curl',       curl_new_rel.version,        curl_new_rel.crystax_version)).to       eq(true)
+        expect(in_cache?(:utility, 'ruby',       ruby_new_rel.version,        ruby_new_rel.crystax_version)).to       eq(true)
       end
     end
   end
@@ -169,22 +172,25 @@ describe "crew upgrade" do
         repository_add_formula :utility, 'curl-2.rb:curl.rb'
         crew_checked 'update'
         crew 'upgrade'
-        curlfile = "curl-7.42.0_3-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
-        libtwofile = "libtwo-2.2.0_1.#{Global::ARCH_EXT}"
+        curl_new_rel = Crew_test::UTILS_RELEASES['curl'][1]
+        curl_old_rel = Crew_test::UTILS_RELEASES['curl'][0]
+        curl_ver = "#{curl_new_rel.version}:#{curl_new_rel.crystax_version}"
+        curl_file = "curl-#{curl_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        libtwo_file = "libtwo-2.2.0_1.#{Global::ARCH_EXT}"
         expect(result).to eq(:ok)
-        expect(out.split("\n")).to eq(["Will install: curl:7.42.0:3",
-                                       "downloading #{Global::DOWNLOAD_BASE}/utilities/curl/#{curlfile}",
-                                       "checking integrity of the archive file #{curlfile}",
+        expect(out.split("\n")).to eq(["Will install: curl:#{curl_ver}",
+                                       "downloading #{Global::DOWNLOAD_BASE}/utilities/curl/#{curl_file}",
+                                       "checking integrity of the archive file #{curl_file}",
                                        "unpacking archive",
                                        "Will install: libtwo:2.2.0:1",
-                                       "downloading #{Global::DOWNLOAD_BASE}/packages/libtwo/#{libtwofile}",
-                                       "checking integrity of the archive file #{libtwofile}",
+                                       "downloading #{Global::DOWNLOAD_BASE}/packages/libtwo/#{libtwo_file}",
+                                       "checking integrity of the archive file #{libtwo_file}",
                                        "unpacking archive"
                                       ])
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/7.42.0_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/7.42.0_3")).to eq(true)
-        expect(Global.active_util_version('curl')).to eq("7.42.0_3")
-        expect(in_cache?(:utility, 'curl', '7.42.0', 3)).to eq(true)
+        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_old_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_new_rel}")).to eq(true)
+        expect(Utility.active_version('curl')).to eq(curl_new_rel.to_s)
+        expect(in_cache?(:utility, 'curl', curl_new_rel.version, curl_new_rel.crystax_version)).to eq(true)
       end
     end
 
@@ -196,28 +202,33 @@ describe "crew upgrade" do
         crew_checked 'install', 'libtwo'
         crew_checked 'install', 'libthree:1.1.1'
         repository_add_formula :library, 'libtwo.rb', 'libthree.rb'
-        repository_add_formula :utility, 'curl-3.rb:curl.rb', 'libarchive-2.rb:libarchive.rb', 'ruby-2.rb:ruby.rb', 'xz-2.rb:xz.rb'
+        repository_add_formula :utility, 'curl-3.rb:curl.rb', 'libarchive-2.rb:libarchive.rb', 'ruby-2.rb:ruby.rb'
         crew_checked 'update'
         crew 'upgrade'
         lib3file = "libthree-3.3.3_1.#{Global::ARCH_EXT}"
         lib2file = "libtwo-2.2.0_1.#{Global::ARCH_EXT}"
-        curlfile = "curl-8.21.0_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
-        libarchivefile = "libarchive-3.1.3_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
-        rubyfile = "ruby-2.2.3_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
-        xzfile = "xz-5.2.3_1-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        libarchive_new_rel = Crew_test::UTILS_RELEASES['libarchive'][1]
+        libarchive_old_rel = Crew_test::UTILS_RELEASES['libarchive'][0]
+        libarchive_file = "libarchive-#{libarchive_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        libarchive_ver = "#{libarchive_new_rel.version}:#{libarchive_new_rel.crystax_version}"
+        curl_new_rel = Crew_test::UTILS_RELEASES['curl'][2]
+        curl_old_rel = Crew_test::UTILS_RELEASES['curl'][0]
+        curl_file = "curl-#{curl_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        curl_ver = "#{curl_new_rel.version}:#{curl_new_rel.crystax_version}"
+        ruby_new_rel = Crew_test::UTILS_RELEASES['ruby'][1]
+        ruby_old_rel = Crew_test::UTILS_RELEASES['ruby'][0]
+        ruby_file = "ruby-#{ruby_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        ruby_ver = "#{ruby_new_rel.version}:#{ruby_new_rel.crystax_version}"
         expect(result).to eq(:ok)
-        expect(out.split("\n")).to eq(["Will install: curl:8.21.0:1, libarchive:3.1.3:1, ruby:2.2.3:1, xz:5.2.3:1",
-                                       "downloading #{Global::DOWNLOAD_BASE}/utilities/curl/#{curlfile}",
-                                       "checking integrity of the archive file #{curlfile}",
+        expect(out.split("\n")).to eq(["Will install: bsdtar:#{libarchive_ver}, curl:#{curl_ver}, ruby:#{ruby_ver}",
+                                       "downloading #{Global::DOWNLOAD_BASE}/utilities/libarchive/#{libarchive_file}",
+                                       "checking integrity of the archive file #{libarchive_file}",
                                        "unpacking archive",
-                                       "downloading #{Global::DOWNLOAD_BASE}/utilities/libarchive/#{libarchivefile}",
-                                       "checking integrity of the archive file #{libarchivefile}",
+                                       "downloading #{Global::DOWNLOAD_BASE}/utilities/curl/#{curl_file}",
+                                       "checking integrity of the archive file #{curl_file}",
                                        "unpacking archive",
-                                       "downloading #{Global::DOWNLOAD_BASE}/utilities/ruby/#{rubyfile}",
-                                       "checking integrity of the archive file #{rubyfile}",
-                                       "unpacking archive",
-                                       "downloading #{Global::DOWNLOAD_BASE}/utilities/xz/#{xzfile}",
-                                       "checking integrity of the archive file #{xzfile}",
+                                       "downloading #{Global::DOWNLOAD_BASE}/utilities/ruby/#{ruby_file}",
+                                       "checking integrity of the archive file #{ruby_file}",
                                        "unpacking archive",
                                        "Will install: libthree:3.3.3:1, libtwo:2.2.0:1",
                                        "downloading #{Global::DOWNLOAD_BASE}/packages/libthree/#{lib3file}",
@@ -227,18 +238,15 @@ describe "crew upgrade" do
                                        "checking integrity of the archive file #{lib2file}",
                                        "unpacking archive"
                                       ])
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/7.42.0_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/8.21.0_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/libarchive/3.1.2_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/libarchive/3.1.3_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/2.2.2_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/2.2.3_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/xz/5.2.2_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/xz/5.2.3_1")).to eq(true)
-        expect(in_cache?(:utility, 'curl',       '8.21.0', 1)).to eq(true)
-        expect(in_cache?(:utility, 'libarchive', '3.1.3',  1)).to eq(true)
-        expect(in_cache?(:utility, 'ruby',       '2.2.3',  1)).to eq(true)
-        expect(in_cache?(:utility, 'xz',         '5.2.3',  1)).to eq(true)
+        expect(Dir.exists?("#{Global::ENGINE_DIR}/libarchive/#{libarchive_old_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::ENGINE_DIR}/libarchive/#{libarchive_new_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_old_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_new_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/#{ruby_old_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/#{ruby_new_rel}")).to eq(true)
+        expect(in_cache?(:utility, 'libarchive', libarchive_new_rel.version,  libarchive_new_rel.crystax_version)).to eq(true)
+        expect(in_cache?(:utility, 'curl',       curl_new_rel.version,        curl_new_rel.crystax_version)).to       eq(true)
+        expect(in_cache?(:utility, 'ruby',       ruby_new_rel.version,        ruby_new_rel.crystax_version)).to       eq(true)
       end
     end
   end

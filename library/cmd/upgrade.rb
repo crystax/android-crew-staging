@@ -29,8 +29,8 @@ module Crew
     end
 
     if formulas.size > 0
-      puts "Will install: #{names.join(', ')}"
-      formulas.each { |formula| formula.install }
+      puts "Will install: #{names.sort.join(', ')}"
+      formulas.sort { |a,b| a.name <=> b.name }.each { |formula| formula.install }
     end
   end
 

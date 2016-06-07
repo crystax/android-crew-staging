@@ -10,8 +10,12 @@ class Utility < Formula
   ARCHIVE_TOP_DIR = 'prebuilt'
   ACTIVE_FILE_NAME = 'active_version.txt'
 
+  def self.active_path(util_name, engine_dir = Global::ENGINE_DIR)
+    File.join(engine_dir, util_name, ACTIVE_FILE_NAME)
+  end
+
   def self.active_version(util_name, engine_dir = Global::ENGINE_DIR)
-    file = File.join(engine_dir, util_name, ACTIVE_FILE_NAME)
+    file = Utility.active_path(util_name, engine_dir)
     File.exists?(file) ? File.read(file).split("\n")[0] : nil
   end
 
@@ -128,7 +132,7 @@ class Utility < Formula
   end
 
   def sha256_sum(release)
-    release.shasum(Global::PLATFORM.gsub(/-/, '_').to_sym)
+    release.shasum(Global::PLATFORM_NAME.gsub(/-/, '_').to_sym)
   end
 
   def install_archive(release, archive, platform_name = Global::PLATFORM_NAME)

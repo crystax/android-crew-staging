@@ -3,7 +3,7 @@ require 'rspec'
 require 'socket'
 require 'webrick'
 require 'pathname'
-require_relative 'test_consts.rb'
+require_relative 'spec_consts.rb'
 
 
 log_dir = File.join(Crew_test::WWW_DIR, 'log')

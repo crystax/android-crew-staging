@@ -94,10 +94,10 @@ unit-tests: test-data $(unit_test_files)
 	$(RUBY) -I ../library ts_crew.rb
 
 test-data:
-	$(RUBY) test_prepare.rb
+	$(RUBY) spec_prepare.rb
 
 clean-test-data:
-	$(RUBY) test_cleanup.rb
+	$(RUBY) spec_cleanup.rb
 
 rspec-tests: test-data
 	$(RSPEC) $(rspec_files)

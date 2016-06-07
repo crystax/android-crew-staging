@@ -1,4 +1,5 @@
 require_relative 'spec_helper.rb'
+require_relative 'data/releases_info.rb'
 
 describe "crew info" do
   before(:all) do
@@ -44,7 +45,7 @@ describe "crew info" do
 
   context "about all crew utilities, all utilities with one release each" do
     it "outputs info about crew utilities" do
-      crew 'info', 'curl', 'libarchive', 'ruby', 'xz'
+      crew 'info', 'curl', 'bsdtar', 'ruby'
       expect(result).to eq(:ok)
       expect(out.split("\n")).to eq(["Name:        curl",
                                      "Formula:     #{Global::UTILITIES_DIR}/curl.rb",
@@ -52,15 +53,15 @@ describe "crew info" do
                                      "Description: Get a file from an HTTP, HTTPS or FTP server",
                                      "Type:        utility",
                                      "Releases:",
-                                     "  7.42.0 1  installed",
+                                     "  #{Crew_test::UTILS_RELEASES['curl'][0].version} #{Crew_test::UTILS_RELEASES['curl'][0].crystax_version}  installed",
                                      "",
-                                     "Name:        libarchive",
+                                     "Name:        bsdtar",
                                      "Formula:     #{Global::UTILITIES_DIR}/libarchive.rb",
                                      "Homepage:    http://www.libarchive.org",
-                                     "Description: Multi-format archive and compression library, bsdtar utility",
+                                     "Description: bsdtar utility from multi-format archive and compression library libarchive",
                                      "Type:        utility",
                                      "Releases:",
-                                     "  3.1.2 1  installed",
+                                     "  #{Crew_test::UTILS_RELEASES['libarchive'][0].version} #{Crew_test::UTILS_RELEASES['libarchive'][0].crystax_version}  installed",
                                      "",
                                      "Name:        ruby",
                                      "Formula:     #{Global::UTILITIES_DIR}/ruby.rb",
@@ -68,15 +69,7 @@ describe "crew info" do
                                      "Description: Powerful, clean, object-oriented scripting language",
                                      "Type:        utility",
                                      "Releases:",
-                                     "  2.2.2 1  installed",
-                                     "",
-                                     "Name:        xz",
-                                     "Formula:     #{Global::UTILITIES_DIR}/xz.rb",
-                                     "Homepage:    http://tukaani.org/xz/",
-                                     "Description: General-purpose data compression with high compression ratio",
-                                     "Type:        utility",
-                                     "Releases:",
-                                     "  5.2.2 1  installed"])
+                                     "  #{Crew_test::UTILS_RELEASES['ruby'][0].version} #{Crew_test::UTILS_RELEASES['ruby'][0].crystax_version}  installed"])
     end
   end
 
@@ -89,7 +82,7 @@ describe "crew info" do
                                      "Formula:     #{Global::FORMULA_DIR}/libone.rb",
                                      "Homepage:    http://www.libone.org",
                                      "Description: Library One",
-                                     "Type:        library",
+                                     "Type:        package",
                                      "Releases:",
                                      "  1.0.0 1  "])
     end
@@ -104,7 +97,7 @@ describe "crew info" do
                                      "Formula:     #{Global::FORMULA_DIR}/libtwo.rb",
                                      "Homepage:    http://www.libtwo.org",
                                      "Description: Library Two",
-                                     "Type:        library",
+                                     "Type:        package",
                                      "Releases:",
                                      "  1.1.0 1  ",
                                      "  2.2.0 1  ",
@@ -122,7 +115,7 @@ describe "crew info" do
                                      "Formula:     #{Global::FORMULA_DIR}/libthree.rb",
                                      "Homepage:    http://www.libthree.org",
                                      "Description: Library Three",
-                                     "Type:        library",
+                                     "Type:        package",
                                      "Releases:",
                                      "  1.1.1 1  ",
                                      "  2.2.2 1  ",
@@ -142,7 +135,7 @@ describe "crew info" do
                                      "Formula:     #{Global::FORMULA_DIR}/libthree.rb",
                                      "Homepage:    http://www.libthree.org",
                                      "Description: Library Three",
-                                     "Type:        library",
+                                     "Type:        package",
                                      "Releases:",
                                      "  1.1.1 1  ",
                                      "  2.2.2 1  ",

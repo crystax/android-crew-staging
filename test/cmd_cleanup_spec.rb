@@ -1,5 +1,6 @@
 require_relative 'spec_helper.rb'
 require_relative '../library/global.rb'
+require_relative 'data/releases_info.rb'
 
 describe "crew cleanup" do
   before(:all) do
@@ -111,26 +112,30 @@ describe "crew cleanup" do
   end
 
   context "when two releases of the curl utility are installed, releases differ in crystax_version" do
-    it "outputs about removing curl 7.42.0:1" do
+    it "outputs about removing old curl release" do
       repository_add_formula :utility, 'curl-2.rb:curl.rb'
       crew_checked 'update'
       crew_checked 'upgrade'
       crew '-b', 'cleanup'
+      curl_new_rel = Crew_test::UTILS_RELEASES['curl'][1]
+      curl_old_rel = Crew_test::UTILS_RELEASES['curl'][0]
       expect(result).to eq(:ok)
-      expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/7.42.0_1\n")
-      expect(in_cache?(:utility, 'curl', '7.42.0', 3)).to eq(true)
+      expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/#{curl_old_rel}\n")
+      expect(in_cache?(:utility, 'curl', curl_new_rel.version, curl_new_rel.crystax_version)).to eq(true)
     end
   end
 
   context "when two releases of the curl utility are installed, releases differ in upstream version" do
-    it "outputs about removing curl 7.42.0:1" do
+    it "outputs about removing old curl release" do
       repository_add_formula :utility, 'curl-3.rb:curl.rb'
       crew_checked 'update'
       crew_checked 'upgrade'
       crew '-b', 'cleanup'
+      curl_new_rel = Crew_test::UTILS_RELEASES['curl'][2]
+      curl_old_rel = Crew_test::UTILS_RELEASES['curl'][0]
       expect(result).to eq(:ok)
-      expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/7.42.0_1\n")
-      expect(in_cache?(:utility, 'curl', '8.21.0', 1)).to eq(true)
+      expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/#{curl_old_rel}\n")
+      expect(in_cache?(:utility, 'curl', curl_new_rel.version, curl_new_rel.crystax_version)).to eq(true)
     end
   end
 
@@ -140,11 +145,15 @@ describe "crew cleanup" do
       crew_checked 'update'
       crew_checked 'upgrade'
       crew '-b', 'cleanup'
+      curl_new_rel = Crew_test::UTILS_RELEASES['curl'][2]
+      curl_old_rel = Crew_test::UTILS_RELEASES['curl'][0]
+      ruby_new_rel = Crew_test::UTILS_RELEASES['ruby'][1]
+      ruby_old_rel = Crew_test::UTILS_RELEASES['ruby'][0]
       expect(result).to eq(:ok)
-      expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/7.42.0_1\n" \
-                        "removing: #{Global::ENGINE_DIR}/ruby/2.2.2_1\n")
-      expect(in_cache?(:utility, 'curl', '8.21.0', 1)).to eq(true)
-      expect(in_cache?(:utility, 'ruby', '2.2.3',  1)).to eq(true)
+      expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/#{curl_old_rel}\n" \
+                        "removing: #{Global::ENGINE_DIR}/ruby/#{ruby_old_rel}\n")
+      expect(in_cache?(:utility, 'curl', curl_new_rel.version, curl_new_rel.crystax_version)).to eq(true)
+      expect(in_cache?(:utility, 'ruby', ruby_new_rel.version, ruby_new_rel.crystax_version)).to eq(true)
     end
   end
 
@@ -157,40 +166,48 @@ describe "crew cleanup" do
       crew_checked 'update'
       crew_checked 'upgrade'
       crew '-b', 'cleanup'
+      curl_2_rel = Crew_test::UTILS_RELEASES['curl'][2]
+      curl_1_rel = Crew_test::UTILS_RELEASES['curl'][1]
+      curl_0_rel = Crew_test::UTILS_RELEASES['curl'][0]
       expect(result).to eq(:ok)
-      expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/7.42.0_1\n" \
-                        "removing: #{Global::ENGINE_DIR}/curl/7.42.0_3\n" \
-                        "removing: #{Global::CACHE_DIR}/curl-7.42.0_3-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}\n")
-      expect(in_cache?(:utility, 'curl', '8.21.0', 1)).to eq(true)
+      expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/#{curl_0_rel}\n" \
+                        "removing: #{Global::ENGINE_DIR}/curl/#{curl_1_rel}\n" \
+                        "removing: #{Global::CACHE_DIR}/curl-#{curl_1_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}\n")
+      expect(in_cache?(:utility, 'curl', curl_2_rel.version, curl_2_rel.crystax_version)).to eq(true)
     end
   end
 
   context "when all utilities have more than one release installed" do
     it "says about removing old releases" do
       repository_clone
-      repository_add_formula :utility, 'curl-2.rb:curl.rb', 'libarchive-2.rb:libarchive.rb', 'ruby-2.rb:ruby.rb', 'xz-2.rb:xz.rb'
+      repository_add_formula :utility, 'curl-2.rb:curl.rb', 'libarchive-2.rb:libarchive.rb', 'ruby-2.rb:ruby.rb'
       crew_checked 'update'
       crew_checked 'upgrade'
       repository_add_formula :utility, 'curl-3.rb:curl.rb'
       crew_checked 'update'
       crew_checked 'upgrade'
       crew 'cleanup'
+      bsdtar_1_rel = Crew_test::UTILS_RELEASES['libarchive'][1]
+      bsdtar_0_rel = Crew_test::UTILS_RELEASES['libarchive'][0]
+      curl_2_rel = Crew_test::UTILS_RELEASES['curl'][2]
+      curl_1_rel = Crew_test::UTILS_RELEASES['curl'][1]
+      curl_0_rel = Crew_test::UTILS_RELEASES['curl'][0]
+      ruby_1_rel = Crew_test::UTILS_RELEASES['ruby'][1]
+      ruby_0_rel = Crew_test::UTILS_RELEASES['ruby'][0]
       expect(result).to eq(:ok)
-      expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/7.42.0_1\n"      \
-                        "removing: #{Global::ENGINE_DIR}/curl/7.42.0_3\n"      \
-                        "removing: #{Global::ENGINE_DIR}/libarchive/3.1.2_1\n" \
-                        "removing: #{Global::ENGINE_DIR}/ruby/2.2.2_1\n"       \
-                        "removing: #{Global::ENGINE_DIR}/xz/5.2.2_1\n"         \
-                        "removing: #{Global::CACHE_DIR}/curl-7.42.0_3-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}\n")
-      expect(in_cache?(:utility, 'curl',       '8.21.0', 1)).to eq(true)
-      expect(in_cache?(:utility, 'libarchive', '3.1.3',  1)).to eq(true)
-      expect(in_cache?(:utility, 'ruby',       '2.2.3',  1)).to eq(true)
-      expect(in_cache?(:utility, 'xz',         '5.2.3',  1)).to eq(true)
+      expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/#{curl_0_rel}\n"         \
+                        "removing: #{Global::ENGINE_DIR}/curl/#{curl_1_rel}\n"         \
+                        "removing: #{Global::ENGINE_DIR}/libarchive/#{bsdtar_0_rel}\n" \
+                        "removing: #{Global::ENGINE_DIR}/ruby/#{ruby_0_rel}\n"         \
+                        "removing: #{Global::CACHE_DIR}/curl-#{curl_1_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}\n")
+      expect(in_cache?(:utility, 'libarchive', bsdtar_1_rel.version, bsdtar_1_rel.crystax_version)).to eq(true)
+      expect(in_cache?(:utility, 'curl',       curl_2_rel.version,   curl_2_rel.crystax_version)).to   eq(true)
+      expect(in_cache?(:utility, 'ruby',       ruby_1_rel.version,   ruby_1_rel.crystax_version)).to   eq(true)
     end
   end
 
   context "when two releases of one library installed and two releases of the curl utility are installed" do
-    it "outputs about removing libtwo 1.1.0 and removing curl 7.42.0:1" do
+    it "outputs about removing libtwo 1.1.0 and removing old curl release" do
       copy_formulas 'libone.rb', 'libtwo.rb'
       crew_checked 'install', 'libone:1.0.0'
       crew_checked 'install', 'libtwo:1.1.0'
@@ -199,12 +216,14 @@ describe "crew cleanup" do
       crew_checked 'update'
       crew_checked 'upgrade'
       crew '-b', 'cleanup'
+      curl_2_rel = Crew_test::UTILS_RELEASES['curl'][2]
+      curl_0_rel = Crew_test::UTILS_RELEASES['curl'][0]
       expect(result).to eq(:ok)
-      expect(out.split("\n")).to eq(["removing: #{Global::ENGINE_DIR}/curl/7.42.0_1",
+      expect(out.split("\n")).to eq(["removing: #{Global::ENGINE_DIR}/curl/#{curl_0_rel}",
                                      "removing: #{Global::HOLD_DIR}/libtwo/1.1.0",
                                      "removing: #{Global::CACHE_DIR}/#{archive_name(:library, 'libtwo', '1.1.0', 1)}"
                                     ])
-      expect(in_cache?(:utility, 'curl', '8.21.0', 1)).to eq(true)
+      expect(in_cache?(:utility, 'curl', curl_2_rel.version, curl_2_rel.crystax_version)).to eq(true)
       expect(in_cache?(:library, 'libone', '1.0.0', 1)).to eq(true)
       expect(in_cache?(:library, 'libtwo', '1.1.0', 1)).to eq(false)
       expect(in_cache?(:library, 'libtwo', '2.2.0', 1)).to eq(true)
@@ -214,7 +233,7 @@ describe "crew cleanup" do
   context "when all utilities and all libraries have more than one release installed" do
     it "says about removing old releases" do
       repository_clone
-      repository_add_formula :utility, 'curl-2.rb:curl.rb', 'libarchive-2.rb:libarchive.rb', 'ruby-2.rb:ruby.rb', 'xz-2.rb:xz.rb'
+      repository_add_formula :utility, 'curl-2.rb:curl.rb', 'libarchive-2.rb:libarchive.rb', 'ruby-2.rb:ruby.rb'
       crew_checked 'update'
       crew_checked 'upgrade'
       repository_add_formula :utility, 'curl-3.rb:curl.rb'
@@ -228,24 +247,29 @@ describe "crew cleanup" do
       crew_checked 'install', 'libthree:2.2.2'
       crew_checked 'install', 'libthree:3.3.3'
       crew 'cleanup'
+      bsdtar_1_rel = Crew_test::UTILS_RELEASES['libarchive'][1]
+      bsdtar_0_rel = Crew_test::UTILS_RELEASES['libarchive'][0]
+      curl_2_rel = Crew_test::UTILS_RELEASES['curl'][2]
+      curl_1_rel = Crew_test::UTILS_RELEASES['curl'][1]
+      curl_0_rel = Crew_test::UTILS_RELEASES['curl'][0]
+      ruby_1_rel = Crew_test::UTILS_RELEASES['ruby'][1]
+      ruby_0_rel = Crew_test::UTILS_RELEASES['ruby'][0]
       expect(result).to eq(:ok)
-      expect(out.split("\n")).to eq(["removing: #{Global::ENGINE_DIR}/curl/7.42.0_1",
-                                     "removing: #{Global::ENGINE_DIR}/curl/7.42.0_3",
-                                     "removing: #{Global::ENGINE_DIR}/libarchive/3.1.2_1",
-                                     "removing: #{Global::ENGINE_DIR}/ruby/2.2.2_1",
-                                     "removing: #{Global::ENGINE_DIR}/xz/5.2.2_1",
+      expect(out.split("\n")).to eq(["removing: #{Global::ENGINE_DIR}/curl/#{curl_0_rel}",
+                                     "removing: #{Global::ENGINE_DIR}/curl/#{curl_1_rel}",
+                                     "removing: #{Global::ENGINE_DIR}/libarchive/#{bsdtar_0_rel}",
+                                     "removing: #{Global::ENGINE_DIR}/ruby/#{ruby_0_rel}",
                                      "removing: #{Global::HOLD_DIR}/libthree/1.1.1",
                                      "removing: #{Global::HOLD_DIR}/libthree/2.2.2",
                                      "removing: #{Global::HOLD_DIR}/libtwo/1.1.0",
-                                     "removing: #{Global::CACHE_DIR}/curl-7.42.0_3-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}",
+                                     "removing: #{Global::CACHE_DIR}/curl-#{curl_1_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}",
                                      "removing: #{Global::CACHE_DIR}/libthree-1.1.1_1.#{Global::ARCH_EXT}",
                                      "removing: #{Global::CACHE_DIR}/libthree-2.2.2_1.#{Global::ARCH_EXT}",
                                      "removing: #{Global::CACHE_DIR}/libtwo-1.1.0_1.#{Global::ARCH_EXT}"
                                     ])
-      expect(in_cache?(:utility, 'curl',       '8.21.0', 1)).to eq(true)
-      expect(in_cache?(:utility, 'libarchive', '3.1.3',  1)).to eq(true)
-      expect(in_cache?(:utility, 'ruby',       '2.2.3',  1)).to eq(true)
-      expect(in_cache?(:utility, 'xz',         '5.2.3',  1)).to eq(true)
+      expect(in_cache?(:utility, 'libarchive', bsdtar_1_rel.version, bsdtar_1_rel.crystax_version)).to eq(true)
+      expect(in_cache?(:utility, 'curl',       curl_2_rel.version,   curl_2_rel.crystax_version)).to   eq(true)
+      expect(in_cache?(:utility, 'ruby',       ruby_1_rel.version,   ruby_1_rel.crystax_version)).to   eq(true)
       expect(in_cache?(:library, 'libone',     '1.0.0',  1)).to eq(true)
       expect(in_cache?(:library, 'libtwo',     '1.1.0',  1)).to eq(false)
       expect(in_cache?(:library, 'libtwo',     '2.2.0',  1)).to eq(true)
