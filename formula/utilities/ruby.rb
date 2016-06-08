@@ -77,6 +77,7 @@ class Ruby < Utility
     build_env['RUGGED_MAKEFILE'] = "#{build_dir_for_platform(platform)}/ext/rugged/Makefile"
     build_env['DESTDIR']         = install_dir
     build_env['PATH']            = "#{File.dirname(platform.cc)}:#{ENV['PATH']}" if platform.target_os == 'windows'
+    build_env['V']               = '1'
 
     args = ["--prefix=/",
             "--host=#{platform.configure_host}",
@@ -92,7 +93,8 @@ class Ruby < Utility
 
     system "#{src_dir}/configure", *args
     fix_winres_params if platform.target_os == 'windows' and platform.target_cpu == 'x86'
-    system 'make', '-j', num_jobs, 'V=1'
+    fix_win_makefile  if platform.target_os == 'windows'
+    system 'make', '-j', num_jobs
     system 'make', 'test' if options.check? platform
     system 'make', 'install'
 
@@ -149,4 +151,21 @@ class Ruby < Utility
     File.open(file, 'w') { |f| f.puts lines }
   end
 
+  def fix_win_makefile
+    file = 'Makefile'
+    lines = []
+    replaced = false
+    File.foreach(file) do |l|
+      if not l.include?('$(Q) $(LDSHARED) $(DLDFLAGS) $(OBJS) $(DLDOBJS) $(SOLIBS) $(EXTSOLIBS) $(OUTFLAG)$@')
+        lines << l
+      else
+        lines << "\t\t$(Q) $(LDSHARED) $(DLDFLAGS) $(OBJS) $(DLDOBJS) $(SOLIBS) $(EXTSOLIBS) -lcrypt32 $(OUTFLAG)$@"
+        replaced = true
+      end
+    end
+
+    raise "not found required line in Makefile" unless replaced
+
+    File.open(file, 'w') { |f| f.puts lines }
+  end
 end
