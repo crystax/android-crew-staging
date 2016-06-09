@@ -57,14 +57,15 @@ module Build
     ndk_root_dir = Pathname.new(Global::NDK_DIR).realpath.dirname.dirname.to_s
     case Global::OS
     when 'darwin'
+      sysroot_dir = "#{ndk_root_dir}/platform/prebuilts/sysroot/darwin-x86/MacOSX10.6.sdk"
       cc = "#{ndk_root_dir}/platform/prebuilts/gcc/darwin-x86/host/x86_64-apple-darwin-4.9.3/bin/#{compiler}"
-      args = "-isysroot #{ndk_root_dir}/platform/prebuilts/sysroot/darwin-x86/MacOSX10.6.sdk " \
-             "-mmacosx-version-min=10.6 " \
-             "-DMACOSX_DEPLOYMENT_TARGET=10.6 " \
-             "-Wl,-syslibroot,#{ndk_root_dir}/platform/prebuilts/sysroot/darwin-x86/MacOSX10.6.sdk " \
-             "-mmacosx-version-min=10.6"
+      args = "-isysroot #{sysroot_dir} -mmacosx-version-min=10.6 -DMACOSX_DEPLOYMENT_TARGET=10.6 -Wl,-syslibroot,#{sysroot_dir} "
+    when 'linux'
+      sysroot_dir = "#{ndk_root_dir}/platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/sysroot"
+      cc = "#{ndk_root_dir}/platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/bin/x86_64-linux-#{compiler}"
+      args = "-isysroot #{sysroot_dir} -Wl,-syslibroot,#{sysroot_dir}"
     else
-      raise "unsuppoerted OS: #{Global::OS}"
+      raise "unsupported OS: #{Global::OS}"
     end
     File.open(wrapper, 'w') do |f|
       f.puts '#!/bin/sh'
