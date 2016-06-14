@@ -69,6 +69,18 @@ module Global
     @@options[:backtrace]
   end
 
+  def self.create_engine_dir
+    engine = Pathname.new(File.join(TOOLS_DIR, 'crew'))
+    FileUtils.mkdir_p engine unless engine.directory?
+    engine
+  end
+
+  def self.create_hold_dir
+    hold = Pathname.new(File.join(NDK_DIR, 'packages'))
+    FileUtils.mkdir_p hold unless hold.directory?
+    hold
+  end
+
   VERSION = "0.3.0"
   OS = operating_system
 
@@ -82,13 +94,8 @@ module Global
 
   PLATFORM_NAME = File.basename(TOOLS_DIR)
 
-  ENGINE_DIR = Pathname.new(File.join(TOOLS_DIR, 'crew'))
-  FileUtils.mkdir_p ENGINE_DIR unless ENGINE_DIR.directory?
-  HOLD_DIR = Pathname.new(File.join(NDK_DIR, 'packages'))
-  FileUtils.mkdir_p HOLD_DIR unless HOLD_DIR.directory?
-
-  ENGINE_DIR      = ENGINE_DIR.realpath
-  HOLD_DIR        = HOLD_DIR.realpath
+  ENGINE_DIR      = create_engine_dir.realpath
+  HOLD_DIR        = create_hold_dir.realpath
   FORMULA_DIR     = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
   CACHE_DIR       = Pathname.new(File.join(BASE_DIR, 'cache')).realpath
   UTILITIES_DIR   = Pathname.new(File.join(FORMULA_DIR, 'utilities')).realpath
@@ -101,7 +108,6 @@ module Global
   # private
 
   @@options = { backtrace: false }
-
 end
 
 
