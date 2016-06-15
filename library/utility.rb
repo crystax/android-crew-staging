@@ -125,25 +125,25 @@ class Utility < Formula
     end
   end
 
-  private
-
   def archive_filename(release, platform_name = Global::PLATFORM_NAME)
     "#{file_name}-#{Formula.package_version(release)}-#{platform_name}.tar.xz"
   end
 
-  def sha256_sum(release)
-    release.shasum(Global::PLATFORM_NAME.gsub(/-/, '_').to_sym)
-  end
-
-  def install_archive(release, archive, platform_name = Global::PLATFORM_NAME)
+  def install_archive(release, archive, platform_name = Global::PLATFORM_NAME, ndk_dir = Global::NDK_DIR)
     rel_dir = release_directory(release, platform_name)
     FileUtils.rm_rf rel_dir
     # use system tar while updating bsdtar utility
     Utils.reset_tar_prog if name == 'bsdtar'
-    Utils.unpack archive, Global::NDK_DIR
+    Utils.unpack archive, ndk_dir
     write_active_file File.dirname(rel_dir), release
     Utils.reset_tar_prog if name == 'bsdtar'
     release.installed = release.crystax_version
+  end
+
+  private
+
+  def sha256_sum(release)
+    release.shasum(Global::PLATFORM_NAME.gsub(/-/, '_').to_sym)
   end
 
   def write_active_file(home_dir, release)
