@@ -17,7 +17,7 @@ class Package < Formula
                         setup_env:          true,
                         copy_incs_and_libs: true,
                         copy_bin:           false,
-                        gen_android_mk:     false,
+                        gen_android_mk:     true,
                         wrapper_fix_soname: true,
                         wrapper_fix_stl:    false,
                         wrapper_filter_out: nil
@@ -200,7 +200,7 @@ class Package < Formula
       c_comp += ' ' + Build.sysroot(abi)
     end
 
-    if build_options[:c_wrapper] == nil
+    if not build_options[:c_wrapper]
       cc = c_comp
     else
       cc = build_options[:c_wrapper] == true ? toolchain.c_compiler_name : build_options[:c_wrapper]
@@ -296,12 +296,9 @@ class Package < Formula
     end
 
     def build_options(hash = nil)
-      if hash == nil
-        @build_options ? @build_options : DEF_BUILD_OPTIONS.dup
-      else
-        @build_options = DEF_BUILD_OPTIONS.dup unless @build_options
-        @build_options.update hash
-      end
+      @build_options = DEF_BUILD_OPTIONS.dup unless @build_options
+      @build_options.update hash if hash
+      @build_options
     end
   end
 

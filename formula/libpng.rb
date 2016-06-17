@@ -20,8 +20,6 @@ class Libpng < Package
             ]
     args << '--enable-arm-neon=api' if abi == 'armeabi-v7a' or abi == 'armeabi-v7a-hard'
 
-    build_env['CFLAGS'] << ' -mthumb' if abi =~ /^armeabi/
-
     system './configure', *args
     system 'make', '-j', num_jobs
     system 'make', 'install'

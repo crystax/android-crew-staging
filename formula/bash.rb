@@ -28,8 +28,6 @@ class Bash < Package
               "--without-libiconv-prefix"
             ]
 
-    build_env['CFLAGS'] << ' -mthumb' if abi =~ /^armeabi/
-
     system './configure', *args
     system 'make', '-j', num_jobs
     system 'make', 'install'

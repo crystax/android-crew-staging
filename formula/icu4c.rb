@@ -8,10 +8,7 @@ class Icu4c < Package
 
   build_libs 'libicudata', 'libicui18n', 'libicuio', 'libicule', 'libiculx', 'libicutest', 'libicutu', 'libicuuc'
   build_copy 'license.html'
-  build_options use_cxx: true,
-                wrapper_replace: { '-m32' => '',
-                                   '-m64' => ''
-                                 }
+  build_options use_cxx: true
 
   def pre_build(src_dir, _release)
     base_dir = build_base_dir
@@ -41,12 +38,9 @@ class Icu4c < Package
              "--with-cross-build=#{native_build_dir}"
            ]
 
-    build_env['CFLAGS'] << ' -fPIC -DU_USING_ICU_NAMESPACE=0 -DU_CHARSET_IS_UTF8=1'
+    build_env['CFLAGS']  << ' -fPIC -DU_USING_ICU_NAMESPACE=0 -DU_CHARSET_IS_UTF8=1'
     build_env['LDFLAGS'] << ' -lgnustl_shared'
 
-    build_env['CFLAGS'] << ' -mthumb'            if abi =~ /^armeabi/
-    build_env['CFLAGS'] << ' -m32'               if abi == 'x86'
-    build_env['CFLAGS'] << ' -m64'               if abi == 'x86_64'
     build_env['CFLAGS'] << ' -mabi=32 -mips32'   if abi == 'mips'
     build_env['CFLAGS'] << ' -mabi=64 -mips64r6' if abi == 'mips64'
 

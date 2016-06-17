@@ -1,6 +1,3 @@
-require_relative '../library/utils.rb'
-require_relative '../library/build.rb'
-
 class Libtiff < Package
 
   desc "TIFF library"
@@ -27,8 +24,6 @@ class Libtiff < Package
              "--disable-lzma",
              "--enable-cxx"
            ]
-
-    build_env['CFLAGS'] << ' -mthumb' if abi =~ /^armeabi/
 
     system './configure', *args
     system 'make', '-j', num_jobs

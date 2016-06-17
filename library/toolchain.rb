@@ -4,6 +4,8 @@ require_relative 'arch.rb'
 
 module Toolchain
 
+  COMMON_CFLAGS = '-fPIE -pie'
+
   class GCC
     attr_reader :type, :version, :name
 
@@ -55,16 +57,16 @@ module Toolchain
     end
 
     def cflags(abi)
+      f = COMMON_CFLAGS
       case abi
       when 'armeabi'
-        '-march=armv5te -mtune=xscale -msoft-float'
+        f += ' -mthumb -march=armv5te -mtune=xscale -msoft-float'
       when 'armeabi-v7a'
-        '-march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp'
+        f += ' -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp'
       when 'armeabi-v7a-hard'
-        '-march=armv7-a -mfpu=vfpv3-d16 -mhard-float'
-      else
-        ""
+        f += ' -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mhard-float'
       end
+      f
     end
 
     def ldflags(abi)
