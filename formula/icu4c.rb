@@ -60,15 +60,4 @@ class Icu4c < Package
       raise 'unsuppoted ICU host platform'
     end
   end
-
-  # def write_host_wrapper(name, dir)
-  #   cc = "/Volumes/Source-HD/src/ndk/platform/prebuilts/gcc/darwin-x86/host/x86_64-apple-darwin-4.9.3/bin/#{name}"
-  #   filename = "#{dir}/#{name}"
-  #   File.open(filename, 'w') do |f|
-  #     f.puts '#!/bin/sh'
-  #     f.puts ''
-  #     f.puts "exec #{cc} -m32 -isysroot /Volumes/Source-HD/src/ndk/platform/prebuilts/sysroot/darwin-x86/MacOSX10.6.sdk -mmacosx-version-min=10.6 -DMACOSX_DEPLOYMENT_TARGET=10.6  -Wl,-syslibroot,/Volumes/Source-HD/src/ndk/platform/prebuilts/sysroot/darwin-x86/MacOSX10.6.sdk -mmacosx-version-min=10.6 \"$@\""
-  #   end
-  #   FileUtils.chmod "a+x", filename
-  # end
 end
