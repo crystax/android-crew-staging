@@ -59,8 +59,6 @@ module Toolchain
     def cflags(abi)
       f = COMMON_CFLAGS
       case abi
-      when 'armeabi'
-        f += ' -mthumb -march=armv5te -mtune=xscale -msoft-float'
       when 'armeabi-v7a'
         f += ' -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp'
       when 'armeabi-v7a-hard'
