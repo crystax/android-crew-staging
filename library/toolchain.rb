@@ -4,8 +4,6 @@ require_relative 'arch.rb'
 
 module Toolchain
 
-  COMMON_CFLAGS = '-fPIE -pie'
-
   class GCC
     attr_reader :type, :version, :name
 
@@ -57,14 +55,17 @@ module Toolchain
     end
 
     def cflags(abi)
-      f = COMMON_CFLAGS
+      # libtiff fails to build with -fPIE -pie for mips*, arm64,
       case abi
       when 'armeabi-v7a'
-        f += ' -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp'
+        '-fPIE -pie -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp'
       when 'armeabi-v7a-hard'
-        f += ' -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mhard-float'
+        '-fPIE -pie -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mhard-float'
+      when 'mips', 'mips64', 'arm64-v8a'
+        ''
+      else
+        '-fPIE -pie'
       end
-      f
     end
 
     def ldflags(abi)
