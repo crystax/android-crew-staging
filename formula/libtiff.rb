@@ -12,8 +12,9 @@ class Libtiff < Package
   build_options use_cxx: true
 
   def build_for_abi(abi, _toolchain, _release, dep_dirs)
+    install_dir = install_dir_for_abi(abi)
     libjpeg_dir = dep_dirs['libjpeg']
-    args = [ "--prefix=#{install_dir_for_abi(abi)}",
+    args = [ "--prefix=#{install_dir}",
              "--host=#{host_for_abi(abi)}",
              "--enable-shared",
              "--enable-static",
@@ -28,5 +29,11 @@ class Libtiff < Package
     system './configure', *args
     system 'make', '-j', num_jobs
     system 'make', 'install'
+
+    # clean lib dir before packaging
+    FileUtils.cd("#{install_dir}/lib") do
+      FileUtils.rm_rf 'pkgconfig'
+      FileUtils.rm Dir['*.la']
+    end
   end
 end

@@ -6,9 +6,8 @@ class Bash < Package
 
   release version: '4.3.30', crystax_version: 1, sha256: '0'
 
-  build_options copy_incs_and_libs: false,
-                copy_bin:           true,
-                gen_android_mk:     false
+  build_options copy_installed_dirs: ['bin'],
+                gen_android_mk:      false
 
   build_copy 'COPYING'
 

@@ -6,11 +6,11 @@ class Openssl < Package
 
   release version: '1.0.2h', crystax_version: 1, sha256: '0'
 
-  build_options copy_bin: true
+  build_options copy_installed_dirs: ['bin', 'include', 'lib']
   build_copy 'LICENSE'
   build_libs 'libcrypto', 'libssl'
 
-  def build_for_abi(abi, toolchain,  _release, _dep_dirs)
+  def build_for_abi(abi, toolchain, release, _dep_dirs)
     install_dir = install_dir_for_abi(abi)
     build_env['CFLAGS'] << ' -DOPENSSL_NO_DEPRECATED'
 
@@ -31,16 +31,17 @@ class Openssl < Package
     # prepare installed files for packaging
     FileUtils.rm_rf File.join(install_dir, 'lib', 'pkgconfig')
     FileUtils.cd(File.join(install_dir, 'lib')) do
-      FileUtils.rm 'libcrypto.so'
-      FileUtils.mv 'libcrypto.so.1.0.0', 'libcrypto.so'
-      FileUtils.rm 'libssl.so'
-      FileUtils.mv 'libssl.so.1.0.0', 'libssl.so'
+      major = release.version.split('.')[0]
+      build_libs.each do |f|
+        FileUtils.rm "#{f}.so"
+        FileUtils.mv "#{f}.so.#{major}.0.0", "#{f}.so"
+      end
     end
 
     # copy engines
-    libs_dir = "#{package_dir}/libs/#{abi}"
-    FileUtils.mkdir_p libs_dir
-    FileUtils.cp_r File.join(install_dir, 'lib', 'engines'), libs_dir
+    # libs_dir = "#{package_dir}/libs/#{abi}"
+    # FileUtils.mkdir_p libs_dir
+    # FileUtils.cp_r File.join(install_dir, 'lib', 'engines'), libs_dir
   end
 
   def target(abi)

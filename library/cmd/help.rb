@@ -71,7 +71,7 @@ Common options:
                  implies --no-clean
 
 --build-only     do not create package in the cache dir and do not install
-                 formula
+                 formula; implies --no-clean
 
 --no-clean       do not remove build artifacts
 

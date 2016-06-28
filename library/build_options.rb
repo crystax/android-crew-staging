@@ -31,6 +31,7 @@ class Build_options
         @no_clean = true
       when '--build-only'
         @build_only = true
+        @no_clean = true
       when '--no-clean'
         @no_clean = true
       when '--update-shasum'

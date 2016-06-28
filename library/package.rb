@@ -10,17 +10,16 @@ class Package < Formula
 
   SRC_DIR_BASENAME = 'src'
 
-  DEF_BUILD_OPTIONS = { c_wrapper:          'cc',
-                        sysroot_in_cflags:  true,
-                        use_cxx:            false,
-                        cxx_wrapper:        'c++',
-                        setup_env:          true,
-                        copy_incs_and_libs: true,
-                        copy_bin:           false,
-                        gen_android_mk:     true,
-                        wrapper_fix_soname: true,
-                        wrapper_fix_stl:    false,
-                        wrapper_filter_out: nil
+  DEF_BUILD_OPTIONS = { c_wrapper:           'cc',
+                        sysroot_in_cflags:   true,
+                        use_cxx:             false,
+                        cxx_wrapper:         'c++',
+                        setup_env:           true,
+                        copy_installed_dirs: ['lib', 'include'],
+                        gen_android_mk:      true,
+                        wrapper_fix_soname:  true,
+                        wrapper_fix_stl:     false,
+                        wrapper_filter_out:  nil
                       }.freeze
 
   attr_reader :pre_build_result
@@ -145,8 +144,9 @@ class Package < Formula
         FileUtils.cp_r "#{src_dir}/.", build_dir
         setup_build_env abi, toolchain if build_options[:setup_env]
         FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, dep_dirs }
-        package_libs_and_headers abi if build_options[:copy_incs_and_libs]
-        package_bin abi if build_options[:copy_bin]
+        copy_installed_files abi
+        #package_libs_and_headers abi if build_options[:copy_incs_and_libs]
+        #package_bin abi if build_options[:copy_bin]
         FileUtils.rm_rf base_dir_for_abi(abi) unless options.no_clean?
       end
     end
@@ -238,30 +238,56 @@ class Package < Formula
     end
   end
 
-  def package_libs_and_headers(abi)
-    pkg_dir = package_dir
+  def copy_installed_files(abi)
+    dirs = build_options[:copy_installed_dirs]
     install_dir = install_dir_for_abi(abi)
-    # copy headers if they were not copied yet
-    inc_dir = "#{pkg_dir}/include"
-    if !Dir.exists? inc_dir
-      FileUtils.mkdir_p pkg_dir
-      FileUtils.cp_r "#{install_dir}/include", pkg_dir
-    end
-    # copy libs
-    libs_dir = "#{pkg_dir}/libs/#{abi}"
-    FileUtils.mkdir_p libs_dir
-    build_libs.each do |lib|
-      FileUtils.cp "#{install_dir}/lib/#{lib}.a",  libs_dir
-      FileUtils.cp "#{install_dir}/lib/#{lib}.so", libs_dir
+    FileUtils.mkdir_p package_dir
+    dirs.each do |dir|
+      case dir
+      when 'bin'
+        # copy binary files
+        FileUtils.mkdir_p "#{package_dir}/bin"
+        FileUtils.cp_r "#{install_dir}/bin", "#{package_dir}/bin/#{abi}", preserve: true
+      when 'include'
+        # copy headers if they were not copied yet
+        FileUtils.cp_r "#{install_dir}/include", package_dir, preserve: true unless Dir.exists? "#{package_dir}/include"
+      when 'lib'
+        # copy libs
+        FileUtils.mkdir_p "#{package_dir}/libs"
+        FileUtils.cp_r "#{install_dir}/lib", "#{package_dir}/libs/#{abi}", preserve: true
+      when 'share'
+        # copy shared files if they were not copied yet
+        FileUtils.cp_r "#{install_dir}/share", package_dir, preserve: true unless Dir.exists? "#{package_dir}/share"
+      else
+        raise "unsupported installed dir name: #{dir}"
+      end
     end
   end
 
-  def package_bin(abi)
-    install_dir = install_dir_for_abi(abi)
-    bin_dir = "#{package_dir}/bin/#{abi}"
-    FileUtils.mkdir_p bin_dir
-    FileUtils.cp Dir["#{install_dir}/bin/*"], bin_dir
-  end
+  # def package_libs_and_headers(abi)
+  #   pkg_dir = package_dir
+  #   install_dir = install_dir_for_abi(abi)
+  #   # copy headers if they were not copied yet
+  #   inc_dir = "#{pkg_dir}/include"
+  #   if !Dir.exists? inc_dir
+  #     FileUtils.mkdir_p pkg_dir
+  #     FileUtils.cp_r "#{install_dir}/include", pkg_dir
+  #   end
+  #   # copy libs
+  #   libs_dir = "#{pkg_dir}/libs/#{abi}"
+  #   FileUtils.mkdir_p libs_dir
+  #   build_libs.each do |lib|
+  #     FileUtils.cp "#{install_dir}/lib/#{lib}.a",  libs_dir
+  #     FileUtils.cp "#{install_dir}/lib/#{lib}.so", libs_dir
+  #   end
+  # end
+
+  # def package_bin(abi)
+  #   install_dir = install_dir_for_abi(abi)
+  #   bin_dir = "#{package_dir}/bin/#{abi}"
+  #   FileUtils.mkdir_p bin_dir
+  #   FileUtils.cp Dir["#{install_dir}/bin/*"], bin_dir
+  # end
 
   def copy_tests
     src_tests_dir = "#{Build::VENDOR_TESTS_DIR}/#{file_name}"

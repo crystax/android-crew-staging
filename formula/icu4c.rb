@@ -28,10 +28,10 @@ class Icu4c < Package
     build_dir
   end
 
-  def build_for_abi(abi, _toolchain, _release, _dep_dirs)
+  def build_for_abi(abi, _toolchain, release, _dep_dirs)
     native_build_dir = pre_build_result
-
-    args = [ "--prefix=#{install_dir_for_abi(abi)}",
+    install_dir = install_dir_for_abi(abi)
+    args = [ "--prefix=#{install_dir}",
              "--host=#{host_for_abi(abi)}",
              "--enable-shared",
              "--enable-static",
@@ -48,6 +48,14 @@ class Icu4c < Package
     system 'make', '-j', num_jobs
     system 'make', 'install'
 
+    # clean lib dir before packaging
+    FileUtils.cd("#{install_dir}/lib") do
+      FileUtils.rm_rf ['pkgconfig', 'icu']
+      build_libs.each do |f|
+        FileUtils.rm ["#{f}.so", "#{f}.so.#{release.version.split('.')[0]}"]
+        FileUtils.mv "#{f}.so.#{release.version}", "#{f}.so"
+      end
+    end
   end
 
   def icu_host_platform

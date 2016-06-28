@@ -4,7 +4,7 @@ class Boost < Package
   homepage "http://www.boost.org"
   url "https://downloads.sourceforge.net/project/boost/boost/${version}/boost_${block}.tar.bz2" do |v| v.gsub('.', '_') end
 
-  release version: '1.60.0', crystax_version: 1, sha256: 'd036b179cdee6ae68f380b61b387561a62a87d1de442d7ca01fcb777b583b620'
+  release version: '1.61.0', crystax_version: 1, sha256: '0'
 
   build_options setup_env: false,
                 copy_incs_and_libs: false,
@@ -39,8 +39,9 @@ class Boost < Package
              'math_tr1l',
              'prg_exec_monitor',
              'program_options',
-             'python',
-             'python3',
+             # todo: python
+             #'python',
+             #'python3',
              'random',
              'regex',
              'serialization',
