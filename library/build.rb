@@ -75,9 +75,11 @@ module Build
     FileUtils.chmod "a+x", wrapper
   end
 
-  def self.gen_compiler_wrapper(wrapper, compiler, toolchain, options, cflags = '', ldflags = Hash.new(''))
+  def self.gen_compiler_wrapper(wrapper, compiler, toolchain, options, cflags = '', ldflags = nil)
     ruby = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'])
     helper = File.join(File.dirname(__FILE__), 'compiler_wrapper_helper.rb')
+    # todo: check ldflags value?
+    ldflags = 'Hash.new("")' unless ldflags
     File.open(wrapper, "w") do |f|
       f.puts "#!#{ruby}"
       f.puts

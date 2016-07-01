@@ -10,16 +10,18 @@ class Package < Formula
 
   SRC_DIR_BASENAME = 'src'
 
-  DEF_BUILD_OPTIONS = { c_wrapper:           'cc',
-                        sysroot_in_cflags:   true,
-                        use_cxx:             false,
-                        cxx_wrapper:         'c++',
-                        setup_env:           true,
-                        copy_installed_dirs: ['lib', 'include'],
-                        gen_android_mk:      true,
-                        wrapper_fix_soname:  true,
-                        wrapper_fix_stl:     false,
-                        wrapper_filter_out:  nil
+  DEF_BUILD_OPTIONS = { c_wrapper:            'cc',
+                        sysroot_in_cflags:    true,
+                        use_cxx:              false,
+                        cxx_wrapper:          'c++',
+                        setup_env:            true,
+                        copy_installed_dirs:  ['lib', 'include'],
+                        gen_android_mk:       true,
+                        wrapper_fix_soname:   true,
+                        wrapper_fix_stl:      false,
+                        wrapper_filter_out:   nil,
+                        wrapper_remove_args:  [],
+                        wrapper_replace_args: {}
                       }.freeze
 
   attr_reader :pre_build_result

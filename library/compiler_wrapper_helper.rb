@@ -9,6 +9,14 @@ def process_compiler_args(compiler, build_options, stl_lib_name, cflags, ldflags
 
   # todo: handle build options and other parameters
   fix_soname(args) if build_options[:wrapper_fix_soname]
+  remove_args(args, build_options[:wrapper_remove_args])
+  replace_args(args, build_options[:wrapper_replace_args])
+
+  if linking? args
+    args = ldflags[:before].split(' ') + args + ldflags[:after].split(' ')
+  else
+    args = cflags.split(' ') + args
+  end
 
   [compiler, args]
 end
@@ -32,6 +40,22 @@ def fix_soname(args)
       end
     end
   end
+end
+
+def remove_args(args, toremove)
+  toremove.each { |e| args.delete(e) }
+end
+
+def replace_args(args, toreplace)
+  args.each_index do |i|
+    opt = args[i]
+    args[i] = toreplace[opt] if toreplace.has_key? opt
+  end
+end
+
+
+def linking?(args)
+  !args.include?('-c') and !args.include?('-emit-pth')
 end
 
 

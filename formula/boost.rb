@@ -6,17 +6,12 @@ class Boost < Package
 
   release version: '1.61.0', crystax_version: 1, sha256: '0'
 
-  build_options setup_env: false,
-                copy_incs_and_libs: false,
-                gen_android_mk: false,
-                wrapper_replace: { '-dynamiclib'    => '-shared',
-                                   '-undefined'     => '-u',
-                                   '-m32'           => '',
-                                   '-m64'           => '',
-                                   '-single_module' => '',
-                                   '-lpthread'      => '',
-                                   '-lutil'         => ''
-                                 }
+  build_options setup_env:            false,
+                copy_installed_dirs:  [],
+                gen_android_mk:       false,
+                wrapper_remove_args:  ['-m32', '-m64', '-single_module', '-lpthread', '-lutil'],
+                wrapper_replace_args: { '-dynamiclib' => '-shared', '-undefined' => '-u' }
+
   build_copy 'LICENSE_1_0.txt'
   build_libs 'atomic',
              'chrono',
@@ -99,8 +94,8 @@ class Boost < Package
            ].flatten
 
     #[Toolchain::GCC_4_9].each do |toolchain|
-    #[Toolchain::LLVM_3_6].each do |toolchain|
-    Build::TOOLCHAIN_LIST.each do |toolchain|
+    [Toolchain::LLVM_3_6].each do |toolchain|
+    #Build::TOOLCHAIN_LIST.each do |toolchain|
       stl_name = toolchain.stl_name
       puts "    using C++ standard library: #{stl_name}"
       # todo: copy sources for every toolchain
