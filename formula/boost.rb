@@ -190,7 +190,7 @@ class Boost < Package
     exclude = {}
     major, minor, _ = release.version.split('.').map { |a| a.to_i }
 
-    # Boost.Context in 1.60.0 and earlier don't support mips64
+    # Boost.Context in 1.61.0 and earlier don't support mips64
     if major == 1 and minor <= 61
       exclude['context'] = ['mips64']
     end
