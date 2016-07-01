@@ -94,8 +94,8 @@ class Boost < Package
            ].flatten
 
     #[Toolchain::GCC_4_9].each do |toolchain|
-    [Toolchain::LLVM_3_6].each do |toolchain|
-    #Build::TOOLCHAIN_LIST.each do |toolchain|
+    #[Toolchain::LLVM_3_6].each do |toolchain|
+    Build::TOOLCHAIN_LIST.each do |toolchain|
       stl_name = toolchain.stl_name
       puts "    using C++ standard library: #{stl_name}"
       # todo: copy sources for every toolchain
@@ -191,8 +191,8 @@ class Boost < Package
     major, minor, _ = release.version.split('.').map { |a| a.to_i }
 
     # Boost.Context in 1.60.0 and earlier don't support mips64
-    if major == 1 and minor <= 60
-      exclude['context']   = ['mips64']
+    if major == 1 and minor <= 61
+      exclude['context'] = ['mips64']
     end
 
     # Boost.Coroutine depends on Boost.Context
