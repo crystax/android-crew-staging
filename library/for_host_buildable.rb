@@ -23,7 +23,14 @@ module ForHostBuildable
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"
+      #
+      base_dir = base_dir_for_platform(platform)
+      build_dir = build_dir_for_platform(platform)
+      install_dir = install_dir_for_platform(platform, release)
+      FileUtils.mkdir_p [build_dir, install_dir]
+      @log_file = build_log_file(platform)
       # prepare standard build environment
+      build_env.clear
       build_env['CC']       = platform.cc
       build_env['CFLAGS']   = platform.cflags
       build_env['CXX']      = platform.cxx
@@ -33,14 +40,6 @@ module ForHostBuildable
         build_env['PATH'] = "#{File.dirname(platform.cc)}:#{ENV['PATH']}"
         build_env['RC'] = "x86_64-w64-mingw32-windres -F pe-i386" if platform.target_cpu == 'x86'
       end
-      #
-      base_dir = base_dir_for_platform(platform)
-      build_dir = build_dir_for_platform(platform)
-      install_dir = install_dir_for_platform(platform, release)
-      FileUtils.mkdir_p [build_dir, install_dir]
-      @log_file = build_log_file(platform)
-      #
-      build_env.clear
       FileUtils.cd(build_dir) { build_for_platform platform, release, options, dep_dirs }
       next if options.build_only?
       #

@@ -4,7 +4,6 @@ require_relative 'platform.rb'
 require_relative 'for_host_buildable.rb'
 
 
-
 class BuildDependency < Formula
 
   INSTALL_DIR_NAME = 'build_dependencies'

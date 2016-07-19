@@ -25,9 +25,6 @@ class Gmp < BuildDependency
     system 'make', 'install'
 
     # remove unneeded files before packaging
-    FileUtils.cd(install_dir) do
-      FileUtils.rm_rf Dir['lib/*.la']
-      FileUtils.rm_rf 'share'
-    end
+    FileUtils.cd(install_dir) { FileUtils.rm_rf ['share'] + Dir['lib/*.la'] }
   end
 end
