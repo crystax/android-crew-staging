@@ -12,72 +12,70 @@ module Crew
     options, args = parse_args(args)
     raise FormulaUnspecifiedError if args.count < 1
 
-    packages = Formulary.packages
-    utilities = Formulary.utilities
+    formulary = Formulary.all_formulas
 
     args.each do |n|
       item, ver = n.split(':')
 
-      type, name = formula_type(item, packages, utilities)
-      case type
-      when :package
-        build_package packages[name], ver, packages, options
-      when :utility
-        build_utility utilities[name], ver, utilities, options
-      else
-        raise "unexpected formula type #{type} for #{name}"
-      end
+      type, formula = find_formula_and_type(item, formulary)
+
+      release = formula.find_release(Release.new(ver))
+      raise "source code not installed for #{formula.name}:#{release}" if (type == :package) and !(release.source_installed?)
+
+      # todo: check that dependencies installed for all required platforms
+      check_dependencies formula.build_dependencies, formulary[type]
+      dep_dirs = make_dep_dirs(formula, type, formulary[type], options.platforms)
+
+      formula.build_package release, options, dep_dirs
 
       puts "" unless n == args.last
     end
   end
 
-  def self.formula_type(item, packages, utilities)
+  def self.find_formula_and_type(item, formulary)
     type, name = Formula.type_name(item)
-    if type == :unspecified
-      in_packages = packages.member?(name)
-      in_utilities = utilities.member?(name)
-      if in_packages and in_utilities
-        raise "#{name} found both packages and utitlities; please, specify required formula type"
-      elsif in_packages
-        type = :package
-      elsif in_utilities
-        type = :utility
-      else
-        raise "#{name} not found amongst packages nor utilities"
+    if type
+      [type, formulary[type][name]]
+    else
+      r = []
+      Formula::TYPES.each do |t|
+        fs = formulary[t]
+        r << [t, fs[item]] if fs.member? item
       end
+      raise "formula with name #{item} not found" if r.size == 0
+      raise "#{item} has more than one type: #{r}; please, specify required formula type" if r.size > 1
+      r[0]
     end
-    [type, name]
   end
 
-  def self.build_package(formula, ver, formulary, options)
-    release = formula.find_release(Release.new(ver))
-    raise "source code not installed for #{formula.name}:#{release}" unless release.source_installed?
-    check_dependencies formula.dependencies, formulary
+  def self.make_dep_dirs(formula, type, formulary, platforms)
+    if type == :package
+      dependencies_dirs formulary, formulary
+    else
+      dependencies_dirs_with_platforms(formula, formulary, platforms)
+    end
+  end
 
+  def self.dependencies_dirs(formula, formulary)
     dep_dirs = {}
     Formula.full_dependencies(formulary, formula.dependencies).each do |f|
       dep_dirs[f.name] = f.release_directory(f.highest_installed_release)
     end
 
-    formula.build_package release, options, dep_dirs
+    dep_dirs
   end
 
-  def self.build_utility(formula, ver, formulary, options)
-    release = formula.find_release(Release.new(ver))
-    # todo: check installed for all required platforms
-    check_dependencies formula.build_dependencies, formulary
-
+  def self.dependencies_dirs_with_platforms(formula, formulary, platforms)
     # really stupid hash behaviour: just Hash.new({}) does not work
     dep_dirs = Hash.new { |h, k| h[k] = Hash.new }
     Formula.full_dependencies(formulary, formula.build_dependencies).each do |f|
-      options.platforms.each do |platform|
+      platforms.each do |platform|
         dep = { f.name => f.release_directory(f.highest_installed_release, platform) }
         dep_dirs[platform].update dep
       end
     end
 
-    formula.build_package release, options, dep_dirs
+    dep_dirs
   end
 
   def self.check_dependencies(dependencies, formulary)

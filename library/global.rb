@@ -50,6 +50,10 @@ module Global
     File.join(NDK_DIR, 'prebuilt', platform_name, 'crew')
   end
 
+  def self.shipyard_dir(platform_name)
+    File.join(NDK_DIR, 'prebuilt', platform_name, 'build_dependencies')
+  end
+
   def self.raise_env_var_not_set(var)
     raise "#{var} environment varible is not set"
   end
@@ -58,7 +62,7 @@ module Global
     opts.each do |o|
       case o
       when '--backtrace', '-b'
-        @@options[:backtrace] = true
+        @options[:backtrace] = true
       else
         raise "unknown global option: #{o}"
       end
@@ -66,19 +70,13 @@ module Global
   end
 
   def self.backtrace?
-    @@options[:backtrace]
+    @options[:backtrace]
   end
 
-  def self.create_engine_dir
-    engine = Pathname.new(File.join(TOOLS_DIR, 'crew'))
-    FileUtils.mkdir_p engine unless engine.directory?
-    engine
-  end
-
-  def self.create_hold_dir
-    hold = Pathname.new(File.join(NDK_DIR, 'packages'))
-    FileUtils.mkdir_p hold unless hold.directory?
-    hold
+  def self.create_required_dir(*args)
+    dir = Pathname.new(File.join(*args))
+    FileUtils.mkdir_p dir unless dir.directory?
+    dir
   end
 
   VERSION = "0.3.0"
@@ -94,20 +92,24 @@ module Global
 
   PLATFORM_NAME = File.basename(TOOLS_DIR)
 
-  ENGINE_DIR      = create_engine_dir.realpath
-  HOLD_DIR        = create_hold_dir.realpath
-  FORMULA_DIR     = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
-  CACHE_DIR       = Pathname.new(File.join(BASE_DIR, 'cache')).realpath
-  UTILITIES_DIR   = Pathname.new(File.join(FORMULA_DIR, 'utilities')).realpath
-  REPOSITORY_DIR  = Pathname.new(BASE_DIR).realpath
-  PATCHES_DIR     = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
+  ENGINE_DIR             = create_required_dir(TOOLS_DIR, 'crew').realpath
+  HOLD_DIR               = create_required_dir(NDK_DIR, 'packages').realpath
+  SERVICE_DIR            = create_required_dir(NDK_DIR, '.crew').realpath
+  SHIPYARD_DIR           = create_required_dir(NDK_DIR, 'build_dependencies').realpath
+  REPOSITORY_DIR         = Pathname.new(BASE_DIR).realpath
+  PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
+  CACHE_DIR              = Pathname.new(File.join(BASE_DIR, 'cache')).realpath
+  FORMULA_DIR            = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
+  UTILITIES_DIR          = Pathname.new(File.join(FORMULA_DIR, 'utilities')).realpath
+  PARTS_DIR              = Pathname.new(File.join(FORMULA_DIR, 'parts')).realpath
+  BUILD_DEPENDENCIES_DIR = Pathname.new(File.join(FORMULA_DIR, 'build_dependencies')).realpath
 
   EXE_EXT  = RUBY_PLATFORM =~ /mingw/ ? '.exe' : ''
   ARCH_EXT = 'tar.xz'
 
   # private
 
-  @@options = { backtrace: false }
+  @options = { backtrace: false }
 end
 
 

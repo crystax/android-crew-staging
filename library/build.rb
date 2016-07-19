@@ -13,6 +13,7 @@ module Build
 
   USER = ENV['USER']
 
+  # todo: honor CRYSTAX_NDK_BASE_TMP_DIR environment dir
   BASE_TARGET_DIR  = "/tmp/ndk-#{USER}/target"
   BASE_HOST_DIR    = "/tmp/ndk-#{USER}/host"
   CACHE_DIR        = "/var/tmp/ndk-cache-#{USER}"

@@ -51,6 +51,10 @@ class Package < Formula
     :package
   end
 
+  def build_dependencies
+    dependencies
+  end
+
   def install_archive(release, archive)
     rel_dir = release_directory(release)
     FileUtils.rm_rf binary_files(rel_dir)

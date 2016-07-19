@@ -3,17 +3,31 @@
 require_relative 'exceptions.rb'
 require_relative 'global.rb'
 require_relative 'formula.rb'
+require_relative 'part.rb'
 require_relative 'package.rb'
 require_relative 'utility.rb'
+require_relative 'build_dependency.rb'
 
 class Formulary
+
+  def self.parts
+    Formulary.new(Global::PARTS_DIR)
+  end
+
+  def self.packages
+    Formulary.new(Global::FORMULA_DIR)
+  end
 
   def self.utilities
     Formulary.new(Global::UTILITIES_DIR)
   end
 
-  def self.packages
-    Formulary.new(Global::FORMULA_DIR)
+  def self.build_dependencies
+    Formulary.new(Global::BUILD_DEPENDENCIES_DIR)
+  end
+
+  def self.all_formulas
+    { part: parts, package: packages, utility: utilities, build_dependency: build_dependencies }
   end
 
   def initialize(dir)
