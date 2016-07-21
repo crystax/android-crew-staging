@@ -1,0 +1,40 @@
+diff -Naur a/Makefile.crystax b/Makefile.crystax
+--- a/Makefile.crystax	1970-01-01 03:00:00.000000000 +0300
++++ b/Makefile.crystax	2016-07-21 19:06:55.000000000 +0300
+@@ -0,0 +1,36 @@
++# -*- makefile-gmake -*-
++
++RM = rm -f
++ARFALGS = cq
++
++LIBNAME=libgit2.a
++
++INCLUDES= -I. -Isrc -Iinclude -Ideps/http-parser -Ideps/zlib $(EXTRA_INCLUDES)
++DEFINES= $(INCLUDES) -DNO_VIZ -DSTDC -DNO_GZIP -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE $(EXTRA_DEFINES)
++CFLAGS= -g $(DEFINES) -Wall -Wextra -Wno-missing-field-initializers -O2 $(EXTRA_CFLAGS)
++
++#  src/hash/hash_generic.c
++SRCS = $(wildcard src/*.c src/transports/*.c src/xdiff/*.c deps/http-parser/*.c deps/zlib/*.c)
++
++ifeq ($(MINGW),1)
++  SRCS += $(wildcard src/win32/*.c src/compat/*.c deps/regex/regex.c)
++  INCLUDES += -Ideps/regex
++  DEFINES += -DWIN32 -D_WIN32_WINNT=0x0601 -D__USE_MINGW_ANSI_STDIO=1
++else
++  SRCS += $(wildcard src/unix/*.c)
++endif
++
++OBJS = $(patsubst %.c,%.o,$(SRCS))
++
++%.c.o:
++	$(CC) $(CFLAGS) -c $*.c
++
++all: $(LIBNAME)
++
++$(LIBNAME): $(OBJS)
++	$(RM) $@
++	$(AR) $(ARFLAGS) $@ $(OBJS)
++	$(RANLIB) $@
++
++clean:
++	$(RM) $(OBJS) $(LIBNAME)

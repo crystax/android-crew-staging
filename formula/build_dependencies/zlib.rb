@@ -1,4 +1,4 @@
-class Zlib < Utility
+class Zlib < BuildDependency
 
   desc 'A Massively Spiffy Yet Delicately Unobtrusive Compression Library'
   homepage 'http://zlib.net/'
@@ -32,10 +32,6 @@ class Zlib < Utility
       FileUtils.cp 'libz.a', "#{install_dir}/lib/"
       FileUtils.cp ['zlib.h', 'zconf.h'], "#{install_dir}/include/"
     else
-      build_env['CC']     = platform.cc
-      build_env['CFLAGS'] = platform.cflags
-      build_env['LANG']   = 'C'
-
       args = ["--prefix=#{install_dir}",
               "--static"
              ]

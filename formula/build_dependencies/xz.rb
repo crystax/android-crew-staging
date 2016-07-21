@@ -1,4 +1,4 @@
-class Xz < Utility
+class Xz < BuildDependency
 
   desc "General-purpose data compression with high compression ratio"
   homepage "http://tukaani.org/xz/"
@@ -12,15 +12,6 @@ class Xz < Utility
 
   def build_for_platform(platform, release, options, _)
     install_dir = install_dir_for_platform(platform, release)
-
-    build_env['CC']     = platform.cc
-    build_env['CFLAGS'] = platform.cflags
-    build_env['LANG']   = 'C'
-
-    if platform.target_os == 'windows'
-      build_env['PATH'] = "#{File.dirname(platform.cc)}:#{ENV['PATH']}"
-      build_env['RC'] = "x86_64-w64-mingw32-windres -F pe-i386" if platform.target_cpu == 'x86'
-    end
 
     args = ["--prefix=#{install_dir}",
             "--host=#{platform.configure_host}",

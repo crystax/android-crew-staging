@@ -23,6 +23,13 @@ class Gcc < Part
                                                     }
 
 
+  # build_depends_on 'gmp'
+  # build_depends_on 'ppl'
+  # build_depends_on 'isl'
+  # build_depends_on 'cloog'
+  # build_depends_on 'mpfr'
+  # build_depends_on 'mpc'
+
   #  ~/src/ndk/platform/ndk/build/instruments/build-gcc.sh
   #     ~/src/ndk/toolchain /ssd/src/ndk/platform/ndk arm-linux-androideabi-4.9
   #     --try-64
@@ -31,9 +38,6 @@ class Gcc < Part
   #     -j16
   def build_for_platform_and_abi(platform, abi, release, options, dep_dirs)
     #install_dir = install_dir_for_platform_and_abi(platform, abi, release)
-
-    # host ppl
-    #
 
     # build target binutils
 

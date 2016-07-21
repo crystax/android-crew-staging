@@ -1,4 +1,4 @@
-class Libgit2 < Utility
+class Libgit2 < BuildDependency
 
   desc "A portable, pure C implementation of the Git core methods provided as a re-entrant linkable library with a solid API"
   homepage 'https://libgit2.github.com/'
@@ -10,9 +10,9 @@ class Libgit2 < Utility
                                                            windows:        '0'
                                                          }
 
-  build_depends_on 'zlib'
-  build_depends_on 'openssl'
-  build_depends_on 'libssh2'
+  depends_on 'zlib'
+  depends_on 'openssl'
+  depends_on 'libssh2'
 
   def build_for_platform(platform, release, options, dep_dirs)
     install_dir = install_dir_for_platform(platform, release)
@@ -22,13 +22,10 @@ class Libgit2 < Utility
 
     FileUtils.cp_r File.join(src_dir, '.'), '.'
 
-    build_env['CC']             = platform.cc
     build_env['EXTRA_CFLAGS']   = "#{platform.cflags}"
     build_env['EXTRA_DEFINES']  = "-DGIT_SSL -DOPENSSL_SHA1 -DGIT_SSH"
     build_env['EXTRA_INCLUDES'] = "-I#{zlib_dir}/include -I#{openssl_dir}/include -I#{libssh2_dir}/include"
-    build_env['PATH']           = '/bin:/usr/bin:/sbin:/usr/sbin'
 
-    # todo: fix winnt version in the makefile, must be 0x0601 or make a patch
     make_args = ['-f', 'Makefile.crystax']
 
     if platform.target_os == 'windows'

@@ -88,7 +88,7 @@ module Global
   TOOLS_DIR     = def_tools_dir(NDK_DIR, OS)
 
   # todo:
-  PLATFORM_PREBUILTS_DIR = "#{NDK_DIR}/../../platform/prebuilts"
+  PLATFORM_PREBUILTS_DIR = Pathname.new("#{NDK_DIR}/../../platform/prebuilts").cleanpath.to_s
 
   PLATFORM_NAME = File.basename(TOOLS_DIR)
 

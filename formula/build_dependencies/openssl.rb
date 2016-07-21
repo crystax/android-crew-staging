@@ -1,4 +1,4 @@
-class Openssl < Utility
+class Openssl < BuildDependency
 
   desc "Cryptography and SSL/TLS Toolkit"
   homepage "https://openssl.org/"
@@ -10,7 +10,7 @@ class Openssl < Utility
                                                            windows:        '0'
                                                          }
 
-  build_depends_on 'zlib'
+  depends_on 'zlib'
 
   def build_for_platform(platform, release, options, dep_dirs)
     install_dir = install_dir_for_platform(platform, release)
@@ -18,7 +18,6 @@ class Openssl < Utility
 
     FileUtils.cp_r File.join(src_dir, '.'), '.'
 
-    build_env['CC'] = platform.cc
     args = ["--prefix=#{install_dir}",
             "no-idea",
             "no-mdc2",
