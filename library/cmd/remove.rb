@@ -1,4 +1,3 @@
-
 require_relative '../exceptions.rb'
 require_relative '../release.rb'
 require_relative '../formulary.rb'
@@ -11,13 +10,15 @@ module Crew
       raise FormulaUnspecifiedError
     end
 
-    formulary = Formulary.packages
+    formulary = Formulary.new
 
     args.each do |n|
       name, version = n.split(':')
       outname = name + (version ? ':' + version : "")
 
-      formula = formulary[name]
+      # todo: handle not only packages but other types that can be removed, like BuildDependency
+      fqn = "target/#{name}"
+      formula = formulary[fqn]
       release = Release.new(version)
 
       if not formula.installed?(release)
@@ -26,25 +27,14 @@ module Crew
       end
 
       survive_rm = formula.releases.select { |r| r.installed? and not r.match?(release) }
-      ideps = formulary.dependants_of(name).select { |d| d.installed? }
+      ideps = formulary.dependants_of(fqn).select { |d| d.installed? }
       if ideps.count > 0 and survive_rm.count == 0
-        raise "#{outname} has installed dependants: #{ideps.map{|f| f.name}.join(', ')}"
+        raise "#{outname} has installed dependants: #{ideps.map{|f| f.fqn}.join(', ')}"
       end
 
       formula.releases.each { |r| formula.uninstall(r) if r.installed? and r.match?(release) }
 
-      # todo: update root android.mk
-      # if options[:rm_binary]
-      #   formula.actualize_root_android_mk
-      # end
-
       Dir.rmdir formula.home_directory if Dir[File.join(formula.home_directory, '*')].empty?
-    end
-  rescue FormulaUnavailableError => exc
-    if not Formulary.utilities.member? exc.name
-      raise
-    else
-      raise "could not remove utility #{exc.name}"
     end
   end
 end

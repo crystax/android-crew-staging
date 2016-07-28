@@ -1,78 +1,37 @@
 require 'uri'
-require 'json'
 require 'digest'
 require 'fileutils'
 require 'open3'
 require_relative 'extend/module.rb'
 require_relative 'release.rb'
 require_relative 'utils.rb'
-require_relative 'patch.rb'
 
 
 class Formula
 
-  PROPERTIES_FILE = 'properties.json'
-  TYPES = [ :part, :package, :utility, :build_dependency ]
-  TYPE_DIR = { package: 'packages', utility: 'utilities', build_dependency: 'build_dependencies' }
-
-  def self.type_name(item)
-    a = item.split('/')
-    case a.size
-    when 1
-      type = nil
-      name = item
-    when 2
-      name = a[1]
-      type = a[0].to_sym
-      raise "bad formula type #{a[0]}" unless TYPES.include? type
-    else
-      raise "bad formula name #{name}"
-    end
-    [type, name]
-  end
-
-  def self.package_version(release)
-    release.to_s
-  end
-
-  def self.split_package_version(pkgver)
-    r = pkgver.split('_')
-    raise "bad package version string: #{pkgver}" if r.size < 2
-    cxver = r.pop.to_i
-    ver = r.join('_')
-    [ver, cxver]
-  end
-
-  def self.full_dependencies(formulary, dependencies)
-    result = []
-    deps = dependencies
-
-    while deps.size > 0
-      n = deps.first.name
-      deps = deps.slice(1, deps.size)
-      f = formulary[n]
-      if not result.include? f
-        result << f
-      end
-      deps += f.dependencies
-    end
-
-    result
-  end
-
   attr_reader :path
-  attr_accessor :build_env, :num_jobs
+  attr_accessor :build_env, :num_jobs, :log_file
 
   def initialize(path)
     @path = path
+    self.class.name File.basename(@path, '.rb') unless name
+    # build releated stuff
     @num_jobs = 1
     @build_env = {}
     @patches = {}
-    self.class.name File.basename(@path, '.rb') unless name
+    @log_file = File.join('/tmp', name)
   end
 
   def name
     self.class.name
+  end
+
+  def namespace
+    self.class.namespace
+  end
+
+  def fqn
+    "#{namespace}/#{name}"
   end
 
   def file_name
@@ -91,66 +50,78 @@ class Formula
     self.class.url
   end
 
-  # NB: releases are stored in the order they're written in the formula file
+  # releases are stored in the order they're written in the formula file
   def releases
     self.class.releases
   end
 
   def dependencies
-    self.class.dependencies ? self.class.dependencies : []
+    self.class.dependencies ||= []
+  end
+
+  def build_dependencies
+    self.class.build_dependencies ||= []
   end
 
   def cache_file(release)
     File.join(Global::CACHE_DIR, archive_filename(release))
   end
 
-  def install(r = releases.last)
-    release = find_release(r)
-    file = archive_filename(release)
-    cachepath = File.join(Global::CACHE_DIR, file)
+  def download_archive(archive, shasum)
+    cachepath = File.join(Global::CACHE_DIR, archive)
 
     if File.exists? cachepath
-      puts "using cached file #{file}"
+      puts "using cached file #{archive}"
     else
-      url = "#{download_base}/#{file_name}/#{file}"
+      url = "#{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[namespace]}/#{file_name}/#{archive}"
       puts "downloading #{url}"
       Utils.download(url, cachepath)
     end
 
-    puts "checking integrity of the archive file #{file}"
-    if Digest::SHA256.hexdigest(File.read(cachepath, mode: "rb")) != sha256_sum(release)
+    puts "checking integrity of the archive file #{archive}"
+    if Digest::SHA256.hexdigest(File.read(cachepath, mode: "rb")) != shasum
       raise "bad SHA256 sum of the file #{cachepath}"
     end
 
-    puts "unpacking archive"
-    install_archive release, cachepath
+    cachepath
   end
 
   def installed?(release = Release.new)
     releases.any? { |r| r.match?(release) and r.installed? }
   end
 
-  def source_installed?(release = Release.new)
-    releases.any? { |r| r.match?(release) and r.source_installed? }
+  def find_release(release)
+    rel = releases.reverse_each.find { |r| r.match?(release) }
+    raise ReleaseNotFound.new(name, release) unless rel
+    rel
   end
 
   class Dependency
 
-    def initialize(name, options)
+    def initialize(name, ns, options)
       @options = options
       @options[:name] = name
+      @options[:ns] = ns
     end
 
-    def name
-      @options[:name]
+    def namespace
+      @options[:ns]
+    end
+
+    def fqn
+      "#{@options[:ns]}/#{options[:name]}"
     end
   end
 
   class << self
 
-    attr_rw :name, :desc, :homepage, :space_reqired
+    attr_rw :name, :desc, :homepage, :namespace
+    attr_accessor :releases, :dependencies, :build_dependencies
 
-    attr_reader :releases, :dependencies
+    # called when self inherited by subclass
+    def inherited(subclass)
+      subclass.namespace self.namespace
+    end
 
     def url(url = nil, &block)
       if url == nil
@@ -170,56 +141,23 @@ class Formula
     end
 
     def depends_on(name, options = {})
-      @dependencies = [] if !@dependencies
-      @dependencies << Dependency.new(name, options)
+      add_dependency(name, options, @dependencies)
     end
-  end
 
-  def to_info(formulary)
-    info = "Name:        #{name}\n"     \
-           "Formula:     #{path}\n"     \
-           "Homepage:    #{homepage}\n" \
-           "Description: #{desc}\n"     \
-           "Type:        #{type}\n"     \
-           "Releases:\n"
-    releases.each do |r|
-      installed = installed?(r) ? "installed" : ""
-      info += "  #{r.version} #{r.crystax_version}  #{installed}\n"
+    def build_depends_on(name, options = {})
+      add_dependency(name, options, @build_dependencies)
     end
-    if dependencies.size > 0
-      info += "Dependencies:\n"
-      dependencies.each.with_index do |d, ind|
-        installed = formulary[d.name].installed? ? " (*)" : ""
-        info += "  #{d.name}#{installed}"
+
+    def add_dependency(name, options, deps)
+      deps = [] if !deps
+      ns = options.delete(:ns)
+      if not ns
+        options[:ns] = namespace
+      elsif ns.class == String
+        ns = ns.to_sym
       end
+      deps << Dependency.new(name, ns, options)
     end
-    info
-  end
-
-  def find_release(release)
-    rel = releases.reverse_each.find { |r| r.match?(release) }
-    raise ReleaseNotFound.new(name, release) unless rel
-    rel
-  end
-
-  def highest_installed_release
-    rel = releases.select{ |r| r.installed? }.last
-    raise "#{name} has no installed releases" if not rel
-    rel
-  end
-
-  def get_properties(dir)
-    propfile = File.join(dir, PROPERTIES_FILE)
-    if not File.exists? propfile
-      {}
-    else
-      JSON.parse(IO.read(propfile), symbolize_names: true)
-    end
-  end
-
-  def save_properties(prop, dir)
-    propfile = File.join(dir, PROPERTIES_FILE)
-    File.open(propfile, "w") { |f| f.puts prop.to_json }
   end
 
   private
@@ -232,6 +170,16 @@ class Formula
       str.gsub! '${block}', br
     end
     str
+  end
+
+  def patches(version)
+    if @patches[version] == nil
+      patches = []
+      mask = File.join(Global::PATCHES_DIR, Global::NS_DIR[namespace], file_name, version, '*.patch')
+      Dir[mask].sort.each { |f| patches << Patch::File.new(f) }
+      @patches[version] = patches
+    end
+    @patches[version]
   end
 
   def prepare_source_code(release, dir, src_name, log_prefix)
@@ -264,16 +212,6 @@ class Formula
     end
   end
 
-  def patches(version)
-    if @patches[version] == nil
-      patches = []
-      mask = File.join(Global::PATCHES_DIR, TYPE_DIR[type], file_name, version, '*.patch')
-      Dir[mask].sort.each { |f| patches << Patch::File.new(f) }
-      @patches[version] = patches
-    end
-    @patches[version]
-  end
-
   def system(*args)
     cmd = args.join(' ')
     File.open(@log_file, "a") do |log|
@@ -300,3 +238,52 @@ class Formula
     end
   end
 end
+
+
+  # def self.type_name(item)
+  #   a = item.split('/')
+  #   case a.size
+  #   when 1
+  #     type = nil
+  #     name = item
+  #   when 2
+  #     name = a[1]
+  #     type = a[0].to_sym
+  #     raise "bad formula type #{a[0]}" unless TYPES.include? type
+  #   else
+  #     raise "bad formula name #{name}"
+  #   end
+  #   [type, name]
+  # end
+
+  # todo: move to formulary?
+  # def to_info(formulary)
+  #   info = "Name:        #{name}\n"            \
+  #          "Formula:     #{path}\n"            \
+  #          "Homepage:    #{homepage}\n"        \
+  #          "Description: #{desc}\n"            \
+  #          "Namespace:   #{ns}\n"              \
+  #          "Class:       #{self.class.name}\n" \
+  #          "Releases:\n"
+  #   releases.each do |r|
+  #     installed = installed?(r) ? "installed" : ""
+  #     info += "  #{r.version} #{r.crystax_version}  #{installed}\n"
+  #   end
+  #   if dependencies.size > 0
+  #     info += "Dependencies:\n"
+  #     dependencies.each.with_index do |d, ind|
+  #       installed = formulary[d.name].installed? ? " (*)" : ""
+  #       info += "  #{d.name}#{installed}"
+  #     end
+  #   end
+  #   # todo: add build dependencies
+  #   info
+  # end
+
+  # def highest_installed_release
+  #   rel = releases.select{ |r| r.installed? }.last
+  #   raise "#{name} has no installed releases" if not rel
+  #   rel
+  # end
+
+# private

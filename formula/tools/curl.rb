@@ -4,8 +4,6 @@ class Curl < Utility
   homepage 'http://curl.haxx.se/'
   url 'https://curl.haxx.se/download/curl-${version}.tar.bz2'
 
-  role :core
-
   release version: '7.48.0', crystax_version: 2, sha256: { linux_x86_64:   '0',
                                                            darwin_x86_64:  '0',
                                                            windows_x86_64: '0',

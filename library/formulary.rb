@@ -1,69 +1,50 @@
-# The Formulary is a hash of formulas instances with formula name used as a key
+# The Formulary is a hash of formulas instances with formula fully qualified name (fqn) used as a key
 
 require_relative 'exceptions.rb'
 require_relative 'global.rb'
 require_relative 'formula.rb'
-require_relative 'part.rb'
 require_relative 'package.rb'
 require_relative 'utility.rb'
 require_relative 'build_dependency.rb'
 
 class Formulary
 
-  def self.parts
-    Formulary.new(Global::PARTS_DIR)
-  end
-
-  def self.packages
-    Formulary.new(Global::FORMULA_DIR)
-  end
-
-  def self.utilities
-    Formulary.new(Global::UTILITIES_DIR)
-  end
-
-  def self.build_dependencies
-    Formulary.new(Global::BUILD_DEPENDENCIES_DIR)
-  end
-
-  def self.all_formulas
-    { part: parts, package: packages, utility: utilities, build_dependency: build_dependencies }
-  end
-
-  def initialize(dir)
+  def initialize
     @formulary = {}
-    Dir[File.join(dir, '*.rb')].sort.each do |path|
-      formula = Formulary.factory(path)
-      if f = @formulary[formula.name]
-        raise "#{formula.name} has bad user name #{formula.user_name}: the same user name already defined in #{f.path}"
+    Global::NS_DIR.each_value do |dir|
+      Dir[File.join(Global::FORMULA_DIR, dir, '*.rb')].sort.each do |path|
+        formula = Formulary.factory(path)
+        if f = @formulary[formula.fqn]
+          raise "bad name '#{formula.name}' in #{formula.path}: already defined in #{f.path}"
+        end
+        @formulary[formula.fqn] = formula
       end
-      @formulary[formula.name] = formula
     end
   end
 
-  def each(&block)
-    @formulary.each_value(&block)
+  def packages
+    @formulary.select { |_, value| value.namespace == :target }
   end
 
-  def [](name)
-    formula = @formulary[name]
-    raise FormulaUnavailableError.new(name) unless formula
+  def tools
+    @formulary.select { |_, value| value.namespace == :host }
+  end
+
+  def [](fqn)
+    formula = @formulary[fqn]
+    raise FormulaUnavailableError.new(fqn) unless formula
     formula
   end
 
-  def member?(name)
-    @formulary.member? name
+  def find(name)
+    @formulary.select { |_, f| f.name == name }.values
   end
 
-  def select(&block)
-    @formulary.select(&block)
-  end
-
-  def dependants_of(name)
+    def dependants_of(fqn)
     list = []
     @formulary.values.each do |f|
       f.dependencies.each do |d|
-        if d.name == name
+        if d.fqn == fqn
           list << f
           break
         end
@@ -72,6 +53,34 @@ class Formulary
     list
   end
 
+  def dependencies(formula)
+    result = []
+    deps = formula.dependencies.dup
+
+    while deps.size > 0
+      fqn = deps.shift.fqn
+      f = @formulary[fqn]
+      if not result.include? f
+        result << f
+      end
+      deps += f.dependencies
+    end
+
+    result
+  end
+
+
+  # def each(&block)
+  #   @formulary.each_value(&block)
+  # end
+  # def member?(name)
+  #   @formulary.member? name
+  # end
+  # def select(&block)
+  #   @formulary.select(&block)
+  # end
+
+
   # private
 
   def self.factory(path)
@@ -79,7 +88,7 @@ class Formulary
   end
 
   def self.klass(path)
-    name = path_to_formula_name(path)
+    name = File.basename(path, '.rb')
     raise FormulaUnavailableError.new(name) unless File.file? path
 
     mod = Module.new
@@ -98,9 +107,5 @@ class Formulary
     class_name.gsub!(/[-_.\s]([a-zA-Z0-9])/) { $1.upcase }
     class_name.gsub!('+', 'x')
     class_name
-  end
-
-  def self.path_to_formula_name(path)
-    File.basename(path, '.rb')
   end
 end

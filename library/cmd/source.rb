@@ -10,11 +10,12 @@ module Crew
       raise FormulaUnspecifiedError
     end
 
-    formulary = Formulary.packages
+    formulary = Formulary.new
 
     args.each do |n|
       name, ver = n.split(':')
-      formula = formulary[name]
+      fqn = "target/#{name}"
+      formula = formulary[fqn]
       release = formula.find_release Release.new(ver)
 
       if release.source_installed?

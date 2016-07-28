@@ -1,4 +1,4 @@
-class Gcc < Part
+class Gcc < Tool
 
   desc "GCC-based toolchain"
   homepage "https://gcc.gnu.org"

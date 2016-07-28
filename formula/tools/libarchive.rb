@@ -4,7 +4,6 @@ class Libarchive < Utility
   desc 'bsdtar utility from multi-format archive and compression library libarchive'
   homepage 'http://www.libarchive.org'
   url 'http://www.libarchive.org/downloads/libarchive-${version}.tar.gz'
-  role :core
 
   release version: '3.2.0', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                           darwin_x86_64:  '0',

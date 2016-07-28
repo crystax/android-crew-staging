@@ -1,13 +1,15 @@
 require 'digest'
-require_relative 'formula.rb'
+require_relative 'tool.rb'
+require_relative 'properties.rb'
 require_relative 'platform.rb'
 require_relative 'for_host_buildable.rb'
 
 
-class BuildDependency < Formula
+class BuildDependency < Tool
 
   INSTALL_DIR_NAME = 'build_dependencies'
 
+  include Properties
   include ForHostBuildable
 
   def initialize(path)
@@ -23,10 +25,6 @@ class BuildDependency < Formula
 
   def release_directory(release, platform_name = Global::PLATFORM_NAME)
     File.join(home_directory(platform_name), release.to_s)
-  end
-
-  def download_base
-    "#{Global::DOWNLOAD_BASE}/build_dependencies"
   end
 
   def type

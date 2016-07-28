@@ -1,12 +1,17 @@
 require 'fileutils'
 require 'digest'
 require_relative 'formula.rb'
+require_relative 'properties.rb'
 require_relative 'release.rb'
 require_relative 'build.rb'
 require_relative 'build_options.rb'
 
 
 class Package < Formula
+
+  namespace :target
+
+  include Properties
 
   SRC_DIR_BASENAME = 'src'
 
@@ -43,18 +48,6 @@ class Package < Formula
     File.join(home_directory, release.version)
   end
 
-  def download_base
-    "#{Global::DOWNLOAD_BASE}/packages"
-  end
-
-  def type
-    :package
-  end
-
-  def build_dependencies
-    dependencies
-  end
-
   def install_archive(release, archive)
     rel_dir = release_directory(release)
     FileUtils.rm_rf binary_files(rel_dir)
@@ -72,6 +65,16 @@ class Package < Formula
     release.installed = release.crystax_version
   end
 
+  def install(r = releases.last)
+    release = find_release(r)
+    file = archive_filename(release)
+
+    cachepath = download_archive(file, sha256_sum(release))
+
+    puts "unpacking archive"
+    install_archive release, cachepath
+  end
+
   def uninstall(release)
     puts "removing #{name}:#{release.version}"
     rel_dir = release_directory(release)
@@ -84,6 +87,10 @@ class Package < Formula
       save_properties prop, rel_dir
     end
     release.installed = false
+  end
+
+  def source_installed?(release = Release.new)
+    releases.any? { |r| r.match?(release) and r.source_installed? }
   end
 
   def install_source(release)
@@ -109,22 +116,14 @@ class Package < Formula
       FileUtils.rm_rf rel_dir
     else
       prop = get_properties(rel_dir)
-      FileUtils.rm_rf "#{rel_dir}/SRC_DIR_BASENAME"
+      FileUtils.rm_r File.join(rel_dir, SRC_DIR_BASENAME)
       prop[:source_installed] = false
       save_properties prop, rel_dir
     end
     release.source_installed = false
   end
 
-  def pre_build(src_dir, release)
-    nil
-  end
-
-  def post_build(pkg_dir, release)
-    nil
-  end
-
-  def build_package(release, options, dep_dirs)
+  def build(release, options, host_dep_dirs, target_dep_dirs)
     arch_list = Build.abis_to_arch_list(options.abis)
     puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
 
@@ -134,9 +133,11 @@ class Package < Formula
     @log_file = build_log_file
     @num_jobs = options.num_jobs
 
-    print "= executing pre build step: "
-    @pre_build_result = pre_build(src_dir, release)
-    puts @pre_build_result ? @pre_build_result : 'none'
+    if self.respond_to? :pre_build
+      print "= executing pre build step"
+      pre_build(src_dir, release)
+      puts 'OK'
+    end
 
     toolchain = Build::DEFAULT_TOOLCHAIN
 
@@ -149,18 +150,19 @@ class Package < Formula
         build_dir = build_dir_for_abi(abi)
         FileUtils.cp_r "#{src_dir}/.", build_dir
         setup_build_env abi, toolchain if build_options[:setup_env]
-        FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, dep_dirs }
+        FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, host_dep_dirs, target_dep_dirs }
         copy_installed_files abi
-        #package_libs_and_headers abi if build_options[:copy_incs_and_libs]
-        #package_bin abi if build_options[:copy_bin]
         FileUtils.rm_rf base_dir_for_abi(abi) unless options.no_clean?
       end
     end
 
     Build.gen_android_mk "#{package_dir}/Android.mk", build_libs, build_options if build_options[:gen_android_mk]
 
-    puts "= executing post build step"
-    post_build package_dir, release
+    if self.respond_to? :post_build
+      print "= executing post build step: "
+      post_build package_dir, release
+      puts 'OK'
+    end
 
     build_copy.each { |f| FileUtils.cp "#{src_dir}/#{f}", package_dir }
     copy_tests
@@ -169,7 +171,8 @@ class Package < Formula
       puts "Build only, no packaging and installing"
     else
       # pack archive and copy into cache dir
-      archive = "#{Build::CACHE_DIR}/#{archive_filename(release)}"
+      # todo: use global cache dir or build cache dir?
+      archive = "#{Global::CACHE_DIR}/#{archive_filename(release)}"
       puts "Creating archive file #{archive}"
       Utils.pack(archive, package_dir)
 
@@ -270,31 +273,6 @@ class Package < Formula
     end
   end
 
-  # def package_libs_and_headers(abi)
-  #   pkg_dir = package_dir
-  #   install_dir = install_dir_for_abi(abi)
-  #   # copy headers if they were not copied yet
-  #   inc_dir = "#{pkg_dir}/include"
-  #   if !Dir.exists? inc_dir
-  #     FileUtils.mkdir_p pkg_dir
-  #     FileUtils.cp_r "#{install_dir}/include", pkg_dir
-  #   end
-  #   # copy libs
-  #   libs_dir = "#{pkg_dir}/libs/#{abi}"
-  #   FileUtils.mkdir_p libs_dir
-  #   build_libs.each do |lib|
-  #     FileUtils.cp "#{install_dir}/lib/#{lib}.a",  libs_dir
-  #     FileUtils.cp "#{install_dir}/lib/#{lib}.so", libs_dir
-  #   end
-  # end
-
-  # def package_bin(abi)
-  #   install_dir = install_dir_for_abi(abi)
-  #   bin_dir = "#{package_dir}/bin/#{abi}"
-  #   FileUtils.mkdir_p bin_dir
-  #   FileUtils.cp Dir["#{install_dir}/bin/*"], bin_dir
-  # end
-
   def copy_tests
     src_tests_dir = "#{Build::VENDOR_TESTS_DIR}/#{file_name}"
     if Dir.exists? src_tests_dir
@@ -349,7 +327,7 @@ class Package < Formula
   private
 
   def archive_filename(release)
-    "#{file_name}-#{Formula.package_version(release)}.tar.xz"
+    "#{file_name}-#{release}.tar.xz"
   end
 
   def sha256_sum(release)
@@ -387,23 +365,4 @@ class Package < Formula
   def host_for_abi(abi)
     Build.arch_for_abi(abi).host
   end
-
-  # # $(call import-module,libjpeg/9a)
-  # def update_root_android_mk(release)
-  #   android_mk = "#{File.dirname(release_directory(release))}/Android.mk"
-  #   new_ver = release.version
-  #   if not File.exists? android_mk
-  #     write_root_android_mk android_mk, new_ver
-  #   else
-  #     prev_ver = File.read(android_mk).strip.delete("()").split('/')[1]
-  #     new_ver = release.version
-  #     if more_recent_version(prev_ver, new_ver) == new_ver
-  #       write_root_android_mk android_mk, new_ver
-  #     end
-  #   end
-  # end
-
-  # def write_android_mk(file, ver)
-  #   File.open(file, 'w') { |f| f.puts "include $(call my-dir)/#{ver}/Android.mk" }
-  # end
 end

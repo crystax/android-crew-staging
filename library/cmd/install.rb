@@ -10,11 +10,13 @@ module Crew
       raise FormulaUnspecifiedError
     end
 
-    formulary = Formulary.packages
+    formulary = Formulary.new
 
     args.each.with_index do |n, index|
       name, ver = n.split(':')
-      formula = formulary[name]
+      # todo: handle installing optional tools too (from host namespace)
+      fqn = "target/#{name}"
+      formula = formulary[fqn]
       release = formula.find_release(Release.new(ver))
 
       if release.installed?
@@ -28,8 +30,9 @@ module Crew
         end
       end
 
+      # todo: handle build dependencies too
       puts "calculating dependencies for #{name}: "
-      deps = Formula.full_dependencies(formulary, formula.dependencies).select { |d| not d.installed? }
+      deps = formulary.dependencies(formula).select { |d| not d.installed? }
       puts "  dependencies to install: #{(deps.map { |d| d.name }).join(', ')}"
 
       if deps.count > 0

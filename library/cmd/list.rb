@@ -24,28 +24,22 @@ end
 module Crew
 
   def self.list(args)
+    formulary = Formulary.new
+
     case args.length
     when 0
-      puts "Parts:"
-      list_elements Formulary.parts
+      puts "Tools:"
+      list_elements formulary.tools
       puts "Packages:"
-      list_elements Formulary.packages
-      puts "Utilities:"
-      list_elements Formulary.utilities
-      puts "Build Dependencies:"
-      list_elements Formulary.build_dependencies
+      list_elements formulary.packages
     when 1
       case args[0]
-      when 'parts'
-        list_elements Formulary.parts
-      when 'packages'
-        list_elements Formulary.packages
-      when 'utils'
-        list_elements Formulary.utilities
-      when 'build_deps'
-        list_elements Formulary.build_dependencies
+      when '--packages'
+        list_elements formulary.packages
+      when '--tools'
+        list_elements formulary.tools
       else
-        raise "argument must be either 'parts', 'packages', 'utils', or 'build_deps'"
+        raise "argument must be either '--packages', or '--tools'"
       end
     else
       raise CommandRequresOneOrNoArguments
@@ -54,10 +48,10 @@ module Crew
 
   # private
 
-  def self.list_elements(formulary)
+  def self.list_elements(hash)
     list = []
     max_name_len = max_ver_len = max_cxver_len = 0
-    formulary.each do |f|
+    hash.each_value do |f|
       f.releases.each do |r|
         max_name_len = f.name.size if f.name.size > max_name_len
         ver = r.version

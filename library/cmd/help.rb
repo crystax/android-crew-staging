@@ -19,8 +19,8 @@ COMMAND is one of the following:
                   if no command specified show this help message;
                   otherwise show addition info for the specified commands
   env             show crew's command working environment
-  list [libs|utils]
-                  list all available formulas for libraries or utilities;
+  list [--packages|--tools]
+                  list all available formulas for packages or tools;
                   whithout an argument list all formulas
   info name ...   show information about the specified formula(s)
   install name[:version] ...

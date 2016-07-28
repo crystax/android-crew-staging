@@ -92,6 +92,8 @@ module Global
 
   PLATFORM_NAME = File.basename(TOOLS_DIR)
 
+  NS_DIR = { host: 'tools', target: 'packages' }
+
   ENGINE_DIR             = create_required_dir(TOOLS_DIR, 'crew').realpath
   HOLD_DIR               = create_required_dir(NDK_DIR, 'packages').realpath
   SERVICE_DIR            = create_required_dir(NDK_DIR, '.crew').realpath
@@ -100,9 +102,8 @@ module Global
   PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
   CACHE_DIR              = Pathname.new(File.join(BASE_DIR, 'cache')).realpath
   FORMULA_DIR            = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
-  UTILITIES_DIR          = Pathname.new(File.join(FORMULA_DIR, 'utilities')).realpath
-  PARTS_DIR              = Pathname.new(File.join(FORMULA_DIR, 'parts')).realpath
-  BUILD_DEPENDENCIES_DIR = Pathname.new(File.join(FORMULA_DIR, 'build_dependencies')).realpath
+  #PACKAGES_DIR           = Pathname.new(File.join(FORMULA_DIR, NS_DIR[:target])).realpath
+  #TOOLS_DIR              = Pathname.new(File.join(FORMULA_DIR, NS_DIR[:host])).realpath
 
   EXE_EXT  = RUBY_PLATFORM =~ /mingw/ ? '.exe' : ''
   ARCH_EXT = 'tar.xz'

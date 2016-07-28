@@ -10,13 +10,14 @@ module Crew
       raise FormulaUnspecifiedError
     end
 
-    formulary = Formulary.packages
+    formulary = Formulary.new
 
     args.each do |n|
       name, version = n.split(':')
       outname = name + (version ? ':' + version : "")
 
-      formula = formulary[name]
+      fqn = "target/#{name}"
+      formula = formulary[fqn]
 
       release = Release.new(version)
       raise "source code is not installed for #{outname}" if not formula.source_installed? release
@@ -24,12 +25,6 @@ module Crew
       formula.releases.each { |r| formula.uninstall_source(r) if r.source_installed? and r.match?(release) }
 
       Dir.rmdir formula.home_directory if Dir[File.join(formula.home_directory, '*')].empty?
-    end
-  rescue FormulaUnavailableError => exc
-    if not Formulary.utilities.member? exc.name
-      raise
-    else
-      raise "could not remove source code for utility #{exc.name}"
     end
   end
 end

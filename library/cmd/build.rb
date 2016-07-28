@@ -12,80 +12,50 @@ module Crew
     options, args = parse_args(args)
     raise FormulaUnspecifiedError if args.count < 1
 
-    formulary = Formulary.all_formulas
+    formulary = Formulary.new
 
     args.each do |n|
       item, ver = n.split(':')
 
-      type, formula = find_formula_and_type(item, formulary)
+      f = formulary.find(item)
+      raise "please, specify namespace for #{item}; more than one formula exists: #{f.map(&:fqn).join(',')}" if f.size > 1
+      raise "not found formula with name #{item}" if f.size == 0
+      formula = f[0]
 
       release = formula.find_release(Release.new(ver))
-      raise "source code not installed for #{formula.name}:#{release}" if (type == :package) and !(release.source_installed?)
+      raise "source code not installed for #{formula.name}:#{release}" if (formula.namespace == :target) and !(release.source_installed?)
 
-      # todo: check that dependencies installed for all required platforms
-      check_dependencies formula.build_dependencies, formulary[type]
-      dep_dirs = make_dep_dirs(formula, type, formulary[type], options.platforms)
+      # todo: check that (build) dependencies installed for all required platforms
+      deps = formula.dependencies + formula.build_dependencies
+      absent = deps.select { |d| not formulary[d.fqn].installed? }
+      raise "uninstalled dependencies: #{absent.map(&:fqn).join(',')}" unless absent.empty?
 
-      formula.build_package release, options, dep_dirs
+      host_deps, target_deps = deps.partition { |d| d.namespace == :host }
+
+      host_dep_dirs = {}
+      host_deps.each do |d|
+        f = formulary[d.fqn]
+        host_dep_dirs[f.name] = f.release_directory(f.highest_installed_release)
+      end
+
+      # really stupid hash behaviour: just Hash.new({}) does not work
+      target_dep_dirs = Hash.new { |h, k| h[k] = Hash.new }
+      target_deps.each do |d|
+        f = formulary[d.fqn]
+        platforms.each do |platform|
+          dep = { f.name => f.release_directory(f.highest_installed_release, platform) }
+          dep_dirs[platform].update dep
+        end
+      end
+
+      formula.build release, options, host_dep_dirs, target_dep_dirs
 
       puts "" unless n == args.last
     end
   end
 
-  def self.find_formula_and_type(item, formulary)
-    type, name = Formula.type_name(item)
-    if type
-      [type, formulary[type][name]]
-    else
-      r = []
-      Formula::TYPES.each do |t|
-        fs = formulary[t]
-        r << [t, fs[item]] if fs.member? item
-      end
-      raise "formula with name #{item} not found" if r.size == 0
-      raise "#{item} has more than one type: #{r}; please, specify required formula type" if r.size > 1
-      r[0]
-    end
-  end
-
-  def self.make_dep_dirs(formula, type, formulary, platforms)
-    if type == :package
-      dependencies_dirs formulary, formulary
-    else
-      dependencies_dirs_with_platforms(formula, formulary, platforms)
-    end
-  end
-
-  def self.dependencies_dirs(formula, formulary)
-    dep_dirs = {}
-    Formula.full_dependencies(formulary, formula.dependencies).each do |f|
-      dep_dirs[f.name] = f.release_directory(f.highest_installed_release)
-    end
-
-    dep_dirs
-  end
-
-  def self.dependencies_dirs_with_platforms(formula, formulary, platforms)
-    # really stupid hash behaviour: just Hash.new({}) does not work
-    dep_dirs = Hash.new { |h, k| h[k] = Hash.new }
-    Formula.full_dependencies(formulary, formula.build_dependencies).each do |f|
-      platforms.each do |platform|
-        dep = { f.name => f.release_directory(f.highest_installed_release, platform) }
-        dep_dirs[platform].update dep
-      end
-    end
-
-    dep_dirs
-  end
-
-  def self.check_dependencies(dependencies, formulary)
-    absent = dependencies.select { |d| not formulary[d.name].installed? }
-    raise "uninstalled build dependencies: #{absent.map{|d| d.name}.join(',')}" unless absent.empty?
-  end
-
   def self.parse_args(args)
-    opts = args.take_while { |a| a.start_with? '--' }
-    args = args.drop_while { |a| a.start_with? '--' }
+    opts, args = args.partition { |a| a.start_with? '--' }
 
     [Build_options.new(opts), args]
   end

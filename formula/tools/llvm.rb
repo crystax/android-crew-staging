@@ -1,4 +1,4 @@
-class Llvm < Part
+class Llvm < Tool
 
   desc "LLVM-based toolchain"
   homepage "https://gcc.gnu.org"
