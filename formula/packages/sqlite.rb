@@ -9,7 +9,7 @@ class Sqlite < Package
   build_options setup_env: false
   build_libs 'libsqlite3'
 
-  def build_for_abi(abi, _toolchain, _release, _dep_dirs)
+  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, _target_dep_dirs)
     cwd = Dir.pwd
     ['static', 'shared'].each do |libtype|
       FileUtils.mkdir_p "#{cwd}/#{libtype}/jni"

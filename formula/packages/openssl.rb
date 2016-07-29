@@ -10,7 +10,7 @@ class Openssl < Package
   build_copy 'LICENSE'
   build_libs 'libcrypto', 'libssl'
 
-  def build_for_abi(abi, toolchain, release, _dep_dirs)
+  def build_for_abi(abi, toolchain, release, _host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_abi(abi)
     build_env['CFLAGS'] << ' -DOPENSSL_NO_DEPRECATED'
 

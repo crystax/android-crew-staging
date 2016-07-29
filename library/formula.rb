@@ -5,6 +5,7 @@ require 'open3'
 require_relative 'extend/module.rb'
 require_relative 'release.rb'
 require_relative 'utils.rb'
+require_relative 'patch.rb'
 
 
 class Formula
@@ -56,11 +57,11 @@ class Formula
   end
 
   def dependencies
-    self.class.dependencies ||= []
+    self.class.dependencies ? self.class.dependencies : []
   end
 
   def build_dependencies
-    self.class.build_dependencies ||= []
+    self.class.build_dependencies ? self.class.build_dependencies : []
   end
 
   def cache_file(release)
@@ -96,6 +97,12 @@ class Formula
     rel
   end
 
+  def highest_installed_release
+    rel = releases.select{ |r| r.installed? }.last
+    raise "#{name} has no installed releases" if not rel
+    rel
+  end
+
   class Dependency
 
     def initialize(name, ns, options)
@@ -104,19 +111,23 @@ class Formula
       @options[:ns] = ns
     end
 
+    def name
+      @options[:name]
+    end
+
     def namespace
       @options[:ns]
     end
 
     def fqn
-      "#{@options[:ns]}/#{options[:name]}"
+      "#{@options[:ns]}/#{@options[:name]}"
     end
   end
 
   class << self
 
     attr_rw :name, :desc, :homepage, :namespace
-    attr_accessor :releases, :dependencies, :build_dependencies
+    attr_reader :releases, :dependencies, :build_dependencies
 
     # called when self inherited by subclass
     def inherited(subclass)
@@ -141,10 +152,12 @@ class Formula
     end
 
     def depends_on(name, options = {})
+      @dependencies ||= []
       add_dependency(name, options, @dependencies)
     end
 
     def build_depends_on(name, options = {})
+      @build_dependencies ||= []
       add_dependency(name, options, @build_dependencies)
     end
 
@@ -152,7 +165,7 @@ class Formula
       deps = [] if !deps
       ns = options.delete(:ns)
       if not ns
-        options[:ns] = namespace
+        ns = namespace
       elsif ns.class == String
         ns = ns.to_sym
       end
@@ -238,52 +251,3 @@ class Formula
     end
   end
 end
-
-
-  # def self.type_name(item)
-  #   a = item.split('/')
-  #   case a.size
-  #   when 1
-  #     type = nil
-  #     name = item
-  #   when 2
-  #     name = a[1]
-  #     type = a[0].to_sym
-  #     raise "bad formula type #{a[0]}" unless TYPES.include? type
-  #   else
-  #     raise "bad formula name #{name}"
-  #   end
-  #   [type, name]
-  # end
-
-  # todo: move to formulary?
-  # def to_info(formulary)
-  #   info = "Name:        #{name}\n"            \
-  #          "Formula:     #{path}\n"            \
-  #          "Homepage:    #{homepage}\n"        \
-  #          "Description: #{desc}\n"            \
-  #          "Namespace:   #{ns}\n"              \
-  #          "Class:       #{self.class.name}\n" \
-  #          "Releases:\n"
-  #   releases.each do |r|
-  #     installed = installed?(r) ? "installed" : ""
-  #     info += "  #{r.version} #{r.crystax_version}  #{installed}\n"
-  #   end
-  #   if dependencies.size > 0
-  #     info += "Dependencies:\n"
-  #     dependencies.each.with_index do |d, ind|
-  #       installed = formulary[d.name].installed? ? " (*)" : ""
-  #       info += "  #{d.name}#{installed}"
-  #     end
-  #   end
-  #   # todo: add build dependencies
-  #   info
-  # end
-
-  # def highest_installed_release
-  #   rel = releases.select{ |r| r.installed? }.last
-  #   raise "#{name} has no installed releases" if not rel
-  #   rel
-  # end
-
-# private

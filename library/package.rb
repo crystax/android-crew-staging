@@ -29,7 +29,7 @@ class Package < Formula
                         wrapper_replace_args: {}
                       }.freeze
 
-  attr_reader :pre_build_result
+  attr_reader :pre_build_result, :post_build_result
 
   def initialize(path)
     super path
@@ -134,9 +134,9 @@ class Package < Formula
     @num_jobs = options.num_jobs
 
     if self.respond_to? :pre_build
-      print "= executing pre build step"
-      pre_build(src_dir, release)
-      puts 'OK'
+      print "= executing pre build step: "
+      @pre_build_result = pre_build(src_dir, release)
+      puts @pre_build_result ? @pre_build_result : 'OK'
     end
 
     toolchain = Build::DEFAULT_TOOLCHAIN
@@ -160,8 +160,8 @@ class Package < Formula
 
     if self.respond_to? :post_build
       print "= executing post build step: "
-      post_build package_dir, release
-      puts 'OK'
+      @post_build_result = post_build(package_dir, release)
+      puts @post_build_result ? @post_build_result : 'OK'
     end
 
     build_copy.each { |f| FileUtils.cp "#{src_dir}/#{f}", package_dir }

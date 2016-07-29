@@ -10,7 +10,7 @@ class Ncurses < Package
   build_options copy_installed_dirs: ['bin', 'lib', 'include', 'share'],
                 gen_android_mk:      false
 
-  def build_for_abi(abi, _toolchain, _release, _dep_dirs)
+  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, _target_dep_dirs)
     args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
               "--without-ada",

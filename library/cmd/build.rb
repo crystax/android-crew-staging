@@ -17,10 +17,10 @@ module Crew
     args.each do |n|
       item, ver = n.split(':')
 
-      f = formulary.find(item)
-      raise "please, specify namespace for #{item}; more than one formula exists: #{f.map(&:fqn).join(',')}" if f.size > 1
-      raise "not found formula with name #{item}" if f.size == 0
-      formula = f[0]
+      found = formulary.find(item)
+      raise "please, specify namespace for #{item}; more than one formula exists: #{f.map(&:fqn).join(',')}" if found.size > 1
+      raise "not found formula with name #{item}" if found.size == 0
+      formula = found[0]
 
       release = formula.find_release(Release.new(ver))
       raise "source code not installed for #{formula.name}:#{release}" if (formula.namespace == :target) and !(release.source_installed?)
@@ -35,17 +35,17 @@ module Crew
       host_dep_dirs = {}
       host_deps.each do |d|
         f = formulary[d.fqn]
-        host_dep_dirs[f.name] = f.release_directory(f.highest_installed_release)
+        options.platforms.each do |platform|
+          dep = { f.name => f.release_directory(f.highest_installed_release, platform) }
+          dep_dirs[platform].update dep
+        end
       end
 
       # really stupid hash behaviour: just Hash.new({}) does not work
       target_dep_dirs = Hash.new { |h, k| h[k] = Hash.new }
       target_deps.each do |d|
         f = formulary[d.fqn]
-        platforms.each do |platform|
-          dep = { f.name => f.release_directory(f.highest_installed_release, platform) }
-          dep_dirs[platform].update dep
-        end
+        target_dep_dirs[f.name] = f.release_directory(f.highest_installed_release)
       end
 
       formula.build release, options, host_dep_dirs, target_dep_dirs

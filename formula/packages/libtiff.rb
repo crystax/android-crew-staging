@@ -11,9 +11,9 @@ class Libtiff < Package
   build_copy 'COPYRIGHT'
   build_options use_cxx: true
 
-  def build_for_abi(abi, _toolchain, _release, dep_dirs)
+  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs)
     install_dir = install_dir_for_abi(abi)
-    libjpeg_dir = dep_dirs['libjpeg']
+    libjpeg_dir = target_dep_dirs['libjpeg']
     args = [ "--prefix=#{install_dir}",
              "--host=#{host_for_abi(abi)}",
              "--enable-shared",
@@ -31,9 +31,6 @@ class Libtiff < Package
     system 'make', 'install'
 
     # clean lib dir before packaging
-    FileUtils.cd("#{install_dir}/lib") do
-      FileUtils.rm_rf 'pkgconfig'
-      FileUtils.rm Dir['*.la']
-    end
+    FileUtils.cd("#{install_dir}/lib") { FileUtils.rm_rf ['pkgconfig'] + Dir['*.la'] }
   end
 end

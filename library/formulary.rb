@@ -37,10 +37,14 @@ class Formulary
   end
 
   def find(name)
-    @formulary.select { |_, f| f.name == name }.values
+    if name.include? '/'
+      [@formulary[name]].compact
+    else
+      @formulary.select { |_, f| f.name == name }.values
+    end
   end
 
-    def dependants_of(fqn)
+  def dependants_of(fqn)
     list = []
     @formulary.values.each do |f|
       f.dependencies.each do |d|
