@@ -2,7 +2,6 @@ require 'digest'
 require_relative 'tool.rb'
 require_relative 'properties.rb'
 require_relative 'platform.rb'
-require_relative 'for_host_buildable.rb'
 
 
 class BuildDependency < Tool

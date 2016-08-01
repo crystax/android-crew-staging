@@ -3,7 +3,6 @@ require_relative 'tool.rb'
 require_relative 'platform.rb'
 require_relative 'build.rb'
 require_relative 'build_options.rb'
-require_relative 'for_host_buildable.rb'
 
 
 class Utility < Tool
