@@ -67,7 +67,7 @@ class Platform
 
   def init_cflags
     case @name
-    when 'darwin-x86_64'  then "-isysroot#{Global::PLATFORM_PREBUILTS_DIR}/sysroot/darwin-x86/MacOSX10.6.sdk -mmacosx-version-min=#{MACOSX_VERSION_MIN} -m64"
+    when 'darwin-x86_64'  then "-isysroot#{Global::PLATFORM_PREBUILTS_DIR}/sysroot/darwin-x86/MacOSX10.6.sdk -mmacosx-version-min=#{MACOSX_VERSION_MIN} -DMAXOSX_DEPLOYEMENT_TARGET=#{MACOSX_VERSION_MIN} -m64"
     when 'linux-x86_64'   then "--sysroot=#{Global::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/sysroot"
     when 'windows-x86_64' then '-m64'
     when 'windows'        then '-m32'

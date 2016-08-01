@@ -36,7 +36,7 @@ class Ruby < Utility
     # patch rugged sources
     patches = []
     rugged_src = File.join(dir, "rugged-#{rugged_ver}")
-    mask = File.join(Global::PATCHES_DIR, TYPE_DIR[type], 'rugged', rugged_ver, '*.patch')
+    mask = File.join(Global::PATCHES_DIR, Global::NS_DIR[namespace], 'rugged', rugged_ver, '*.patch')
     Dir[mask].each { |f| patches << Patch::File.new(f) }
     puts "#{log_prefix} patching in dir #{rugged_src}"
     patches.each do |p|
@@ -51,23 +51,22 @@ class Ruby < Utility
     FileUtils.cp_r Dir["#{rugged_src}/lib/*"], "#{rugged_dst}/lib/"
   end
 
-  def build_for_platform(platform, release, options, dep_dirs)
+  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform, release)
-    zlib_dir    = dep_dirs[platform.name]['zlib']
-    openssl_dir = dep_dirs[platform.name]['openssl']
-    libssh2_dir = dep_dirs[platform.name]['libssh2']
-    libgit2_dir = dep_dirs[platform.name]['libgit2']
+    zlib_dir    = host_dep_dirs[platform.name]['zlib']
+    openssl_dir = host_dep_dirs[platform.name]['openssl']
+    libssh2_dir = host_dep_dirs[platform.name]['libssh2']
+    libgit2_dir = host_dep_dirs[platform.name]['libgit2']
 
     cflags  = "-I#{zlib_dir}/include -I#{openssl_dir}/include #{platform.cflags}"
-    ldflags = "-L#{libssh2_dir}/lib -L#{libgit2_dir}/lib -L#{zlib_dir}/lib"
+    ldflags = "-w -L#{libssh2_dir}/lib -L#{libgit2_dir}/lib -L#{zlib_dir}/lib"
     if platform.target_os != 'windows'
       libs = '-lz -lgit2 -lssh2 -lz'
     else
       libs = "#{zlib_dir}/lib/libz.a #{libgit2_dir}/lib/libgit2.a #{libssh2_dir}/lib/libssh2.a #{zlib_dir}/lib/libz.a"
     end
 
-    build_env['CC']              = platform.cc
-    build_env['CFLAGS']          = cflags
+    build_env['CFLAGS']          += ' ' + cflags
     build_env['LDFLAGS']         = ldflags
     build_env['LIBS']            = libs
     build_env['SSL_CERT_FILE']   = host_ssl_cert_file

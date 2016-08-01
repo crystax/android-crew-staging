@@ -13,15 +13,12 @@ class Libarchive < Utility
 
   build_depends_on 'xz'
 
-  def build_for_platform(platform, release, options, dep_dirs)
+  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform, release)
-    xz_dir = dep_dirs[platform.name]['xz']
+    xz_dir = host_dep_dirs[platform.name]['xz']
 
-    build_env['CC']      = platform.cc
-    build_env['CFLAGS']  = "-I#{xz_dir}/include #{platform.cflags}"
-    build_env['LDFLAGS'] = "-L#{xz_dir}/lib"
-    build_env['LANG']    = 'C'
-    build_env['V']       = '1'
+    build_env['CFLAGS']  += " -I#{xz_dir}/include #{platform.cflags}"
+    build_env['LDFLAGS']  = "-L#{xz_dir}/lib"
 
     #env['LDFLAGS'] = ' -ldl' if options.target_os == 'linux'
     args = ["--prefix=#{install_dir}",
@@ -31,6 +28,7 @@ class Libarchive < Utility
             "--without-nettle",
             "--without-xml2",
             "--without-expat",
+            "--disable-silent-rules",
             "--with-sysroot"
            ]
     system "#{src_dir}/configure", *args

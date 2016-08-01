@@ -11,8 +11,6 @@ class Utility < Tool
   INSTALL_DIR_NAME = 'crew'
   ACTIVE_FILE_NAME = 'active_version.txt'
 
-  include ForHostBuildable
-
   def self.active_path(util_name, engine_dir = Global::ENGINE_DIR)
     File.join(engine_dir, util_name, ACTIVE_FILE_NAME)
   end
