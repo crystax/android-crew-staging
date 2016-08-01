@@ -32,17 +32,17 @@ module Crew
 
       host_deps, target_deps = deps.partition { |d| d.namespace == :host }
 
-      host_dep_dirs = {}
+      host_dep_dirs = Hash.new { |h, k| h[k] = Hash.new }
       host_deps.each do |d|
         f = formulary[d.fqn]
         options.platforms.each do |platform|
           dep = { f.name => f.release_directory(f.highest_installed_release, platform) }
-          dep_dirs[platform].update dep
+          host_dep_dirs[platform].update dep
         end
       end
 
       # really stupid hash behaviour: just Hash.new({}) does not work
-      target_dep_dirs = Hash.new { |h, k| h[k] = Hash.new }
+      target_dep_dirs = {}
       target_deps.each do |d|
         f = formulary[d.fqn]
         target_dep_dirs[f.name] = f.release_directory(f.highest_installed_release)

@@ -14,11 +14,11 @@ class Libgit2 < BuildDependency
   depends_on 'openssl'
   depends_on 'libssh2'
 
-  def build_for_platform(platform, release, options, dep_dirs)
+  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform, release)
-    zlib_dir    = dep_dirs[platform.name]['zlib']
-    openssl_dir = dep_dirs[platform.name]['openssl']
-    libssh2_dir = dep_dirs[platform.name]['libssh2']
+    zlib_dir    = host_dep_dirs[platform.name]['zlib']
+    openssl_dir = host_dep_dirs[platform.name]['openssl']
+    libssh2_dir = host_dep_dirs[platform.name]['libssh2']
 
     FileUtils.cp_r File.join(src_dir, '.'), '.'
 

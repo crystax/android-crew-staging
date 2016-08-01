@@ -12,9 +12,9 @@ class Openssl < BuildDependency
 
   depends_on 'zlib'
 
-  def build_for_platform(platform, release, options, dep_dirs)
+  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform, release)
-    zlib_dir = dep_dirs[platform.name]['zlib']
+    zlib_dir = host_dep_dirs[platform.name]['zlib']
 
     FileUtils.cp_r File.join(src_dir, '.'), '.'
 

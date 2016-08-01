@@ -102,8 +102,6 @@ module Global
   PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
   CACHE_DIR              = Pathname.new(File.join(BASE_DIR, 'cache')).realpath
   FORMULA_DIR            = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
-  #PACKAGES_DIR           = Pathname.new(File.join(FORMULA_DIR, NS_DIR[:target])).realpath
-  #TOOLS_DIR              = Pathname.new(File.join(FORMULA_DIR, NS_DIR[:host])).realpath
 
   EXE_EXT  = RUBY_PLATFORM =~ /mingw/ ? '.exe' : ''
   ARCH_EXT = 'tar.xz'

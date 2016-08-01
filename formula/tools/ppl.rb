@@ -12,10 +12,10 @@ class Ppl < BuildDependency
 
   depends_on 'gmp'
 
-  def build_for_platform(platform, release, options, dep_dirs)
+  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform, release)
 
-    gmp_dir = dep_dirs[platform.name]['gmp']
+    gmp_dir = host_dep_dirs[platform.name]['gmp']
 
     args = ["--prefix=#{install_dir}",
             "--host=#{platform.configure_host}",

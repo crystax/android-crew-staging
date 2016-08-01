@@ -13,10 +13,10 @@ class Libssh2 < BuildDependency
   depends_on 'zlib'
   depends_on 'openssl'
 
-  def build_for_platform(platform, release, options, dep_dirs)
+  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform, release)
-    zlib_dir    = dep_dirs[platform.name]['zlib']
-    openssl_dir = dep_dirs[platform.name]['openssl']
+    zlib_dir    = host_dep_dirs[platform.name]['zlib']
+    openssl_dir = host_dep_dirs[platform.name]['openssl']
 
     build_env['CFLAGS']  += " -I#{openssl_dir}/include -I#{zlib_dir}/include #{platform.cflags}"
     build_env['LDFLAGS']  = "-L#{openssl_dir}/lib -L#{zlib_dir}/lib -lz"

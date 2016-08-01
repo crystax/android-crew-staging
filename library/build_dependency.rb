@@ -7,16 +7,26 @@ require_relative 'for_host_buildable.rb'
 
 class BuildDependency < Tool
 
+  # tool trait
   INSTALL_DIR_NAME = 'build_dependencies'
 
   include Properties
-  include ForHostBuildable
 
   def initialize(path)
     super path
 
     # mark installed releases
-    releases.each { |r| r.update get_properties(release_directory(r)) }
+    Platform::NAMES.each do |platform|
+      Dir["#{home_directory(platform)}/*"].each do |file|
+        if not File.directory? file
+          # todo: out warning
+        else
+          ver, cxver = Release.split_package_version(File.basename(file))
+          # todo: output warning if there is no release for the ver
+          releases.each { |r| r.installed = cxver if r.version == ver }
+        end
+      end
+    end
   end
 
   def home_directory(platform_name)
@@ -27,23 +37,10 @@ class BuildDependency < Tool
     File.join(home_directory(platform_name), release.to_s)
   end
 
-  def type
-    :build_dependency
-  end
-
-  def build_dependencies
-    dependencies
-  end
-
   def install_archive(release, archive, platform_name = Global::PLATFORM_NAME, ndk_dir = Global::NDK_DIR)
     rel_dir = release_directory(release, platform_name)
     FileUtils.rm_rf rel_dir
     Utils.unpack archive, ndk_dir
-
-    prop = get_properties(rel_dir)
-    prop[:installed] = true
-    prop[:installed_crystax_version] = release.crystax_version
-    save_properties prop, rel_dir
 
     release.installed = release.crystax_version
   end
