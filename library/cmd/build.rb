@@ -18,7 +18,7 @@ module Crew
       item, ver = n.split(':')
 
       found = formulary.find(item)
-      raise "please, specify namespace for #{item}; more than one formula exists: #{f.map(&:fqn).join(',')}" if found.size > 1
+      raise "please, specify namespace for #{item}; more than one formula exists: #{found.map(&:fqn).join(',')}" if found.size > 1
       raise "not found formula with name #{item}" if found.size == 0
       formula = found[0]
 
