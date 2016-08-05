@@ -19,7 +19,8 @@ module Build
   CACHE_DIR        = "/var/tmp/ndk-cache-#{USER}"
 
   # todo:
-  VENDOR_TESTS_DIR = "#{Global::NDK_DIR}/../../vendor/tests"
+  VENDOR_TESTS_DIR  = Pathname.new("#{Global::NDK_DIR}/../../vendor/tests").cleanpath.to_s
+  TOOLCHAIN_SRC_DIR = Pathname.new("#{Global::NDK_DIR}/../../toolchain").cleanpath.to_s
 
   ARCH_LIST = [ Arch.new('arm',    32, MIN_32_API_LEVEL, 'arm-linux-androideabi',  'arm-linux-androideabi',  ['armeabi-v7a', 'armeabi-v7a-hard'].freeze),
                 Arch.new('x86',    32, MIN_32_API_LEVEL, 'i686-linux-android',     'x86',                    ['x86']).freeze,

@@ -94,10 +94,10 @@ module Global
 
   NS_DIR = { host: 'tools', target: 'packages' }
 
-  ENGINE_DIR             = create_required_dir(TOOLS_DIR, 'crew').realpath
   HOLD_DIR               = create_required_dir(NDK_DIR, 'packages').realpath
   SERVICE_DIR            = create_required_dir(NDK_DIR, '.crew').realpath
-  SHIPYARD_DIR           = create_required_dir(NDK_DIR, 'build_dependencies').realpath
+  ENGINE_DIR             = create_required_dir(TOOLS_DIR, 'crew').realpath
+  SHIPYARD_DIR           = create_required_dir(TOOLS_DIR, 'build_dependencies').realpath
   REPOSITORY_DIR         = Pathname.new(BASE_DIR).realpath
   PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
   CACHE_DIR              = Pathname.new(File.join(BASE_DIR, 'cache')).realpath

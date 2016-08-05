@@ -12,18 +12,18 @@ class Ncurses < Package
                 gen_android_mk:      false
 
   def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, _target_dep_dirs)
-    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
-              "--host=#{host_for_abi(abi)}",
-              "--without-ada",
-              "--without-cxx-binding",
-              "--without-manpages",
-              "--without-tests",
-              "--without-dlsym",
-              "--with-termlib",
-              "--enable-symlinks",
-              "--enable-ext-colors",
-              "--without-develop"
-            ]
+    args = [ "--prefix=#{install_dir_for_abi(abi)}",
+             "--host=#{host_for_abi(abi)}",
+             "--without-ada",
+             "--without-cxx-binding",
+             "--without-manpages",
+             "--without-tests",
+             "--without-dlsym",
+             "--with-termlib",
+             "--enable-symlinks",
+             "--enable-ext-colors",
+             "--without-develop"
+           ]
 
     # build fails (at least on darwin) if configure run without full path
     configure = Pathname.new('./configure').realpath.to_s

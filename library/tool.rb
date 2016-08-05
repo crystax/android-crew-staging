@@ -1,3 +1,4 @@
+require_relative 'platform.rb'
 require_relative 'formula.rb'
 
 class Tool < Formula
