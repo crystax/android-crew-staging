@@ -40,7 +40,7 @@ class Gcc < Tool
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"
 
-    num_jobs = options.num_jobs
+    @num_jobs = options.num_jobs
 
     # cleanup
     FileUtils.rm_rf build_base_dir
@@ -85,6 +85,8 @@ class Gcc < Tool
 
     common_args = ["--prefix=#{install_dir}",
                    "--target=#{arch.toolchain}",
+                   "--build=#{platform.toolchain_build}",
+                   "--host=#{platform.toolchain_host}",
                    "--disable-shared",
                    "--disable-nls",
                    "--program-transform-name='s&^&#{arch.toolchain}-&'"
@@ -108,13 +110,14 @@ class Gcc < Tool
 
     prepare_build_environment platform
 
-    args = cfg_args + ["--disable-werror",
-                       "--with-cloog=#{cloog_dir}",
-                       "--with-isl=#{isl_dir}",
-                       "--with-gmp=#{gmp_dir}",
-                       "--disable-isl-version-check",
-                       "--with-build-sysroot=#{sysroot_dir}"
-                      ]
+    args = cfg_args + binutils_arch_args(arch) +
+           ["--disable-werror",
+            "--with-cloog=#{cloog_dir}",
+            "--with-isl=#{isl_dir}",
+            "--with-gmp=#{gmp_dir}",
+            "--disable-isl-version-check",
+            "--with-sysroot=#{sysroot_dir}"
+           ]
 
     FileUtils.cd(build_dir) do
       system "#{src_dir}/configure", *args
@@ -139,6 +142,17 @@ class Gcc < Tool
     build_env['CFLAGS'] += ' -static-libgcc -static-libstdc++'
     build_env['CFLAGS'] += ' -D__USE_MINGW_ANSI_STDIO=1' if platform.target_os == 'windows'
     export_target_binutils platform, release, arch
+    cflags_for_target = '-O2 -Os -g -DTARGET_POSIX_IO -fno-short-enums'
+    cxxflags_for_target = cflags_for_target
+    case arch.name
+    when 'x86', 'x86_64'
+      cflags_for_target += ' -fPIC'
+    when 'mips', 'mips64'
+      cflags_for_target += ' -fexceptions -fpic'
+      cxxflags_for_target += ' -frtti -fpic'
+    end
+    build_env['CFLAGS_FOR_TARGET']   = cflags_for_target
+    build_env['CXXFLAGS_FOR_TARGET'] = cxxflags_for_target
 
     # todo:
     #   "--with-gxx-include-dir=$TOOLCHAIN_BUILD_PREFIX/include/c++/$GCC_BASE_VERSION"
@@ -151,27 +165,29 @@ class Gcc < Tool
             "--with-cloog=#{cloog_dir}",
             "--with-isl=#{isl_dir}",
             "--disable-isl-version-check",
+            "--disable-libssp",
+            "--disable-libquadmath",
             "--disable-libmudflap",
-            "--disable-libgomp",
 	    "--disable-libstdc__-v3",
             "--disable-sjlj-exceptions",
 	    "--disable-tls",
             "--disable-libitm",
             "--disable-libobjc",
             "--disable-bootstrap",
+            "--enable-initfini-array",
             "--enable-libgomp",
             "--enable-gnu-indirect-function",
             "--disable-libsanitizer",
             "--enable-graphite=yes",
             "--enable-eh-frame-hdr-for-static",
             "--enable-languages=c,c++,objc,obj-c++",
+            "--enable-plugins",
             "--with-bugurl=https://tracker.crystax.net/projects/ndk",
             "--with-sysroot=#{sysroot_dir}"
            ]
 
-    args << (Global::OS == 'darwin' ? '--disable-plugin' : '--enable-plugins')
+    args << (Global::OS == 'darwin' ? '--disable-plugin' : '')
     args << '--disable-libcilkrts' if (release.version == '4.9') and (arch.name == 'x86' or arch.name == 'x86_64')
-    args << '--enable-threads' unless platform.target_os == 'windows' # todo: why?
 
     FileUtils.cd(build_dir) do
       system "#{src_dir}/configure", *args
@@ -180,15 +196,26 @@ class Gcc < Tool
     end
   end
 
+  def binutils_arch_args(arch)
+    # gold
+    case arch.name
+    when 'mips', 'mips64'
+      []
+    when 'arm64'
+      ['--enable-gold', '--enable-ld=default']
+    else
+      ['--enable-gold=default']
+    end
+  end
+
   def export_target_binutils(platform, release, arch)
     binutils_dir = File.join(install_dir_for_platform(platform, release, arch), arch.toolchain, 'bin')
     ['as', 'ld', 'ar', 'nm', 'strip', 'ranlib', 'objdump', 'readelf'].each do |util|
-      build_env["#{util.upcase}__FOR_TARGET"] = File.join(binutils_dir, util)
+      build_env["#{util.upcase}_FOR_TARGET"] = File.join(binutils_dir, util)
     end
   end
 
   def gcc_arch_args(arch)
-    # general
     args = case arch.name
            when 'x86'    then ['--with-arch=i686', '--with-tune=intel', '--with-fpmath=sse']
            when 'x86_64' then ['--with-arch=x86-64', '--with-tune=intel', '--with-fpmath=sse', '--with-multilib-list=m32,m64,mx32']
@@ -196,15 +223,8 @@ class Gcc < Tool
            when 'arm64'  then ['--enable-fix-cortex-a53-835769', '--enable-fix-cortex-a53-843419']
            else               []
            end
-
     args << '--with-abi=aapcs' unless arch.name == 'arm'
-
-    # gold
-    args += case arch.name
-            when 'mips', 'mips64' then []
-            when 'arm64'          then ['--enable-gold', '--enable-ld=default']
-            else                       ['--enable-gold=default']
-            end
+    args
   end
 
   def gcc_libstdcxx_args(platform)
