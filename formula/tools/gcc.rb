@@ -48,8 +48,8 @@ class Gcc < Tool
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"
-      #Build::ARCH_LIST.each do |arch|
-      [Build::ARCH_LIST[0]].each do |arch|
+      Build::ARCH_LIST.each do |arch|
+      #[Build::ARCH_LIST[5]].each do |arch|
         print "  #{arch.name}: "
         build_for_platform_and_arch platform, arch, release, options, host_dep_dirs, target_dep_dirs
       end
@@ -87,13 +87,13 @@ class Gcc < Tool
     copy_sysroot arch, sysroot_dir
 
     common_args = ["--prefix=#{install_dir}",
-                   "--target=#{arch.toolchain}",
+                   "--target=#{arch.host}",
                    "--build=#{platform.toolchain_build}",
                    "--host=#{platform.toolchain_host}",
                    "--disable-shared",
                    "--disable-nls",
                    "--with-bugurl=https://tracker.crystax.net/projects/ndk",
-                   "--program-transform-name='s&^&#{arch.toolchain}-&'"
+                   "--program-transform-name='s&^&#{arch.host}-&'"
                   ]
 
     build_binutils platform, arch, release, host_dep_dirs, common_args, sysroot_dir
@@ -188,7 +188,8 @@ class Gcc < Tool
             "--with-sysroot=#{sysroot_dir}"
            ]
 
-    args << (Global::OS == 'darwin' ? '--disable-plugin' : '')
+    # todo: remove?
+    #args << (Global::OS == 'darwin' ? '--disable-plugin' : '')
     args << '--disable-libcilkrts' if (release.version == '4.9') and (arch.name == 'x86' or arch.name == 'x86_64')
 
     FileUtils.cd(build_dir) do
@@ -237,22 +238,29 @@ class Gcc < Tool
   end
 
   def export_target_binutils(platform, release, arch)
-    binutils_dir = File.join(install_dir_for_platform(platform, release, arch), arch.toolchain, 'bin')
+    binutils_dir = File.join(install_dir_for_platform(platform, release, arch), arch.host, 'bin')
     ['as', 'ld', 'ar', 'nm', 'strip', 'ranlib', 'objdump', 'readelf'].each do |util|
       build_env["#{util.upcase}_FOR_TARGET"] = File.join(binutils_dir, util)
     end
   end
 
   def gcc_arch_args(arch)
-    args = case arch.name
-           when 'x86'    then ['--with-arch=i686', '--with-tune=intel', '--with-fpmath=sse']
-           when 'x86_64' then ['--with-arch=x86-64', '--with-tune=intel', '--with-fpmath=sse', '--with-multilib-list=m32,m64,mx32']
-           when 'arm'    then ['--with-float=soft', '--with-fpu=vfp', '--with-arch=armv5te', '--enable-target-optspace']
-           when 'arm64'  then ['--enable-fix-cortex-a53-835769', '--enable-fix-cortex-a53-843419']
-           else               []
-           end
-    args << '--with-abi=aapcs' unless arch.name == 'arm'
-    args
+    case arch.name
+    when 'x86'
+      ['--with-arch=i686', '--with-tune=intel', '--with-fpmath=sse']
+    when 'x86_64'
+      ['--with-arch=x86-64', '--with-tune=intel', '--with-fpmath=sse', '--with-multilib-list=m32,m64,mx32']
+    when 'arm'
+      ['--with-float=soft', '--with-fpu=vfp', '--with-arch=armv5te', '--enable-target-optspace']
+    when 'arm64'
+      ['--enable-fix-cortex-a53-835769', '--enable-fix-cortex-a53-843419']
+    when 'mips'
+      ['--with-arch=mips32', '--disable-fixed-point']
+    when 'mips64'
+      ['--with-arch=mips64r6', '--disable-fixed-point']
+    else
+      []
+    end
   end
 
   def gcc_libstdcxx_args(platform)
@@ -291,7 +299,7 @@ class Gcc < Tool
   end
 
   def install_dir_for_platform(platform, release, arch)
-    File.join base_dir_for_platform(platform, arch), 'install', "#{arch.toolchain}-#{release.version}"
+    File.join base_dir_for_platform(platform, arch), 'install', "#{arch.host}-#{release.version}"
   end
 
   def build_log_file(platform, arch)
