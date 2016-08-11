@@ -213,13 +213,13 @@ class Gcc < Tool
            ["--disable-werror",
             "--with-expat",
             "--with-libexpat-prefix=#{expat_dir}",
-            "--with-python=#{Global::NDK_DIR}/prebuilt/#{Global::OS}/bin/python-config.sh",
+            "--with-python=#{Global::NDK_DIR}/prebuilt/#{Global::PLATFORM_NAME}/bin/python-config.sh",
             "--with-sysroot=#{sysroot_dir}"
            ]
 
     FileUtils.cd(build_dir) do
       system "#{src_dir}/configure", *args
-      system 'make'                                #, '-j', num_jobs
+      system 'make', '-j', num_jobs
       system 'make', 'install'
     end
   end
