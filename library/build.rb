@@ -8,6 +8,8 @@ require_relative 'toolchain.rb'
 
 module Build
 
+  API_LEVELS = [3, 4, 5, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 21, 23, 24]
+
   MIN_32_API_LEVEL = 9
   MIN_64_API_LEVEL = 21
 
@@ -19,8 +21,9 @@ module Build
   CACHE_DIR        = "/var/tmp/ndk-cache-#{USER}"
 
   # todo:
-  VENDOR_TESTS_DIR  = Pathname.new("#{Global::NDK_DIR}/../../vendor/tests").cleanpath.to_s
-  TOOLCHAIN_SRC_DIR = Pathname.new("#{Global::NDK_DIR}/../../toolchain").cleanpath.to_s
+  VENDOR_TESTS_DIR         = Pathname.new("#{Global::NDK_DIR}/../../vendor/tests").cleanpath.to_s
+  TOOLCHAIN_SRC_DIR        = Pathname.new("#{Global::NDK_DIR}/../../toolchain").cleanpath.to_s
+  PLATFORM_DEVELOPMENT_DIR = Pathname.new("#{Global::NDK_DIR}/../../platform/development").cleanpath.to_s
 
   ARCH_LIST = [ Arch.new('arm',    32, MIN_32_API_LEVEL, 'arm-linux-androideabi',  'arm-linux-androideabi',  ['armeabi-v7a', 'armeabi-v7a-hard'].freeze),
                 Arch.new('x86',    32, MIN_32_API_LEVEL, 'i686-linux-android',     'x86',                    ['x86']).freeze,

@@ -29,12 +29,13 @@ class Gcc < Tool
   build_depends_on 'cloog'
   build_depends_on 'mpfr'
   build_depends_on 'mpc'
+  build_depends_on 'expat'
 
-  # todo
-  # depends_on 'libcrystax'
-  # depends_on 'platforms'
+  # todo:
+  #depends_on 'host/python'
 
   BINUTILS_VER = '2.25'
+  GDB_VER      = '7.10'
 
   def build(release, options, host_dep_dirs, target_dep_dirs)
     platforms = options.platforms.map { |name| Platform.new(name) }
@@ -49,19 +50,21 @@ class Gcc < Tool
       puts "= building for #{platform.name}"
       #Build::ARCH_LIST.each do |arch|
       [Build::ARCH_LIST[0]].each do |arch|
-        puts "  building for #{arch.name}"
+        print "  #{arch.name}: "
         build_for_platform_and_arch platform, arch, release, options, host_dep_dirs, target_dep_dirs
-        next if options.build_only?
       end
       #
-      archive = File.join(Global::CACHE_DIR, archive_filename(release, platform.name))
-      Utils.pack archive, base_dir, ARCHIVE_TOP_DIR
+      if not options.build_only?
+        archive = File.join(Global::CACHE_DIR, archive_filename(release, platform.name))
+        Utils.pack archive, base_dir, ARCHIVE_TOP_DIR
+      end
       #
       if options.update_shasum?
         release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
         update_shasum release, platform
       end
-      install_archive release, archive, platform.name
+      #
+      install_archive release, archive, platform.name unless options.build_only?
       FileUtils.rm_rf base_dir unless options.no_clean?
     end
 
@@ -89,16 +92,17 @@ class Gcc < Tool
                    "--host=#{platform.toolchain_host}",
                    "--disable-shared",
                    "--disable-nls",
+                   "--with-bugurl=https://tracker.crystax.net/projects/ndk",
                    "--program-transform-name='s&^&#{arch.toolchain}-&'"
                   ]
 
     build_binutils platform, arch, release, host_dep_dirs, common_args, sysroot_dir
     build_gcc      platform, arch, release, host_dep_dirs, common_args, sysroot_dir
-    # build gdb
+    build_gdb      platform, arch, release, host_dep_dirs, common_args, sysroot_dir
   end
 
   def build_binutils(platform, arch, release, dep_dirs, cfg_args, sysroot_dir)
-    puts "    binutils"
+    print "binutils"
 
     src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'binutils', "binutils-#{BINUTILS_VER}")
     build_dir = build_dir_for_platform(platform, arch, 'binutils')
@@ -116,6 +120,7 @@ class Gcc < Tool
             "--with-isl=#{isl_dir}",
             "--with-gmp=#{gmp_dir}",
             "--disable-isl-version-check",
+            "--enable-plugins",
             "--with-sysroot=#{sysroot_dir}"
            ]
 
@@ -127,7 +132,7 @@ class Gcc < Tool
   end
 
   def build_gcc(platform, arch, release, dep_dirs, cfg_args, sysroot_dir)
-    puts "    gcc"
+    print ", gcc"
     src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'gcc', "gcc-#{release.version}")
     build_dir = build_dir_for_platform(platform, arch, 'gcc')
     FileUtils.mkdir_p build_dir
@@ -166,7 +171,6 @@ class Gcc < Tool
             "--with-isl=#{isl_dir}",
             "--disable-isl-version-check",
             "--disable-libssp",
-            "--disable-libquadmath",
             "--disable-libmudflap",
 	    "--disable-libstdc__-v3",
             "--disable-sjlj-exceptions",
@@ -181,8 +185,6 @@ class Gcc < Tool
             "--enable-graphite=yes",
             "--enable-eh-frame-hdr-for-static",
             "--enable-languages=c,c++,objc,obj-c++",
-            "--enable-plugins",
-            "--with-bugurl=https://tracker.crystax.net/projects/ndk",
             "--with-sysroot=#{sysroot_dir}"
            ]
 
@@ -192,6 +194,32 @@ class Gcc < Tool
     FileUtils.cd(build_dir) do
       system "#{src_dir}/configure", *args
       system 'make', '-j', num_jobs
+      system 'make', 'install'
+    end
+  end
+
+  def build_gdb(platform, arch, release, dep_dirs, cfg_args, sysroot_dir)
+    puts ", gdb"
+
+    src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'gdb', "gdb-#{GDB_VER}")
+    build_dir = build_dir_for_platform(platform, arch, 'gdb')
+    FileUtils.mkdir_p build_dir
+
+    expat_dir = dep_dirs[platform.name]['expat']
+
+    prepare_build_environment platform
+
+    args = cfg_args +
+           ["--disable-werror",
+            "--with-expat",
+            "--with-libexpat-prefix=#{expat_dir}",
+            "--with-python=#{Global::NDK_DIR}/prebuilt/#{Global::OS}/bin/python-config.sh",
+            "--with-sysroot=#{sysroot_dir}"
+           ]
+
+    FileUtils.cd(build_dir) do
+      system "#{src_dir}/configure", *args
+      system 'make'                                #, '-j', num_jobs
       system 'make', 'install'
     end
   end
@@ -263,25 +291,88 @@ class Gcc < Tool
   end
 
   def install_dir_for_platform(platform, release, arch)
-    File.join base_dir_for_platform(platform, arch), 'toolchains', "#{arch.toolchain}-#{release.version}"
+    File.join base_dir_for_platform(platform, arch), 'install', "#{arch.toolchain}-#{release.version}"
   end
 
   def build_log_file(platform, arch)
     File.join base_dir_for_platform(platform, arch), 'build.log'
   end
 
+  # here we do what ./build/tools/gen-platforms.sh --minimal does
   def copy_sysroot(arch, dst)
-    # copy sysroot from platforms
-    src = File.join(Global::NDK_DIR, 'platforms', "android-#{arch.min_api_level}", "arch-#{arch.name}")
+    dst += '/usr'
     FileUtils.mkdir_p dst
-    FileUtils.cp_r Dir["#{src}/*"], dst
-    # copy empty libcrystax stubs
-    dirlist  = ['lib']
-    dirlist += ['lib64', 'lib64r2', 'libr2', 'libr6'] if arch.name == 'mips64'
-    dirlist.each do |d|
-      libdir = File.join(dst, 'usr', d)
-      FileUtils.mkdir_p libdir
-      ['libcrystax.a', 'libstdc++.a', 'libm.a'].each { |lib| FileUtils.cp "#{Global::NDK_DIR}/sources/crystax/empty/libcrystax.a", "#{libdir}/#{lib}" }
+    Build::API_LEVELS.select{ |l| l <= arch.min_api_level }.each do |api|
+      src = File.join(Build::PLATFORM_DEVELOPMENT_DIR, 'ndk', 'platforms', "android-#{api}")
+      FileUtils.cp_r "#{src}/include", dst
+      arch_incs = "#{src}/arch-#{arch.name}/include"
+      FileUtils.cp_r arch_incs, dst if Dir.exists? arch_incs
+      generate_api_level api, dst if api == arch.min_api_level
+      bootstrap_dir = "#{src}/arch-#{arch.name}/lib-bootstrap"
+      if Dir.exists? bootstrap_dir
+        sysroot_lib_dirs(arch).each do |d|
+        libdir = File.join(dst, d)
+        FileUtils.mkdir_p libdir
+        s = "#{bootstrap_dir}/#{d}"
+        if Dir.exists? s
+          FileUtils.cp_r Dir["#{s}/*"], libdir
+        else
+          FileUtils.cp_r Dir["#{bootstrap_dir}/*.*o"], libdir
+        end
+        ['libcrystax.a', 'libstdc++.a', 'libm.a'].each { |lib| FileUtils.cp "#{Global::NDK_DIR}/sources/crystax/empty/libcrystax.a", "#{libdir}/#{lib}" }
+        end
+      end
+    end
+  end
+
+  def generate_api_level(api, dir)
+    File.open("#{dir}/include/android/api-level.h", 'w') do |f|
+      f.puts "/*"
+      f.puts " * Copyright (C) 2008 The Android Open Source Project"
+      f.puts " * All rights reserved."
+      f.puts " *"
+      f.puts " * Redistribution and use in source and binary forms, with or without"
+      f.puts " * modification, are permitted provided that the following conditions"
+      f.puts " * are met:"
+      f.puts " *  * Redistributions of source code must retain the above copyright"
+      f.puts " *    notice, this list of conditions and the following disclaimer."
+      f.puts " *  * Redistributions in binary form must reproduce the above copyright"
+      f.puts " *    notice, this list of conditions and the following disclaimer in"
+      f.puts " *    the documentation and/or other materials provided with the"
+      f.puts " *    distribution."
+      f.puts " *"
+      f.puts " * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS"
+      f.puts " * \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT"
+      f.puts " * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS"
+      f.puts " * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE"
+      f.puts " * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,"
+      f.puts " * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,"
+      f.puts " * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS"
+      f.puts " * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED"
+      f.puts " * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,"
+      f.puts " * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT"
+      f.puts " * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF"
+      f.puts " * SUCH DAMAGE."
+      f.puts " */"
+      f.puts "#ifndef ANDROID_API_LEVEL_H"
+      f.puts "#define ANDROID_API_LEVEL_H"
+      f.puts ""
+      f.puts "#define __ANDROID_API__ #{api}"
+      f.puts ""
+      f.puts "#endif /* ANDROID_API_LEVEL_H */"
+    end
+  end
+
+  def sysroot_lib_dirs(arch)
+    case arch.name
+    when 'x86_64'
+      ['lib', 'lib64', 'libx32']
+    when 'mips64'
+      ['lib', 'libr2', 'libr6', 'lib64r2', 'lib64']
+    when 'mips'
+      ['lib', 'libr2', 'libr6']
+    else
+      ['lib']
     end
   end
 end
