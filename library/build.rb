@@ -10,9 +10,6 @@ module Build
 
   API_LEVELS = [3, 4, 5, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 21, 23, 24]
 
-  MIN_32_API_LEVEL = 9
-  MIN_64_API_LEVEL = 21
-
   USER = ENV['USER']
 
   # todo: honor CRYSTAX_NDK_BASE_TMP_DIR environment dir
@@ -25,15 +22,8 @@ module Build
   TOOLCHAIN_SRC_DIR        = Pathname.new("#{Global::NDK_DIR}/../../toolchain").cleanpath.to_s
   PLATFORM_DEVELOPMENT_DIR = Pathname.new("#{Global::NDK_DIR}/../../platform/development").cleanpath.to_s
 
-  ARCH_LIST = [ Arch.new('arm',    32, MIN_32_API_LEVEL, 'arm-linux-androideabi',  'arm-linux-androideabi',  ['armeabi-v7a', 'armeabi-v7a-hard'].freeze),
-                Arch.new('x86',    32, MIN_32_API_LEVEL, 'i686-linux-android',     'x86',                    ['x86']).freeze,
-                Arch.new('mips',   32, MIN_32_API_LEVEL, 'mipsel-linux-android',   'mipsel-linux-android',   ['mips']).freeze,
-                Arch.new('arm64',  64, MIN_64_API_LEVEL, 'aarch64-linux-android',  'aarch64-linux-android',  ['arm64-v8a']).freeze,
-                Arch.new('x86_64', 64, MIN_64_API_LEVEL, 'x86_64-linux-android',   'x86_64',                 ['x86_64']).freeze,
-                Arch.new('mips64', 64, MIN_64_API_LEVEL, 'mips64el-linux-android', 'mips64el-linux-android', ['mips64']).freeze
-              ]
-
-  ABI_LIST = ARCH_LIST.map { |a| a.abis }.flatten
+  ARCH_LIST = [ARCH_ARM, ARCH_X86, ARCH_MIPS, ARCH_ARM64, ARCH_X86_64, ARCH_MIPS64]
+  ABI_LIST  = ARCH_LIST.map { |a| a.abis }.flatten
 
   DEFAULT_TOOLCHAIN = Toolchain::DEFAULT_GCC
   TOOLCHAIN_LIST = [ Toolchain::GCC_4_9, Toolchain::GCC_5, Toolchain::LLVM_3_6, Toolchain::LLVM_3_7 ]

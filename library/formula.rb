@@ -11,7 +11,7 @@ require_relative 'patch.rb'
 class Formula
 
   attr_reader :path
-  attr_accessor :build_env, :num_jobs, :log_file
+  attr_accessor :build_env, :num_jobs, :log_file, :system_ignore_result
 
   def initialize(path)
     @path = path
@@ -21,6 +21,7 @@ class Formula
     @build_env = {}
     @patches = {}
     @log_file = File.join('/tmp', name)
+    @system_ignore_result = false
   end
 
   def name
@@ -247,7 +248,7 @@ class Formula
       log.puts "== cmd finished:"
       log.puts "  exit code: #{status.exitstatus} cmd: #{cmd}"
       log.puts "===="
-      raise "command failed with code: #{status.exitstatus}; see #{@log_file} for details" unless status.success?
+      raise "command failed with code: #{status.exitstatus}; see #{@log_file} for details" unless status.success? or self.system_ignore_result
     end
   end
 end

@@ -50,9 +50,9 @@ module Utils
       run_command(prog, *args)
   end
 
-  def self.pack(archive, indir, what = '.')
+  def self.pack(archive, indir, *dirs)
     FileUtils.rm_f archive
-    args = ['-C', indir, '-Jcf', archive, what]
+    args = ['-C', indir, '-Jcf', archive] + dirs
     run_command(tar_prog, *args)
   end
 

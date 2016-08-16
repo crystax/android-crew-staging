@@ -10,13 +10,15 @@ class Platform
                                gxx:         'g++',
                                ar:          'gcc-ar',
                                ranlib:      'gcc-ranlib'
+                               # no strip in darwin/gcc toolchain
                              },
                 'linux'   => { tool_path:   "#{Global::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/bin",
                                tool_prefix: 'x86_64-linux-',
                                gcc:         'gcc',
                                gxx:         'g++',
                                ar:          'ar',
-                               ranlib:      'ranlib'
+                               ranlib:      'ranlib',
+                               strip:       'strip'
                              },
                 'windows' => { tool_path:   "#{Global::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-w64-mingw32-4.9.3/bin",
                                tool_prefix: 'x86_64-w64-mingw32-',
@@ -24,10 +26,11 @@ class Platform
                                gxx:         'g++',
                                ar:          'ar',
                                ranlib:      'ranlib',
+                               strip:       'strip'
                              }
               }
 
-  attr_reader :name, :target_os, :target_cpu, :cc, :cxx, :ar, :ranlib, :cflags, :cxxflags, :configure_host, :toolchain_host, :toolchain_build
+  attr_reader :name, :target_os, :target_cpu, :cc, :cxx, :ar, :ranlib, :strip, :cflags, :cxxflags, :configure_host, :toolchain_host, :toolchain_build
 
   def initialize(name)
     raise "unsupported platform #{name}" unless NAMES.include? name
@@ -42,12 +45,14 @@ class Platform
     @cc = File.join(path, "#{prefix}#{toolchain[:gcc]}")
     @cxx = File.join(path, "#{prefix}#{toolchain[:gxx]}")
     if @target_os == 'darwin'
-      # there is a problenm with lt_plugin on darwin
+      # there is a problem with lt_plugin on darwin
       @ar = 'ar'
       @ranlib = 'ranlib'
+      @strip = 'strip'
     else
       @ar = File.join(path, "#{prefix}#{toolchain[:ar]}")
       @ranlib = File.join(path, "#{prefix}#{toolchain[:ranlib]}")
+      @strip = File.join(path, "#{prefix}#{toolchain[:strip]}")
     end
     #
     case @name

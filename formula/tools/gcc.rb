@@ -1,3 +1,5 @@
+require_relative '../../library/toolchain.rb'
+
 class Gcc < Tool
 
   desc "GCC-based toolchain"
@@ -26,10 +28,39 @@ class Gcc < Tool
   # todo:
   #depends_on 'host/python'
 
+  ARCHIVE_TOP_DIR  = 'toolchains'
+  UNWIND_SUB_DIR   = 'sources/android/gccunwind/libs'
+  LICENSES_SUB_DIR = 'build/instruments/toolchain-licenses'
+
+  LICENSE_MASK = 'COPYING*'
+
   BINUTILS_VER = '2.25'
   GDB_VER      = '7.10'
 
   Lib = Struct.new(:name, :version, :url, :args, :templates)
+
+  include Properties
+
+  def install_archive(release, archive, platform_name = Global::PLATFORM_NAME, ndk_dir = Global::NDK_DIR)
+    rel_dir = release_directory(release)
+    FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir
+    prop = get_properties(rel_dir)
+
+    unwind_dir = File.join(Global::NDK_DIR, UNWIND_SUB_DIR)
+    FileUtils.rm_rf unwind_dir if prop[:libunwind_installed]
+
+    Build::ARCH_LIST.each do |arch|
+      FileUtils.rm_rf File.join(Global::NDK_DIR, ARCHIVE_TOP_DIR, "#{arch.toolchain}-#{release.version}")
+    end
+    Utils.unpack archive, ndk_dir
+
+    prop[:installed] = true
+    prop[:installed_crystax_version] = release.crystax_version
+    prop[:libunwind_installed] = Dir.exists? unwind_dir
+    save_properties prop, rel_dir
+
+    release.installed = release.crystax_version
+  end
 
   def build(release, options, _host_dep_dirs, _target_dep_dirs)
     platforms = options.platforms.map { |name| Platform.new(name) }
@@ -40,25 +71,40 @@ class Gcc < Tool
     FileUtils.rm_rf build_base_dir
 
     puts "= preparing sources"
-    libs_src_dir = "#{build_base_dir}/src"
-    FileUtils.mkdir_p libs_src_dir
-    libs = create_libs(release, libs_src_dir)
+    libs = create_libs(release)
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"
-      #[Build::ARCH_LIST[0], Build::ARCH_LIST[0]].each do |arch|
+      build_libs libs, platform
+      #[Build::ARCH_LIST[0]].each do |arch|
       Build::ARCH_LIST.each do |arch|
-        base_dir = "#{build_base_dir}/#{platform.name}/#{arch.name}"
-        libs_install_dir = "#{base_dir}/libs"
         self.log_file = build_log_file(platform, arch)
         puts  "  #{arch.name}: "
-        build_libs libs, platform, libs_src_dir, base_dir, libs_install_dir
-        build_toolchain platform, arch, release, options, libs_install_dir
+        build_toolchain platform, arch, release
       end
 
       if not options.build_only?
+        pkg_dir = "#{base_dir_for_platform(platform)}/#{ARCHIVE_TOP_DIR}"
+        #[Build::ARCH_LIST[0]].each do |arch|
+        Build::ARCH_LIST.each do |arch|
+          arch_pkg_dir = "#{pkg_dir}/#{arch.toolchain}-#{release.version}/prebuilt/#{platform.name}"
+          FileUtils.mkdir_p arch_pkg_dir
+          FileUtils.cd(install_dir_for_platform(platform, arch, release)) do
+            FileUtils.cp  Dir[File.join(Global::NDK_DIR, LICENSES_SUB_DIR, 'COPYING*')], arch_pkg_dir
+            FileUtils.cp_r [arch.host, 'bin', 'include', 'lib', 'libexec', 'share'], arch_pkg_dir
+          end
+          if Toolchain::DEFAULT_GCC.version != release.version
+            puts  '  skipping libgccunwin for non-default gcc'
+          else
+            print '  unwind lib for abi: '
+            create_libgccunwind platform, arch
+          end
+        end
         archive = File.join(Global::CACHE_DIR, archive_filename(release, platform.name))
-        Utils.pack archive, base_dir, ARCHIVE_TOP_DIR
+        puts "= packaging #{archive}"
+        dirs = [ARCHIVE_TOP_DIR]
+        dirs << UNWIND_SUB_DIR.split('/')[0] if Toolchain::DEFAULT_GCC.version == release.version
+        Utils.pack archive, base_dir_for_platform(platform), *dirs
       end
 
       if options.update_shasum?
@@ -66,8 +112,9 @@ class Gcc < Tool
         update_shasum release, platform
       end
 
+      puts "= installing #{archive}"
       install_archive release, archive, platform.name unless options.build_only?
-      FileUtils.rm_rf base_dir unless options.no_clean?
+      FileUtils.rm_rf base_dir_for_platform(platform) unless options.no_clean?
     end
 
     if options.no_clean?
@@ -77,7 +124,7 @@ class Gcc < Tool
     end
   end
 
-  def create_libs(release, src_dir)
+  def create_libs(release)
     if release.version == '4.9'
       isl_ver = '0.11.1'
       cloog_ver = '0.18.0'
@@ -169,18 +216,25 @@ class Gcc < Tool
              ])
     ]
 
+    FileUtils.mkdir_p libs_src_dir
     libs.each do |lib|
       ver_url = lib.url.gsub('${version}', lib.version)
       archive = File.join(Global::CACHE_DIR, File.basename(URI.parse(ver_url).path))
       Utils.download ver_url, archive unless File.exists? archive
-      Utils.unpack archive, src_dir
-      FileUtils.cd(src_dir) { FileUtils.mv "#{lib.name}-#{lib.version}", lib.name }
+      Utils.unpack archive, libs_src_dir
+      FileUtils.cd(libs_src_dir) { FileUtils.mv "#{lib.name}-#{lib.version}", lib.name }
     end
 
     libs
   end
 
-  def build_libs(libs, platform, src_dir, base_dir, install_dir)
+  def build_libs(libs, platform)
+    puts "  libraries: "
+    base_dir = libs_base_dir(platform)
+    install_dir = libs_install_dir(platform)
+    FileUtils.mkdir_p [base_dir, install_dir]
+    self.log_file = File.join(base_dir, 'build.log')
+
     print "    "
     prepare_build_environment platform
     libs.each.with_index do |lib, index|
@@ -195,7 +249,7 @@ class Gcc < Tool
       build_dir = File.join(base_dir, lib.name)
       FileUtils.mkdir_p build_dir
       FileUtils.cd(build_dir) do
-        system "#{src_dir}/#{lib.name}/configure", *lib.args
+        system "#{libs_src_dir}/#{lib.name}/configure", *lib.args
         system 'make', '-j', num_jobs
         system 'make', 'install'
       end
@@ -203,13 +257,13 @@ class Gcc < Tool
 
       print ", " if index + 1 < libs.count
     end
-    puts ""
+    puts ''
   end
 
-  def build_toolchain(platform, arch, release, options, libs_install_dir)
+  def build_toolchain(platform, arch, release)
     # prepare base dirs and log file
-    base_dir = base_dir_for_platform(platform, arch)
-    install_dir = install_dir_for_platform(platform, release, arch)
+    base_dir = base_dir_for_platform_arch(platform, arch)
+    install_dir = install_dir_for_platform(platform, arch, release)
     FileUtils.mkdir_p install_dir
 
     # copy sysroot
@@ -226,25 +280,32 @@ class Gcc < Tool
                    "--program-transform-name='s&^&#{arch.host}-&'"
                   ]
 
-    build_binutils platform, arch, release, libs_install_dir, common_args, sysroot_dir
-    build_gcc      platform, arch, release, libs_install_dir, common_args, sysroot_dir
-    build_gdb      platform, arch, release, libs_install_dir, common_args, sysroot_dir
+    build_binutils platform, arch, release, common_args, sysroot_dir
+    build_gcc      platform, arch, release, common_args, sysroot_dir
+    build_gdb      platform, arch, release, common_args, sysroot_dir
+
+    # strip executables
+    build_env.clear
+    self.system_ignore_result = true
+    find_executables(install_dir, platform).each { |exe| system platform.strip, exe }
+    self.system_ignore_result = false
   end
 
-  def build_binutils(platform, arch, release, libs_install_dir, cfg_args, sysroot_dir)
+  def build_binutils(platform, arch, release, cfg_args, sysroot_dir)
     print "    binutils"
 
     src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'binutils', "binutils-#{BINUTILS_VER}")
-    build_dir = build_dir_for_platform(platform, arch, 'binutils')
+    build_dir = build_dir_for_component(platform, arch, 'binutils')
     FileUtils.mkdir_p build_dir
 
     prepare_build_environment platform
 
+    lid = libs_install_dir(platform)
     args = cfg_args + binutils_arch_args(arch) +
            ["--disable-werror",
-            "--with-cloog=#{libs_install_dir}",
-            "--with-isl=#{libs_install_dir}",
-            "--with-gmp=#{libs_install_dir}",
+            "--with-cloog=#{lid}",
+            "--with-isl=#{lid}",
+            "--with-gmp=#{lid}",
             "--disable-isl-version-check",
             "--disable-cloog-version-check",
             "--enable-plugins",
@@ -258,10 +319,10 @@ class Gcc < Tool
     end
   end
 
-  def build_gcc(platform, arch, release, libs_install_dir, cfg_args, sysroot_dir)
+  def build_gcc(platform, arch, release, cfg_args, sysroot_dir)
     print ", gcc"
     src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'gcc', "gcc-#{release.version}")
-    build_dir = build_dir_for_platform(platform, arch, 'gcc')
+    build_dir = build_dir_for_component(platform, arch, 'gcc')
     FileUtils.mkdir_p build_dir
 
     prepare_build_environment platform
@@ -282,14 +343,15 @@ class Gcc < Tool
 
     # todo:
     #   "--with-gxx-include-dir=$TOOLCHAIN_BUILD_PREFIX/include/c++/$GCC_BASE_VERSION"
+    lid = libs_install_dir(platform)
     args = cfg_args + gcc_arch_args(arch) + gcc_libstdcxx_args(platform) +
            ["--with-gnu-as",
             "--with-gnu-ld",
-            "--with-mpc=#{libs_install_dir}",
-            "--with-mpfr=#{libs_install_dir}",
-            "--with-gmp=#{libs_install_dir}",
-            "--with-cloog=#{libs_install_dir}",
-            "--with-isl=#{libs_install_dir}",
+            "--with-mpc=#{lid}",
+            "--with-mpfr=#{lid}",
+            "--with-gmp=#{lid}",
+            "--with-cloog=#{lid}",
+            "--with-isl=#{lid}",
             "--disable-isl-version-check",
             "--disable-cloog-version-check",
             "--disable-libssp",
@@ -319,13 +381,18 @@ class Gcc < Tool
       system 'make', '-j', num_jobs
       system 'make', 'install'
     end
+
+    # remove unneeded files
+    install_dir = install_dir_for_platform(platform, arch, release)
+    FileUtils.rm_rf [File.join(install_dir, 'share', 'man'), File.join(install_dir, 'share', 'info')]
+    # todo: remove more files? see build-gcc.sh
   end
 
-  def build_gdb(platform, arch, release, libs_install_dir, cfg_args, sysroot_dir)
+  def build_gdb(platform, arch, release, cfg_args, sysroot_dir)
     puts ", gdb"
 
     src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'gdb', "gdb-#{GDB_VER}")
-    build_dir = build_dir_for_platform(platform, arch, 'gdb')
+    build_dir = build_dir_for_component(platform, arch, 'gdb')
     FileUtils.mkdir_p build_dir
 
     prepare_build_environment platform
@@ -333,7 +400,7 @@ class Gcc < Tool
     args = cfg_args +
            ["--disable-werror",
             "--with-expat",
-            "--with-libexpat-prefix=#{libs_install_dir}",
+            "--with-libexpat-prefix=#{libs_install_dir(platform)}",
             "--with-python=#{Global::NDK_DIR}/prebuilt/#{Global::PLATFORM_NAME}/bin/python-config.sh",
             "--with-sysroot=#{sysroot_dir}"
            ]
@@ -358,7 +425,7 @@ class Gcc < Tool
   end
 
   def export_target_binutils(platform, release, arch)
-    binutils_dir = File.join(install_dir_for_platform(platform, release, arch), arch.host, 'bin')
+    binutils_dir = File.join(install_dir_for_platform(platform, arch, release), arch.host, 'bin')
     ['as', 'ld', 'ar', 'nm', 'strip', 'ranlib', 'objdump', 'readelf'].each do |util|
       build_env["#{util.upcase}_FOR_TARGET"] = File.join(binutils_dir, util)
     end
@@ -410,20 +477,40 @@ class Gcc < Tool
     end
   end
 
-  def base_dir_for_platform(platform, arch)
+  def release_directory(release)
+    File.join(Global::SERVICE_DIR, name, release.version)
+  end
+
+  def base_dir_for_platform_arch(platform, arch)
     File.join build_base_dir, platform.name, arch.name
   end
 
-  def build_dir_for_platform(platform, arch, component)
-    File.join base_dir_for_platform(platform, arch), component
+  def build_dir_for_component(platform, arch, component)
+    File.join base_dir_for_platform_arch(platform, arch), component
   end
 
-  def install_dir_for_platform(platform, release, arch)
-    File.join base_dir_for_platform(platform, arch), 'install', "#{arch.host}-#{release.version}"
+  def install_dir_for_platform(platform, arch, release)
+    File.join base_dir_for_platform_arch(platform, arch), 'install', "#{arch.host}-#{release.version}"
   end
 
   def build_log_file(platform, arch)
-    File.join base_dir_for_platform(platform, arch), 'build.log'
+    File.join base_dir_for_platform_arch(platform, arch), 'build.log'
+  end
+
+  def libs_src_dir
+    File.join build_base_dir, 'src'
+  end
+
+  def libs_base_dir(platform)
+    File.join base_dir_for_platform(platform), 'libs'
+  end
+
+  def libs_build_dir(platform)
+    File.join libs_base_dir(platform), 'build'
+  end
+
+  def libs_install_dir(platform)
+    File.join libs_base_dir(platform), 'install'
   end
 
   # here we do what ./build/tools/gen-platforms.sh --minimal does
@@ -501,6 +588,50 @@ class Gcc < Tool
       ['lib', 'libr2', 'libr6']
     else
       ['lib']
+    end
+  end
+
+  def create_libgccunwind(platform, arch)
+    arch.abis.each.with_index do |abi, index|
+      print abi
+      unwind_lib = File.join(base_dir_for_platform(platform), UNWIND_SUB_DIR, abi, 'libgccunwind.a')
+      gcc_dir = File.join(build_dir_for_component(platform, arch, 'gcc'), arch.host)
+      unwind_objs = unwind_objs_for_abi(abi, gcc_dir)
+      FileUtils.mkdir_p File.dirname(unwind_lib)
+      system binutil_for_arch(platform, arch, 'ar'), 'crsD', unwind_lib, *unwind_objs
+      print ', ' if index + 1 < arch.abis.count
+    end
+    puts ''
+  end
+
+  def unwind_objs_for_abi(abi, gcc_dir)
+    case abi
+    when 'armeabi-v7a'
+      base_dir = "#{gcc_dir}/armv7-a/libgcc"
+      objs = ['unwind-arm.o', 'libunwind.o', 'pr-support.o', 'unwind-c.o']
+    when 'armeabi-v7a-hard'
+      base_dir="#{gcc_dir}/armv7-a/hard/libgcc"
+      objs = ['unwind-arm.o', 'libunwind.o', 'pr-support.o', 'unwind-c.o']
+    when 'x86', 'mips'
+      base_dir = "#{gcc_dir}/libgcc"
+      objs = ['unwind-c.o', 'unwind-dw2-fde-dip.o', 'unwind-dw2.o']
+    when 'arm64-v8a', 'x86_64', 'mips64'
+      base_dir = "#{gcc_dir}/libgcc"
+      objs = ['unwind-c.o', 'unwind-dw2-fde-dip.o', 'unwind-dw2.o']
+    end
+
+    objs.map { |f| File.join base_dir, f }
+  end
+
+  def binutil_for_arch(platform, arch, util)
+    File.join(build_dir_for_component(platform, arch, 'binutils'), 'binutils', util)
+  end
+
+  def find_executables(dir, platform)
+    if platform.target_os != 'windows'
+      Dir["#{dir}/**/*"].select { |f| File.file?(f) and File.executable?(f) and !(f =~/.*gdb$/) }
+    else
+      Dir["#{dir}/**/*.exe"]
     end
   end
 end
