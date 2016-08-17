@@ -211,7 +211,7 @@ class Gcc < Tool
              "https://downloads.sourceforge.net/project/expat/expat/${version}/expat-${version}.tar.bz2",
              '',
              ["--prefix=${install_dir}",
-              "--host=${configure_host}",
+              "--host=${host}",
               "--disable-shared"
              ])
     ]
@@ -301,7 +301,7 @@ class Gcc < Tool
     prepare_build_environment platform
 
     lid = libs_install_dir(platform)
-    args = cfg_args + binutils_arch_args(arch) +
+    args = cfg_args + binutils_arch_args(arch) + binutils_libstdcxx_args(platform) +
            ["--disable-werror",
             "--with-cloog=#{lid}",
             "--with-isl=#{lid}",
@@ -413,7 +413,6 @@ class Gcc < Tool
   end
 
   def binutils_arch_args(arch)
-    # gold
     case arch.name
     when 'mips', 'mips64'
       []
@@ -421,6 +420,17 @@ class Gcc < Tool
       ['--enable-gold', '--enable-ld=default']
     else
       ['--enable-gold=default']
+    end
+  end
+
+  def binutils_libstdcxx_args(platform)
+    case platform.target_os
+    when 'darwin'
+      ['--with-host-libstdcxx=\'-static-libgcc -static-libstdc++ -lm\'', '--with-gold-ldflags=\'-static-libgcc -static-libstdc++\'']
+    when 'linux'
+      ['--with-host-libstdcxx=\'-static-libgcc -Wl,-Bstatic,-lstdc++,-Bdynamic -lm\'', '--enable-install-libbfd']
+    when 'windows'
+      ['--with-host-libstdcxx=\'-static-libgcc -Wl,-Bstatic,-lstdc++,-Bdynamic -lm\'', '--enable-install-libbfd', '--with-gold-ldflags=\'-static-libgcc -static-libstdc++ -static\'']
     end
   end
 
@@ -452,9 +462,10 @@ class Gcc < Tool
 
   def gcc_libstdcxx_args(platform)
     # link to the static C++ runtime to avoid depending on the host version
-    if Global::OS == 'darwin'
+    case platform.target_os
+    when 'darwin'
       ['--with-host-libstdcxx=\'-static-libgcc -lstdc++ -lm\'']
-    elsif platform.target_os == 'windows'
+    when 'windows'
       ['--with-host-libstdcxx=\'-static-libgcc -static-libstdc++ -lstdc++ -lm -static\'']
     else
       ['--with-host-libstdcxx=\'-static-libgcc -Wl,-Bstatic,-lstdc++,-Bdynamic -lm\'']
