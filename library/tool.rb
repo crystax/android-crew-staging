@@ -21,7 +21,7 @@ class Tool < Formula
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"
 
-    @num_jobs = options.num_jobs
+    self.num_jobs = options.num_jobs
 
     # create required directories and download sources
     FileUtils.rm_rf build_base_dir

@@ -10,6 +10,8 @@ require_relative 'patch.rb'
 
 class Formula
 
+  DEF_BUILD_OPTIONS = { source_archive_without_top_dir: false }.freeze
+
   attr_reader :path
   attr_accessor :build_env, :num_jobs, :log_file, :system_ignore_result
 
@@ -59,6 +61,10 @@ class Formula
 
   def dependencies
     self.class.dependencies ? self.class.dependencies : []
+  end
+
+  def build_options
+    self.class.build_options
   end
 
   def build_dependencies
@@ -172,6 +178,12 @@ class Formula
       end
       deps << Dependency.new(name, ns, options)
     end
+
+    def build_options(hash = nil)
+      @build_options = self::DEF_BUILD_OPTIONS.dup unless @build_options
+      @build_options.update hash if hash
+      @build_options
+    end
   end
 
   private
@@ -206,15 +218,21 @@ class Formula
       Utils.download(ver_url, archive)
     end
 
-    # todo: handle option source_archive_without_top_dir: true
-    mask = File.join(dir, '*')
-    old_dir = Dir[mask]
-    puts "#{log_prefix} unpacking #{File.basename(archive)} into #{dir}"
-    Utils.unpack(archive, dir)
-    new_dir = Dir[mask]
-    diff = old_dir.empty? ? new_dir : new_dir - old_dir
-    raise "source archive does not have top directory, diff: #{diff}" if diff.count != 1
-    FileUtils.cd(dir) { FileUtils.mv diff[0], src_name }
+    if build_options[:source_archive_without_top_dir]
+      src_dir = File.join(dir, src_name)
+      FileUtils.mkdir_p src_dir
+      puts "#{log_prefix} unpacking #{File.basename(archive)} into #{src_dir}"
+      Utils.unpack(archive, src_dir)
+    else
+      mask = File.join(dir, '*')
+      old_dir = Dir[mask]
+      puts "#{log_prefix} unpacking #{File.basename(archive)} into #{dir}"
+      Utils.unpack(archive, dir)
+      new_dir = Dir[mask]
+      diff = old_dir.empty? ? new_dir : new_dir - old_dir
+      raise "source archive does not have top directory, diff: #{diff}" if diff.count != 1
+      FileUtils.cd(dir) { FileUtils.mv diff[0], src_name }
+    end
 
     if patches(release.version).size > 0
       src_dir = File.join(dir, src_name)

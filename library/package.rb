@@ -15,18 +15,19 @@ class Package < Formula
 
   SRC_DIR_BASENAME = 'src'
 
-  DEF_BUILD_OPTIONS = { c_wrapper:            'cc',
-                        sysroot_in_cflags:    true,
-                        use_cxx:              false,
-                        cxx_wrapper:          'c++',
-                        setup_env:            true,
-                        copy_installed_dirs:  ['lib', 'include'],
-                        gen_android_mk:       true,
-                        wrapper_fix_soname:   true,
-                        wrapper_fix_stl:      false,
-                        wrapper_filter_out:   nil,
-                        wrapper_remove_args:  [],
-                        wrapper_replace_args: {}
+  DEF_BUILD_OPTIONS = { source_archive_without_top_dir: false,
+                        c_wrapper:                      'cc',
+                        sysroot_in_cflags:              true,
+                        use_cxx:                        false,
+                        cxx_wrapper:                    'c++',
+                        setup_env:                      true,
+                        copy_installed_dirs:            ['lib', 'include'],
+                        gen_android_mk:                 true,
+                        wrapper_fix_soname:             true,
+                        wrapper_fix_stl:                false,
+                        wrapper_filter_out:             nil,
+                        wrapper_remove_args:            [],
+                        wrapper_replace_args:           {}
                       }.freeze
 
   attr_reader :pre_build_result, :post_build_result
@@ -304,12 +305,6 @@ class Package < Formula
         @build_libs = args
       end
     end
-
-    def build_options(hash = nil)
-      @build_options = DEF_BUILD_OPTIONS.dup unless @build_options
-      @build_options.update hash if hash
-      @build_options
-    end
   end
 
   def build_copy
@@ -318,10 +313,6 @@ class Package < Formula
 
   def build_libs
     self.class.build_libs
-  end
-
-  def build_options
-    self.class.build_options
   end
 
   private
