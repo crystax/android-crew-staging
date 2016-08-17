@@ -25,6 +25,9 @@ class Yasm < Utility
     system 'make', 'install'
 
     # remove unneeded files before packaging
-    FileUtils.cd(install_dir) { FileUtils.rm_rf(['include', 'lib', 'share']) }
+    FileUtils.cd(install_dir) do
+      FileUtils.rm_rf ['include', 'lib', 'share']
+      FileUtils.rm    ['bin/vsyasm', 'bin/ytasm']
+    end
   end
 end
