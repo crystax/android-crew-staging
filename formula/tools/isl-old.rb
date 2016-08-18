@@ -17,6 +17,9 @@ class IslOld < BuildDependency
 
     gmp_dir = host_dep_dirs[platform.name]['gmp']
 
+    # without -O2 there is uresolved reference to ffs()
+    build_env['CFLAGS'] += ' -O2' if platform.target_os == 'windows'
+
     args = ["--prefix=#{install_dir}",
             "--host=#{platform.configure_host}",
             "--with-gmp-prefix=#{gmp_dir}",
