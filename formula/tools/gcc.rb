@@ -24,6 +24,15 @@ class Gcc < Tool
                                                       windows:        '0'
                                                     }
 
+  build_depends_on 'gmp'
+  build_depends_on 'isl'
+  build_depends_on 'ppl'
+  build_depends_on 'mpc'
+  build_depends_on 'mpfr'
+  build_depends_on 'cloog'
+  build_depends_on 'expat'
+  build_depends_on 'isl-old'
+  build_depends_on 'cloog-old'
 
   # todo:
   #depends_on 'host/python'
@@ -62,7 +71,7 @@ class Gcc < Tool
     release.installed = release.crystax_version
   end
 
-  def build(release, options, _host_dep_dirs, _target_dep_dirs)
+  def build(release, options, host_dep_dirs, _target_dep_dirs)
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"
 
@@ -70,17 +79,13 @@ class Gcc < Tool
 
     FileUtils.rm_rf build_base_dir
 
-    puts "= preparing sources"
-    libs = create_libs(release)
-
     platforms.each do |platform|
       puts "= building for #{platform.name}"
-      build_libs libs, platform
       #[Build::ARCH_LIST[0]].each do |arch|
       Build::ARCH_LIST.each do |arch|
         self.log_file = build_log_file(platform, arch)
         puts  "  #{arch.name}: "
-        build_toolchain platform, arch, release
+        build_toolchain platform, arch, release, host_dep_dirs
       end
 
       if not options.build_only?
@@ -93,12 +98,7 @@ class Gcc < Tool
             FileUtils.cp  Dir[File.join(Global::NDK_DIR, LICENSES_SUB_DIR, 'COPYING*')], arch_pkg_dir
             FileUtils.cp_r [arch.host, 'bin', 'include', 'lib', 'libexec', 'share'], arch_pkg_dir
           end
-          if Toolchain::DEFAULT_GCC.version != release.version
-            puts  '  skipping libgccunwin for non-default gcc'
-          else
-            print '  unwind lib for abi: '
-            create_libgccunwind platform, arch
-          end
+          create_libgccunwind platform, arch if Toolchain::DEFAULT_GCC.version != release.version
         end
         archive = File.join(Global::CACHE_DIR, archive_filename(release, platform.name))
         puts "= packaging #{archive}"
@@ -124,143 +124,7 @@ class Gcc < Tool
     end
   end
 
-  def create_libs(release)
-    if release.version == '4.9'
-      isl_ver = '0.11.1'
-      cloog_ver = '0.18.0'
-    else
-      isl_ver = '0.17.1'
-      cloog_ver = '0.18.4'
-    end
-
-    libs = [Lib.new('gmp',
-             '6.1.1',
-             "https://gmplib.org/download/gmp/gmp-${version}.tar.xz",
-             '',
-             ["--prefix=${install_dir}",
-              "--host=${host}",
-              "--enable-cxx",
-              "--disable-shared"
-             ]),
-     Lib.new('ppl',
-             '1.2',
-             "http://bugseng.com/products/ppl/download/ftp/releases/${version}/ppl-${version}.tar.xz",
-             '',
-             ["--prefix=${install_dir}",
-              "--host=${host}",
-              "--with-gmp=${install_dir}",
-	      "--without-java",
-	      "--disable-ppl_lcdd",
-              "--disable-ppl_lpsol",
-              "--disable-ppl_pips",
-              "--disable-shared",
-              "--disable-silent-rules",
-              "--disable-documentation",
-              "--with-sysroot"
-             ]),
-     Lib.new('isl',
-             isl_ver,
-             "http://isl.gforge.inria.fr/isl-${version}.tar.gz",
-             '',
-             ["--prefix=${install_dir}",
-              "--host=${host}",
-              "--with-gmp-prefix=${install_dir}",
-              "--disable-shared",
-              "--disable-silent-rules",
-              "--with-sysroot"
-             ]),
-     Lib.new('cloog',
-             cloog_ver,
-             "https://www.bastoul.net/cloog/pages/download/cloog-${version}.tar.gz",
-             '',
-             ["--prefix=${install_dir}",
-              "--host=${host}",
-              "--with-isl=system",
-              "--with-isl-prefix=${install_dir}",
-              "--with-gmp=system",
-              "--with-gmp-prefix=${install_dir}",
-              "--disable-shared",
-              "--disable-silent-rules",
-              "--with-sysroot"
-             ]),
-     Lib.new('mpfr',
-             '3.1.4',
-             "https://mirrors.ocf.berkeley.edu/debian/pool/main/m/mpfr4/mpfr4_${version}.orig.tar.xz",
-             '',
-             ["--prefix=${install_dir}",
-              "--host=${host}",
-              "--with-gmp=${install_dir}",
-              "--disable-shared",
-              "--disable-silent-rules",
-              "--with-sysroot"
-             ]),
-     Lib.new('mpc',
-             '1.0.3',
-             "https://ftpmirror.gnu.org/mpc/mpc-${version}.tar.gz",
-             '',
-             ["--prefix=${install_dir}",
-              "--host=${host}",
-              "--with-gmp=${install_dir}",
-              "--with-mpfr=${install_dir}",
-              "--disable-shared",
-              "--disable-silent-rules",
-              "--with-sysroot"
-             ]),
-     Lib.new('expat',
-             '2.2.0',
-             "https://downloads.sourceforge.net/project/expat/expat/${version}/expat-${version}.tar.bz2",
-             '',
-             ["--prefix=${install_dir}",
-              "--host=${host}",
-              "--disable-shared"
-             ])
-    ]
-
-    FileUtils.mkdir_p libs_src_dir
-    libs.each do |lib|
-      ver_url = lib.url.gsub('${version}', lib.version)
-      archive = File.join(Global::CACHE_DIR, File.basename(URI.parse(ver_url).path))
-      Utils.download ver_url, archive unless File.exists? archive
-      Utils.unpack archive, libs_src_dir
-      FileUtils.cd(libs_src_dir) { FileUtils.mv "#{lib.name}-#{lib.version}", lib.name }
-    end
-
-    libs
-  end
-
-  def build_libs(libs, platform)
-    puts "  libraries: "
-    base_dir = libs_base_dir(platform)
-    install_dir = libs_install_dir(platform)
-    FileUtils.mkdir_p [base_dir, install_dir]
-    self.log_file = File.join(base_dir, 'build.log')
-
-    print "    "
-    prepare_build_environment platform
-    libs.each.with_index do |lib, index|
-      print lib.name
-
-      lib.args = lib.templates.map do |template|
-        arg = template.gsub('${install_dir}', install_dir)
-        arg.gsub('${host}', platform.configure_host)
-      end
-      lib.args << 'ABI=32' if lib.name == 'gmp' and platform.target_name == 'windows'
-
-      build_dir = File.join(base_dir, lib.name)
-      FileUtils.mkdir_p build_dir
-      FileUtils.cd(build_dir) do
-        system "#{libs_src_dir}/#{lib.name}/configure", *lib.args
-        system 'make', '-j', num_jobs
-        system 'make', 'install'
-      end
-      FileUtils.cd(install_dir) { FileUtils.rm_rf ['bin', 'share', 'lib/pkgconfig'] + Dir['lib/*.la'] }
-
-      print ", " if index + 1 < libs.count
-    end
-    puts ''
-  end
-
-  def build_toolchain(platform, arch, release)
+  def build_toolchain(platform, arch, release, host_dep_dirs)
     # prepare base dirs and log file
     base_dir = base_dir_for_platform_arch(platform, arch)
     install_dir = install_dir_for_platform(platform, arch, release)
@@ -280,9 +144,9 @@ class Gcc < Tool
                    "--program-transform-name='s&^&#{arch.host}-&'"
                   ]
 
-    build_binutils platform, arch, release, common_args, sysroot_dir
-    build_gcc      platform, arch, release, common_args, sysroot_dir
-    build_gdb      platform, arch, release, common_args, sysroot_dir
+    build_binutils platform, arch, release, host_dep_dirs, common_args, sysroot_dir
+    build_gcc      platform, arch, release, host_dep_dirs, common_args, sysroot_dir
+    build_gdb      platform, arch, release, host_dep_dirs, common_args, sysroot_dir
 
     # strip executables
     build_env.clear
@@ -291,7 +155,7 @@ class Gcc < Tool
     self.system_ignore_result = false
   end
 
-  def build_binutils(platform, arch, release, cfg_args, sysroot_dir)
+  def build_binutils(platform, arch, release, host_dep_dirs, cfg_args, sysroot_dir)
     print "    binutils"
 
     src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'binutils', "binutils-#{BINUTILS_VER}")
@@ -300,12 +164,15 @@ class Gcc < Tool
 
     prepare_build_environment platform
 
-    lid = libs_install_dir(platform)
+    gmp_dir   = host_dep_dirs[platform.name]['gmp']
+    isl_dir   = host_dep_dirs[platform.name][release.version == '4.9' ? 'isl-old' : 'isl']
+    cloog_dir = host_dep_dirs[platform.name][release.version == '4.9' ? 'cloog-old' : 'cloog']
+
     args = cfg_args + binutils_arch_args(arch) + binutils_libstdcxx_args(platform) +
            ["--disable-werror",
-            "--with-cloog=#{lid}",
-            "--with-isl=#{lid}",
-            "--with-gmp=#{lid}",
+            "--with-cloog=#{cloog_dir}",
+            "--with-isl=#{isl_dir}",
+            "--with-gmp=#{gmp_dir}",
             "--disable-isl-version-check",
             "--disable-cloog-version-check",
             "--enable-plugins",
@@ -319,7 +186,7 @@ class Gcc < Tool
     end
   end
 
-  def build_gcc(platform, arch, release, cfg_args, sysroot_dir)
+  def build_gcc(platform, arch, release, host_dep_dirs, cfg_args, sysroot_dir)
     print ", gcc"
     src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'gcc', "gcc-#{release.version}")
     build_dir = build_dir_for_component(platform, arch, 'gcc')
@@ -341,17 +208,20 @@ class Gcc < Tool
     build_env['CFLAGS_FOR_TARGET']   = cflags_for_target
     build_env['CXXFLAGS_FOR_TARGET'] = cxxflags_for_target
 
-    # todo:
-    #   "--with-gxx-include-dir=$TOOLCHAIN_BUILD_PREFIX/include/c++/$GCC_BASE_VERSION"
-    lid = libs_install_dir(platform)
+    mpc_dir   = host_dep_dirs[platform.name]['mpc']
+    mpfr_dir  = host_dep_dirs[platform.name]['mpfr']
+    gmp_dir   = host_dep_dirs[platform.name]['gmp']
+    isl_dir   = host_dep_dirs[platform.name][release.version == '4.9' ? 'isl-old' : 'isl']
+    cloog_dir = host_dep_dirs[platform.name][release.version == '4.9' ? 'cloog-old' : 'cloog']
+
     args = cfg_args + gcc_arch_args(arch) + gcc_libstdcxx_args(platform) +
            ["--with-gnu-as",
             "--with-gnu-ld",
-            "--with-mpc=#{lid}",
-            "--with-mpfr=#{lid}",
-            "--with-gmp=#{lid}",
-            "--with-cloog=#{lid}",
-            "--with-isl=#{lid}",
+            "--with-mpc=#{mpc_dir}",
+            "--with-mpfr=#{mpfr_dir}",
+            "--with-gmp=#{gmp_dir}",
+            "--with-cloog=#{cloog_dir}",
+            "--with-isl=#{isl_dir}",
             "--disable-isl-version-check",
             "--disable-cloog-version-check",
             "--disable-libssp",
@@ -372,8 +242,6 @@ class Gcc < Tool
             "--with-sysroot=#{sysroot_dir}"
            ]
 
-    # todo: remove?
-    #args << (Global::OS == 'darwin' ? '--disable-plugin' : '')
     args << '--disable-libcilkrts' if (release.version == '4.9') and (arch.name == 'x86' or arch.name == 'x86_64')
 
     FileUtils.cd(build_dir) do
@@ -388,7 +256,7 @@ class Gcc < Tool
     # todo: remove more files? see build-gcc.sh
   end
 
-  def build_gdb(platform, arch, release, cfg_args, sysroot_dir)
+  def build_gdb(platform, arch, release, host_dep_dirs, cfg_args, sysroot_dir)
     puts ", gdb"
 
     src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'gdb', "gdb-#{GDB_VER}")
@@ -397,10 +265,12 @@ class Gcc < Tool
 
     prepare_build_environment platform
 
+    expat_dir = host_dep_dirs[platform.name]['expat']
+
     args = cfg_args +
            ["--disable-werror",
             "--with-expat",
-            "--with-libexpat-prefix=#{libs_install_dir(platform)}",
+            "--with-libexpat-prefix=#{expat_dir}",
             "--with-python=#{Global::NDK_DIR}/prebuilt/#{Global::PLATFORM_NAME}/bin/python-config.sh",
             "--with-sysroot=#{sysroot_dir}"
            ]
@@ -508,22 +378,6 @@ class Gcc < Tool
     File.join base_dir_for_platform_arch(platform, arch), 'build.log'
   end
 
-  def libs_src_dir
-    File.join build_base_dir, 'src'
-  end
-
-  def libs_base_dir(platform)
-    File.join base_dir_for_platform(platform), 'libs'
-  end
-
-  def libs_build_dir(platform)
-    File.join libs_base_dir(platform), 'build'
-  end
-
-  def libs_install_dir(platform)
-    File.join libs_base_dir(platform), 'install'
-  end
-
   # here we do what ./build/tools/gen-platforms.sh --minimal does
   def copy_sysroot(arch, dst)
     dst += '/usr'
@@ -603,16 +457,13 @@ class Gcc < Tool
   end
 
   def create_libgccunwind(platform, arch)
-    arch.abis.each.with_index do |abi, index|
-      print abi
+    arch.abis.each do |abi|
       unwind_lib = File.join(base_dir_for_platform(platform), UNWIND_SUB_DIR, abi, 'libgccunwind.a')
       gcc_dir = File.join(build_dir_for_component(platform, arch, 'gcc'), arch.host)
       unwind_objs = unwind_objs_for_abi(abi, gcc_dir)
       FileUtils.mkdir_p File.dirname(unwind_lib)
       system binutil_for_arch(platform, arch, 'ar'), 'crsD', unwind_lib, *unwind_objs
-      print ', ' if index + 1 < arch.abis.count
     end
-    puts ''
   end
 
   def unwind_objs_for_abi(abi, gcc_dir)
