@@ -30,7 +30,11 @@ class Platform
                              }
               }
 
-  attr_reader :name, :target_os, :target_cpu, :cc, :cxx, :ar, :ranlib, :strip, :cflags, :cxxflags, :configure_host, :toolchain_host, :toolchain_build
+  attr_reader :name, :target_os, :target_cpu
+  attr_reader :cc, :cxx, :ar, :ranlib, :strip
+  attr_reader :cflags, :cxxflags
+  attr_reader :configure_host, :toolchain_host, :toolchain_build
+  attr_reader :target_exe_ext
 
   def initialize(name)
     raise "unsupported platform #{name}" unless NAMES.include? name
@@ -79,6 +83,8 @@ class Platform
     end
 
     @cxxflags = @cflags
+
+    @target_exe_ext = (@target_os == 'windows') ? '.exe' : ''
   end
 
   def to_sym
