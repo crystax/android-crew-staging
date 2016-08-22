@@ -73,12 +73,12 @@ class Platform
     when 'windows-x86_64'
       @cflags          = '-m64'
       @configure_host  = 'x86_64-w64-mingw32'
-      @toolchain_build = 'i686-pc-cygwin'
+      @toolchain_build = 'x86_64-linux-gnu'
       @toolchain_host  = 'x86_64-pc-mingw32msvc'
     when 'windows'
       @cflags          = '-m32'
       @configure_host  = 'x86_64-w64-mingw32'
-      @toolchain_build = 'i686-pc-cygwin'
+      @toolchain_build = 'x86_64-linux-gnu'
       @toolchain_host  = 'i586-pc-mingw32msvc'
     end
 

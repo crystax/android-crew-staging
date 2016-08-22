@@ -93,15 +93,19 @@ class Gcc < Tool
         if platform.target_os == 'windows'
           # when building widows based toolchain we must at first build toolchain
           # that targets the same arch and works on the host we're building on
-          build_toolchain Plaform.new(Global::PLATFORM_NAME), arch, release, host_dep_dirs, File.join(base_dir, 'host')
+          host_platform = Platform.new(Global::PLATFORM_NAME)
+          update_dep_dirs(host_dep_dirs, platform, host_platform)
+          build_toolchain host_platform, arch, release, host_dep_dirs, File.join(base_dir, 'host'), build_gdb: false
+          print '   '
         end
         build_toolchain platform, arch, release, host_dep_dirs, base_dir
+        puts ""
       end
 
       if not options.build_only?
         pkg_dir = File.join(build_base_dir, platform.name, ARCHIVE_TOP_DIR)
-        #[Build::ARCH_LIST[0]].each do |arch|
-        Build::ARCH_LIST.each do |arch|
+        [Build::ARCH_LIST[0]].each do |arch|
+        #Build::ARCH_LIST.each do |arch|
           base_dir = base_dir(platform, arch)
           arch_pkg_dir = File.join(pkg_dir, "#{arch.toolchain}-#{release.version}", 'prebuilt', platform.name)
           FileUtils.mkdir_p arch_pkg_dir
@@ -111,20 +115,22 @@ class Gcc < Tool
           end
           create_libgccunwind platform, arch, base_dir if Toolchain::DEFAULT_GCC.version != release.version
         end
+
         archive = File.join(Global::CACHE_DIR, archive_filename(release, platform.name))
         puts "= packaging #{archive}"
         dirs = [ARCHIVE_TOP_DIR]
         dirs << UNWIND_SUB_DIR.split('/')[0] if Toolchain::DEFAULT_GCC.version == release.version
         Utils.pack archive, base_dir_for_platform(platform), *dirs
+
+        if options.update_shasum?
+          release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
+          update_shasum release, platform
+        end
+
+        puts "= installing #{archive}"
+        install_archive release, archive, platform.name
       end
 
-      if options.update_shasum?
-        release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
-        update_shasum release, platform
-      end
-
-      puts "= installing #{archive}"
-      install_archive release, archive, platform.name unless options.build_only?
       FileUtils.rm_rf base_dir_for_platform(platform) unless options.no_clean?
     end
 
@@ -137,7 +143,7 @@ class Gcc < Tool
 
   private
 
-  def build_toolchain(platform, arch, release, host_dep_dirs, base_dir)
+  def build_toolchain(platform, arch, release, host_dep_dirs, base_dir, params = { build_gdb: true })
     # prepare base dirs and log file
     install_dir = install_dir(base_dir)
     FileUtils.mkdir_p install_dir
@@ -158,7 +164,7 @@ class Gcc < Tool
 
     build_binutils platform, arch, release, host_dep_dirs, common_args, sysroot_dir, base_dir
     build_gcc      platform, arch, release, host_dep_dirs, common_args, sysroot_dir, base_dir
-    build_gdb      platform, arch, release, host_dep_dirs, common_args, sysroot_dir, base_dir
+    build_gdb      platform, arch, release, host_dep_dirs, common_args, sysroot_dir, base_dir if params[:build_gdb]
 
     # strip executables
     build_env.clear
@@ -284,10 +290,10 @@ class Gcc < Tool
     # remove unneeded files
     FileUtils.rm_rf [File.join(install_dir, 'share', 'man'), File.join(install_dir, 'share', 'info')]
     # todo: remove more files? see build-gcc.sh
-end
+  end
 
   def build_gdb(platform, arch, release, host_dep_dirs, cfg_args, sysroot_dir, base_dir)
-    puts ", gdb"
+    print ", gdb"
 
     src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'gdb', "gdb-#{GDB_VER}")
     build_dir = build_dir_for_component(base_dir, 'gdb')
@@ -297,11 +303,15 @@ end
 
     expat_dir = host_dep_dirs[platform.name]['expat']
 
+    if platform.target_os == 'windows'
+      build_env['CC_FOR_BUILD'] = Platform.new(Global::PLATFORM_NAME).cc
+    end
+
     args = cfg_args +
            ["--disable-werror",
             "--with-expat",
             "--with-libexpat-prefix=#{expat_dir}",
-            "--with-python=#{Global::NDK_DIR}/prebuilt/#{Global::PLATFORM_NAME}/bin/python-config.sh",
+            "--with-python=#{Global::NDK_DIR}/prebuilt/#{platform.name}/bin/python-config.sh",
             "--with-sysroot=#{sysroot_dir}"
            ]
 
@@ -310,6 +320,8 @@ end
       system 'make', '-j', num_jobs
       system 'make', 'install'
     end
+
+    build_gdb_stub platform, arch, File.join(install_dir(base_dir), 'bin') if platform.target_os == 'windows'
   end
 
   def binutils_arch_args(arch)
@@ -370,6 +382,28 @@ end
     else
       ['--with-host-libstdcxx=\'-static-libgcc -Wl,-Bstatic,-lstdc++,-Bdynamic -lm\'']
     end
+  end
+
+  def build_gdb_stub(platform, arch, gdb_dir)
+    gdb_exe = "#{arch.host}-gdb.exe"
+    gdb_path = File.join(gdb_dir, gdb_exe)
+    FileUtils.cp gdb_path, File.join(gdb_dir, "#{arch.host}-gdb-orig.exe")
+
+    gdb_to_python_rel_dir = '..\\..\\..\\..\\..\\prebuilt\\windows-x86_64\\bin'
+    pythonhome_rel_dir    = '..\\..\\..\\..\\..\\prebuilt\\windows-x86_64'
+
+    gdb_stub_c = File.join(Global::NDK_DIR, 'sources', 'host-tools', 'gdb-stub', 'gdb-stub.c')
+
+    args = platform.cflags.split(' ') +
+           ['-O2',
+            '-s',
+            '-DNDEBUG',
+            "-DGDB_TO_PYTHON_REL_DIR=\'\"#{gdb_to_python_rel_dir}\"\'",
+            "-DPYTHONHOME_REL_DIR=\'\"#{pythonhome_rel_dir}\"\'",
+            "-DGDB_EXECUTABLE_ORIG_FILENAME=\'\"#{gdb_exe}\"\'"
+           ]
+
+    system platform.cc, gdb_stub_c, '-o', gdb_path, *args
   end
 
   def prepare_build_environment(platform)
@@ -520,9 +554,20 @@ end
     File.join base_dir, 'build.log'
   end
 
-  def max_arch_name_len
+  def max_arch_name_len()
     len = 0
     Build::ARCH_LIST.each { |arch| len = arch.name.size if arch.name.size > len }
     len
+  end
+
+  def update_dep_dirs(dep_dirs, platform, host_platform)
+    if dep_dirs[host_platform.name].empty?
+      dep_dirs[platform.name].each_pair do |key, value|
+        dir = value.gsub(platform.name, host_platform.name)
+        raise "not exists required dependency directory: #{dir}" unless Dir.exist? dir
+        dep = { key => dir }
+        dep_dirs[host_platform.name].update dep
+      end
+    end
   end
 end
