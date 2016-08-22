@@ -85,8 +85,8 @@ class Gcc < Tool
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"
-      #[Build::ARCH_LIST[0]].each do |arch|
-      Build::ARCH_LIST.each do |arch|
+      [Build::ARCH_LIST[0]].each do |arch|
+      #Build::ARCH_LIST.each do |arch|
         base_dir = base_dir(platform, arch)
         self.log_file = build_log_file(base_dir)
         printf  "  %-#{max_arch_name_len+1}s ", "#{arch.name}:"
@@ -104,8 +104,8 @@ class Gcc < Tool
 
       if not options.build_only?
         pkg_dir = File.join(build_base_dir, platform.name, ARCHIVE_TOP_DIR)
-        [Build::ARCH_LIST[0]].each do |arch|
-        #Build::ARCH_LIST.each do |arch|
+        #[Build::ARCH_LIST[0]].each do |arch|
+        Build::ARCH_LIST.each do |arch|
           base_dir = base_dir(platform, arch)
           arch_pkg_dir = File.join(pkg_dir, "#{arch.toolchain}-#{release.version}", 'prebuilt', platform.name)
           FileUtils.mkdir_p arch_pkg_dir
@@ -113,7 +113,7 @@ class Gcc < Tool
             FileUtils.cp  Dir[File.join(Global::NDK_DIR, LICENSES_SUB_DIR, 'COPYING*')], arch_pkg_dir
             FileUtils.cp_r [arch.host, 'bin', 'include', 'lib', 'libexec', 'share'], arch_pkg_dir
           end
-          create_libgccunwind platform, arch, base_dir if Toolchain::DEFAULT_GCC.version != release.version
+          create_libgccunwind platform, arch, base_dir if Toolchain::DEFAULT_GCC.version == release.version
         end
 
         archive = File.join(Global::CACHE_DIR, archive_filename(release, platform.name))
@@ -501,10 +501,11 @@ class Gcc < Tool
   end
 
   def create_libgccunwind(platform, arch, base_dir)
+    base_dir = File.join(base_dir, 'host') if platform.target_os == 'windows'
     ar = File.join(build_dir_for_component(base_dir, 'binutils'), 'binutils', 'ar')
     arch.abis.each do |abi|
       unwind_lib = File.join(base_dir_for_platform(platform), UNWIND_SUB_DIR, abi, 'libgccunwind.a')
-      gcc_dir = File.join(build_dir_for_component(platform, arch, 'gcc'), arch.host)
+      gcc_dir = File.join(build_dir_for_component(base_dir, 'gcc'), arch.host)
       unwind_objs = unwind_objs_for_abi(abi, gcc_dir)
       FileUtils.mkdir_p File.dirname(unwind_lib)
       system ar, 'crsD', unwind_lib, *unwind_objs
