@@ -268,6 +268,7 @@ class Gcc < Tool
             "--enable-initfini-array",
             "--enable-libgomp",
             "--enable-gnu-indirect-function",
+            "--enable-threads",
             "--disable-libsanitizer",
             "--enable-graphite=yes",
             "--enable-eh-frame-hdr-for-static",
