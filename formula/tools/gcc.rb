@@ -85,8 +85,8 @@ class Gcc < Tool
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"
-      [Build::ARCH_LIST[0]].each do |arch|
-      #Build::ARCH_LIST.each do |arch|
+      #[Build::ARCH_LIST[0]].each do |arch|
+      Build::ARCH_LIST.each do |arch|
         base_dir = base_dir(platform, arch)
         self.log_file = build_log_file(base_dir)
         printf  "  %-#{max_arch_name_len+1}s ", "#{arch.name}:"
@@ -229,9 +229,13 @@ class Gcc < Tool
     build_target   = ''
     install_target = 'install'
     if platform.target_os == 'windows'
+      if platform.target_cpu == 'x86'
+        build_env['CFLAGS_FOR_BUILD']  = ' -m32'
+        build_env['CXXFLAGS_FOR_BUILD'] = ' -m32'
+      end
       build_env['PATH'] = "#{File.join(base_dir, 'host', 'install', 'bin')}:#{ENV['PATH']}"
       # When building canadian cross toolchain we cannot build GCC target libraries.
-      # So we build the compilers only and copy the target libaries from
+      # So we build the compilers only and copy the target libraries from
       # '...host/install' directory
       build_target   = 'all-gcc'
       install_target = 'install-gcc'
@@ -276,6 +280,7 @@ class Gcc < Tool
     FileUtils.cd(build_dir) do
       system "#{src_dir}/configure", *args
       system 'make', '-j', num_jobs, build_target
+      #system 'make', build_target
       system 'make', install_target
     end
 
