@@ -63,7 +63,7 @@ class Gcc < Tool
     FileUtils.rm_rf unwind_dir if prop[:libunwind_installed]
 
     Build::ARCH_LIST.each do |arch|
-      FileUtils.rm_rf File.join(Global::NDK_DIR, ARCHIVE_TOP_DIR, "#{arch.toolchain}-#{release.version}")
+      FileUtils.rm_rf File.join(Global::NDK_DIR, ARCHIVE_TOP_DIR, "#{arch.toolchain}-#{release.version}", 'prebuilt', platform_name)
     end
     Utils.unpack archive, ndk_dir
 
