@@ -32,6 +32,7 @@ class Platform
 
   attr_reader :name, :target_os, :target_cpu
   attr_reader :cc, :cxx, :ar, :ranlib, :strip
+  attr_reader :sysroot
   attr_reader :cflags, :cxxflags
   attr_reader :configure_host, :toolchain_host, :toolchain_build
   attr_reader :target_exe_ext
@@ -61,12 +62,14 @@ class Platform
     #
     case @name
     when 'darwin-x86_64'
-      @cflags          = "-isysroot#{Global::PLATFORM_PREBUILTS_DIR}/sysroot/darwin-x86/MacOSX10.6.sdk -mmacosx-version-min=#{MACOSX_VERSION_MIN} -DMAXOSX_DEPLOYEMENT_TARGET=#{MACOSX_VERSION_MIN} -m64"
+      @sysroot         = "#{Global::PLATFORM_PREBUILTS_DIR}/sysroot/darwin-x86/MacOSX10.6.sdk"
+      @cflags          = "-isysroot#{sysroot} -mmacosx-version-min=#{MACOSX_VERSION_MIN} -DMACOSX_DEPLOYMENT_TARGET=#{MACOSX_VERSION_MIN} -m64"
       @configure_host  = 'x86_64-darwin10'
       @toolchain_build = 'x86_64-apple-darwin'
       @toolchain_host  = @toolchain_build
     when 'linux-x86_64'
-      @cflags          = "--sysroot=#{Global::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/sysroot"
+      @sysroot         = "#{Global::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/sysroot"
+      @cflags          = "--sysroot=#{sysroot}"
       @configure_host  = 'x86_64-linux'
       @toolchain_build = 'x86_64-linux-gnu'
       @toolchain_host  = @toolchain_build
