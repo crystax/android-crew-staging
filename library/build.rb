@@ -23,6 +23,8 @@ module Build
   PLATFORM_DEVELOPMENT_DIR = Pathname.new("#{Global::NDK_DIR}/../../platform/development").cleanpath.to_s
   PLATFORM_PREBUILTS_DIR   = Pathname.new("#{Global::NDK_DIR}/../../platform/prebuilts").cleanpath.to_s
 
+  NDK_HOST_TOOLS_DIR = File.join(Global::NDK_DIR, 'sources', 'host-tools')
+
 
   ARCH_LIST = [ARCH_ARM, ARCH_X86, ARCH_MIPS, ARCH_ARM64, ARCH_X86_64, ARCH_MIPS64]
   ABI_LIST  = ARCH_LIST.map { |a| a.abis }.flatten
