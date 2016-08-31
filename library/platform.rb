@@ -1,10 +1,10 @@
-require_relative 'global.rb'
+require_relative 'build.rb'
 
 class Platform
 
   NAMES = ['darwin-x86_64', 'linux-x86_64', 'windows-x86_64', 'windows']
   MACOSX_VERSION_MIN = '10.6'
-  TOOLCHAIN = { 'darwin'  => { tool_path:   "#{Global::PLATFORM_PREBUILTS_DIR}/gcc/darwin-x86/host/x86_64-apple-darwin-4.9.3/bin",
+  TOOLCHAIN = { 'darwin'  => { tool_path:   "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/darwin-x86/host/x86_64-apple-darwin-4.9.3/bin",
                                tool_prefix: '',
                                gcc:         'gcc',
                                gxx:         'g++',
@@ -12,7 +12,7 @@ class Platform
                                ranlib:      'gcc-ranlib'
                                # no strip in darwin/gcc toolchain
                              },
-                'linux'   => { tool_path:   "#{Global::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/bin",
+                'linux'   => { tool_path:   "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/bin",
                                tool_prefix: 'x86_64-linux-',
                                gcc:         'gcc',
                                gxx:         'g++',
@@ -20,7 +20,7 @@ class Platform
                                ranlib:      'ranlib',
                                strip:       'strip'
                              },
-                'windows' => { tool_path:   "#{Global::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-w64-mingw32-4.9.3/bin",
+                'windows' => { tool_path:   "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-w64-mingw32-4.9.3/bin",
                                tool_prefix: 'x86_64-w64-mingw32-',
                                gcc:         'gcc',
                                gxx:         'g++',
@@ -62,13 +62,13 @@ class Platform
     #
     case @name
     when 'darwin-x86_64'
-      @sysroot         = "#{Global::PLATFORM_PREBUILTS_DIR}/sysroot/darwin-x86/MacOSX10.6.sdk"
+      @sysroot         = "#{Build::PLATFORM_PREBUILTS_DIR}/sysroot/darwin-x86/MacOSX10.6.sdk"
       @cflags          = "-isysroot#{sysroot} -mmacosx-version-min=#{MACOSX_VERSION_MIN} -DMACOSX_DEPLOYMENT_TARGET=#{MACOSX_VERSION_MIN} -m64"
       @configure_host  = 'x86_64-darwin10'
       @toolchain_build = 'x86_64-apple-darwin'
       @toolchain_host  = @toolchain_build
     when 'linux-x86_64'
-      @sysroot         = "#{Global::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/sysroot"
+      @sysroot         = "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/sysroot"
       @cflags          = "--sysroot=#{sysroot}"
       @configure_host  = 'x86_64-linux'
       @toolchain_build = 'x86_64-linux-gnu'

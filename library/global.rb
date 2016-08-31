@@ -87,9 +87,6 @@ module Global
   NDK_DIR       = [nil, ''].include?(ENV['CREW_NDK_DIR'])       ? Pathname.new(BASE_DIR).realpath.dirname.dirname.to_s : Pathname.new(ENV['CREW_NDK_DIR']).realpath.to_s
   TOOLS_DIR     = def_tools_dir(NDK_DIR, OS)
 
-  # todo:
-  PLATFORM_PREBUILTS_DIR = Pathname.new("#{NDK_DIR}/../../platform/prebuilts").cleanpath.to_s
-
   PLATFORM_NAME = File.basename(TOOLS_DIR)
 
   NS_DIR = { host: 'tools', target: 'packages' }

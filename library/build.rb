@@ -21,6 +21,8 @@ module Build
   VENDOR_TESTS_DIR         = Pathname.new("#{Global::NDK_DIR}/../../vendor/tests").cleanpath.to_s
   TOOLCHAIN_SRC_DIR        = Pathname.new("#{Global::NDK_DIR}/../../toolchain").cleanpath.to_s
   PLATFORM_DEVELOPMENT_DIR = Pathname.new("#{Global::NDK_DIR}/../../platform/development").cleanpath.to_s
+  PLATFORM_PREBUILTS_DIR   = Pathname.new("#{Global::NDK_DIR}/../../platform/prebuilts").cleanpath.to_s
+
 
   ARCH_LIST = [ARCH_ARM, ARCH_X86, ARCH_MIPS, ARCH_ARM64, ARCH_X86_64, ARCH_MIPS64]
   ABI_LIST  = ARCH_LIST.map { |a| a.abis }.flatten
@@ -28,6 +30,27 @@ module Build
   DEFAULT_TOOLCHAIN = Toolchain::DEFAULT_GCC
   TOOLCHAIN_LIST = [ Toolchain::GCC_4_9, Toolchain::GCC_5, Toolchain::LLVM_3_6, Toolchain::LLVM_3_7 ]
 
+
+  def self.path
+    case Global::OS
+    when 'darwin'
+      brew_root = `brew --prefix`.strip
+      raise 'can\'t determine brew root' unless brew_root.size > 0
+      brew_path = ['opt/texinfo/bin',
+                   'opt/m4/bin',
+                   'opt/flex/bin',
+                   'opt/bison/bin',
+                   'opt/gnu-tar/libexec/gnubin',
+                   'opt/gnu-sed/libexec/gnubin',
+                   'opt/coreutils/libexec/gnubin',
+                   'opt/grep/bin',
+                   'bin'
+                  ].map { |p| File.join brew_root, p }.join(':')
+      "#{brew_path}:#{ENV['PATH']}"
+    else
+      ENV['PATH']
+    end
+  end
 
   def self.abis_to_arch_list(abis)
     arch_list = ARCH_LIST.map { |a| a.dup }
