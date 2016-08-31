@@ -75,7 +75,7 @@ class Llvm < Tool
   end
 
   def prepare_build_env(platform, libedit_dir)
-    cflags  = platform.cflags + " -O2 -I#{libedit_dir}/include -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
+    cflags  = " -O2 -I#{libedit_dir}/include -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
     ldflags = "-L#{libedit_dir}/lib -static-libstdc++ -static-libgcc"
 
     ldflags += ' -static' if platform.target_os == 'windows'
@@ -92,25 +92,45 @@ class Llvm < Tool
       # lldb doesnt' support python and curses on Windows
       cflags += ' -DLLDB_DISABLE_PYTHON -DLLDB_DISABLE_CURSES'
     else
-      cflags  += " -I#{Global::TOOLS_DIR}/include/python#{PYTHON_VER}"
-      ldflags += " -L#{Global::TOOLS_DIR}/lib"
+      python_home = Global::TOOLS_DIR
+      cflags  += " -I#{python_home}/include/python#{PYTHON_VER}"
+      ldflags += " -L#{python_home}/lib"
+      build_env['PYTHONHOME'] = python_home
     end
 
-    #w_cflags  = "-O2 -I#{libedit_dir}/include -DDISABLE_FUTIMENS -I#{platform.sysroot}/usr/include -DLLDB_EDITLINE_USE_WCHAR=0 -I#{Global::TOOLS_DIR}/include/python#{PYTHON_VER} -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -isysroot #{platform.sysroot} -mmacosx-version-min=10.6 -DMACOSX_DEPLOYMENT_TARGET=10.6"
-    #w_ldflags = "-L#{libedit_dir}/lib -static-libstdc++ -static-libgcc -L#{platform.sysroot}/usr/lib -L#{Global::TOOLS_DIR}/lib -Wl,-syslibroot,#{platform.sysroot} -mmacosx-version-min=10.6"
+    cflags += ' ' + platform.cflags
 
     build_env.clear
 
-    build_env['PATH']          = ENV['PATH']
-    build_env['LANG']          = 'C'
-    build_env['CC']            = platform.cc
-    build_env['CXX']           = platform.cxx
-    build_env['AR']            = platform.ar
-    build_env['RANLIB']        = platform.ranlib
-    build_env['CFLAGS']        = cflags
-    build_env['CXXFLAGS']      = cflags
-    build_env['LDFLAGS']       = ldflags
-    build_env['REQUIRES_RTTI'] = '1'
+    build_env['PATH']           = (platform.target_os == 'windows') ? Build.path : "#{python_home}/bin:#{Build.path}"
+    build_env['LANG']           = 'C'
+    build_env['CC']             = platform.cc
+    build_env['CXX']            = platform.cxx
+    build_env['AR']             = platform.ar
+    build_env['RANLIB']         = platform.ranlib
+    build_env['CFLAGS']         = cflags
+    build_env['CXXFLAGS']       = cflags
+    build_env['LDFLAGS']        = ldflags
+    build_env['REQUIRES_RTTI']  = '1'
+    build_env['DARWIN_SYSROOT'] = platform.sysroot if platform.target_os == 'darwin'
+
+    if platform.target_os == 'darwin'
+      # from build-llvm.sh:
+      #   For compilation LLDB's Objective-C++ sources we need use clang++, since g++ have a bug
+      #   not distinguishing between Objective-C call and definition of C++11 lambda:
+      #   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=57607
+      #   To workaround this, we're using prebuilt clang++
+      #   with includes from our g++, to keep binary compatibility of produced code
+      # todo:
+      #   build and use more modern gcc (5 or 6)
+      #   replace hardcoded versions: 4.9.3, 3.7.0
+      #
+      gcc_dir = Pathname.new(platform.cc).dirname.dirname
+      cxx_inc_dir = File.join(gcc_dir, 'include', 'c++', '4.9.3')
+      cxx_bits_inc = File.join(cxx_inc_dir, 'x86_64-apple-darwin')
+      objcxx = File.join(Build::PLATFORM_PREBUILTS_DIR, 'clang', 'darwin-x86', 'host', 'x86_64-apple-darwin-3.7.0', 'bin', 'clang++')
+      build_env['OBJCXX'] = "#{objcxx} -I#{cxx_bits_inc} -I#{cxx_inc_dir}"
+    end
 
     # if platform.target_os == 'windows'
     #   build_env['PATH'] = "#{File.dirname(platform.cc)}:#{ENV['PATH']}"
