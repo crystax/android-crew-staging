@@ -32,6 +32,8 @@ module Build
   DEFAULT_TOOLCHAIN = Toolchain::DEFAULT_GCC
   TOOLCHAIN_LIST = [ Toolchain::GCC_4_9, Toolchain::GCC_5, Toolchain::LLVM_3_6, Toolchain::LLVM_3_7 ]
 
+  BINUTILS_VER = '2.25'
+  BUG_URL      = 'https://tracker.crystax.net/projects/ndk'
 
   def self.path
     case Global::OS

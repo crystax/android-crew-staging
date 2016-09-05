@@ -43,7 +43,6 @@ class Gcc < Tool
 
   LICENSE_MASK = 'COPYING*'
 
-  BINUTILS_VER = '2.25'
   GDB_VER      = '7.10'
 
   Lib = Struct.new(:name, :version, :url, :args, :templates)
@@ -158,7 +157,7 @@ class Gcc < Tool
                    "--host=#{platform.toolchain_host}",
                    "--disable-shared",
                    "--disable-nls",
-                   "--with-bugurl=https://tracker.crystax.net/projects/ndk",
+                   "--with-bugurl=#{Build::BUG_URL}",
                    "--program-transform-name='s&^&#{arch.host}-&'"
                   ]
 
@@ -176,7 +175,7 @@ class Gcc < Tool
   def build_binutils(platform, arch, release, host_dep_dirs, cfg_args, sysroot_dir, base_dir)
     print "binutils"
 
-    src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'binutils', "binutils-#{BINUTILS_VER}")
+    src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'binutils', "binutils-#{Build::BINUTILS_VER}")
     build_dir = build_dir_for_component(base_dir, 'binutils')
     FileUtils.mkdir_p build_dir
 

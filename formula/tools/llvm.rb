@@ -26,7 +26,6 @@ class Llvm < Tool
 
   ARCHIVE_TOP_DIR  = 'toolchains'
   PYTHON_VER   = '2.7'
-  BINUTILS_VER = '2.25'
 
   UNUSED_LLVM_EXECUTABLES = %w{ bugpoint c-index-test clang-check clang-format clang-tblgen lli llvm-bcanalyzer
                                 llvm-config llvm-config-host llvm-cov llvm-diff llvm-dsymutil llvm-dwarfdump llvm-extract llvm-ld
@@ -71,7 +70,7 @@ class Llvm < Tool
       puts "= building for #{platform.name}"
 
       src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, "llvm-#{release.version}", 'llvm')
-      binutils_inc_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'binutils', "binutils-#{BINUTILS_VER}", 'include')
+      binutils_inc_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'binutils', "binutils-#{Build::BINUTILS_VER}", 'include')
 
       base_dir = base_dir_for_platform(platform)
       build_dir = File.join(base_dir, 'build')
@@ -85,7 +84,7 @@ class Llvm < Tool
       args = ["--prefix=#{install_dir}",
               "--host=#{platform.toolchain_host}",
               "--build=#{platform.toolchain_build}",
-              "--with-bugurl=https://tracker.crystax.net/projects/ndk",
+              "--with-bugurl=#{Build::BUG_URL}",
               "--enable-targets=arm,mips,x86,aarch64",
               "--enable-optimized",
               "--with-binutils-include=#{binutils_inc_dir}",
