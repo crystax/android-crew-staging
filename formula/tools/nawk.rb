@@ -32,6 +32,6 @@ class Nawk < Utility
 
     bin_dir = File.join(install_dir_for_platform(platform, release), 'bin')
     FileUtils.mkdir_p bin_dir
-    FileUtils.cp "ndk-awk#{platform.target_exe_ext}", "#{bin_dir}/awk#{platform.target_exe_ext}"
+    FileUtils.cp "ndk-awk", "#{bin_dir}/awk#{platform.target_exe_ext}"
   end
 end
