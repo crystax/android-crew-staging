@@ -95,7 +95,7 @@ class Llvm < Tool
              ]
 
       make_flags = ['VERBOSE=1']
-      make_flags << 'LIBS=-lmsvcr90' if platform.target_os == 'windows'
+      #make_flags << 'LIBS=-lmsvcr90' if platform.target_os == 'windows'
 
       FileUtils.mkdir_p build_dir
       FileUtils.cd(build_dir) do
