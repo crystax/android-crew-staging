@@ -7,12 +7,13 @@ require_relative 'platform.rb'
 class Build_options
 
   attr_accessor :platforms, :abis, :num_jobs
-  attr_writer :source_only, :build_only, :no_clean, :update_shasum, :check
+  attr_writer :source_only, :build_only, :no_install, :no_clean, :update_shasum, :check
 
   def initialize(opts)
     @abis = Build::ABI_LIST
     @source_only = false
     @build_only = false
+    @install = true
     @no_clean = false
     @check = false
     @update_shasum = false
@@ -32,6 +33,8 @@ class Build_options
       when '--build-only'
         @build_only = true
         @no_clean = true
+      when '--no-install'
+        @install = false
       when '--no-clean'
         @no_clean = true
       when '--update-shasum'
@@ -56,6 +59,10 @@ class Build_options
 
   def build_only?
     @build_only
+  end
+
+  def install?
+    @install
   end
 
   def no_clean?

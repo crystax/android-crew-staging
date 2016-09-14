@@ -23,7 +23,7 @@ module Crew
       formula = found[0]
 
       release = formula.find_release(Release.new(ver))
-      raise "source code not installed for #{formula.name}:#{release}" if (formula.namespace == :target) and !(release.source_installed?)
+      raise "source code not installed for #{formula.name}:#{release}" if (formula.namespace == :target) and !formula.source_installed?(release)
 
       # todo: check that (build) dependencies installed for all required platforms
       deps = formula.dependencies + formula.build_dependencies

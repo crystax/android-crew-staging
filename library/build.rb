@@ -13,8 +13,10 @@ module Build
   USER = ENV['USER']
 
   # todo: honor CRYSTAX_NDK_BASE_TMP_DIR environment dir
-  BASE_TARGET_DIR  = "/tmp/ndk-#{USER}/target"
-  BASE_HOST_DIR    = "/tmp/ndk-#{USER}/host"
+  BASE_TMP_DIR     = [nil, ''].include?(ENV['CRYSTAX_NDK_BASE_TMP_DIR']) ? '/tmp' : ENV['CRYSTAX_NDK_BASE_TMP_DIR']
+  BASE_BUILD_DIR   = "#{BASE_TMP_DIR}/ndk-#{USER}"
+  BASE_TARGET_DIR  = "#{BASE_BUILD_DIR}/target"
+  BASE_HOST_DIR    = "#{BASE_BUILD_DIR}/host"
   CACHE_DIR        = "/var/tmp/ndk-cache-#{USER}"
 
   # todo:
@@ -72,6 +74,10 @@ module Build
   def self.sysroot(abi)
     arch = arch_for_abi(abi)
     " --sysroot=#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
+  end
+
+  def self.default_c_compiler_for_arch(arch)
+    File.join(Global::NDK_DIR, 'toolchains', "#{arch.toolchain}-#{Toolchain::DEFAULT_GCC.version}", 'prebuilt', Global::PLATFORM_NAME, 'bin', "#{arch.host}-gcc")
   end
 
   def self.gen_host_compiler_wrapper(wrapper, compiler, *opts)

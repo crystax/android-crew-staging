@@ -3,6 +3,7 @@
 require_relative 'exceptions.rb'
 require_relative 'global.rb'
 require_relative 'formula.rb'
+require_relative 'base_package.rb'
 require_relative 'package.rb'
 require_relative 'utility.rb'
 require_relative 'build_dependency.rb'

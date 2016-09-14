@@ -199,11 +199,13 @@ module Toolchain
 
   GCC_4_9 = GCC.new('4.9')
   GCC_5   = GCC.new('5')
+  GCC_6   = GCC.new('5')
 
-  DEFAULT_GCC = GCC_4_9
+  DEFAULT_GCC = GCC_5
 
   LLVM_3_6 = LLVM.new('3.6', DEFAULT_GCC)
   LLVM_3_7 = LLVM.new('3.7', DEFAULT_GCC)
+  LLVM_3_8 = LLVM.new('3.8', DEFAULT_GCC)
 
-  DEFAULT_LLVM = LLVM_3_7
+  DEFAULT_LLVM = LLVM_3_8
 end

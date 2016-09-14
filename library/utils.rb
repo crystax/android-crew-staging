@@ -13,7 +13,7 @@ module Utils
 
 
   def self.run_command(prog, *args)
-    cmd = ([prog.to_s] + args).map { |e| to_cmd_s(e) }
+    cmd = ([prog.to_s.strip] + args).map { |e| to_cmd_s(e) }
     #puts "cmd: #{cmd.join(' ')}"
     outstr, errstr, status = Open3.capture3(*cmd)
     raise ErrorDuringExecution.new(cmd.join(' '), status.exitstatus, errstr) unless status.success?

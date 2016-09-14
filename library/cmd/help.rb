@@ -73,6 +73,8 @@ Common options:
 --build-only     do not create package in the cache dir and do not install
                  formula; implies --no-clean
 
+--no-install     do not install built package
+
 --no-clean       do not remove build artifacts
 
 --update-shasum  calculate SHA256 sum of the package and update formula
