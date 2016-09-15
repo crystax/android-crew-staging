@@ -16,7 +16,7 @@ class Platforms < BasePackage
   attr_accessor :src_dir, :install_dir
 
   # todo: move method to the BasePackage class
-  def install_archive(release, archive, platform_name = Global::PLATFORM_NAME, ndk_dir = Global::NDK_DIR)
+  def install_archive(release, archive, ndk_dir = Global::NDK_DIR)
     rel_dir = release_directory(release)
     FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir
     prop = get_properties(rel_dir)
@@ -65,7 +65,7 @@ class Platforms < BasePackage
 
     if options.install?
       puts "= installing #{archive}"
-      install_archive release, archive, platform.name
+      install_archive release, archive
     end
 
     FileUtils.rm_rf build_base_dir unless options.no_clean?
@@ -289,7 +289,7 @@ class Platforms < BasePackage
     end
 
     FileUtils.cd(srcdir) do
-      Dir['crt*.[cS]'].each do |src_file|
+      Dir['crt*.[cS]'].sort.each do |src_file|
         dst_file = src_file.sub(/\.[cS]/, '.o')
         case dst_file
         when 'crtend.o'
@@ -335,7 +335,7 @@ class Platforms < BasePackage
     return unless File.directory? sym_dir
 
     # Let's list the libraries we're going to generate
-    Dir["#{sym_dir}/*.so.functions.txt"].map {|f| File.basename(f, '.functions.txt') }.each do |lib|
+    Dir["#{sym_dir}/*.so.functions.txt"].sort.uniq.map {|f| File.basename(f, '.functions.txt') }.each do |lib|
       ff = "#{sym_dir}/#{lib}.functions.txt"
       funs = File.exist?(ff) ? File.read(ff).split("\n") : []
 
