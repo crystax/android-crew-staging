@@ -39,7 +39,7 @@ class Tool < Formula
       build_dir = build_dir_for_platform(platform)
       install_dir = install_dir_for_platform(platform, release)
       FileUtils.mkdir_p [build_dir, install_dir]
-      @log_file = build_log_file(platform)
+      self.log_file = build_log_file(platform)
       # prepare standard build environment
       build_env.clear
       build_env['CC']       = platform.cc
