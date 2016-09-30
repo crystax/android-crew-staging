@@ -21,7 +21,7 @@ class Arch
   end
 
   def dup
-    arch = Arch.new(name, num_bits, min_api_level, host, toolchain, abis)
+    arch = Arch.new(name, num_bits, min_api_level, default_lib_dir, host, toolchain, abis)
     arch.abis_to_build = abis_to_build.dup
     arch
   end

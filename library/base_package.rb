@@ -23,7 +23,7 @@ class BasePackage < Formula
   end
 
   def release_directory(release)
-    File.join(Global::SERVICE_DIR, name, release.version)
+    File.join(Global::SERVICE_DIR, file_name, release.version)
   end
 
   def source_installed?(release)

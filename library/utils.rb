@@ -52,6 +52,7 @@ module Utils
 
   def self.pack(archive, indir, *dirs)
     FileUtils.rm_f archive
+    dirs << '.' if dirs.empty?
     args = ['-C', indir, '-Jcf', archive] + dirs
     run_command(tar_prog, *args)
   end
