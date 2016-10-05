@@ -15,8 +15,6 @@ class Libstdcxx < BasePackage
   #build_depends_on 'libcrystax'
   #build_depends_on default_gcc_compiler
 
-  attr_accessor :src_dir, :install_dir
-
   # todo: move method to the BasePackage class?
   def install_archive(release, archive, ndk_dir = Global::NDK_DIR)
     rel_dir = release_directory(release)
@@ -63,7 +61,7 @@ class Libstdcxx < BasePackage
         end
         copy_installed_files abi, release, install_dir
       end
-        FileUtils.rm_rf arch_build_dir unless options.no_clean?
+      FileUtils.rm_rf arch_build_dir unless options.no_clean?
     end
 
     if options.build_only?

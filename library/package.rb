@@ -205,9 +205,9 @@ class Package < Formula
     ar, ranlib, readelf = toolchain.tools(arch)
 
     if build_options[:sysroot_in_cflags]
-      cflags += ' ' + Build.sysroot(abi)
+      cflags += " --sysroot=#{Build.sysroot(abi)}"
     else
-      c_comp += ' ' + Build.sysroot(abi)
+      c_comp += " --sysroot=#{Build.sysroot(abi)}"
     end
 
     if not build_options[:c_wrapper]
@@ -229,7 +229,7 @@ class Package < Formula
 
     if build_options[:use_cxx]
       cxx_comp = toolchain.cxx_compiler(arch, abi)
-      cxx_comp += ' ' + Build.sysroot(abi) unless build_options[:sysroot_in_cflags]
+      cxx_comp += " --sysroot=#{Build.sysroot(abi)}" unless build_options[:sysroot_in_cflags]
 
       if not build_options[:cxx_wrapper]
         cxx = cxx_comp

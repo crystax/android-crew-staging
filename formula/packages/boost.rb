@@ -115,12 +115,12 @@ class Boost < Package
       build_env.clear
       cxx = "#{build_dir_for_abi(abi)}/#{toolchain.cxx_compiler_name}"
       cxxflags = toolchain.cflags(abi) + ' ' +
-                 Build.sysroot(abi) + ' ' +
+                 "--sysroot=#{Build.sysroot(abi)}" + ' ' +
                  toolchain.search_path_for_stl_includes(abi) + ' ' +
                  '-fPIC -Wno-long-long'
 
       ldflags  = { before: toolchain.ldflags(abi) + ' ' +
-                           Build.sysroot(abi) + ' ' +
+                           "--sysroot=#{Build.sysroot(abi)}" + ' ' +
                            toolchain.search_path_for_stl_libs(abi),
                    after:  "-l#{toolchain.stl_lib_name}_shared"
                  }

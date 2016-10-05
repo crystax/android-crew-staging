@@ -73,8 +73,47 @@ module Build
 
   def self.sysroot(abi)
     arch = arch_for_abi(abi)
-    " --sysroot=#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
+    "#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
   end
+
+  # def self.copy_sysroot(arch, dir)
+  #   FileUtils.mkdir_p dir
+  #   FileUtils.cp_r "#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch}/usr", dir
+  #   usr_dir = "#{dir}/usr"
+  #   # copy crystax library
+  #   arch.abis.each do |abi|
+  #     crystax_libdir = "#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
+  #     case abi
+  #     when 'x86_64'
+  #       FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"],     "#{usr_dir}/lib64/"
+  #       FileUtils.cp Dir["#{crystax_libdir}/32/libcrystax.*"],  "#{usr_dir}/lib/"
+  #       FileUtils.cp Dir["#{crystax_libdir}/x32/libcrystax.*"], "#{usr_dir}/libx32/"
+  #     when 'mips64'
+  #       FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"],         "#{usr_dir}/lib64"
+  #       FileUtils.cp Dir["#{crystax_libdir}/libr2/libcrystax.*"],   "#{usr_dir}/lib64r2"
+  #       FileUtils.cp Dir["#{crystax_libdir}/lib32/libcrystax.*"],   "#{usr_dir}/lib"
+  #       FileUtils.cp Dir["#{crystax_libdir}/lib32r2/libcrystax.*"], "#{usr_dir}/libr2"
+  #       FileUtils.cp Dir["#{crystax_libdir}/lib32r6/libcrystax.*"], "#{usr_dir}/libr6"
+  #     when 'mips'
+  #       FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"],    "#{usr_dir}/lib"
+  #       FileUtils.cp Dir["#{crystax_libdir}/r2/libcrystax.*"], "#{usr_dir}/libr2"
+  #       FileUtils.cp Dir["#{crystax_libdir}/r6/libcrystax.*"], "#{usr_dir}/libr6"
+  #     when 'armeabi-v7a'
+  #       FileUtils.mkdir_p "#{usr_dir}/lib/armv7-a/thumb"
+  #       FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"],       "#{usr_dir}/lib/armv7-a/"
+  #       FileUtils.cp Dir["#{crystax_libdir}/thumb/libcrystax.*"], "#{usr_dir}/lib/armv7-a/thumb/"
+  #     when 'armeabi-v7a-hard'
+  #       FileUtils.mkdir_p "#{usr_dir}/lib/armv7-a/hard"
+  #       FileUtils.mkdir_p "#{usr_dir}/lib/armv7-a/thumb/hard"
+  #       FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"],       "#{usr_dir}/lib/armv7-a/hard/"
+  #       FileUtils.cp Dir["#{crystax_libdir}/thumb/libcrystax.*"], "#{usr_dir}/lib/armv7-a/thumb/hard/"
+  #     when 'x86', 'arm64-v8a'
+  #       FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"], "#{usr_dir}/lib/"
+  #     else
+  #       raise "coping sysroot for unsupported abi #{abi}"
+  #     end
+  #   end
+  # end
 
   def self.default_c_compiler_for_arch(arch)
     File.join(Global::NDK_DIR, 'toolchains', "#{arch.toolchain}-#{Toolchain::DEFAULT_GCC.version}", 'prebuilt', Global::PLATFORM_NAME, 'bin', "#{arch.host}-gcc")
