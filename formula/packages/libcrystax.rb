@@ -38,25 +38,25 @@ class Libcrystax < BasePackage
     @log_file = build_log_file
     @num_jobs = options.num_jobs
 
-    FileUtils.mkdir_p package_dir
-    arch_list.each do |arch|
+    dst_dir = "#{package_dir}/#{File.dirname(archive_sub_dir)}"
+    FileUtils.mkdir_p dst_dir
+
+      arch_list.each do |arch|
       puts "= building for architecture: #{arch.name}"
       arch_build_dir = File.join(build_base_dir, arch.name)
       arch.abis_to_build.each do |abi|
         puts "  building for abi: #{abi}"
         build_dir = File.join(arch_build_dir, abi, 'build')
         FileUtils.mkdir_p build_dir
-        FileUtils.cd(build_dir) { [:static, :shared].each { |lt| build_for_abi abi, release, package_dir, lib_type: lt } }
+        FileUtils.cd(build_dir) { [:static, :shared].each { |lt| build_for_abi abi, release, lib_type: lt } }
       end
+      FileUtils.cp_r "#{Global::NDK_DIR}/#{archive_sub_dir}", dst_dir unless options.build_only?
       FileUtils.rm_rf arch_build_dir unless options.no_clean?
     end
 
     if options.build_only?
       puts "Build only, no packaging and installing"
     else
-      dst_dir = "#{package_dir}/#{File.dirname(archive_sub_dir)}"
-      FileUtils.mkdir_p dst_dir
-      FileUtils.cp_r "#{Global::NDK_DIR}/#{archive_sub_dir}", dst_dir
       # pack archive and copy into cache dir
       # todo: use global cache dir or build cache dir?
       archive = "#{Global::CACHE_DIR}/#{archive_filename(release)}"
@@ -78,7 +78,7 @@ class Libcrystax < BasePackage
     end
   end
 
-  def build_for_abi(abi, release, install_dir, options)
+  def build_for_abi(abi, release, options)
     lib_type = options[:lib_type]
     build_dir = File.join(Dir.pwd, lib_type.to_s)
     FileUtils.mkdir build_dir
