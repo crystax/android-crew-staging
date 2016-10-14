@@ -2,7 +2,7 @@ class Ruby < Utility
 
   desc 'Powerful, clean, object-oriented scripting language'
   homepage 'https://www.ruby-lang.org/'
-  url 'https://cache.ruby-lang.org/pub/ruby/${block}/ruby-${version}.tar.gz' do |v| v.split('.').slice(0, 2).join('.') end
+  url 'https://cache.ruby-lang.org/pub/ruby/${block}/ruby-${version}.tar.gz' do |r| r.version.split('.').slice(0, 2).join('.') end
 
   release version: '2.2.2', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                           darwin_x86_64:  '0',
@@ -118,14 +118,15 @@ class Ruby < Utility
   end
 
   def host_ssl_cert_file
-    case Global::OS
-    when 'darwin'
-      '/usr/local/etc/openssl/osx_cert.pem'
-    when 'linux'
-      '/etc/ssl/certs/ca-certificates.crt'
-    else
-      raise "unsupported host OS for ssl sert file: #{Global::OS}"
-    end
+    "#{Global::BASE_DIR}/etc/ca-certificates.crt"
+    # case Global::OS
+    # when 'darwin'
+    #   '/usr/local/etc/openssl/osx_cert.pem'
+    # when 'linux'
+    #   '/etc/ssl/certs/ca-certificates.crt'
+    # else
+    #   raise "unsupported host OS for ssl sert file: #{Global::OS}"
+    # end
   end
 
   # by default windres included with 64bit gcc toolchain (mingw) generates 64-bit obj files
