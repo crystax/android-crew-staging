@@ -11,6 +11,7 @@ class Libssh2 < BuildDependency
                                                         }
 
   depends_on 'zlib'
+   # todo: depends on openssl 1.0.*
   depends_on 'openssl'
 
   def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
