@@ -4,7 +4,7 @@ class Libgit2 < BuildDependency
   homepage 'https://libgit2.github.com/'
   url 'https://github.com/libgit2/libgit2/archive/v${version}.tar.gz'
 
-  release version: '0.24.1', crystax_version: 1, sha256: { linux_x86_64:   '0',
+  release version: '0.24.2', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                            darwin_x86_64:  '0',
                                                            windows_x86_64: '0',
                                                            windows:        '0'
@@ -23,7 +23,7 @@ class Libgit2 < BuildDependency
     FileUtils.cp_r File.join(src_dir, '.'), '.'
 
     build_env['EXTRA_CFLAGS']   = "#{platform.cflags}"
-    build_env['EXTRA_DEFINES']  = "-DGIT_SSL -DOPENSSL_SHA1 -DGIT_SSH"
+    build_env['EXTRA_DEFINES']  = "-DGIT_OPENSSL -DOPENSSL_SHA1 -DGIT_SSH"
     build_env['EXTRA_INCLUDES'] = "-I#{zlib_dir}/include -I#{openssl_dir}/include -I#{libssh2_dir}/include"
 
     make_args = ['-f', 'Makefile.crystax']
