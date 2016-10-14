@@ -212,19 +212,21 @@ class Formula
 
   def prepare_source_code(release, dir, src_name, log_prefix)
     eurl = expand_url(release)
+    src_dir = File.join(dir, src_name)
     if git_repo_spec? eurl
       git_url = ''
       git_tag = ''
-      eurl.each do |e|
+      eurl.split('|').each do |e|
         if e.start_with? 'git_tag:'
           git_tag = e.split(':')[1]
         else
           git_url = e
         end
       end
-      # todo: checkout he specified tag
-      puts "git_url: #{git_url}"
-      repo = Rugged::Repository.clone_at(git_url, dir)
+      repo = Rugged::Repository.clone_at(git_url, src_dir)
+      # todo: checkout the specified tag
+      # todo: remove or not?
+      #FileUtils.rm_rf File.join(src_dir, '.git')
     else
       archive = File.join(Global::CACHE_DIR, File.basename(URI.parse(eurl).path))
       if File.exists? archive
@@ -235,7 +237,6 @@ class Formula
       end
 
       if build_options[:source_archive_without_top_dir]
-        src_dir = File.join(dir, src_name)
         FileUtils.mkdir_p src_dir
         puts "#{log_prefix} unpacking #{File.basename(archive)} into #{src_dir}"
         Utils.unpack(archive, src_dir)
@@ -251,7 +252,6 @@ class Formula
       end
 
       if patches(release.version).size > 0
-        src_dir = File.join(dir, src_name)
         puts "#{log_prefix} patching in dir #{src_dir}"
         patches(release.version).each do |p|
           puts "#{log_prefix}   applying #{File.basename(p.path)}"
