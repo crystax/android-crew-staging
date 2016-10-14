@@ -2,7 +2,7 @@ class Sqlite < Package
 
   desc "SQLite library"
   homepage "https://sqlite.org/"
-  url "https://sqlite.org/2016/sqlite-amalgamation-${block}.zip" do |v| ('%s%-2s%-2s00' % v.split('.')).gsub(' ', '0') end
+  url "https://sqlite.org/2016/sqlite-amalgamation-${block}.zip" do |r| ('%s%-2s%-2s00' % r.version.split('.')).gsub(' ', '0') end
 
   release version: '3.13.0', crystax_version: 1, sha256: '0'
 

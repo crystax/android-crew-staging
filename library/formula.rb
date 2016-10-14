@@ -2,6 +2,7 @@ require 'uri'
 require 'digest'
 require 'fileutils'
 require 'open3'
+require 'rugged'
 require_relative 'extend/module.rb'
 require_relative 'release.rb'
 require_relative 'utils.rb'
@@ -188,11 +189,12 @@ class Formula
 
   private
 
-  def version_url(version)
+  def expand_url(release)
     str, block = url
-    str.gsub! '${version}', version
+    str.gsub! '${version}', release.version
+    str.gsub! '${crystax_version}', release.crystax_version.to_s
     if block
-      br = block.call(version)
+      br = block.call(release)
       str.gsub! '${block}', br
     end
     str
@@ -209,39 +211,58 @@ class Formula
   end
 
   def prepare_source_code(release, dir, src_name, log_prefix)
-    ver_url = version_url(release.version)
-    archive = File.join(Global::CACHE_DIR, File.basename(URI.parse(ver_url).path))
-    if File.exists? archive
-      puts "#{log_prefix} using cached file #{archive}"
+    eurl = expand_url(release)
+    if git_repo_spec? eurl
+      git_url = ''
+      git_tag = ''
+      eurl.each do |e|
+        if e.start_with? 'git_tag:'
+          git_tag = e.split(':')[1]
+        else
+          git_url = e
+        end
+      end
+      # todo: checkout he specified tag
+      puts "git_url: #{git_url}"
+      repo = Rugged::Repository.clone_at(git_url, dir)
     else
-      puts "#{log_prefix} downloading #{ver_url}"
-      Utils.download(ver_url, archive)
-    end
+      archive = File.join(Global::CACHE_DIR, File.basename(URI.parse(eurl).path))
+      if File.exists? archive
+        puts "#{log_prefix} using cached file #{archive}"
+      else
+        puts "#{log_prefix} downloading #{eurl}"
+        Utils.download(eurl, archive)
+      end
 
-    if build_options[:source_archive_without_top_dir]
-      src_dir = File.join(dir, src_name)
-      FileUtils.mkdir_p src_dir
-      puts "#{log_prefix} unpacking #{File.basename(archive)} into #{src_dir}"
-      Utils.unpack(archive, src_dir)
-    else
-      mask = File.join(dir, '*')
-      old_dir = Dir[mask]
-      puts "#{log_prefix} unpacking #{File.basename(archive)} into #{dir}"
-      Utils.unpack(archive, dir)
-      new_dir = Dir[mask]
-      diff = old_dir.empty? ? new_dir : new_dir - old_dir
-      raise "source archive does not have top directory, diff: #{diff}" if diff.count != 1
-      FileUtils.cd(dir) { FileUtils.mv diff[0], src_name }
-    end
+      if build_options[:source_archive_without_top_dir]
+        src_dir = File.join(dir, src_name)
+        FileUtils.mkdir_p src_dir
+        puts "#{log_prefix} unpacking #{File.basename(archive)} into #{src_dir}"
+        Utils.unpack(archive, src_dir)
+      else
+        mask = File.join(dir, '*')
+        old_dir = Dir[mask]
+        puts "#{log_prefix} unpacking #{File.basename(archive)} into #{dir}"
+        Utils.unpack(archive, dir)
+        new_dir = Dir[mask]
+        diff = old_dir.empty? ? new_dir : new_dir - old_dir
+        raise "source archive does not have top directory, diff: #{diff}" if diff.count != 1
+        FileUtils.cd(dir) { FileUtils.mv diff[0], src_name }
+      end
 
-    if patches(release.version).size > 0
-      src_dir = File.join(dir, src_name)
-      puts "#{log_prefix} patching in dir #{src_dir}"
-      patches(release.version).each do |p|
-        puts "#{log_prefix}   applying #{File.basename(p.path)}"
-        p.apply src_dir
+      if patches(release.version).size > 0
+        src_dir = File.join(dir, src_name)
+        puts "#{log_prefix} patching in dir #{src_dir}"
+        patches(release.version).each do |p|
+          puts "#{log_prefix}   applying #{File.basename(p.path)}"
+          p.apply src_dir
+        end
       end
     end
+  end
+
+  def git_repo_spec?(uri)
+    uri =~ /\|git_tag:/
   end
 
   def system(*args)

@@ -2,7 +2,7 @@ class Python < Utility
 
   desc "Interpreted, interactive, object-oriented programming language"
   homepage "https://www.python.org"
-  url "https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tar.xz"
+  #url "https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tar.xz"
 
   release version: '2.7.5', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                           darwin_x86_64:  '0',

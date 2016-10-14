@@ -27,6 +27,7 @@ module Build
 
   NDK_HOST_TOOLS_DIR = File.join(Global::NDK_DIR, 'sources', 'host-tools')
 
+  CMAKE_TOOLCHAIN_FILE = File.join(Global::NDK_DIR, 'cmake', 'toolchain.cmake')
 
   ARCH_LIST = [ARCH_ARM, ARCH_X86, ARCH_MIPS, ARCH_ARM64, ARCH_X86_64, ARCH_MIPS64]
   ABI_LIST  = ARCH_LIST.map { |a| a.abis }.flatten

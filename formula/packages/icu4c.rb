@@ -2,7 +2,7 @@ class Icu4c < Package
 
   desc "C/C++ and Java libraries for Unicode and globalization"
   homepage "http://site.icu-project.org/"
-  url "https://ssl.icu-project.org/files/icu4c/${version}/icu4c-${block}-src.tgz" do |v| v.gsub('.', '_') end
+  url "https://ssl.icu-project.org/files/icu4c/${version}/icu4c-${block}-src.tgz" do |r| r.version.gsub('.', '_') end
 
   release version: '57.1', crystax_version: 1, sha256: '0'
 
