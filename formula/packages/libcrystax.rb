@@ -49,8 +49,8 @@ class Libcrystax < BasePackage
         build_dir = File.join(arch_build_dir, abi, 'build')
         FileUtils.mkdir_p build_dir
         FileUtils.cd(build_dir) { [:static, :shared].each { |lt| build_for_abi abi, release, lib_type: lt } }
+        FileUtils.cp_r "#{Global::NDK_DIR}/#{archive_sub_dir}", dst_dir unless options.build_only?
       end
-      FileUtils.cp_r "#{Global::NDK_DIR}/#{archive_sub_dir}", dst_dir unless options.build_only?
       FileUtils.rm_rf arch_build_dir unless options.no_clean?
     end
 
