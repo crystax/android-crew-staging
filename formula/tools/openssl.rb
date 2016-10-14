@@ -2,13 +2,19 @@ class Openssl < BuildDependency
 
   desc "Cryptography and SSL/TLS Toolkit"
   homepage "https://openssl.org/"
-  url 'https://openssl.org/source/openssl-${version}.tar.gz'
+  url 'https://www.openssl.org/source/openssl-${version}.tar.gz'
 
-  release version: '1.0.2h', crystax_version: 1, sha256: { linux_x86_64:   '0',
+  release version: '1.0.2j', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                            darwin_x86_64:  '0',
                                                            windows_x86_64: '0',
                                                            windows:        '0'
                                                          }
+  # todo: add possibility to depend_on specici version before uncommenting this
+  # release version: '1.1.0b', crystax_version: 1, sha256: { linux_x86_64:   '0',
+  #                                                          darwin_x86_64:  '0',
+  #                                                          windows_x86_64: '0',
+  #                                                          windows:        '0'
+  #                                                        }
 
   depends_on 'zlib'
 
