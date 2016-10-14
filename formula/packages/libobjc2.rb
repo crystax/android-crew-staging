@@ -6,7 +6,6 @@ class Libobjc2 < Package
 
   release version: '1.8.1', crystax_version: 1, sha256: '0'
 
-  #build_copy 'COPYRIGHT'
   build_options setup_env: false
 
   def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs)
@@ -23,8 +22,5 @@ class Libobjc2 < Package
     system 'cmake', *args
     system 'make', '-j', num_jobs
     system 'make', 'install'
-
-    # clean lib dir before packaging
-    #FileUtils.cd("#{install_dir}/lib") { FileUtils.rm_rf ['pkgconfig'] + Dir['*.la'] }
   end
 end
