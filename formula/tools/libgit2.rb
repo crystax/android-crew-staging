@@ -27,7 +27,7 @@ class Libgit2 < BuildDependency
     build_env['EXTRA_INCLUDES'] = "-I#{zlib_dir}/include -I#{openssl_dir}/include -I#{libssh2_dir}/include"
 
     build_env['EXTRA_DEFINES'] += " -DGIT_ARCH_64"  unless platform.name == 'windows'
-    build_env['EXTRA_DEFINES'] += " -DGIT_USE_NSEC" unless platform.target_os == 'linux'
+    build_env['EXTRA_DEFINES'] += " -DGIT_USE_NSEC" if platform.target_os == 'windows'
 
     make_args = ['-f', 'Makefile.crystax']
 
