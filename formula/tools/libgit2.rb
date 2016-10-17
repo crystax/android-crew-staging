@@ -23,10 +23,11 @@ class Libgit2 < BuildDependency
     FileUtils.cp_r File.join(src_dir, '.'), '.'
 
     build_env['EXTRA_CFLAGS']   = "#{platform.cflags}"
-    build_env['EXTRA_DEFINES']  = "-DGIT_OPENSSL -DOPENSSL_SHA1 -DGIT_SSH"
+    build_env['EXTRA_DEFINES']  = "-DGIT_OPENSSL -DOPENSSL_SHA1 -DGIT_SSH -DGIT_THREADS"
     build_env['EXTRA_INCLUDES'] = "-I#{zlib_dir}/include -I#{openssl_dir}/include -I#{libssh2_dir}/include"
 
-    build_env['EXTRA_DEFINES']  += " -DGIT_ARCH_64" unless platform.name == 'windows'
+    build_env['EXTRA_DEFINES'] += " -DGIT_ARCH_64"  unless platform.name == 'windows'
+    build_env['EXTRA_DEFINES'] += " -DGIT_USE_NSEC" unless platform.target_os == 'linux'
 
     make_args = ['-f', 'Makefile.crystax']
 
