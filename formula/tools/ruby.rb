@@ -59,11 +59,20 @@ class Ruby < Utility
     libgit2_dir = host_dep_dirs[platform.name]['libgit2']
 
     cflags  = "-I#{zlib_dir}/include -I#{openssl_dir}/include #{platform.cflags}"
-    ldflags = "-w -L#{libssh2_dir}/lib -L#{libgit2_dir}/lib -L#{zlib_dir}/lib"
+    ldflags = "-w -L#{libssh2_dir}/lib -L#{libgit2_dir}/lib -L#{openssl_dir}/lib -L#{zlib_dir}/lib"
     if platform.target_os != 'windows'
-      libs = '-lz -lgit2 -lssh2 -lz'
+      libs = '-lz -lgit2 -lssh2 -lssl -lcrypto -lz'
     else
-      libs = "#{zlib_dir}/lib/libz.a #{libgit2_dir}/lib/libgit2.a #{libssh2_dir}/lib/libssh2.a #{zlib_dir}/lib/libz.a"
+      libs = ["#{zlib_dir}/lib/libz.a",
+              "#{libgit2_dir}/lib/libgit2.a",
+              "#{libssh2_dir}/lib/libssh2.a",
+              "#{openssl_dir}/lib/libssl.a",
+              "#{openssl_dir}/lib/libcrypto.a",
+              "#{zlib_dir}/lib/libz.a",
+              "-lws2_32",
+              "-lcrypt32",
+              "-lgdi32"
+             ].join(' ')
     end
 
     build_env['CFLAGS']          += ' ' + cflags
