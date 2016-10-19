@@ -13,7 +13,7 @@ class Nawk < Utility
   #build_options source_archive_without_top_dir: true
 
   def prepare_source_code(release, dir, src_name, log_prefix)
-    # source code is in soruce/host-tools/ directory
+    # source code is in source/host-tools/ directory
   end
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
