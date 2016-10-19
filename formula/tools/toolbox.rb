@@ -25,7 +25,7 @@ class Toolbox < Utility
     FileUtils.mkdir_p bin_dir
 
     cc = platform.cc
-    cflags = platform.cflafs.split(' ')
+    cflags = platform.cflags.split(' ')
 
     system cc, *cflags, "#{src_dir}/cmp_win.c",  '-o', "#{bin_dir}/cmd.exe"
     system cc, *cflags, "#{src_dir}/echo_win.c", '-o', "#{bin_dir}/echo.exe"
