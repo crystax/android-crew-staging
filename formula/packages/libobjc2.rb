@@ -22,5 +22,9 @@ class Libobjc2 < Package
     system 'cmake', *args
     system 'make', '-j', num_jobs
     system 'make', 'install'
+
+    internal_headers_dir = File.join(install_dir, 'include', 'internal')
+    FileUtils.mkdir_p internal_headers_dir
+    FileUtils.cp ['class.h', 'visibility.h'], internal_headers_dir
   end
 end
