@@ -82,7 +82,7 @@ class NdkBase < HostFormula
 
       FileUtils.cd(src_dir) do
         FileUtils.cp_r TOP_FILES_AND_DIRS, install_dir
-        FileUtils.cp WIN_FILES if platform.target_os == 'windows'
+        FileUtils.cp   WIN_FILES,          install_dir if platform.target_os == 'windows'
       end
       next if options.build_only?
 
