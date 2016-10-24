@@ -76,6 +76,20 @@ class Formula
     File.join(Global::CACHE_DIR, archive_filename(release))
   end
 
+  # derived classes must define two methods in order to use install method:
+  #   archive_filename
+  #   install_archive
+  #
+  def install(r = releases.last)
+    release = find_release(r)
+    file = archive_filename(release)
+
+    cachepath = download_archive(file, sha256_sum(release))
+
+    puts "unpacking archive"
+    install_archive release, cachepath
+  end
+
   def download_archive(archive, shasum)
     cachepath = File.join(Global::CACHE_DIR, archive)
 

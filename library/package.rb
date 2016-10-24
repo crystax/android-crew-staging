@@ -66,16 +66,6 @@ class Package < Formula
     release.installed = release.crystax_version
   end
 
-  def install(r = releases.last)
-    release = find_release(r)
-    file = archive_filename(release)
-
-    cachepath = download_archive(file, sha256_sum(release))
-
-    puts "unpacking archive"
-    install_archive release, cachepath
-  end
-
   def uninstall(release)
     puts "removing #{name}:#{release.version}"
     rel_dir = release_directory(release)
