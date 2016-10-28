@@ -49,7 +49,7 @@ module Crew
     #
     mask = "#{formula.name}-*-#{Global::PLATFORM_NAME}.tar.xz"
     active = "#{formula.name}-#{active_ver}-#{Global::PLATFORM_NAME}.tar.xz"
-    Dir[File.join(Global::CACHE_DIR, mask)].select { |f| File.basename(f) != active }
+    Dir[File.join(Global::PKG_CACHE_DIR, mask)].select { |f| File.basename(f) != active }
   end
 
   def self.remove_old_libraries(formula, dryrun)
@@ -57,7 +57,7 @@ module Crew
     # releases are sorted from oldest to most recent order
     latest_rel = formula.releases.select { |r| r.installed? }.last
     if not latest_rel
-      incache = Dir[File.join(Global::CACHE_DIR, "#{formula.name}-*.tar.xz")].sort
+      incache = Dir[File.join(Global::PKG_CACHE_DIR, "#{formula.name}-*.tar.xz")].sort
     else
       Dir[File.join(formula.home_directory, '*')].select { |d| File.basename(d) != latest_rel.version }.sort.each do |dir|
         if (dryrun)
@@ -68,9 +68,7 @@ module Crew
         end
       end
       latest = "#{formula.name}-#{latest_rel.version}_#{latest_rel.installed_crystax_version}.tar.xz"
-      #puts "latest: #{latest}"
-      #puts "file: " + Dir[File.join(Global::CACHE_DIR, "#{formula.name}-*.tar.xz")].to_s
-      incache = Dir[File.join(Global::CACHE_DIR, "#{formula.name}-*.tar.xz")].select { |f| File.basename(f) != latest }.sort
+      incache = Dir[File.join(Global::PKG_CACHE_DIR, "#{formula.name}-*.tar.xz")].select { |f| File.basename(f) != latest }.sort
     end
 
     incache

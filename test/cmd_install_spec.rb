@@ -33,7 +33,7 @@ describe "crew install" do
   context "existing formula with one release and bad sha256 sum of the downloaded file" do
     it "outputs error message" do
       copy_formulas 'libbad.rb'
-      file = File.join(Global::CACHE_DIR, "libbad-1.0.0_1.#{Global::ARCH_EXT}")
+      file = File.join(Global::PKG_CACHE_DIR, "libbad-1.0.0_1.#{Global::ARCH_EXT}")
       crew 'install', 'libbad'
       expect(exitstatus).to_not be_zero
       expect(err.chomp).to eq("error: bad SHA256 sum of the file #{file}")

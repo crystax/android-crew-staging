@@ -135,7 +135,7 @@ class Llvm < Tool
       end
 
       if not options.build_only?
-        archive = File.join(Global::CACHE_DIR, archive_filename(release, platform.name))
+        archive = cache_file(release, platform.name)
         puts "= packaging #{archive}"
         Utils.pack archive, base_dir, ARCHIVE_TOP_DIR
 

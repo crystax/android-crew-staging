@@ -72,10 +72,6 @@ class Formula
     self.class.build_dependencies ? self.class.build_dependencies : []
   end
 
-  def cache_file(release)
-    File.join(Global::CACHE_DIR, archive_filename(release))
-  end
-
   # derived classes must define two methods in order to use install method:
   #   archive_filename
   #   install_archive
@@ -91,7 +87,7 @@ class Formula
   end
 
   def download_archive(archive, shasum)
-    cachepath = File.join(Global::CACHE_DIR, archive)
+    cachepath = File.join(Global::BIN_CACHE_DIR, archive)
 
     if File.exists? cachepath
       puts "using cached file #{archive}"
@@ -224,6 +220,10 @@ class Formula
     @patches[version]
   end
 
+  def src_cache_file(url)
+    archive = File.join(Global::SRC_CACHE_DIR, File.basename(URI.parse(url).path))
+  end
+
   def prepare_source_code(release, dir, src_name, log_prefix)
     eurl = expand_url(release)
     src_dir = File.join(dir, src_name)
@@ -242,7 +242,7 @@ class Formula
       # todo: remove or not?
       #FileUtils.rm_rf File.join(src_dir, '.git')
     else
-      archive = File.join(Global::CACHE_DIR, File.basename(URI.parse(eurl).path))
+      archive = src_cache_file(eurl)
       if File.exists? archive
         puts "#{log_prefix} using cached file #{archive}"
       else

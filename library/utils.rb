@@ -52,6 +52,7 @@ module Utils
 
   def self.pack(archive, indir, *dirs)
     FileUtils.rm_f archive
+    FileUtils.mkdir_p File.dirname(archive)
     dirs << '.' if dirs.empty?
     args = ['-C', indir, '-Jcf', archive] + dirs
     run_command(tar_prog, *args)
@@ -74,7 +75,7 @@ module Utils
   end
 
   def self.unzip_prog
-    # todo: use crew's own patch program?
+    # todo: use crew's own unzip program?
     @@unzip_prog
   end
 

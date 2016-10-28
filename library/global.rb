@@ -97,8 +97,10 @@ module Global
   SHIPYARD_DIR           = create_required_dir(TOOLS_DIR, 'build_dependencies').realpath
   REPOSITORY_DIR         = Pathname.new(BASE_DIR).realpath
   PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
-  CACHE_DIR              = Pathname.new(File.join(BASE_DIR, 'cache')).realpath
   FORMULA_DIR            = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
+  #CACHE_DIR              = Pathname.new(File.join(BASE_DIR, 'cache')).realpath
+  SRC_CACHE_DIR          = Pathname.new(File.join(BASE_DIR, 'cache')).realpath
+  PKG_CACHE_DIR          = "/var/tmp/crew-cache-#{ENV['USER']}"
 
   EXE_EXT  = RUBY_PLATFORM =~ /mingw/ ? '.exe' : ''
   ARCH_EXT = 'tar.xz'

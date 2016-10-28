@@ -53,8 +53,8 @@ class Platforms < BasePackage
     FileUtils.cd(install_dir) { FileUtils.rm Dir['platforms/**/libcrystax.*'] }
 
     return if options.build_only?
-    
-    archive = File.join(Global::CACHE_DIR, archive_filename(release))
+
+    archive = cache_file(release)
     puts "= packaging #{archive}"
     Utils.pack archive, install_dir, *ARCHIVE_TOP_DIRS
 

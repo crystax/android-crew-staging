@@ -7,6 +7,10 @@ class HostFormula < Formula
     "#{file_name}-#{release}-#{platform_name}.tar.xz"
   end
 
+  def cache_file(release, plaform_name)
+    File.join(Global::PKG_CACHE_DIR, archive_filename(release, plaform_name))
+  end
+
   def build_base_dir
     File.join Build::BASE_HOST_DIR, file_name
   end

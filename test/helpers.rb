@@ -135,16 +135,16 @@ module Spec
     end
 
     def in_cache?(type, name, version, cxver)
-      File.exists?(File.join(Global::CACHE_DIR, archive_name(type, name, version, cxver)))
+      File.exists?(File.join(Global::PKG_CACHE_DIR, archive_name(type, name, version, cxver)))
     end
 
     def cache_empty?
-      Dir[File.join(Global::CACHE_DIR, '*')].empty?
+      Dir[File.join(Global::PKG_CACHE_DIR, '*')].empty?
     end
 
     def clean_cache
-      FileUtils.rm_rf   Global::CACHE_DIR
-      FileUtils.mkdir_p Global::CACHE_DIR
+      FileUtils.rm_rf   Global::PKG_CACHE_DIR
+      FileUtils.mkdir_p Global::PKG_CACHE_DIR
     end
 
     def clean_hold

@@ -86,7 +86,7 @@ class NdkBase < HostFormula
       end
       next if options.build_only?
 
-      archive = File.join(Global::CACHE_DIR, archive_filename(release, platform.name))
+      archive = cache_file(release, platform.name)
       Utils.pack archive, install_dir
 
       if options.update_shasum?

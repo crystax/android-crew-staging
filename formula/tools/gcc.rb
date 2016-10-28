@@ -115,7 +115,7 @@ class Gcc < Tool
           create_libgccunwind platform, arch, base_dir if Toolchain::DEFAULT_GCC.version == release.version
         end
 
-        archive = File.join(Global::CACHE_DIR, archive_filename(release, platform.name))
+        archive = cache_file(release, platform.name)
         puts "= packaging #{archive}"
         dirs = [ARCHIVE_TOP_DIR]
         dirs << UNWIND_SUB_DIR.split('/')[0] if Toolchain::DEFAULT_GCC.version == release.version

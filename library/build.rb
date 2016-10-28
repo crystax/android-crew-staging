@@ -17,7 +17,6 @@ module Build
   BASE_BUILD_DIR   = "#{BASE_TMP_DIR}/ndk-#{USER}"
   BASE_TARGET_DIR  = "#{BASE_BUILD_DIR}/target"
   BASE_HOST_DIR    = "#{BASE_BUILD_DIR}/host"
-  CACHE_DIR        = "/var/tmp/ndk-cache-#{USER}"
 
   # todo:
   VENDOR_TESTS_DIR         = Pathname.new("#{Global::NDK_DIR}/../../vendor/tests").cleanpath.to_s

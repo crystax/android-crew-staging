@@ -49,6 +49,10 @@ class Package < Formula
     File.join(home_directory, release.version)
   end
 
+  def cache_file(release)
+    File.join(Global::PKG_CACHE_DIR, archive_filename(release))
+  end
+
   def install_archive(release, archive)
     rel_dir = release_directory(release)
     FileUtils.rm_rf binary_files(rel_dir)
@@ -162,8 +166,7 @@ class Package < Formula
       puts "Build only, no packaging and installing"
     else
       # pack archive and copy into cache dir
-      # todo: use global cache dir or build cache dir?
-      archive = "#{Global::CACHE_DIR}/#{archive_filename(release)}"
+      archive = cache_file(release)
       puts "Creating archive file #{archive}"
       Utils.pack(archive, package_dir)
 

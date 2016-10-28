@@ -48,7 +48,7 @@ class Tool < HostFormula
       FileUtils.cd(build_dir) { build_for_platform platform, release, options, host_dep_dirs, target_dep_dirs }
       next if options.build_only?
       #
-      archive = File.join(Global::CACHE_DIR, archive_filename(release, platform.name))
+      archive = cache_file(release, platform.name)
       Utils.pack archive, base_dir, ARCHIVE_TOP_DIR
       #
       if options.update_shasum?

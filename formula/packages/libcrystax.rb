@@ -58,8 +58,7 @@ class Libcrystax < BasePackage
       puts "Build only, no packaging and installing"
     else
       # pack archive and copy into cache dir
-      # todo: use global cache dir or build cache dir?
-      archive = "#{Global::CACHE_DIR}/#{archive_filename(release)}"
+      archive = cache_file(release)
       puts "Creating archive file #{archive}"
       Utils.pack(archive, package_dir)
 

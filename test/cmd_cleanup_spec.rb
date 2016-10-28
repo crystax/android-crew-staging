@@ -62,7 +62,7 @@ describe "crew cleanup" do
       crew '-b', 'cleanup'
       expect(result).to eq(:ok)
       expect(out).to eq("removing: #{Global::HOLD_DIR}/libtwo/1.1.0\n" \
-                        "removing: #{Global::CACHE_DIR}/#{archive_name(:library, 'libtwo', '1.1.0', 1)}\n")
+                        "removing: #{Global::PKG_CACHE_DIR}/#{archive_name(:library, 'libtwo', '1.1.0', 1)}\n")
       expect(in_cache?(:library, 'libone', '1.0.0', 1)).to eq(true)
       expect(in_cache?(:library, 'libtwo', '1.1.0', 1)).to eq(false)
       expect(in_cache?(:library, 'libtwo', '2.2.0', 1)).to eq(true)
@@ -78,7 +78,7 @@ describe "crew cleanup" do
       crew 'cleanup', '-n'
       expect(result).to eq(:ok)
       expect(out).to eq("would remove: #{Global::HOLD_DIR}/libtwo/1.1.0\n" \
-                        "would remove: #{Global::CACHE_DIR}/#{archive_name(:library, 'libtwo', '1.1.0', 1)}\n")
+                        "would remove: #{Global::PKG_CACHE_DIR}/#{archive_name(:library, 'libtwo', '1.1.0', 1)}\n")
       expect(in_cache?(:library, 'libone', '1.0.0', 1)).to eq(true)
       expect(in_cache?(:library, 'libtwo', '1.1.0', 1)).to eq(true)
       expect(in_cache?(:library, 'libtwo', '2.2.0', 1)).to eq(true)
@@ -99,9 +99,9 @@ describe "crew cleanup" do
       expect(out).to eq("removing: #{Global::HOLD_DIR}/libthree/1.1.1\n"       \
                         "removing: #{Global::HOLD_DIR}/libthree/2.2.2\n"       \
                         "removing: #{Global::HOLD_DIR}/libtwo/1.1.0\n"         \
-                        "removing: #{Global::CACHE_DIR}/libthree-1.1.1_1.#{Global::ARCH_EXT}\n" \
-                        "removing: #{Global::CACHE_DIR}/libthree-2.2.2_1.#{Global::ARCH_EXT}\n" \
-                        "removing: #{Global::CACHE_DIR}/libtwo-1.1.0_1.#{Global::ARCH_EXT}\n")
+                        "removing: #{Global::PKG_CACHE_DIR}/libthree-1.1.1_1.#{Global::ARCH_EXT}\n" \
+                        "removing: #{Global::PKG_CACHE_DIR}/libthree-2.2.2_1.#{Global::ARCH_EXT}\n" \
+                        "removing: #{Global::PKG_CACHE_DIR}/libtwo-1.1.0_1.#{Global::ARCH_EXT}\n")
       expect(in_cache?(:library, 'libone', '1.0.0', 1)).to eq(true)
       expect(in_cache?(:library, 'libtwo', '1.1.0', 1)).to eq(false)
       expect(in_cache?(:library, 'libtwo', '2.2.0', 1)).to eq(true)
@@ -172,7 +172,7 @@ describe "crew cleanup" do
       expect(result).to eq(:ok)
       expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/#{curl_0_rel}\n" \
                         "removing: #{Global::ENGINE_DIR}/curl/#{curl_1_rel}\n" \
-                        "removing: #{Global::CACHE_DIR}/curl-#{curl_1_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}\n")
+                        "removing: #{Global::PKG_CACHE_DIR}/curl-#{curl_1_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}\n")
       expect(in_cache?(:utility, 'curl', curl_2_rel.version, curl_2_rel.crystax_version)).to eq(true)
     end
   end
@@ -199,7 +199,7 @@ describe "crew cleanup" do
                         "removing: #{Global::ENGINE_DIR}/curl/#{curl_1_rel}\n"         \
                         "removing: #{Global::ENGINE_DIR}/libarchive/#{bsdtar_0_rel}\n" \
                         "removing: #{Global::ENGINE_DIR}/ruby/#{ruby_0_rel}\n"         \
-                        "removing: #{Global::CACHE_DIR}/curl-#{curl_1_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}\n")
+                        "removing: #{Global::PKG_CACHE_DIR}/curl-#{curl_1_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}\n")
       expect(in_cache?(:utility, 'libarchive', bsdtar_1_rel.version, bsdtar_1_rel.crystax_version)).to eq(true)
       expect(in_cache?(:utility, 'curl',       curl_2_rel.version,   curl_2_rel.crystax_version)).to   eq(true)
       expect(in_cache?(:utility, 'ruby',       ruby_1_rel.version,   ruby_1_rel.crystax_version)).to   eq(true)
@@ -221,7 +221,7 @@ describe "crew cleanup" do
       expect(result).to eq(:ok)
       expect(out.split("\n")).to eq(["removing: #{Global::ENGINE_DIR}/curl/#{curl_0_rel}",
                                      "removing: #{Global::HOLD_DIR}/libtwo/1.1.0",
-                                     "removing: #{Global::CACHE_DIR}/#{archive_name(:library, 'libtwo', '1.1.0', 1)}"
+                                     "removing: #{Global::PKG_CACHE_DIR}/#{archive_name(:library, 'libtwo', '1.1.0', 1)}"
                                     ])
       expect(in_cache?(:utility, 'curl', curl_2_rel.version, curl_2_rel.crystax_version)).to eq(true)
       expect(in_cache?(:library, 'libone', '1.0.0', 1)).to eq(true)
@@ -262,10 +262,10 @@ describe "crew cleanup" do
                                      "removing: #{Global::HOLD_DIR}/libthree/1.1.1",
                                      "removing: #{Global::HOLD_DIR}/libthree/2.2.2",
                                      "removing: #{Global::HOLD_DIR}/libtwo/1.1.0",
-                                     "removing: #{Global::CACHE_DIR}/curl-#{curl_1_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}",
-                                     "removing: #{Global::CACHE_DIR}/libthree-1.1.1_1.#{Global::ARCH_EXT}",
-                                     "removing: #{Global::CACHE_DIR}/libthree-2.2.2_1.#{Global::ARCH_EXT}",
-                                     "removing: #{Global::CACHE_DIR}/libtwo-1.1.0_1.#{Global::ARCH_EXT}"
+                                     "removing: #{Global::PKG_CACHE_DIR}/curl-#{curl_1_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}",
+                                     "removing: #{Global::PKG_CACHE_DIR}/libthree-1.1.1_1.#{Global::ARCH_EXT}",
+                                     "removing: #{Global::PKG_CACHE_DIR}/libthree-2.2.2_1.#{Global::ARCH_EXT}",
+                                     "removing: #{Global::PKG_CACHE_DIR}/libtwo-1.1.0_1.#{Global::ARCH_EXT}"
                                     ])
       expect(in_cache?(:utility, 'libarchive', bsdtar_1_rel.version, bsdtar_1_rel.crystax_version)).to eq(true)
       expect(in_cache?(:utility, 'curl',       curl_2_rel.version,   curl_2_rel.crystax_version)).to   eq(true)
