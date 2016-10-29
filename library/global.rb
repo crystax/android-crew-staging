@@ -98,7 +98,6 @@ module Global
   REPOSITORY_DIR         = Pathname.new(BASE_DIR).realpath
   PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
   FORMULA_DIR            = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
-  #CACHE_DIR              = Pathname.new(File.join(BASE_DIR, 'cache')).realpath
   SRC_CACHE_DIR          = Pathname.new(File.join(BASE_DIR, 'cache')).realpath
   PKG_CACHE_DIR          = "/var/tmp/crew-cache-#{ENV['USER']}"
 
