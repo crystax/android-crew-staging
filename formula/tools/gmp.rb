@@ -18,7 +18,8 @@ class Gmp < BuildDependency
             "--enable-cxx",
             "--disable-shared"
            ]
-    args << 'ABI=32' if platform.target_name == 'windows'
+    args << 'ABI=32'             if platform.target_name == 'windows'
+    args << '--disable-assembly' if platform.target_os == 'darwin'
 
     system "#{src_dir}/configure", *args
     system 'make', '-j', num_jobs
