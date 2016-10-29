@@ -2,9 +2,9 @@ class Mpfr < BuildDependency
 
   desc "C library for multiple-precision floating-point computations"
   homepage "http://www.mpfr.org/"
-  url "https://mirrors.ocf.berkeley.edu/debian/pool/main/m/mpfr4/mpfr4_${version}.orig.tar.xz"
+  url "http://www.mpfr.org/mpfr-${version}/mpfr-${version}.tar.xz"
 
-  release version: '3.1.4', crystax_version: 1, sha256: { linux_x86_64:   '0',
+  release version: '3.1.5', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                           darwin_x86_64:  '0',
                                                           windows_x86_64: '0',
                                                           windows:        '0'
