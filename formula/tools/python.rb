@@ -2,13 +2,14 @@ class Python < Utility
 
   desc "Interpreted, interactive, object-oriented programming language"
   homepage "https://www.python.org"
-  #url "https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tar.xz"
 
   release version: '2.7.5', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                           darwin_x86_64:  '0',
                                                           windows_x86_64: '0',
                                                           windows:        '0'
                                                         }
+
+  executables 'python'
 
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in toolchain/python repository
@@ -64,11 +65,34 @@ class Python < Utility
     #system 'make', 'test' if options.check? platform
     system 'make', 'install'
 
-    # remove unneeded files before packaging
     FileUtils.cd(install_dir) do
+      # remove unneeded files before packaging
       FileUtils.rm_rf ['share', 'lib/pkgconfig']
-      # todo: remove symlinks from bin?
-      Dir['bin/*'].each { |file| FileUtils.rm_f file if File.symlink?(file) }
+      FileUtils.cd('bin') do
+        # deal with symlinks
+        Dir['python*-config'].each { |file| FileUtils.rm_f file if File.symlink?(file) }
+        Dir['python*.exe'].each do |file|
+          if File.symlink? file
+            FileUtils.rm file
+            FileUtils.cp 'python2.7.exe', file
+          end
+        end
+        # Generate proper python-config wrapper
+        FileUtils.mv 'python2.7-config',    'python2.7-config.py'
+        if platform.target_os != 'windows'
+          File.open('python2.7-config.sh', 'w') do |f|
+            f.puts '#!/bin/sh'
+            f.puts
+            f.puts 'exec \`dirname \$0\`/python \`dirname \$0\`/python2.7-config.py "\$@"'
+          end
+        else
+          File.open('python2.7-config.cmd', 'w') do |f|
+            f.puts '@echo off'
+            f.puts 'set BINDIR=%~dp0'
+            f.puts '"%BINDIR%\\python" "%BINDIR%\\python2.7-config.py" %*'
+          end
+        end
+      end
     end
   end
 end

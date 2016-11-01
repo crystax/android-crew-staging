@@ -15,6 +15,12 @@ class Ruby < Utility
   build_depends_on 'libssh2'
   build_depends_on 'libgit2'
 
+  executables 'ruby'
+
+  def wrapper_script_lines(_exe, platform_name)
+    platform_name.start_with?('windows') ? ['set GEM_HOME=', 'set GEM_PATH='] : ['unset GEM_HOME', 'unset GEM_PATH']
+  end
+
   def prepare_source_code(release, dir, src_name, log_prefix)
     super(release, dir, src_name, log_prefix)
 

@@ -9,6 +9,8 @@ class NdkDepends < Utility
                                                       windows:        '0'
                                                     }
 
+  executables 'ndk-depends'
+
   def prepare_source_code(release, dir, src_name, log_prefix)
   end
 

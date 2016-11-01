@@ -10,6 +10,8 @@ class Toolbox < Utility
                                                       windows:        '0'
                                                     }
 
+  executables 'cmp', 'echo'
+
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in source/host-tools/ directory
   end

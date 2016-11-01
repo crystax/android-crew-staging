@@ -9,6 +9,8 @@ class NdkStack < Utility
                                                       windows:        '0'
                                                     }
 
+  executables 'ndk-stack'
+
   def prepare_source_code(release, dir, src_name, log_prefix)
   end
 

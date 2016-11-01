@@ -10,7 +10,7 @@ class Nawk < Utility
                                                              windows:        '0'
                                                            }
 
-  #build_options source_archive_without_top_dir: true
+  executables 'awk'
 
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in source/host-tools/ directory

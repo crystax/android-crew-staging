@@ -10,6 +10,8 @@ class Make < Utility
                                                          windows:        '0'
                                                        }
 
+  executables 'make'
+
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in sources/host-tools/ directory
   end

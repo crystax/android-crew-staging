@@ -53,12 +53,28 @@ class Utility < Tool
   def install_archive(release, archive, platform_name = Global::PLATFORM_NAME, ndk_dir = Global::NDK_DIR)
     rel_dir = release_directory(release, platform_name)
     FileUtils.rm_rf rel_dir
+
     # use system tar while updating bsdtar utility
     Utils.reset_tar_prog if name == 'bsdtar'
     Utils.unpack archive, ndk_dir
     write_active_file File.dirname(rel_dir), release
     Utils.reset_tar_prog if name == 'bsdtar'
+
     release.installed = release.crystax_version
+
+    executables.each { |e| write_wrapper_script(e, platform_name) }
+  end
+
+  def executables
+    self.class.executables
+  end
+
+  def self.executables(*args)
+    if args.size == 0
+      @executables ? @executables : []
+    else
+      @executables = args
+    end
   end
 
   private
@@ -66,5 +82,56 @@ class Utility < Tool
   def write_active_file(home_dir, release)
     file = File.join(home_dir, ACTIVE_FILE_NAME)
     File.open(file, 'w') { |f| f.puts release.to_s }
+  end
+
+  def wrapper_script_lines(_exe, _platform_name)
+    []
+  end
+
+  def write_wrapper_script(exe, platform_name)
+    wrapper = File.join(Global::NDK_DIR, 'prebuilt', platform_name, 'bin', exe)
+    wrapper += '.cmd' if platform_name.start_with?('windows')
+    FileUtils.mkdir_p File.dirname(wrapper)
+
+    if not platform_name.start_with?('windows')
+      sub_dir = "#{File.basename(Global::ENGINE_DIR)}/#{file_name}"
+      File.open(wrapper, 'w') do |f|
+        f.puts '#!/bin/bash'
+        f.puts
+        wrapper_script_lines(exe, platform_name).each { |l| f.puts l }
+        f.puts
+        f.puts 'tools_dir=$(dirname $0)/..'
+        f.puts "ver=`cat $tools_dir/#{sub_dir}/#{ACTIVE_FILE_NAME}`"
+        f.puts "dir=\"$tools_dir/#{sub_dir}/$ver/bin\""
+        f.puts
+        f.puts "exec $dir/#{exe} \"$@\""
+      end
+      FileUtils.chmod "a+x", wrapper
+    else
+      sub_dir = "#{File.basename(Global::ENGINE_DIR)}\\#{file_name}"
+      exe += '.exe'
+      File.open(wrapper, 'w') do |f|
+        f.puts '@echo off'
+        f.puts
+        f.puts 'setlocal'
+        f.puts
+        wrapper_script_lines(exe, platform_name).each { |l| f.puts l }
+        f.puts
+        f.puts 'set FILEDIR=%~dp0'
+        f.puts 'set TOOLSDIR=%FILEDIR%..'
+        f.puts
+        f.puts 'set VER='
+        f.puts "pushd %TOOLSDIR%\\#{sub_dir}"
+        f.puts "for /f \"delims=\" %%a in ('type #{ACTIVE_FILE_NAME}') do @set VER=%%a"
+        f.puts 'popd'
+        f.puts "set DIR=%TOOLSDIR%\\#{sub_dir}\\%VER%\\bin"
+        f.puts
+        f.puts "%DIR%\\#{exe} %*"
+        f.puts
+        f.puts 'endlocal'
+        f.puts
+        f.puts 'exit /b %errorlevel%'
+      end
+    end
   end
 end
