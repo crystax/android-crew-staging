@@ -10,14 +10,9 @@ class Expat < BuildDependency
                                                           windows:        '0'
                                                         }
 
-  # depends_on 'gmp'
-  # depends_on 'mpfr'
 
-  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform, release)
-
-    # gmp_dir  = host_dep_dirs[platform.name]['gmp']
-    # mpfr_dir = host_dep_dirs[platform.name]['mpfr']
 
     args = ["--prefix=#{install_dir}",
             "--host=#{platform.configure_host}",
