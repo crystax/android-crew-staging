@@ -34,18 +34,6 @@ module Global
 
   # public
 
-  # def self.active_file_path(uname, engine_dir = ENGINE_DIR)
-  #   File.join(engine_dir, uname, ACTIVE_UTIL_FILE)
-  # end
-
-  # def self.active_util_version(uname, engine_dir = ENGINE_DIR)
-  #   File.read(active_file_path(uname, engine_dir)).split("\n")[0]
-  # end
-
-  # def self.active_util_dir(uname, engine_dir = ENGINE_DIR)
-  #   File.join(engine_dir, uname, active_util_version(uname, engine_dir), 'bin')
-  # end
-
   def self.engine_dir(platform_name)
     File.join(NDK_DIR, 'prebuilt', platform_name, 'crew')
   end
