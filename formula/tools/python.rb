@@ -79,18 +79,19 @@ class Python < Utility
         end
         # Generate proper python-config wrapper
         FileUtils.mv 'python2.7-config',    'python2.7-config.py'
-        if platform.target_os != 'windows'
-          File.open('python2.7-config.sh', 'w') do |f|
-            f.puts '#!/bin/sh'
-            f.puts
-            f.puts 'exec \`dirname \$0\`/python \`dirname \$0\`/python2.7-config.py "\$@"'
-          end
-        else
+        if platform.target_os == 'windows'
           File.open('python2.7-config.cmd', 'w') do |f|
             f.puts '@echo off'
             f.puts 'set BINDIR=%~dp0'
             f.puts '"%BINDIR%\\python" "%BINDIR%\\python2.7-config.py" %*'
           end
+        else
+          File.open('python2.7-config.sh', 'w') do |f|
+            f.puts '#!/bin/sh'
+            f.puts
+            f.puts 'exec `dirname $0`/python `dirname $0`/python2.7-config.py "$@"'
+          end
+          FileUtils.chmod 'a+x', 'python2.7-config.sh'
         end
       end
     end
