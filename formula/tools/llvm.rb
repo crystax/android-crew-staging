@@ -23,6 +23,7 @@ class Llvm < Tool
                                                       }
 
   build_depends_on 'libedit'
+  depends_on 'python'
 
   ARCHIVE_TOP_DIR  = 'toolchains'
   PYTHON_VER   = '2.7'
@@ -78,8 +79,9 @@ class Llvm < Tool
       self.log_file = build_log_file(platform)
 
       libedit_dir = host_dep_dirs[platform.name]['libedit']
+      python_dir  = host_dep_dirs[platform.name]['python']
 
-      prepare_build_env platform, libedit_dir
+      prepare_build_env platform, libedit_dir, python_dir
 
       args = ["--prefix=#{install_dir}",
               "--host=#{platform.toolchain_host}",
@@ -152,7 +154,7 @@ class Llvm < Tool
     end
   end
 
-  def prepare_build_env(platform, libedit_dir)
+  def prepare_build_env(platform, libedit_dir, python_dir)
     cflags  = " -O2 -I#{libedit_dir}/include -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
     ldflags = "-L#{libedit_dir}/lib -static-libstdc++ -static-libgcc"
 
@@ -170,17 +172,16 @@ class Llvm < Tool
       # lldb doesnt' support python and curses on Windows
       cflags += ' -DLLDB_DISABLE_PYTHON -DLLDB_DISABLE_CURSES'
     else
-      python_home = Global::TOOLS_DIR
-      cflags  += " -I#{python_home}/include/python#{PYTHON_VER}"
-      ldflags += " -L#{python_home}/lib"
-      build_env['PYTHONHOME'] = python_home
+      cflags  += " -I#{python_dir}/include/python#{PYTHON_VER}"
+      ldflags += " -L#{python_dir}/lib"
+      build_env['PYTHONHOME'] = python_dir
     end
 
     cflags += ' ' + platform.cflags
 
     build_env.clear
 
-    build_env['PATH']           = (platform.target_os == 'windows') ? Build.path : "#{python_home}/bin:#{Build.path}"
+    build_env['PATH']           = (platform.target_os == 'windows') ? Build.path : "#{python_dir}/bin:#{Build.path}"
     build_env['LANG']           = 'C'
     build_env['CC']             = platform.cc
     build_env['CXX']            = platform.cxx
