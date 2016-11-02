@@ -7,7 +7,7 @@ require_relative 'platform.rb'
 class BuildDependency < Tool
 
   # tool trait
-  INSTALL_DIR_NAME = 'build_dependencies'
+  INSTALL_DIR_NAME = File.basename(Global::SHIPYARD_DIR)  #'build_dependencies'
 
   include Properties
 
