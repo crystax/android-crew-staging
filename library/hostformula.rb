@@ -3,6 +3,8 @@ require_relative 'formula.rb'
 
 class HostFormula < Formula
 
+  namespace :host
+
   def archive_filename(release, platform_name = Global::PLATFORM_NAME)
     "#{file_name}-#{release}-#{platform_name}.tar.xz"
   end
