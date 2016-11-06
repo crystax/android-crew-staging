@@ -14,8 +14,9 @@ module Crew
 
     args.each.with_index do |n, index|
       name, ver = n.split(':')
-      # todo: handle installing optional tools too (from host namespace)
-      fqn = "target/#{name}"
+      fqns = formulary.find(name)
+      raise "packages present in more than one namespace: #{fqns.map(&:fqn)}; please, specify required namespace"
+      fqn = fqns[0]
       formula = formulary[fqn]
       release = formula.find_release(Release.new(ver))
 
