@@ -15,10 +15,12 @@ module Crew
     args.each.with_index do |n, index|
       name, ver = n.split(':')
       fqns = formulary.find(name)
-      raise "packages present in more than one namespace: #{fqns.map(&:fqn)}; please, specify required namespace"
-      fqn = fqns[0]
-      formula = formulary[fqn]
+      raise "packages present in more than one namespace: #{fqns.map(&:fqn)}; please, specify required namespace" if fqns.size > 1
+      raise "#{name} not found" if fqns.size == 0
+      formula = fqns[0]
       release = formula.find_release(Release.new(ver))
+
+      exit
 
       if release.installed?
         puts "#{name}:#{release} already installed"
