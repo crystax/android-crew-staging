@@ -20,8 +20,6 @@ module Crew
       formula = fqns[0]
       release = formula.find_release(Release.new(ver))
 
-      exit
-
       if release.installed?
         puts "#{name}:#{release} already installed"
         next
