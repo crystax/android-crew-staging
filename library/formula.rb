@@ -87,7 +87,7 @@ class Formula
   end
 
   def download_archive(archive, shasum)
-    cachepath = File.join(Global::BIN_CACHE_DIR, archive)
+    cachepath = File.join(Global::PKG_CACHE_DIR, archive)
 
     if File.exists? cachepath
       puts "using cached file #{archive}"
