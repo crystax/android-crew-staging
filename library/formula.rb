@@ -76,11 +76,11 @@ class Formula
   #   archive_filename
   #   install_archive
   #
-  def install(r = releases.last, platform: Global::PLATFORM_NAME, check_shasum: true)
+  def install(r = releases.last, options = { platform: Global::PLATFORM_NAME, check_shasum: true })
     release = find_release(r)
-    file = archive_filename(release)
+    file = archive_filename(release, options[:platform])
 
-    cachepath = download_archive(file, sha256_sum(release))
+    cachepath = download_archive(file, options[:check_shasum] ? sha256_sum(release) : nil)
 
     puts "unpacking archive"
     install_archive release, cachepath
@@ -97,9 +97,11 @@ class Formula
       Utils.download(url, cachepath)
     end
 
-    puts "checking integrity of the archive file #{archive}"
-    if Digest::SHA256.hexdigest(File.read(cachepath, mode: "rb")) != shasum
-      raise "bad SHA256 sum of the file #{cachepath}"
+    if not shasum
+      puts "skipping integrity check of the archive file #{archive}"
+    else
+      puts "checking integrity of the archive file #{archive}"
+      raise "bad SHA256 sum of the file #{cachepath}" if Digest::SHA256.hexdigest(File.read(cachepath, mode: "rb")) != shasum
     end
 
     cachepath
