@@ -73,7 +73,7 @@ module Global
 
   DOWNLOAD_BASE = [nil, ''].include?(ENV['CREW_DOWNLOAD_BASE']) ? "https://crew.crystax.net:9876"                      : ENV['CREW_DOWNLOAD_BASE']
   BASE_DIR      = [nil, ''].include?(ENV['CREW_BASE_DIR'])      ? Pathname.new(__FILE__).realpath.dirname.dirname.to_s : Pathname.new(ENV['CREW_BASE_DIR']).realpath.to_s
-  NDK_DIR       = [nil, ''].include?(ENV['CREW_NDK_DIR'])       ? Pathname.new(BASE_DIR).realpath.dirname.dirname.to_s : Pathname.new(ENV['CREW_NDK_DIR']).realpath.to_s
+  NDK_DIR       = [nil, ''].include?(ENV['CREW_NDK_DIR'])       ? Pathname.new(BASE_DIR).realpath.dirname.to_s         : Pathname.new(ENV['CREW_NDK_DIR']).realpath.to_s
   TOOLS_DIR     = def_tools_dir(NDK_DIR, OS)
 
   PLATFORM_NAME = File.basename(TOOLS_DIR)
