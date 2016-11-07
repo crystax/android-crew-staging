@@ -13,7 +13,7 @@ if not defined SSL_CERT_FILE (
 )
 
 if not defined CREW_NDK_DIR (
-    set CREW_NDK_DIR=%CREWFILEDIR%..\..
+    set CREW_NDK_DIR=%CREWFILEDIR%..
 )
 
 set CREWHOSTCPU=-x86_64

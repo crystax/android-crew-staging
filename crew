@@ -11,7 +11,7 @@ if [ -z $SSL_CERT_FILE ]; then
 fi
 
 if [ -z $CREW_NDK_DIR ]; then
-    CREW_NDK_DIR=$CREW_FILE_DIR/../..
+    CREW_NDK_DIR=$CREW_FILE_DIR/..
 fi
 
 if [ -z $CREW_TOOLS_DIR ]; then
@@ -30,6 +30,5 @@ else
 fi
 
 export SSL_CERT_FILE
-export CREW_NDK_DIR
 
 exec $CREW_RUBY -W0 "$CREW_FILE_DIR/crew.rb" "$@"
