@@ -28,6 +28,6 @@ class InstallOptions
   end
 
   def check_shasum?
-    @update_shasum
+    @check_shasum
   end
 end
