@@ -2,7 +2,27 @@ require_relative '../exceptions.rb'
 require_relative '../build.rb'
 
 
-BUILD_SYNTAX = 'build [build_options] name[:version] ...'.freeze
+INSTALL_SYNTAX = 'install [install_options] name[:version] ...'.freeze
+BUILD_SYNTAX   = 'build [build_options] name[:version] ...'.freeze
+
+NAME_RULES = <<-EOS
+Name for a formula can specified in two ways. First, it can be specified
+with formula type, like this:
+
+  target/openssl
+
+or
+
+  host/openssl
+
+Second, it can be specified without any type prefix, like this:
+
+  libjpeg
+
+If type is not specified, then command will find out formula's type
+automatically. Specifing formula type is required only if formula with
+the same name exists for more than one type.
+EOS
 
 CREW_HELP = <<-EOS
 Usage: crew [OPTIONS] COMMAND [parameters]
@@ -23,7 +43,7 @@ COMMAND is one of the following:
                   list all available formulas for packages or tools;
                   whithout an argument list all formulas
   info name ...   show information about the specified formula(s)
-  install name[:version] ...
+  #{INSTALL_SYNTAX}
                   install the specified formula(s)
   remove name[:version] ...
                   uninstall the specified formulas
@@ -43,25 +63,38 @@ NO_HELP = <<-EOS
 There is no additional info the command.
 EOS
 
+INSTALL_HELP = <<-EOS
+#{INSTALL_SYNTAX}
+
+#{NAME_RULES}
+
+The INSTALL command support the following options:
+
+--platform=PLATFORM
+                 One of the supported platforms: darwin-x86_64;
+                 linux-x86_64, windows-x86_64, windows;
+                 by default the platforms on which the command
+                 is run will be used
+
+--no-check-shasum
+                 do not check SHA256 sum of the packages before
+                 installing them
+
+--only-from-cache
+                 command will fail if required package was not
+                 found in the cache
+
+NB
+
+All options the INSTALL command supports are useful for CREW
+developers only.
+
+EOS
+
 BUILD_HELP = <<-EOS
 #{BUILD_SYNTAX}
 
-Name for a formula to build can specified in two ways. First, it can be
-specified with formula type, like this:
-
-  package/openssl
-
-or
-
-  utility/openssl
-
-Second, it can be specified without any type prefix, like this:
-
-  libjpeg
-
-If type is not specified, then BUILD command will find out formula's type
-automatically. Specifing formula type is required only if formula with
-the same name exists for more than one type.
+#{NAME_RULES}
 
 The BUILD command support the following options:
 
@@ -110,7 +143,7 @@ CMD_HELP = {
   'env'           => NO_HELP,
   'list'          => NO_HELP,
   'info'          => NO_HELP,
-  'install'       => NO_HELP,
+  'install'       => INSTALL_HELP,
   'remove'        => NO_HELP,
   'source'        => NO_HELP,
   'build'         => BUILD_HELP,
