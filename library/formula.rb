@@ -76,22 +76,23 @@ class Formula
   #   archive_filename
   #   install_archive
   #
-  def install(r = releases.last, options = { platform: Global::PLATFORM_NAME, check_shasum: true })
+  def install(r = releases.last, options = { platform: Global::PLATFORM_NAME, check_shasum: true, cache_only: false })
     release = find_release(r)
     file = archive_filename(release, options[:platform])
 
-    cachepath = download_archive(file, options[:check_shasum] ? sha256_sum(release) : nil)
+    cachepath = download_archive(file, options[:check_shasum] ? sha256_sum(release) : nil, options[:cache_only])
 
     puts "unpacking archive"
     install_archive release, cachepath
   end
 
-  def download_archive(archive, shasum)
+  def download_archive(archive, shasum, cache_only)
     cachepath = File.join(Global::PKG_CACHE_DIR, archive)
 
     if File.exists? cachepath
       puts "using cached file #{archive}"
     else
+      raise "#{archive} not found in the packages cache #{Global::PKG_CACHE_DIR}" if cache_only
       url = "#{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[namespace]}/#{file_name}/#{archive}"
       puts "downloading #{url}"
       Utils.download(url, cachepath)

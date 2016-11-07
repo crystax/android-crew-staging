@@ -38,11 +38,11 @@ module Crew
 
       if deps.count > 0
         puts "installing dependencies for #{name}:"
-        deps.each { |d| d.install d.releases.last, platform: options.platform, check_shasum: options.check_shasum? }
+        deps.each { |d| d.install d.releases.last, options.as_hash }
         puts""
       end
 
-      formula.install release, platform: options.platform, check_shasum: options.check_shasum?
+      formula.install release, options.as_hash
 
       puts "" if index + 1 < args.count
     end
