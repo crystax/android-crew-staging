@@ -1,14 +1,14 @@
 require_relative '../exceptions.rb'
 require_relative '../release.rb'
 require_relative '../formulary.rb'
+require_relative '../install_options.rb'
 
 
 module Crew
 
   def self.install(args)
-    if args.count < 1
-      raise FormulaUnspecifiedError
-    end
+    options, args = InstallOptions.parse_args(args)
+    raise FormulaUnspecifiedError if args.count < 1
 
     formulary = Formulary.new
 
@@ -31,18 +31,18 @@ module Crew
         end
       end
 
-      # todo: handle build dependencies too
+      # todo: handle build dependencies too?
       puts "calculating dependencies for #{name}: "
       deps = formulary.dependencies(formula).select { |d| not d.installed? }
       puts "  dependencies to install: #{(deps.map { |d| d.name }).join(', ')}"
 
       if deps.count > 0
         puts "installing dependencies for #{name}:"
-        deps.each { |d| d.install }
+        deps.each { |d| d.install d.releases.last, platform: options.platform, check_shasum: options.check_shasum }
         puts""
       end
 
-      formula.install release
+      formula.install release, platform: options.platform, check_shasum: options.check_shasum
 
       puts "" if index + 1 < args.count
     end

@@ -9,7 +9,7 @@ module Crew
   def self.build(args)
     raise NoBuildOnWindows if Global::OS == 'windows'
 
-    options, args = parse_args(args)
+    options, args = BuildOptions.parse_args(args)
     raise FormulaUnspecifiedError if args.count < 1
 
     formulary = Formulary.new
@@ -52,11 +52,5 @@ module Crew
 
       puts "" unless n == args.last
     end
-  end
-
-  def self.parse_args(args)
-    opts, args = args.partition { |a| a.start_with? '--' }
-
-    [Build_options.new(opts), args]
   end
 end

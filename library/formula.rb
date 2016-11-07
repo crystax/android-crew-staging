@@ -76,7 +76,7 @@ class Formula
   #   archive_filename
   #   install_archive
   #
-  def install(r = releases.last)
+  def install(r = releases.last, platform: Global::PLATFORM_NAME, check_shasum: true)
     release = find_release(r)
     file = archive_filename(release)
 

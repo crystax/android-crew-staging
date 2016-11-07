@@ -1,10 +1,11 @@
 require_relative 'global.rb'
 require_relative 'utils.rb'
-require_relative 'build.rb'
-require_relative 'platform.rb'
+require_relative 'command_options.rb'
 
 
-class Build_options
+class BuildOptions
+
+  extend CommandOptions
 
   attr_accessor :platforms, :abis, :num_jobs
   attr_writer :source_only, :build_only, :no_install, :no_clean, :update_shasum, :check
@@ -18,12 +19,7 @@ class Build_options
     @check = false
     @update_shasum = false
     @num_jobs = Utils.processor_count * 2
-
-    @platforms = case Global::OS
-                 when 'linux'  then ['linux-x86_64', 'windows-x86_64', 'windows']
-                 when 'darwin' then ['darwin-x86_64']
-                 else []
-                 end
+    @platforms = default_platforms
 
     opts.each do |opt|
       case opt
@@ -75,5 +71,18 @@ class Build_options
 
   def check?(platform)
     @check and (Global::OS == platform.target_os)
+  end
+
+  private
+
+  def default_platforms
+    case Global::OS
+    when 'linux'
+      ['linux-x86_64', 'windows-x86_64', 'windows']
+    when 'darwin'
+      ['darwin-x86_64']
+    else
+      []
+    end
   end
 end
