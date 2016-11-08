@@ -25,10 +25,10 @@ module Global
   def self.def_tools_dir(ndkdir, os)
     case os
     when 'darwin', 'linux'
-      "#{os}-x86_64"
+      "#{ndkdir}/prebuilt/#{os}-x86_64"
     else
-      os64 = 'windows-x86_64'
-      os32 = 'windows'
+      dir64 = "#{ndkdir}/prebuilt/windows-x86_64"
+      dir32 = "#{ndkdir}/prebuilt/windows"
       Dir.exists?(dir64) ? dir64 : dir32
     end
   end
