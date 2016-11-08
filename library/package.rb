@@ -310,7 +310,7 @@ class Package < Formula
 
   private
 
-  def archive_filename(release)
+  def archive_filename(release, _)
     "#{file_name}-#{release}.tar.xz"
   end
 
