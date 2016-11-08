@@ -16,9 +16,7 @@ module Crew
       name, version = n.split(':')
       outname = name + (version ? ':' + version : "")
 
-      # todo: handle not only packages but other types that can be removed, like BuildDependency
-      fqn = "target/#{name}"
-      formula = formulary[fqn]
+      formula = formulary[name]
       release = Release.new(version)
 
       if not formula.installed?(release)
@@ -27,7 +25,7 @@ module Crew
       end
 
       survive_rm = formula.releases.select { |r| r.installed? and not r.match?(release) }
-      ideps = formulary.dependants_of(fqn).select { |d| d.installed? }
+      ideps = formulary.dependants_of(formula.fqn).select { |d| d.installed? }
       if ideps.count > 0 and survive_rm.count == 0
         raise "#{outname} has installed dependants: #{ideps.map{|f| f.fqn}.join(', ')}"
       end

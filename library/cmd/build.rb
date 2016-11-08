@@ -16,12 +16,7 @@ module Crew
 
     args.each do |n|
       item, ver = n.split(':')
-
-      found = formulary.find(item)
-      raise "please, specify namespace for #{item}; more than one formula exists: #{found.map(&:fqn).join(',')}" if found.size > 1
-      raise "not found formula with name #{item}" if found.size == 0
-      formula = found[0]
-
+      formula = formulary[item]
       release = formula.find_release(Release.new(ver))
       raise "source code not installed for #{formula.name}:#{release}" if (formula.namespace == :target) and !formula.source_installed?(release)
 

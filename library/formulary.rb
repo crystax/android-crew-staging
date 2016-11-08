@@ -31,10 +31,11 @@ class Formulary
     @formulary.select { |_, value| value.namespace == :host }
   end
 
-  def [](fqn)
-    formula = @formulary[fqn]
-    raise FormulaUnavailableError.new(fqn) unless formula
-    formula
+  def [](name)
+    found = find(name)
+    raise FormulaUnavailableError.new(name) if found.size == 0
+    raise "please, specify namespace for #{name}; more than one formula exists: #{found.map(&:fqn).join(',')}" if found.size > 1
+    found[0]
   end
 
   def find(name)
