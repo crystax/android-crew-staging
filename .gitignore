@@ -1,4 +1,6 @@
 .DS_Store
+.tramp_history
+*/.tramp_history
 cache/*
 *~
 test/.testdataprepared
