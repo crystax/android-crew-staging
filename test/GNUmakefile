@@ -90,7 +90,7 @@ env:
 	@echo CREW_TOOLS_DIR = $(CREW_TOOLS_DIR)
 	@echo CREW_BASE_DIR  = $(CREW_BASE_DIR)
 
-unit-tests: test-data $(unit_test_files)
+unit-tests:
 	$(RUBY) -I ../library ts_crew.rb
 
 test-data:

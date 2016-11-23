@@ -3,6 +3,13 @@ require_relative '../library/release.rb'
 
 class TestRelease < MiniTest::Test
 
+  def test_split_package_version
+    r = Release.new('1.2.3', 4)
+    ver, cxver = Release.split_package_version(r.to_s)
+    assert_equal(r.version,         ver)
+    assert_equal(r.crystax_version, cxver)
+  end
+
   def test_initialize
     # empty ctor
     r = Release.new

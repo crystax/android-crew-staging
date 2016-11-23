@@ -1,6 +1,7 @@
 require_relative 'platform.rb'
 require_relative 'formula.rb'
 require_relative 'hostformula.rb'
+require_relative 'properties.rb'
 
 class Tool < HostFormula
 
