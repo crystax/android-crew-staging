@@ -66,32 +66,21 @@ class Python < Utility
     system 'make', 'install'
 
     FileUtils.cd(install_dir) do
-      # remove unneeded files before packaging
       FileUtils.rm_rf ['share', 'lib/pkgconfig']
       FileUtils.cd('bin') do
-        # deal with symlinks
-        Dir['python*-config'].each { |file| FileUtils.rm_f file if File.symlink?(file) }
-        Dir['python*.exe'].each do |file|
-          if File.symlink? file
-            FileUtils.rm file
-            FileUtils.cp 'python2.7.exe', file
-          end
-        end
-        # Generate proper python-config wrapper
         FileUtils.mv 'python2.7-config',    'python2.7-config.py'
+        File.open('python2.7-config', 'w') do |f|
+          f.puts '#!/bin/sh'
+          f.puts
+          f.puts 'exec `dirname $0`/python `dirname $0`/python2.7-config.py "$@"'
+        end
+        FileUtils.chmod 'a+x', 'python2.7-config'
         if platform.target_os == 'windows'
           File.open('python2.7-config.cmd', 'w') do |f|
             f.puts '@echo off'
             f.puts 'set BINDIR=%~dp0'
             f.puts '"%BINDIR%\\python" "%BINDIR%\\python2.7-config.py" %*'
           end
-        else
-          File.open('python2.7-config.sh', 'w') do |f|
-            f.puts '#!/bin/sh'
-            f.puts
-            f.puts 'exec `dirname $0`/python `dirname $0`/python2.7-config.py "$@"'
-          end
-          FileUtils.chmod 'a+x', 'python2.7-config.sh'
         end
       end
     end
