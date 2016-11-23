@@ -199,7 +199,7 @@ module Toolchain
 
   GCC_4_9 = GCC.new('4.9')
   GCC_5   = GCC.new('5')
-  GCC_6   = GCC.new('5')
+  GCC_6   = GCC.new('6')
 
   DEFAULT_GCC = GCC_5
 
