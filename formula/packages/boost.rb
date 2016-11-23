@@ -2,9 +2,9 @@ class Boost < Package
 
   desc "Boost libraries built without ICU4C"
   homepage "http://www.boost.org"
-  url "https://downloads.sourceforge.net/project/boost/boost/${version}/boost_${block}.tar.bz2" do |v| v.gsub('.', '_') end
+  url "https://downloads.sourceforge.net/project/boost/boost/${version}/boost_${block}.tar.bz2" do |r| r.version.gsub('.', '_') end
 
-  release version: '1.61.0', crystax_version: 1, sha256: '0'
+  release version: '1.62.0', crystax_version: 1, sha256: '0'
 
   build_options setup_env:            false,
                 copy_installed_dirs:  [],
@@ -63,7 +63,7 @@ class Boost < Package
     gen_android_mk pkg_dir, release
   end
 
-  def build_for_abi(abi, toolchain, release, _dep_dirs)
+  def build_for_abi(abi, toolchain, release, _host_dep_dirs, _target_dep_dirs)
     args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
               "--enable-shared",
