@@ -47,12 +47,6 @@ class Gcc < Tool
 
   Lib = Struct.new(:name, :version, :url, :args, :templates)
 
-  include Properties
-
-  def release_directory(release)
-    File.join(Global::SERVICE_DIR, name, release.version)
-  end
-
   def install_archive(release, archive, platform_name = Global::PLATFORM_NAME, ndk_dir = Global::NDK_DIR)
     rel_dir = release_directory(release)
     FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir

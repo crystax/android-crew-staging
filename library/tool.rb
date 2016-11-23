@@ -8,6 +8,19 @@ class Tool < HostFormula
 
   ARCHIVE_TOP_DIR = 'prebuilt'
 
+  include Properties
+
+  def initialize(path)
+    super path
+
+    # mark installed releases and sources
+    releases.each { |r| r.update get_properties(release_directory(r)) }
+  end
+
+  def release_directory(release)
+    File.join(Global::SERVICE_DIR, name, release.version)
+  end
+
   def build(release, options, host_dep_dirs, target_dep_dirs)
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"
