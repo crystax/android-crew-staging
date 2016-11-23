@@ -32,7 +32,7 @@ module Build
   ABI_LIST  = ARCH_LIST.map { |a| a.abis }.flatten
 
   DEFAULT_TOOLCHAIN = Toolchain::DEFAULT_GCC
-  TOOLCHAIN_LIST = [ Toolchain::GCC_4_9, Toolchain::GCC_5, Toolchain::LLVM_3_6, Toolchain::LLVM_3_7 ]
+  TOOLCHAIN_LIST = [ Toolchain::GCC_4_9, Toolchain::GCC_5, Toolchain::GCC_6, Toolchain::LLVM_3_6, Toolchain::LLVM_3_7, Toolchain::LLVM_3_8 ]
 
   BINUTILS_VER = '2.25'
   BUG_URL      = 'https://tracker.crystax.net/projects/ndk'
