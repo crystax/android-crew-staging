@@ -31,6 +31,8 @@ class Python < Utility
     case platform.target_os
     when 'darwin'
       build_env['LDSHARED'] = "#{platform.cc} -bundle -undefined dynamic_lookup "
+    when 'linux'
+      build_env['CFLAGS'] += " -fPIC"
     when 'windows'
       File.open('config.site', 'w') do |f|
          f.puts "ac_cv_file__dev_ptmx=no"
