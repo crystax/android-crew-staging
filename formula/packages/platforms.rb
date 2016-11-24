@@ -8,7 +8,6 @@ class Platforms < BasePackage
   release version: '24', crystax_version: 1, sha256: '0'
 
   # todo:
-  #build_depends_on 'libcrystax'
   #build_depends_on default_compiler
 
   ARCHIVE_TOP_DIRS  = ['platforms']  # todo: , 'samples']
@@ -216,7 +215,8 @@ class Platforms < BasePackage
     puts "= patching sysroot"
     build_env.clear
     build_env['CREW_NDK_DIR'] = install_dir
-    system "#{Global::NDK_DIR}/sources/crystax/bin/patch-sysroot", '--verbose', '--headers', '--libraries'
+    #system "#{Global::NDK_DIR}/sources/crystax/bin/patch-sysroot", '--verbose', '--headers', '--libraries'
+    system "#{Global::NDK_DIR}/sources/crystax/bin/patch-sysroot", '--verbose', '--headers'
   end
 
   def copy_src_directory(src, dst)
