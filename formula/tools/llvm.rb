@@ -152,6 +152,7 @@ class Llvm < Tool
     cflags  = " -O2 -I#{libedit_dir}/include -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
     ldflags = "-L#{libedit_dir}/lib -static-libstdc++ -static-libgcc"
 
+    cflags += ' -fPIC' if platform.target_os == 'linux'
     ldflags += ' -static' if platform.target_os == 'windows'
 
     if platform.target_os == 'darwin'
@@ -168,7 +169,6 @@ class Llvm < Tool
     else
       cflags  += " -I#{python_dir}/include/python#{PYTHON_VER}"
       ldflags += " -L#{python_dir}/lib"
-      build_env['PYTHONHOME'] = python_dir
     end
 
     cflags += ' ' + platform.cflags
@@ -186,6 +186,7 @@ class Llvm < Tool
     build_env['LDFLAGS']        = ldflags
     build_env['REQUIRES_RTTI']  = '1'
     build_env['DARWIN_SYSROOT'] = platform.sysroot if platform.target_os == 'darwin'
+    build_env['PYTHONHOME']     = python_dir
 
     if platform.target_os == 'darwin'
       # from build-llvm.sh:
