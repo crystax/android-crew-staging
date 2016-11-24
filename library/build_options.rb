@@ -17,6 +17,7 @@ class BuildOptions
     @install = true
     @no_clean = false
     @check = false
+    @all_versions = false
     @update_shasum = false
     @num_jobs = Utils.processor_count * 2
     @platforms = default_platforms
@@ -41,6 +42,8 @@ class BuildOptions
         @platforms = opt.split('=')[1].split(',')
       when '--check'
         @check = true
+      when '--all-versions'
+        @all_versions = true
       when /^--abis=/
         @abis = opt.split('=')[1].split(',')
       else
@@ -71,6 +74,10 @@ class BuildOptions
 
   def check?(platform)
     @check and (Global::OS == platform.target_os)
+  end
+
+  def all_versions?
+    @all_versions
   end
 
   private

@@ -12,13 +12,15 @@ class TestRelease < MiniTest::Test
     assert_equal(false,                     v.build_only?)
     assert_equal(false,                     v.no_clean?)
     assert_equal(false,                     v.update_shasum?)
+    assert_equal(false,                     v.all_versions?)
     # all options
-    v = Build_options.new(['--abis=x86', '--num-jobs=1', '--build-only', '--no-clean', '--update-shasum'])
+    v = Build_options.new(['--abis=x86', '--num-jobs=1', '--build-only', '--no-clean', '--update-shasum', '--all-versions'])
     assert_equal(['x86'], v.abis)
     assert_equal(1,       v.num_jobs)
     assert_equal(true,    v.build_only?)
     assert_equal(true,    v.no_clean?)
     assert_equal(true,    v.update_shasum?)
+    assert_equal(true,    v.all_versions?)
     # unknown option
     assert_raises(RuntimeError) { Build_options.new(['--hello-world']) }
   end

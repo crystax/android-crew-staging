@@ -14,6 +14,8 @@ module Crew
 
     formulary = Formulary.new
 
+    args = add_all_versions(args, formulary) if options.all_versions?
+
     args.each do |n|
       item, ver = n.split(':')
       formula = formulary[item]
@@ -47,5 +49,14 @@ module Crew
 
       puts "" unless n == args.last
     end
+  end
+
+  def self.add_all_versions(args, formulary)
+    a = []
+    args.each do |n|
+      item, _ = n.split(':')
+      formulary[item].releases.each { |r| a << "#{item}:#{r.version}" }
+    end
+    a
   end
 end
