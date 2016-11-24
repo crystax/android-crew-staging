@@ -3,7 +3,20 @@ require_relative 'formula.rb'
 
 class HostFormula < Formula
 
+  include Properties
+
   namespace :host
+
+  def initialize(path)
+    super path
+
+    # mark installed releases and sources
+    releases.each { |r| r.update get_properties(release_directory(r)) }
+  end
+
+  def release_directory(release)
+    File.join(Global::SERVICE_DIR, name, release.version)
+  end
 
   def archive_filename(release, platform_name = Global::PLATFORM_NAME)
     "#{file_name}-#{release}-#{platform_name}.tar.xz"

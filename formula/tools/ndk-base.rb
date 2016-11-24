@@ -10,8 +10,6 @@ class NdkBase < HostFormula
                                                        windows:        '0'
                                                      }
 
-  include Properties
-
   # todo: fix files list
   TOP_FILES_AND_DIRS = ['Android.mk',
                         'BACKERS.md',
@@ -34,10 +32,6 @@ class NdkBase < HostFormula
                        ]
 
   WIN_FILES = ['crew.cmd', 'ndk-gdb.cmd']
-
-  def release_directory(release)
-    File.join(Global::SERVICE_DIR, name, release.version)
-  end
 
   def install_archive(release, archive, platform_name = Global::PLATFORM_NAME, ndk_dir = Global::NDK_DIR)
     rel_dir = release_directory(release)
