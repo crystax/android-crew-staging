@@ -26,6 +26,10 @@ class BasePackage < Formula
     File.join(Global::SERVICE_DIR, file_name, release.version)
   end
 
+  def cache_file(release)
+    File.join(Global::PKG_CACHE_DIR, archive_filename(release))
+  end
+
   def source_installed?(release)
     true
   end
