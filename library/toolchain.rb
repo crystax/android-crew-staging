@@ -29,6 +29,10 @@ module Toolchain
       [ar, ranlib, readelf]
     end
 
+    def tool(arch, name)
+      "#{tc_prefix(arch)}/bin/#{arch.host}-#{name}"
+    end
+
     def c_compiler_name
       'gcc'
     end
