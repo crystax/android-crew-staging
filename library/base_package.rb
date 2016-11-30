@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'digest'
+require_relative 'exceptions.rb'
 require_relative 'formula.rb'
 require_relative 'properties.rb'
 require_relative 'release.rb'
