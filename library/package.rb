@@ -170,16 +170,18 @@ class Package < Formula
       puts "Creating archive file #{archive}"
       Utils.pack(archive, package_dir)
 
+      if options.update_shasum?
+        release.shasum = Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
+        update_shasum release
+      end
+
       # install into packages (and update props if any)
       # we do not use Formula's install method here to bypass SHA256 sum checks,
       # build command is intended for a developers
-      puts "Unpacking archive into #{release_directory(release)}"
-      install_archive release, archive
-    end
-
-    if options.update_shasum?
-      release.shasum = Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
-      update_shasum release
+      if options.install?
+        puts "Unpacking archive into #{release_directory(release)}"
+        install_archive release, archive
+      end
     end
 
     if options.no_clean?
