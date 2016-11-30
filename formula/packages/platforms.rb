@@ -17,10 +17,10 @@ class Platforms < BasePackage
   # todo: move method to the BasePackage class
   def install_archive(release, archive, ndk_dir = Global::NDK_DIR)
     rel_dir = release_directory(release)
-    FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir
+    FileUtils.mkdir_p rel_dir
     prop = get_properties(rel_dir)
 
-    FileUtils.rm_rf ARCHIVE_TOP_DIRS.map { |d| File.join Global::NDK_DIR, d }
+    FileUtils.rm_rf ARCHIVE_TOP_DIRS.map { |d| File.join ndk_dir, d }
     Utils.unpack archive, ndk_dir
 
     prop[:installed] = true
@@ -31,7 +31,8 @@ class Platforms < BasePackage
   end
 
   def build(release, options, host_dep_dirs, _target_dep_dirs)
-    puts "Building #{name} #{release} for all platforms"
+    arch_list = Build.abis_to_arch_list(options.abis)
+    puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
 
     FileUtils.rm_rf build_base_dir
 
@@ -43,7 +44,7 @@ class Platforms < BasePackage
 
     self.log_file = build_log_file
 
-    copy_api_level_sysroot
+    copy_api_level_sysroot arch_list
     # todo:
     #copy_samples
     patch_sysroot_header_and_libraries
@@ -70,8 +71,8 @@ class Platforms < BasePackage
     FileUtils.rm_rf build_base_dir unless options.no_clean?
   end
 
-  def copy_api_level_sysroot
-    Build::ARCH_LIST.each do |arch|
+  def copy_api_level_sysroot(arch_list)
+    arch_list.each do |arch|
       puts "= generating arch: #{arch.name}"
       # Find first platform for this arch
       prev_sysroot_dst = nil
@@ -199,6 +200,17 @@ class Platforms < BasePackage
 
         prev_sysroot_dst = sysroot_dst
       end
+
+      Build::API_LEVELS.each do |api_level|
+        sysroot_dir = "#{install_dir}/platforms/android-#{api_level}/arch-#{arch}/usr"
+        Dir["#{sysroot_dir}/*"].each do |dir|
+          next if dir.end_with? 'include'
+          files = Dir["#{dir}/*"]
+          google_dir = "#{dir}/google"
+          FileUtils.mkdir_p google_dir
+          FileUtils.cp files, google_dir
+        end
+      end
     end
   end
 
@@ -215,8 +227,7 @@ class Platforms < BasePackage
     puts "= patching sysroot"
     build_env.clear
     build_env['CREW_NDK_DIR'] = install_dir
-    #system "#{Global::NDK_DIR}/sources/crystax/bin/patch-sysroot", '--verbose', '--headers', '--libraries'
-    system "#{Global::NDK_DIR}/sources/crystax/bin/patch-sysroot", '--verbose', '--headers'
+    system "#{Global::NDK_DIR}/sources/crystax/bin/patch-sysroot", '--verbose', '--headers', '--libraries', '--no-crystax-libraries'
   end
 
   def copy_src_directory(src, dst)
