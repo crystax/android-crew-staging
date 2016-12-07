@@ -28,7 +28,7 @@ class BasePackage < Formula
   end
 
   def cache_file(release)
-    File.join(Global::PKG_CACHE_DIR, archive_filename(release))
+    File.join(Global::PKG_CACHE_DIR, archive_filename(release, ''))
   end
 
   def source_installed?(release)
@@ -42,7 +42,7 @@ class BasePackage < Formula
 
   private
 
-  def archive_filename(release)
+  def archive_filename(release, _)
     "#{file_name}-#{release}.tar.xz"
   end
 
