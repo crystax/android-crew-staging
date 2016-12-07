@@ -80,8 +80,7 @@ The INSTALL command support the following options:
                  do not check SHA256 sum of the packages before
                  installing them
 
---only-from-cache
-                 command will fail if required package was not
+--cache-only     command will fail if required package was not
                  found in the cache
 
 NB
