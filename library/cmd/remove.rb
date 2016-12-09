@@ -17,6 +17,7 @@ module Crew
       outname = name + (version ? ':' + version : "")
 
       formula = formulary[name]
+      raise "removing of '#{name}' is not supported" unless formula.respond_to? :uninstall
       release = Release.new(version)
 
       if not formula.installed?(release)
