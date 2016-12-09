@@ -21,14 +21,10 @@ orig_tools_dir     = File.join(orig_ndk_dir, 'prebuilt', PLATFORM)
 orig_engine_dir    = File.join(orig_tools_dir, 'crew')
 
 # copy utils from NDK dir to tests directory structure
-FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'cache')
-FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'patches')
-FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'formula', 'utilities')
-FileUtils.mkdir_p File.join(Crew_test::NDK_DIR, 'sources')
-FileUtils.mkdir_p File.join(Crew_test::NDK_DIR, 'packages')
 FileUtils.mkdir_p File.join(tools_dir, 'crew')
 FileUtils.mkdir_p utils_download_dir
 FileUtils.cp_r File.join(orig_tools_dir, 'bin'),  tools_dir
+
 # copy only core utilites
 Crew_test::UTILS.each { |cu| FileUtils.cp_r File.join(orig_tools_dir, 'crew', cu), File.join(tools_dir, 'crew') }
 FileUtils.cp_r Crew_test::NDK_DIR, Crew_test::NDK_COPY_DIR
@@ -42,7 +38,7 @@ require_relative '../library/utility.rb'
 ORIG_NDK_DIR       = Pathname.new(orig_ndk_dir).realpath.to_s
 ORIG_TOOLS_DIR     = Pathname.new(orig_tools_dir).realpath.to_s
 ORIG_ENGINE_DIR    = Pathname.new(orig_engine_dir).realpath.to_s
-ORIG_FORMULA_DIR   = Pathname.new(File.join('..', 'formula', 'utilities')).realpath.to_s
+ORIG_FORMULA_DIR   = Pathname.new(File.join('..', 'formula', 'tools')).realpath.to_s
 TOOLS_DIR          = Pathname.new(tools_dir).realpath.to_s
 UTILS_DOWNLOAD_DIR = Pathname.new(utils_download_dir).realpath.to_s
 DATA_DIR           = Pathname.new(Crew_test::DATA_DIR).realpath.to_s

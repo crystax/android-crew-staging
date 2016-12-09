@@ -36,11 +36,11 @@ describe "crew upgrade" do
 
     context "when there is one new release in one formula" do
       it "says about installing new release" do
-        repository_add_formula :library, 'libone.rb', 'libtwo-1.rb:libtwo.rb'
+        repository_add_formula :target, 'libone.rb', 'libtwo-1.rb:libtwo.rb'
         repository_clone
         crew_checked 'install', 'libone'
         crew_checked 'install', 'libtwo'
-        repository_add_formula :library, 'libtwo.rb'
+        repository_add_formula :target, 'libtwo.rb'
         crew_checked 'update'
         crew 'upgrade'
         expect(result).to eq(:ok)
@@ -53,12 +53,12 @@ describe "crew upgrade" do
 
     context "when there are two formulas with new release in each" do
       it "says about installing new releases" do
-        repository_add_formula :library, 'libone.rb', 'libtwo-1.rb:libtwo.rb', 'libthree-2.rb:libthree.rb'
+        repository_add_formula :target, 'libone.rb', 'libtwo-1.rb:libtwo.rb', 'libthree-2.rb:libthree.rb'
         repository_clone
         crew_checked 'install', 'libone'
         crew_checked 'install', 'libtwo'
         crew_checked 'install', 'libthree:1.1.1'
-        repository_add_formula :library, 'libtwo.rb', 'libthree.rb'
+        repository_add_formula :target, 'libtwo.rb', 'libthree.rb'
         crew_checked 'update'
         crew 'upgrade'
         expect(result).to eq(:ok)
@@ -78,7 +78,7 @@ describe "crew upgrade" do
     context "when there is one new release for curl utility, with crystax_version changed" do
       it "says about installing new release" do
         repository_clone
-        repository_add_formula :utility, 'curl-2.rb:curl.rb'
+        repository_add_formula :host, 'curl-2.rb:curl.rb'
         crew_checked 'update'
         crew '-b', 'upgrade'
         ver = Crew_test::UTILS_RELEASES['curl'][1].version
@@ -92,14 +92,14 @@ describe "crew upgrade" do
         expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{ver}_1")).to eq(true)
         expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{ver}_#{cxver}")).to eq(true)
         expect(Utility.active_version('curl')).to eq("#{ver}_#{cxver}")
-        expect(in_cache?(:utility, 'curl', ver, cxver)).to eq(true)
+        expect(in_cache?(:host, 'curl', ver, cxver)).to eq(true)
       end
     end
 
     context "when there are two new releases for curl utility, one with crystax_version changed, and one with upstream version changed" do
       it "says about installing new release (with new upstream)" do
         repository_clone
-        repository_add_formula :utility, 'curl-3.rb:curl.rb'
+        repository_add_formula :host, 'curl-3.rb:curl.rb'
         crew_checked 'update'
         crew '-b', 'upgrade'
         old_rel = Crew_test::UTILS_RELEASES['curl'][0].to_s
@@ -114,14 +114,14 @@ describe "crew upgrade" do
         expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{old_rel}")).to eq(true)
         expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{ver}_#{cxver}")).to eq(true)
         expect(Utility.active_version('curl')).to eq("#{ver}_#{cxver}")
-        expect(in_cache?(:utility, 'curl', ver, cxver)).to eq(true)
+        expect(in_cache?(:host, 'curl', ver, cxver)).to eq(true)
       end
     end
 
     context "when there are new releases for all utilities" do
       it "says about installing new releases" do
         repository_clone
-        repository_add_formula :utility, 'libarchive-2.rb:libarchive.rb', 'curl-3.rb:curl.rb', 'ruby-2.rb:ruby.rb'
+        repository_add_formula :host, 'libarchive-2.rb:libarchive.rb', 'curl-3.rb:curl.rb', 'ruby-2.rb:ruby.rb'
         crew_checked 'update'
         crew '-b', 'upgrade'
         libarchive_new_rel = Crew_test::UTILS_RELEASES['libarchive'][1]
@@ -153,9 +153,9 @@ describe "crew upgrade" do
         expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_new_rel}")).to eq(true)
         expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/#{ruby_old_rel}")).to eq(true)
         expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/#{ruby_new_rel}")).to eq(true)
-        expect(in_cache?(:utility, 'libarchive', libarchive_new_rel.version,  libarchive_new_rel.crystax_version)).to eq(true)
-        expect(in_cache?(:utility, 'curl',       curl_new_rel.version,        curl_new_rel.crystax_version)).to       eq(true)
-        expect(in_cache?(:utility, 'ruby',       ruby_new_rel.version,        ruby_new_rel.crystax_version)).to       eq(true)
+        expect(in_cache?(:host, 'libarchive', libarchive_new_rel.version,  libarchive_new_rel.crystax_version)).to eq(true)
+        expect(in_cache?(:host, 'curl',       curl_new_rel.version,        curl_new_rel.crystax_version)).to       eq(true)
+        expect(in_cache?(:host, 'ruby',       ruby_new_rel.version,        ruby_new_rel.crystax_version)).to       eq(true)
       end
     end
   end
@@ -164,12 +164,12 @@ describe "crew upgrade" do
 
     context "when there is one new release in one formula and one new release for curl utility" do
       it "says about installing new releases" do
-        repository_add_formula :library, 'libone.rb', 'libtwo-1.rb:libtwo.rb'
+        repository_add_formula :target, 'libone.rb', 'libtwo-1.rb:libtwo.rb'
         repository_clone
         crew_checked 'install', 'libone'
         crew_checked 'install', 'libtwo'
-        repository_add_formula :library, 'libtwo.rb'
-        repository_add_formula :utility, 'curl-2.rb:curl.rb'
+        repository_add_formula :target, 'libtwo.rb'
+        repository_add_formula :host, 'curl-2.rb:curl.rb'
         crew_checked 'update'
         crew 'upgrade'
         curl_new_rel = Crew_test::UTILS_RELEASES['curl'][1]
@@ -190,19 +190,19 @@ describe "crew upgrade" do
         expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_old_rel}")).to eq(true)
         expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_new_rel}")).to eq(true)
         expect(Utility.active_version('curl')).to eq(curl_new_rel.to_s)
-        expect(in_cache?(:utility, 'curl', curl_new_rel.version, curl_new_rel.crystax_version)).to eq(true)
+        expect(in_cache?(:host, 'curl', curl_new_rel.version, curl_new_rel.crystax_version)).to eq(true)
       end
     end
 
     context "when there are two formulas with new release in each and there are new releases for all utilities" do
       it "says about installing new releases" do
-        repository_add_formula :library, 'libone.rb', 'libtwo-1.rb:libtwo.rb', 'libthree-2.rb:libthree.rb'
+        repository_add_formula :target, 'libone.rb', 'libtwo-1.rb:libtwo.rb', 'libthree-2.rb:libthree.rb'
         repository_clone
         crew_checked 'install', 'libone'
         crew_checked 'install', 'libtwo'
         crew_checked 'install', 'libthree:1.1.1'
-        repository_add_formula :library, 'libtwo.rb', 'libthree.rb'
-        repository_add_formula :utility, 'curl-3.rb:curl.rb', 'libarchive-2.rb:libarchive.rb', 'ruby-2.rb:ruby.rb'
+        repository_add_formula :target, 'libtwo.rb', 'libthree.rb'
+        repository_add_formula :host, 'curl-3.rb:curl.rb', 'libarchive-2.rb:libarchive.rb', 'ruby-2.rb:ruby.rb'
         crew_checked 'update'
         crew 'upgrade'
         lib3file = "libthree-3.3.3_1.#{Global::ARCH_EXT}"
@@ -244,9 +244,9 @@ describe "crew upgrade" do
         expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_new_rel}")).to eq(true)
         expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/#{ruby_old_rel}")).to eq(true)
         expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/#{ruby_new_rel}")).to eq(true)
-        expect(in_cache?(:utility, 'libarchive', libarchive_new_rel.version,  libarchive_new_rel.crystax_version)).to eq(true)
-        expect(in_cache?(:utility, 'curl',       curl_new_rel.version,        curl_new_rel.crystax_version)).to       eq(true)
-        expect(in_cache?(:utility, 'ruby',       ruby_new_rel.version,        ruby_new_rel.crystax_version)).to       eq(true)
+        expect(in_cache?(:host, 'libarchive', libarchive_new_rel.version,  libarchive_new_rel.crystax_version)).to eq(true)
+        expect(in_cache?(:host, 'curl',       curl_new_rel.version,        curl_new_rel.crystax_version)).to       eq(true)
+        expect(in_cache?(:host, 'ruby',       ruby_new_rel.version,        ruby_new_rel.crystax_version)).to       eq(true)
       end
     end
   end

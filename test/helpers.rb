@@ -124,9 +124,9 @@ module Spec
 
     def archive_name(type, name, version, cxver)
       suffix = case type
-               when :library
+               when :target
                  ''
-               when :utility
+               when :host
                  "-#{Global::PLATFORM_NAME}"
                else
                  raise "bad archive type #{type}"
@@ -169,7 +169,7 @@ module Spec
 
     def copy_formulas(*names)
       names.each do |n|
-        FileUtils.cp File.join('data', n), Global::FORMULA_DIR
+        FileUtils.cp File.join('data', n), File.join(Global::FORMULA_DIR, Global::NS_DIR[:target])
       end
     end
 
@@ -216,15 +216,8 @@ module Spec
       Repository.clone_at(TEST_REPO_HTTPS_URL, Global::BASE_DIR).close
     end
 
-    def repository_add_formula(type, *names)
-      case type
-      when :library
-        dir = 'formula'
-      when :utility
-        dir = File.join('formula', 'utilities')
-      else
-        raise "unknown formula type: #{type}"
-      end
+    def repository_add_formula(ns, *names)
+      dir = File.join('formula', Global::NS_DIR[ns])
       repo = Repository.new origin_dir
       names.each do |n|
         a = n.split(':')
@@ -264,15 +257,15 @@ module Spec
     end
 
     def repository_add_initial_files(dir, repo)
-      utils_dir = File.join(dir, 'formula', 'utilities')
-      FileUtils.mkdir_p [File.join(dir, 'cache'), File.join(dir, 'patches'), utils_dir]
+      utils_dir = File.join(dir, 'formula', Global::NS_DIR[:host])
+      FileUtils.mkdir_p [File.join(dir, 'cache'), File.join(dir, 'patches'), utils_dir, File.join(dir, 'formula', Global::NS_DIR[:target])]
       Crew_test::UTILS.each { |u| FileUtils.cp File.join('data', "#{u}-1.rb"), File.join(utils_dir,  "#{u}.rb") }
       FileUtils.cd(dir) do
-        [File.join('cache', '.placeholder'), File.join('formula', '.placeholder'), File.join('patches', '.placeholder')].each do |file|
+        [File.join('cache', '.placeholder'), File.join('formula', Global::NS_DIR[:target], '.placeholder'), File.join('patches', '.placeholder')].each do |file|
           FileUtils.touch file
           repo.add file
         end
-        Dir[File.join('formula', 'utilities', '*')].each { |file| repo.add file }
+        Dir[File.join('formula', Global::NS_DIR[:host], '*')].each { |file| repo.add file }
         repo.commit 'add initial files'
       end
     end

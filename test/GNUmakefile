@@ -74,7 +74,7 @@ export CREW_BASE_DIR
 export SSL_CERT_FILE
 
 
-.PHONY: all test clean env test-data clean-test-data unit-tests rspec-tests $(rspec_cmd_tests)
+.PHONY: all test clean clean-test-data env test-dirs test-data unit-tests rspec-tests $(rspec_cmd_tests)
 
 all: test clean
 
@@ -90,11 +90,14 @@ env:
 	@echo CREW_TOOLS_DIR = $(CREW_TOOLS_DIR)
 	@echo CREW_BASE_DIR  = $(CREW_BASE_DIR)
 
-unit-tests:
+unit-tests: test-dirs
 	$(RUBY) -I ../library ts_crew.rb
 
-test-data:
+test-data: test-dirs
 	$(RUBY) spec_prepare.rb
+
+test-dirs:
+	$(RUBY) spec_mkdirs.rb
 
 clean-test-data:
 	$(RUBY) spec_cleanup.rb
