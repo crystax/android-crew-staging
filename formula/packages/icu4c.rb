@@ -63,7 +63,7 @@ class Icu4c < Package
     when 'darwin'
       'MacOSX/GCC'
     when 'linux'
-      'Linux'
+      'Linux/gcc'
     else
       raise 'unsuppoted ICU host platform'
     end
