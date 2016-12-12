@@ -130,7 +130,7 @@ module Build
     when 'linux'
       sysroot_dir = "#{ndk_root_dir}/platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/sysroot"
       cc = "#{ndk_root_dir}/platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/bin/x86_64-linux-#{compiler}"
-      args = "-isysroot #{sysroot_dir} -Wl,-syslibroot,#{sysroot_dir}"
+      args = "--sysroot=#{sysroot_dir}"
     else
       raise "unsupported OS: #{Global::OS}"
     end
