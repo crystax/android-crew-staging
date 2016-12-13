@@ -16,7 +16,7 @@ describe "crew install" do
     it "outputs error message" do
       crew 'install'
       expect(exitstatus).to_not be_zero
-      expect(err.chomp).to eq('error: this command requires a formula argument')
+      expect(err.split("\n")[0]).to eq('error: this command requires a formula argument')
       expect(cache_empty?).to eq(true)
     end
   end
@@ -25,7 +25,7 @@ describe "crew install" do
     it "outputs error message" do
       crew 'install', 'foo'
       expect(exitstatus).to_not be_zero
-      expect(err.chomp).to eq('error: no available formula for foo')
+      expect(err.split("\n")[0]).to eq('error: no available formula for foo')
       expect(cache_empty?).to eq(true)
     end
   end
@@ -36,7 +36,7 @@ describe "crew install" do
       file = File.join(Global::PKG_CACHE_DIR, "libbad-1.0.0_1.#{Global::ARCH_EXT}")
       crew 'install', 'libbad'
       expect(exitstatus).to_not be_zero
-      expect(err.chomp).to eq("error: bad SHA256 sum of the file #{file}")
+      expect(err.split("\n")[0]).to eq("error: bad SHA256 sum of the file #{file}")
       expect(in_cache?(:target, 'libbad', '1.0.0', 1)).to eq(true)
     end
   end
@@ -94,7 +94,7 @@ describe "crew install" do
       copy_formulas 'libone.rb'
       crew 'install', 'libone:2.0.0'
       expect(exitstatus).to_not be_zero
-      expect(err.chomp).to eq('error: libone has no release with version 2.0.0')
+      expect(err.split("\n")[0]).to eq('error: libone has no release with version 2.0.0')
     end
   end
 

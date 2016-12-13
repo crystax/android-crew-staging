@@ -7,6 +7,7 @@ require_relative 'base_package.rb'
 require_relative 'package.rb'
 require_relative 'utility.rb'
 require_relative 'build_dependency.rb'
+require_relative 'toolchain.rb'
 
 class Formulary
 
@@ -75,10 +76,10 @@ class Formulary
     result
   end
 
+  def each(&block)
+    @formulary.each_value(&block)
+  end
 
-  # def each(&block)
-  #   @formulary.each_value(&block)
-  # end
   # def member?(name)
   #   @formulary.member? name
   # end

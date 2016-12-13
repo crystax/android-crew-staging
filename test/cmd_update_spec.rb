@@ -17,7 +17,7 @@ describe "crew update" do
     it "outputs error message" do
       crew 'update', 'baz'
       expect(exitstatus).to_not be_zero
-      expect(err.chomp).to eq('error: this command requires no arguments')
+      expect(err.split("\n")[0]).to eq('error: this command requires no arguments')
     end
   end
 
@@ -62,7 +62,7 @@ describe "crew update" do
         repository_add_formula :target, 'libtwo-1.rb:libtwo.rb', 'libthree.rb'
         repository_clone
         repository_add_formula :target, 'libone.rb', 'libtwo.rb'
-        repository_del_formula 'libthree.rb'
+        repository_del_formula :target, 'libthree.rb'
         crew 'update'
         expect(result).to eq(:ok)
         expect(out).to match("Updated Crew from .* to .*.\n" \
@@ -119,7 +119,7 @@ describe "crew update" do
         repository_add_formula :target, 'libtwo-1.rb:libtwo.rb', 'libthree.rb'
         repository_clone
         repository_add_formula :target, 'libone.rb', 'libtwo.rb'
-        repository_del_formula 'libthree.rb'
+        repository_del_formula :target, 'libthree.rb'
         repository_add_formula :host, 'curl-2.rb:curl.rb', 'ruby-2.rb:ruby.rb'
         crew 'update'
         expect(result).to eq(:ok)

@@ -1,5 +1,3 @@
-require_relative '../../library/toolchain.rb'
-
 class Gcc < Tool
 
   desc "GCC-based toolchain"

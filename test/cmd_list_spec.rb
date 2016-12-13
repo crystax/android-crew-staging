@@ -20,7 +20,7 @@ describe "crew list" do
       it "outputs error message" do
         crew 'list', 'a', 'b', 'c'
         expect(exitstatus).to_not be_zero
-        expect(err.chomp).to eq('error: this command requires either one or no arguments')
+        expect(err.split("\n")[0]).to eq('error: this command requires either one or no arguments')
         expect(out).to eq('')
       end
     end
@@ -29,7 +29,7 @@ describe "crew list" do
       it "outputs error message" do
         crew 'list', 'a', 'b'
         expect(exitstatus).to_not be_zero
-        expect(err.chomp).to eq('error: this command requires either one or no arguments')
+        expect(err.split("\n")[0]).to eq('error: this command requires either one or no arguments')
         expect(out).to eq('')
       end
     end
@@ -38,7 +38,7 @@ describe "crew list" do
       it "outputs error message" do
         crew 'list', 'utils', 'libs'
         expect(exitstatus).to_not be_zero
-        expect(err.chomp).to eq('error: this command requires either one or no arguments')
+        expect(err.split("\n")[0]).to eq('error: this command requires either one or no arguments')
         expect(out).to eq('')
       end
     end
@@ -47,7 +47,7 @@ describe "crew list" do
       it "outputs error message" do
         crew 'list', 'a'
         expect(exitstatus).to_not be_zero
-        expect(err.chomp).to eq('error: argument must be either \'--packages\', or \'--tools\'')
+        expect(err.split("\n")[0]).to eq('error: argument must be either \'--packages\', or \'--tools\'')
         expect(out).to eq('')
       end
     end
@@ -161,13 +161,42 @@ describe "crew list" do
       it "outputs info about installed utilities" do
         crew 'list', '--tools'
         expect(result).to eq(:ok)
-        bv  = Crew_test::UTILS_RELEASES['libarchive'][0].version
-        bcv = Crew_test::UTILS_RELEASES['libarchive'][0].crystax_version
-        cv  = Crew_test::UTILS_RELEASES['curl'][0].version
-        ccv = Crew_test::UTILS_RELEASES['curl'][0].crystax_version
-        rv  = Crew_test::UTILS_RELEASES['ruby'][0].version
-        rcv = Crew_test::UTILS_RELEASES['ruby'][0].crystax_version
-        expect(out).to match(/ \* bsdtar\s+#{bv}\s+#{bcv}\R \* curl  \s+#{cv}\s+#{ccv}\R \* ruby  \s+#{rv}\s+#{rcv}\R/)
+        got = out.split("\n")
+        exp = [/ \* bsdtar\s+#{Crew_test::UTILS_RELEASES['libarchive'][0].version}\s+#{Crew_test::UTILS_RELEASES['libarchive'][0].crystax_version}/,
+               /   cloog\s+\d+\.\d+\.\d+\s+\d+/,
+               /   cloog-old\s+\d+\.\d+\.\d+\s+\d+/,
+               / \* curl  \s+#{Crew_test::UTILS_RELEASES['curl'][0].version}\s+#{Crew_test::UTILS_RELEASES['curl'][0].crystax_version}/,
+               /   expat\s+\d+\.\d+\.\d+\s+\d+/,
+               /   gcc\s+\d+\.\d+\s+\d+/,
+               /   gcc\s+\d+\s+\d+/,
+               /   gcc\s+\d+\s+\d+/,
+               /   gmp\s+\d+\.\d+\.\d+\s+\d+/,
+               /   isl\s+\d+\.\d+\.\d+\s+\d+/,
+               /   isl-old\s+\d+\.\d+\.\d+\s+\d+/,
+               /   libedit\s+\d+-\d+\.\d+\s+\d+/,
+               /   libgit2\s+\d+\.\d+\.\d+\s+\d+/,
+               /   libssh2\s+\d+\.\d+\.\d+\s+\d+/,
+               /   llvm\s+\d+\.\d+\s+\d+/,
+               /   llvm\s+\d+\.\d+\s+\d+/,
+               /   llvm\s+\d+\.\d+\s+\d+/,
+               /   make\s+\d+\.\d+\s+\d+/,
+               /   mpc\s+\d+\.\d+\.\d+\s+\d+/,
+               /   mpfr\s+\d+\.\d+\.\d+\s+\d+/,
+               /   nawk\s+\d+\s+\d+/,
+               /   ndk-base\s+\d+\s+\d+/,
+               /   ndk-depends\s+\d+\s+\d+/,
+               /   ndk-stack\s+\d+\s+\d+/,
+               /   openssl\s+\d+\.\d+\.\d+[a-z]\s+\d+/,
+               /   ppl\s+\d+\.\d+\s+\d+/,
+               /   python\s+\d+\.\d+\.\d+\s+\d+/,
+               / \* ruby  \s+#{Crew_test::UTILS_RELEASES['ruby'][0].version}\s+#{Crew_test::UTILS_RELEASES['ruby'][0].crystax_version}/,
+               /   toolbox\s+\d+\s+\d+/,
+               /   xz\s+\d+\.\d+\.\d+\s+\d+/,
+               /   yasm\s+\d+\.\d+\.\d+\s+\d+/,
+               /   zlib\s+\d+\.\d+\.\d+\s+\d+/
+              ]
+        expect(got.size).to eq(exp.size)
+        got.each_with_index { |g, i| expect(g).to match(exp[i]) }
       end
     end
 
@@ -187,8 +216,37 @@ describe "crew list" do
         got = out.split("\n")
         exp = ["Tools:",
                / \* bsdtar\s+#{Crew_test::UTILS_RELEASES['libarchive'][0].version}\s+#{Crew_test::UTILS_RELEASES['libarchive'][0].crystax_version}/,
+               /   cloog\s+\d+\.\d+\.\d+\s+\d+/,
+               /   cloog-old\s+\d+\.\d+\.\d+\s+\d+/,
                / \* curl  \s+#{Crew_test::UTILS_RELEASES['curl'][0].version}\s+#{Crew_test::UTILS_RELEASES['curl'][0].crystax_version}/,
+               /   expat\s+\d+\.\d+\.\d+\s+\d+/,
+               /   gcc\s+\d+\.\d+\s+\d+/,
+               /   gcc\s+\d+\s+\d+/,
+               /   gcc\s+\d+\s+\d+/,
+               /   gmp\s+\d+\.\d+\.\d+\s+\d+/,
+               /   isl\s+\d+\.\d+\.\d+\s+\d+/,
+               /   isl-old\s+\d+\.\d+\.\d+\s+\d+/,
+               /   libedit\s+\d+-\d+\.\d+\s+\d+/,
+               /   libgit2\s+\d+\.\d+\.\d+\s+\d+/,
+               /   libssh2\s+\d+\.\d+\.\d+\s+\d+/,
+               /   llvm\s+\d+\.\d+\s+\d+/,
+               /   llvm\s+\d+\.\d+\s+\d+/,
+               /   llvm\s+\d+\.\d+\s+\d+/,
+               /   make\s+\d+\.\d+\s+\d+/,
+               /   mpc\s+\d+\.\d+\.\d+\s+\d+/,
+               /   mpfr\s+\d+\.\d+\.\d+\s+\d+/,
+               /   nawk\s+\d+\s+\d+/,
+               /   ndk-base\s+\d+\s+\d+/,
+               /   ndk-depends\s+\d+\s+\d+/,
+               /   ndk-stack\s+\d+\s+\d+/,
+               /   openssl\s+\d+\.\d+\.\d+[a-z]\s+\d+/,
+               /   ppl\s+\d+\.\d+\s+\d+/,
+               /   python\s+\d+\.\d+\.\d+\s+\d+/,
                / \* ruby  \s+#{Crew_test::UTILS_RELEASES['ruby'][0].version}\s+#{Crew_test::UTILS_RELEASES['ruby'][0].crystax_version}/,
+               /   toolbox\s+\d+\s+\d+/,
+               /   xz\s+\d+\.\d+\.\d+\s+\d+/,
+               /   yasm\s+\d+\.\d+\.\d+\s+\d+/,
+               /   zlib\s+\d+\.\d+\.\d+\s+\d+/,
                "Packages:",
                "   libfour   1.1.1  1",
                "   libfour   2.2.2  2",

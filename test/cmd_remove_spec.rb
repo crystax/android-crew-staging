@@ -16,7 +16,7 @@ describe "crew remove" do
     it "outputs error message" do
       crew 'remove'
       expect(exitstatus).to_not be_zero
-      expect(err.chomp).to eq('error: this command requires a formula argument')
+      expect(err.split("\n")[0]).to eq('error: this command requires a formula argument')
     end
   end
 
@@ -24,7 +24,7 @@ describe "crew remove" do
     it "outputs error message" do
       crew 'remove', 'foo'
       expect(exitstatus).to_not be_zero
-      expect(err.chomp).to eq('error: no available formula for foo')
+      expect(err.split("\n")[0]).to eq('error: no available formula for foo')
     end
   end
 
@@ -35,7 +35,7 @@ describe "crew remove" do
       crew_checked 'install', 'libtwo:1.1.0'
       crew 'remove', 'libone'
       expect(exitstatus).to_not be_zero
-      expect(err.chomp).to eq('error: libone has installed dependants: target/libtwo')
+      expect(err.split("\n")[0]).to eq('error: libone has installed dependants: target/libtwo')
       expect(in_cache?(:target, 'libone', '1.0.0', 1)).to eq(true)
       expect(in_cache?(:target, 'libtwo', '1.1.0', 1)).to eq(true)
     end
@@ -92,7 +92,7 @@ describe "crew remove" do
       crew_checked 'install', 'libthree:3.3.3'
       crew 'remove', 'libtwo'
       expect(exitstatus).to_not be_zero
-      expect(err.chomp).to eq('error: libtwo has installed dependants: target/libthree')
+      expect(err.split("\n")[0]).to eq('error: libtwo has installed dependants: target/libthree')
       expect(in_cache?(:target, 'libone',   '1.0.0', 1)).to eq(true)
       expect(in_cache?(:target, 'libtwo',   '1.1.0', 1)).to eq(true)
       expect(in_cache?(:target, 'libtwo',   '2.2.0', 1)).to eq(true)
@@ -104,7 +104,7 @@ describe "crew remove" do
     it "outputs error message" do
       crew 'remove', 'curl'
       expect(exitstatus).to_not be_zero
-      expect(err.chomp).to eq("error: removing of 'curl' is not supported")
+      expect(err.split("\n")[0]).to eq("error: removing of 'curl' is not supported")
     end
   end
 end

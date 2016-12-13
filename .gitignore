@@ -10,7 +10,7 @@ test/crew.net
 test/ndk
 test/ndk.copy
 test/www/log
-test/www/docroot/utilities
+test/www/docroot/tools
 test/data/curl-*.rb
 test/data/libarchive-*.rb
 test/data/ruby-*.rb

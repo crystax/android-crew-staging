@@ -15,7 +15,7 @@ end
 tools_dir          = ENV['CREW_TOOLS_DIR']
 PLATFORM           = File.basename(tools_dir)
 PLATFORM_SYM       = PLATFORM.gsub(/-/, '_').to_sym
-utils_download_dir = File.join(Crew_test::DOCROOT_DIR, 'utilities')
+utils_download_dir = File.join(Crew_test::DOCROOT_DIR, 'tools')
 orig_ndk_dir       = ENV['ORIG_NDK_DIR']
 orig_tools_dir     = File.join(orig_ndk_dir, 'prebuilt', PLATFORM)
 orig_engine_dir    = File.join(orig_tools_dir, 'crew')

@@ -9,13 +9,8 @@ module Crew
       raise CommandRequresNoArguments
     end
 
-    install_latest(Formulary.utilities)
-    install_latest(Formulary.packages)
-  end
+    formulary = Formulary.new
 
-  # private
-
-  def self.install_latest(formulary)
     names = []
     formulas = []
     formulary.each do |formula|
@@ -33,6 +28,8 @@ module Crew
       formulas.sort { |a,b| a.name <=> b.name }.each { |formula| formula.install }
     end
   end
+
+  # private
 
   def self.last_release_name(formula)
     last_release = formula.releases.last

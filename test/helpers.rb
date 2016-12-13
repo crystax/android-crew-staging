@@ -84,7 +84,7 @@ module Spec
 
     def crew(*params)
       crewbin = Pathname.new(File.dirname(__FILE__)).parent.join('crew')
-      run_command("#{crewbin} #{params.join(' ')}")
+      run_command("#{crewbin} -b #{params.join(' ')}")
     end
 
     def crew_checked(*params)
@@ -234,9 +234,10 @@ module Spec
       repo.commit "add_#{names.join('_')}"
     end
 
-    def repository_del_formula(*names)
+    def repository_del_formula(ns, *names)
       repo = Repository.new origin_dir
-      names.each { |n| repo.remove File.join('formula', n) }
+      dir = File.join('formula', Global::NS_DIR[ns])
+      names.each { |n| repo.remove File.join(dir, n) }
       repo.commit "del_#{names.join('_')}"
     end
 
@@ -257,15 +258,20 @@ module Spec
     end
 
     def repository_add_initial_files(dir, repo)
-      utils_dir = File.join(dir, 'formula', Global::NS_DIR[:host])
+      host_dir = File.join('formula', Global::NS_DIR[:host])
+      target_dir = File.join('formula', Global::NS_DIR[:target])
+      utils_dir = File.join(dir, host_dir)
       FileUtils.mkdir_p [File.join(dir, 'cache'), File.join(dir, 'patches'), utils_dir, File.join(dir, 'formula', Global::NS_DIR[:target])]
+      # copy original formulas for all tools
+      FileUtils.cp Dir["../formula/#{Global::NS_DIR[:host]}/*.rb"], utils_dir
+      # overwrite crew utils formulas
       Crew_test::UTILS.each { |u| FileUtils.cp File.join('data', "#{u}-1.rb"), File.join(utils_dir,  "#{u}.rb") }
       FileUtils.cd(dir) do
-        [File.join('cache', '.placeholder'), File.join('formula', Global::NS_DIR[:target], '.placeholder'), File.join('patches', '.placeholder')].each do |file|
+        [File.join('cache', '.placeholder'), File.join(target_dir, '.placeholder'), File.join('patches', '.placeholder')].each do |file|
           FileUtils.touch file
           repo.add file
         end
-        Dir[File.join('formula', Global::NS_DIR[:host], '*')].each { |file| repo.add file }
+        Dir[File.join(host_dir, '*')].each { |file| repo.add file }
         repo.commit 'add initial files'
       end
     end

@@ -30,7 +30,7 @@ describe "simple crew commands" do
       it "outputs error message" do
         crew 'version', 'bar'
         expect(exitstatus).to_not be_zero
-        expect(err.chomp).to eq('error: this command requires no arguments')
+        expect(err.split("\n")[0]).to eq('error: this command requires no arguments')
       end
     end
 

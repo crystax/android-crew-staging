@@ -51,9 +51,10 @@ module Crew
     end
 
     def report
-      map = { utils: Hash.new { |h,k| h[k] = [] }, libs: Hash.new { |h,k| h[k] = [] } }
-      formula_dir = Global::FORMULA_DIR.basename.to_s
-      utility_dir = File.join(formula_dir, Global::UTILITIES_DIR.basename.to_s)
+      map = { tools: Hash.new { |h,k| h[k] = [] }, packages: Hash.new { |h,k| h[k] = [] } }
+      formula_dir  = Global::FORMULA_DIR.basename.to_s
+      packages_dir = File.join(formula_dir, Global::NS_DIR[:target])
+      tools_dir    = File.join(formula_dir, Global::NS_DIR[:target])
 
       if initial_revision and initial_revision != current_revision
         diff.each_delta do |delta|
@@ -64,13 +65,13 @@ module Crew
           next unless [src, dst].any? { |p| File.dirname(p).start_with?(formula_dir) }
 
           status = delta.status_char.to_s
-          type = (File.dirname(src) == utility_dir) ? :utils : :libs
+          type = File.basename(File.dirname(src)).to_sym
           case status
           when "A", "M", "D"
             map[type][status.to_sym] << repository_path.join(src)
           when "R"
-            map[type][:D] << repository_path.join(src) if File.dirname(src) == formula_dir
-            map[type][:A] << repository_path.join(dst) if File.dirname(dst) == formula_dir
+            map[type][:D] << repository_path.join(src)
+            map[type][:A] << repository_path.join(dst)
           end
         end
       end
@@ -103,29 +104,28 @@ module Crew
     end
   end
 
-
   class Report
     def initialize
-      @hash = { utils: {}, libs: {} }
+      @hash = { tools: {}, packages: {} }
     end
 
     def update(h)
-      @hash[:utils].update(h[:utils])
-      @hash[:libs].update(h[:libs])
+      @hash[:tools].update(h[:tools])
+      @hash[:packages].update(h[:packages])
     end
 
     def empty?
-      @hash[:utils].empty? and @hash[:libs].empty?
+      @hash[:tools].empty? and @hash[:packages].empty?
     end
 
     def dump
       # Key Legend: Added (A), Copied (C), Deleted (D), Modified (M), Renamed (R)
-      dump_formula_report(:utils, :M, "Updated Utilities")
-      dump_formula_report(:utils, :A, "New Utilities")
-      dump_formula_report(:utils, :D, "Deleted Utilities")
-      dump_formula_report(:libs, :A, "New Formulae")
-      dump_formula_report(:libs, :M, "Updated Formulae")
-      dump_formula_report(:libs, :D, "Deleted Formulae")
+      dump_formula_report(:tools, :M, "Updated Utilities")
+      dump_formula_report(:tools, :A, "New Utilities")
+      dump_formula_report(:tools, :D, "Deleted Utilities")
+      dump_formula_report(:packages, :A, "New Formulae")
+      dump_formula_report(:packages, :M, "Updated Formulae")
+      dump_formula_report(:packages, :D, "Deleted Formulae")
     end
 
     private
