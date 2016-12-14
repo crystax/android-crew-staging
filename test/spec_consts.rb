@@ -1,8 +1,11 @@
+require 'pathname'
+
 module Crew_test
 
   UTILS               = ['curl', 'libarchive', 'ruby']
   PORT                = 9999
   DOWNLOAD_BASE       = "http://localhost:#{PORT}"
+  PKG_CACHE_BASE      = (Pathname.new(__FILE__).realpath.dirname + 'pkg.cache').to_s
   DATA_DIR            = 'data'
   CREW_DIR            = 'crew'
   NDK_DIR             = 'ndk'

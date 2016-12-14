@@ -29,6 +29,7 @@ FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'patches')
 ENV['CREW_DOWNLOAD_BASE'] = Crew_test::DOWNLOAD_BASE
 ENV['CREW_BASE_DIR'] = Crew_test::CREW_DIR
 ENV['CREW_NDK_DIR'] = Crew_test::NDK_DIR
+ENV['CREW_PKG_CACHE_BASE'] = Crew_test::PKG_CACHE_BASE
 
 # global.rb requires evn vars to be set so we put it here
 require_relative '../library/global.rb'

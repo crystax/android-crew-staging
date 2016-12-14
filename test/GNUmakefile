@@ -108,6 +108,7 @@ rspec-tests: test-data
 test-%:
 	$(RSPEC) cmd_$*_spec.rb
 
+# todo: shell run with incorrect environment
 shell:
 	@PS1="[$(PS1) crew test] " bash
 

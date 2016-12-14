@@ -71,10 +71,11 @@ module Global
   VERSION = "0.3.0"
   OS = operating_system
 
-  DOWNLOAD_BASE = [nil, ''].include?(ENV['CREW_DOWNLOAD_BASE']) ? "https://crew.crystax.net:9876"                      : ENV['CREW_DOWNLOAD_BASE']
-  BASE_DIR      = [nil, ''].include?(ENV['CREW_BASE_DIR'])      ? Pathname.new(__FILE__).realpath.dirname.dirname.to_s : Pathname.new(ENV['CREW_BASE_DIR']).realpath.to_s
-  NDK_DIR       = [nil, ''].include?(ENV['CREW_NDK_DIR'])       ? Pathname.new(BASE_DIR).realpath.dirname.to_s         : Pathname.new(ENV['CREW_NDK_DIR']).realpath.to_s
-  TOOLS_DIR     = def_tools_dir(NDK_DIR, OS)
+  DOWNLOAD_BASE  = [nil, ''].include?(ENV['CREW_DOWNLOAD_BASE'])  ? "https://crew.crystax.net:9876"                      : ENV['CREW_DOWNLOAD_BASE']
+  PKG_CACHE_BASE = [nil, ''].include?(ENV['CREW_PKG_CACHE_BASE']) ? "/var/tmp"                                           : ENV['CREW_PKG_CACHE_BASE']
+  BASE_DIR       = [nil, ''].include?(ENV['CREW_BASE_DIR'])       ? Pathname.new(__FILE__).realpath.dirname.dirname.to_s : Pathname.new(ENV['CREW_BASE_DIR']).realpath.to_s
+  NDK_DIR        = [nil, ''].include?(ENV['CREW_NDK_DIR'])        ? Pathname.new(BASE_DIR).realpath.dirname.to_s         : Pathname.new(ENV['CREW_NDK_DIR']).realpath.to_s
+  TOOLS_DIR      = def_tools_dir(NDK_DIR, OS)
 
   PLATFORM_NAME = File.basename(TOOLS_DIR)
 
@@ -88,7 +89,7 @@ module Global
   PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
   FORMULA_DIR            = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
   SRC_CACHE_DIR          = Pathname.new(File.join(BASE_DIR, 'cache')).realpath
-  PKG_CACHE_DIR          = "/var/tmp/crew-cache-#{ENV['USER']}"
+  PKG_CACHE_DIR          = "#{PKG_CACHE_BASE}/crew-cache-#{ENV['USER']}"
 
   EXE_EXT  = RUBY_PLATFORM =~ /mingw/ ? '.exe' : ''
   ARCH_EXT = 'tar.xz'
