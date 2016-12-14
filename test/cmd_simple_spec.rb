@@ -47,10 +47,11 @@ describe "simple crew commands" do
     it "outputs crew's working qenvironment" do
       crew 'env'
       expect(result).to eq(:ok)
-      expect(out).to eq("DOWNLOAD_BASE: #{Global::DOWNLOAD_BASE}\n" \
-                        "BASE_DIR:      #{Global::BASE_DIR}\n"      \
-                        "NDK_DIR:       #{Global::NDK_DIR}\n"       \
-                        "TOOLS_DIR:     #{Global::TOOLS_DIR}\n")
+      expect(out).to eq("DOWNLOAD_BASE:  #{Global::DOWNLOAD_BASE}\n"  \
+                        "PKG_CACHE_BASE: #{Global::PKG_CACHE_BASE}\n" \
+                        "BASE_DIR:       #{Global::BASE_DIR}\n"       \
+                        "NDK_DIR:        #{Global::NDK_DIR}\n"        \
+                        "TOOLS_DIR:      #{Global::TOOLS_DIR}\n")
     end
   end
 end
