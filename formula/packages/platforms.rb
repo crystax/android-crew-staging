@@ -20,7 +20,7 @@ class Platforms < BasePackage
     FileUtils.mkdir_p rel_dir
     prop = get_properties(rel_dir)
 
-    FileUtils.rm_rf ARCHIVE_TOP_DIRS.map { |d| File.join ndk_dir, d }
+    FileUtils.rm_rf ARCHIVE_TOP_DIRS.map { |d| File.join Global::NDK_DIR, d }
     Utils.unpack archive, Global::NDK_DIR
 
     prop[:installed] = true
