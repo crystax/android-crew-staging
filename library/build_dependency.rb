@@ -36,10 +36,10 @@ class BuildDependency < Tool
     File.join(home_directory(platform_name), release.to_s)
   end
 
-  def install_archive(release, archive, platform_name = Global::PLATFORM_NAME, ndk_dir = Global::NDK_DIR)
+  def install_archive(release, archive, platform_name)
     rel_dir = release_directory(release, platform_name)
     FileUtils.rm_rf rel_dir
-    Utils.unpack archive, ndk_dir
+    Utils.unpack archive, Global::NDK_DIR
 
     release.installed = release.crystax_version
   end

@@ -36,7 +36,7 @@ class Llvm < Tool
                               }
 
 
-  def install_archive(release, archive, platform_name = Global::PLATFORM_NAME, ndk_dir = Global::NDK_DIR)
+  def install_archive(release, archive, platform_name = Global::PLATFORM_NAME)
     rel_dir = release_directory(release)
     FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir
     prop = get_properties(rel_dir)
@@ -44,7 +44,7 @@ class Llvm < Tool
     prebuilt_dir = File.join(Global::NDK_DIR, ARCHIVE_TOP_DIR, "llvm-#{release.version}", 'prebuilt')
     FileUtils.rm_rf File.join(prebuilt_dir, platform_name)
     FileUtils.rm_rf File.join(Global::NDK_DIR, ARCHIVE_TOP_DIR, "llvm-#{release.version}") if Dir["#{prebuilt_dir}/*"].empty?
-    Utils.unpack archive, ndk_dir
+    Utils.unpack archive, Global::NDK_DIR
 
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version

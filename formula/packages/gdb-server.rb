@@ -14,13 +14,13 @@ class GdbServer < BasePackage
   ARCHIVE_SUB_DIRS  = Build::ARCH_LIST.map { |arch| "android-#{arch}" }
   API_LEVEL = 21
 
-  def install_archive(release, archive, ndk_dir = Global::NDK_DIR)
+  def install_archive(release, archive, _platform_name = nil)
     rel_dir = release_directory(release)
     FileUtils.mkdir_p rel_dir
     prop = get_properties(rel_dir)
 
     FileUtils.rm_rf ARCHIVE_SUB_DIRS.map { |d| File.join Global::NDK_DIR, 'prebuilt', d }
-    Utils.unpack archive, ndk_dir
+    Utils.unpack archive, Global::NDK_DIR
 
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version

@@ -33,16 +33,16 @@ class NdkBase < HostFormula
 
   WIN_FILES = ['crew.cmd', 'ndk-gdb.cmd']
 
-  def install_archive(release, archive, platform_name = Global::PLATFORM_NAME, ndk_dir = Global::NDK_DIR)
+  def install_archive(release, archive, platform_name)
     rel_dir = release_directory(release)
     FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir
     prop = get_properties(rel_dir)
 
-    FileUtils.cd(ndk_dir) do
+    FileUtils.cd(Global::NDK_DIR) do
      FileUtils.rm_rf TOP_FILES_AND_DIRS
       FileUtils.rm_rf WIN_FILES if platform_name.start_with? 'windows'
     end
-    Utils.unpack archive, ndk_dir
+    Utils.unpack archive, Global::NDK_DIR
 
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version

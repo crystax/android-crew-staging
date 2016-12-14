@@ -53,7 +53,7 @@ class Package < Formula
     File.join(Global::PKG_CACHE_DIR, archive_filename(release))
   end
 
-  def install_archive(release, archive)
+  def install_archive(release, archive, _platform_name = nil)
     rel_dir = release_directory(release)
     FileUtils.rm_rf binary_files(rel_dir)
     Utils.unpack archive, rel_dir

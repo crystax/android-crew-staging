@@ -15,13 +15,13 @@ class Platforms < BasePackage
   attr_accessor :src_dir, :install_dir
 
   # todo: move method to the BasePackage class
-  def install_archive(release, archive, ndk_dir = Global::NDK_DIR)
+  def install_archive(release, archive, _platform_name = nil)
     rel_dir = release_directory(release)
     FileUtils.mkdir_p rel_dir
     prop = get_properties(rel_dir)
 
     FileUtils.rm_rf ARCHIVE_TOP_DIRS.map { |d| File.join ndk_dir, d }
-    Utils.unpack archive, ndk_dir
+    Utils.unpack archive, Global::NDK_DIR
 
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version

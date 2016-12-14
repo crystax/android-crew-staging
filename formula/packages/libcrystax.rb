@@ -13,14 +13,14 @@ class Libcrystax < BasePackage
   #build_depends_on default_gcc_compiler
 
   # todo: move method to the BasePackage class?
-  def install_archive(release, archive, ndk_dir = Global::NDK_DIR)
+  def install_archive(release, archive, _platform_name = nil)
     rel_dir = release_directory(release)
     FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir
     prop = get_properties(rel_dir)
 
-    FileUtils.rm_rf "#{ndk_dir}/#{archive_sub_dir}"
-    puts "Unpacking archive into #{ndk_dir}/#{archive_sub_dir}"
-    Utils.unpack archive, ndk_dir
+    FileUtils.rm_rf "#{Global::NDK_DIR}/#{archive_sub_dir}"
+    puts "Unpacking archive into #{Global::NDK_DIR}/#{archive_sub_dir}"
+    Utils.unpack archive, Global::NDK_DIR
 
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version

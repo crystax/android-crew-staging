@@ -83,7 +83,7 @@ class Formula
     cachepath = download_archive(file, options[:check_shasum] ? sha256_sum(release) : nil, options[:cache_only])
 
     puts "unpacking archive"
-    install_archive release, cachepath
+    install_archive release, cachepath, options[:platform]
   end
 
   def download_archive(archive, shasum, cache_only)
