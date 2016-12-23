@@ -87,16 +87,21 @@ Filters:
 --tools          list only tools, t.i. formulas with
                  'host' namespace
 
---require-rebuild name1 name2 ...
+--require-rebuild=WHICH name1 name2 ...
                  selects from the specified names those for which
-                 there is no archive on the package cache directory, or
+                 there is no archive in the package cache directory, or
                  an existing archive is older than formula
-                 file
+                 file;
+                 if 'WHICH' is 'last' then command whill check only
+                 last version described in a formula;
+                 if 'WHICH' is 'all' then command will check all versions
+                 described in a formula
 
-For example, to list crew utilities with obsolete archive files
-one could run the command from the NDK directory:
+For example, to list crew utilities with obsolete or absent archive
+files for a last versions of the programs one could run the command from
+the NDK directory:
 
-./crew list --require-rebuild bsdtar curl ruby
+./crew list --require-rebuild=last bsdtar curl ruby
 
 EOS
 

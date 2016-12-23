@@ -38,11 +38,17 @@ module Crew
         list_elements formulary.packages
       when '--tools'
         list_elements formulary.tools
+      when /^--require-rebuild=/
+        raise "--require-rebuild requires at least one formula name specified"
       else
-        raise "argument must be either '--packages', or '--tools'"
+        raise "bad command syntax; try ./crew help list"
       end
     else
-      raise CommandRequresOneOrNoArguments
+      raise "bad command syntax; try ./crew help list" unless args[0] =~ /^--require-rebuild=/
+      check_type = args[0].split('=')[1]
+      raise "--require-rebuild argument can be 'last' or 'all'" unless ['last', 'all'].include? check_type
+      args.shift
+      list_require_rebuild check_type, args, formulary
     end
   end
 
@@ -72,5 +78,21 @@ module Crew
     list.sort.each do |l|
       printf " %s %-#{max_name_len}s  %-#{max_ver_len}s  %-#{max_cxver_len}s%s\n", l.installed_sign, l.name, l.version, l.crystax_version, l.installed_source
     end
+  end
+
+  def self.list_require_rebuild(check_type, args, formulary)
+    names = []
+    args.each do |n|
+      formula = formulary[n]
+      fct = File.ctime(formula.path)
+      releases = (check_type == 'last') ? [formula.releases.last] : formula.releases
+      platforms = (Global::OS == 'darwin') ? ['darwin-x86_64'] : ['linux-x86_64', 'windows-x86_64', 'windows']
+      releases.each do |release|
+        platforms.map { |p| File.join(Global::PKG_CACHE_DIR, formula.archive_filename(release, p)) }.uniq.each do |file|
+          names << n if not File.exist?(file) or (File.ctime(file) < fct)
+        end
+      end
+    end
+    puts names.uniq.join(' ')
   end
 end
