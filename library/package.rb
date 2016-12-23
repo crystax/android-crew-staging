@@ -310,11 +310,11 @@ class Package < Formula
     self.class.build_libs
   end
 
-  private
-
   def archive_filename(release, _ = nil)
     "#{file_name}-#{release}.tar.xz"
   end
+
+  private
 
   def sha256_sum(release)
     release.shasum(:android)
