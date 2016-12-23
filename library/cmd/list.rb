@@ -82,13 +82,20 @@ module Crew
 
   def self.list_require_rebuild(check_type, args, formulary)
     names = []
+    std_platforms = (Global::OS == 'darwin') ? ['darwin-x86_64'] : ['linux-x86_64', 'windows-x86_64', 'windows']
     args.each do |n|
       formula = formulary[n]
       fct = File.ctime(formula.path)
       releases = (check_type == 'last') ? [formula.releases.last] : formula.releases
-      platforms = (Global::OS == 'darwin') ? ['darwin-x86_64'] : ['linux-x86_64', 'windows-x86_64', 'windows']
+      # todo: add supported platforms to formula class?
+      platforms = ((Global::OS == 'linux') and (n.end_with?('toolbox'))) ? ['windows-x86_64', 'windows'] : std_platforms
       releases.each do |release|
         platforms.map { |p| File.join(Global::PKG_CACHE_DIR, formula.archive_filename(release, p)) }.uniq.each do |file|
+          # puts "file: #{file}"
+          # puts "file exist:       #{File.exist?(file)}"
+          # puts "file ctime:       #{File.ctime(file)}"
+          # puts "fct:              #{fct}"
+          # puts "file ctime < fct: #{File.ctime(file) < fct}"
           names << n if not File.exist?(file) or (File.ctime(file) < fct)
         end
       end
