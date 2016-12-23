@@ -39,7 +39,7 @@ class NdkBase < HostFormula
     prop = get_properties(rel_dir)
 
     FileUtils.cd(Global::NDK_DIR) do
-     FileUtils.rm_rf TOP_FILES_AND_DIRS
+      FileUtils.rm_rf TOP_FILES_AND_DIRS
       FileUtils.rm_rf WIN_FILES if platform_name.start_with? 'windows'
     end
     Utils.unpack archive, Global::NDK_DIR

@@ -2,6 +2,8 @@ require_relative '../exceptions.rb'
 require_relative '../build.rb'
 
 
+ENV_SYNTAX     = 'env [env_options]'.freeze
+LIST_SYNTAX    = 'list [list_options] [name1 name2 ...]'.freeze
 INSTALL_SYNTAX = 'install [install_options] name[:version] ...'.freeze
 BUILD_SYNTAX   = 'build [build_options] name[:version] ...'.freeze
 
@@ -38,10 +40,9 @@ COMMAND is one of the following:
   help [command]...
                   if no command specified show this help message;
                   otherwise show addition info for the specified commands
-  env             show crew's command working environment
-  list [--packages|--tools]
-                  list all available formulas for packages or tools;
-                  whithout an argument list all formulas
+  #{ENV_SYNTAX}   show crew's command working environment
+  #{LIST_SYNTAX}  list the specified formulas;
+                  whithout any options and arguments list all formulas
   info name ...   show information about the specified formula(s)
   #{INSTALL_SYNTAX}
                   install the specified formula(s)
@@ -61,6 +62,42 @@ EOS
 
 NO_HELP = <<-EOS
 There is no additional info the command.
+EOS
+
+ENV_HELP = <<-EOS
+#{ENV_SYNTAX}
+
+The ENV command supports the following options:
+
+--pkg-cache-dir  output path to the directory used as
+                 a cache for crew packages
+
+EOS
+
+LIST_HELP = <<-EOS
+#{LIST_SYNTAX}
+
+The LIST command supports the following options:
+
+Filters:
+
+--packages       list only packages, t.i. formulas with
+                 'target' namespace
+
+--tools          list only tools, t.i. formulas with
+                 'host' namespace
+
+--require-rebuild name1 name2 ...
+                 selects from the specified names those for which
+                 there is no archive on the package cache directory, or
+                 an existing archive is older than formula
+                 file
+
+For example, to list crew utilities with obsolete archive files
+one could run the command from the NDK directory:
+
+./crew list --require-rebuild bsdtar curl ruby
+
 EOS
 
 INSTALL_HELP = <<-EOS
@@ -95,7 +132,7 @@ BUILD_HELP = <<-EOS
 
 #{NAME_RULES}
 
-The BUILD command support the following options:
+The BUILD command supports the following options:
 
 Common options:
 
@@ -139,8 +176,8 @@ EOS
 CMD_HELP = {
   'version'       => NO_HELP,
   'help'          => NO_HELP,
-  'env'           => NO_HELP,
-  'list'          => NO_HELP,
+  'env'           => ENV_HELP,
+  'list'          => LIST_HELP,
   'info'          => NO_HELP,
   'install'       => INSTALL_HELP,
   'remove'        => NO_HELP,

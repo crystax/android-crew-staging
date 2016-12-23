@@ -3,13 +3,21 @@ require_relative '../exceptions.rb'
 module Crew
 
   def self.env(args)
-    if args.length > 0
-      raise CommandRequresNoArguments
+    case args.length
+    when 0
+      puts "DOWNLOAD_BASE:  #{Global::DOWNLOAD_BASE}"
+      puts "PKG_CACHE_BASE: #{Global::PKG_CACHE_BASE}"
+      puts "BASE_DIR:       #{Global::BASE_DIR}"
+      puts "NDK_DIR:        #{Global::NDK_DIR}"
+      puts "TOOLS_DIR:      #{Global::TOOLS_DIR}"
+    when 1
+      if args[0] == '--pkg-cache-dir'
+        puts Global::PKG_CACHE_DIR
+      else
+        raise "bad argument: #{args[0]}"
+      end
+    else
+      raise CommandRequresOneOrNoArguments
     end
-    puts "DOWNLOAD_BASE:  #{Global::DOWNLOAD_BASE}"
-    puts "PKG_CACHE_BASE: #{Global::PKG_CACHE_BASE}"
-    puts "BASE_DIR:       #{Global::BASE_DIR}"
-    puts "NDK_DIR:        #{Global::NDK_DIR}"
-    puts "TOOLS_DIR:      #{Global::TOOLS_DIR}"
   end
 end

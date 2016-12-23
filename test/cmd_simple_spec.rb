@@ -54,4 +54,12 @@ describe "simple crew commands" do
                         "TOOLS_DIR:      #{Global::TOOLS_DIR}\n")
     end
   end
+
+  context "crew env --pkg-cache-dir" do
+    it "outputs crew's packages cache directory" do
+      crew 'env --pkg-cache-dir'
+      expect(result).to eq(:ok)
+      expect(out).to eq("#{Global::PKG_CACHE_DIR}\n")
+    end
+  end
 end
