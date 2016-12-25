@@ -35,6 +35,9 @@ OPTIONS are:
   --backtrace, -b output backtrace with exception message;
                   debug option
 
+  --no-warnings, -W
+                  do not output warnings
+
 COMMAND is one of the following:
   version         output version information
   help [command]...

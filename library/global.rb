@@ -52,6 +52,8 @@ module Global
       case o
       when '--backtrace', '-b'
         @options[:backtrace] = true
+      when '--no-warnongs', '-W'
+        @options[:no_warnings?] = true
       else
         raise "unknown global option: #{o}"
       end
@@ -60,6 +62,10 @@ module Global
 
   def self.backtrace?
     @options[:backtrace]
+  end
+
+  def self.no_warnings?
+    @options[:no_warnings]
   end
 
   def self.create_required_dir(*args)
@@ -96,12 +102,12 @@ module Global
 
   # private
 
-  @options = { backtrace: false }
+  @options = { backtrace: false, no_warnings: false }
 end
 
 
 def warning(msg)
-  STDERR.puts "warning: #{msg}"
+  STDERR.puts "warning: #{msg}" unless Global.no_warnings?
 end
 
 
