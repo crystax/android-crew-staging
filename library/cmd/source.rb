@@ -14,7 +14,7 @@ module Crew
 
     args.each do |n|
       name, ver = n.split(':')
-      fqn = "target/#{name}"
+      fqn = name.start_with?('target') ? name : "target/#{name}"
       formula = formulary[fqn]
       release = formula.find_release Release.new(ver)
 
