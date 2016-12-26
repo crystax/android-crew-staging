@@ -25,8 +25,17 @@ fi
 if [ -f $CREW_TOOLS_DIR/bin/ruby ]; then
     CREW_RUBY=$CREW_TOOLS_DIR/bin/ruby
 else
-    echo "Warning: using system ruby"
     CREW_RUBY=ruby
+    warnings="yes"
+    for arg in $@; do
+        if [ "$arg" = "-W" -o "$arg" = "--no-warnings" ]; then
+            warnings="no"
+            break
+        fi
+    done
+    if [ "$warnings" = "yes" ]; then
+        echo "Warning: using system ruby"
+    fi
 fi
 
 export SSL_CERT_FILE
