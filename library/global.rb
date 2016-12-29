@@ -53,7 +53,7 @@ module Global
       when '--backtrace', '-b'
         @options[:backtrace] = true
       when '--no-warnongs', '-W'
-        @options[:no_warnings?] = true
+        @options[:no_warnings] = true
       else
         raise "unknown global option: #{o}"
       end
