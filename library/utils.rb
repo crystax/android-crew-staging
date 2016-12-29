@@ -12,6 +12,14 @@ module Utils
   @@unzip_prog = '/usr/bin/unzip'
 
 
+  def self.split_package_version(pkgver)
+    r = pkgver.split('_')
+    raise "bad package version string: #{pkgver}" if r.size < 2
+    cxver = r.pop.to_i
+    ver = r.join('_')
+    [ver, cxver]
+  end
+
   def self.run_command(prog, *args)
     cmd = ([prog.to_s.strip] + args).map { |e| to_cmd_s(e) }
     #puts "cmd: #{cmd.join(' ')}"

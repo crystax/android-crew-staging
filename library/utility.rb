@@ -1,4 +1,6 @@
 require 'digest'
+
+require_relative 'utils.rb'
 require_relative 'tool.rb'
 require_relative 'platform.rb'
 require_relative 'build.rb'
@@ -33,7 +35,7 @@ class Utility < Tool
     if not av = Utility.active_version(file_name)
       # todo: output warning
     else
-      ver, cxver = Release.split_package_version(av)
+      ver, cxver = Utils.split_package_version(av)
       releases.each { |r| r.installed = cxver if r.version == ver }
     end
   end

@@ -1,4 +1,5 @@
 require 'digest'
+require_relative 'utils.rb'
 require_relative 'tool.rb'
 require_relative 'properties.rb'
 require_relative 'platform.rb'
@@ -20,7 +21,7 @@ class BuildDependency < Tool
         if not File.directory? file
           # todo: out warning
         else
-          ver, cxver = Release.split_package_version(File.basename(file))
+          ver, cxver = Utils.split_package_version(File.basename(file))
           # todo: output warning if there is no release for the ver
           releases.each { |r| r.installed = cxver if r.version == ver }
         end

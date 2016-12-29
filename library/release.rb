@@ -1,13 +1,5 @@
 class Release
 
-  def self.split_package_version(pkgver)
-    r = pkgver.split('_')
-    raise "bad package version string: #{pkgver}" if r.size < 2
-    cxver = r.pop.to_i
-    ver = r.join('_')
-    [ver, cxver]
-  end
-
   def initialize(ver = nil, cxver = nil, sum = nil)
     cxver = cxver.to_i if cxver
     @r = { version: ver, crystax_version: cxver }
