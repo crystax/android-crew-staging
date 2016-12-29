@@ -14,6 +14,7 @@ class InstallOptions
     @platform = Global::PLATFORM_NAME
     @check_shasum = true
     @cache_only = false
+    @force = false
 
     opts.each do |opt|
       case opt
@@ -23,6 +24,8 @@ class InstallOptions
         @platform = opt.split('=')[1]
       when '--cache-only'
         @cache_only = true
+      when '--force'
+        @force = true
       else
         raise "unknow option: #{opt}"
       end
@@ -37,7 +40,11 @@ class InstallOptions
     @cache_only
   end
 
+  def force?
+    @force
+  end
+
   def as_hash
-    { platform: self.platform, check_shasum: self.check_shasum?, cache_only: self.cache_only? }
+    { platform: self.platform, check_shasum: self.check_shasum?, cache_only: self.cache_only?, force: self.force? }
   end
 end

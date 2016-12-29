@@ -18,8 +18,8 @@ module Crew
       release = formula.find_release(Release.new(ver))
 
       if release.installed?
-        puts "#{name}:#{release} already installed"
-        next
+        warning "#{name}:#{release} already installed"
+        next unless options.force?
       end
 
       formula.releases.select { |r| r.source_installed? and r.version == release.version }.each do |c|

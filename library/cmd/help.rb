@@ -128,10 +128,12 @@ The INSTALL command support the following options:
 --cache-only     command will fail if required package was not
                  found in the cache
 
+--force          install even if specified formula(s) installed
+
 NB
 
-All options the INSTALL command supports are useful for CREW
-developers only.
+All options the INSTALL command supports are intended for CREW
+developers mainly.
 
 EOS
 
