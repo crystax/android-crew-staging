@@ -130,6 +130,8 @@ The INSTALL command support the following options:
 
 --force          install even if specified formula(s) installed
 
+--all-versions   install all version of the specified formula(s)
+
 NB
 
 All options the INSTALL command supports are intended for CREW

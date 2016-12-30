@@ -15,33 +15,35 @@ module Crew
     args.each.with_index do |n, index|
       name, ver = n.split(':')
       formula = formulary[name]
-      release = formula.find_release(Release.new(ver))
+      releases = options.all_versions? ? formula.releases : [formula.find_release(Release.new(ver))]
 
-      if release.installed?
-        warning "#{name}:#{release} already installed"
-        next unless options.force?
-      end
-
-      formula.releases.select { |r| r.source_installed? and r.version == release.version }.each do |c|
-        if c.crystax_version != release.crystax_version
-          raise "can't install #{name}:#{release} since sources for #{c} installed"
+      releases.each do |release|
+        if release.installed?
+          warning "#{name}:#{release} already installed"
+          next unless options.force?
         end
+
+        formula.releases.select { |r| r.source_installed? and r.version == release.version }.each do |c|
+          if c.crystax_version != release.crystax_version
+            raise "can't install #{name}:#{release} since sources for #{c} installed"
+          end
+        end
+
+        # todo: handle build dependencies too?
+        puts "calculating dependencies for #{name}: "
+        deps = formulary.dependencies(formula).select { |d| not d.installed? }
+        puts "  dependencies to install: #{(deps.map { |d| d.name }).join(', ')}"
+
+        if deps.count > 0
+          puts "installing dependencies for #{name}:"
+          deps.each { |d| d.install d.releases.last, options.as_hash }
+          puts""
+        end
+
+        formula.install release, options.as_hash
+
+        puts "" if index + 1 < args.count
       end
-
-      # todo: handle build dependencies too?
-      puts "calculating dependencies for #{name}: "
-      deps = formulary.dependencies(formula).select { |d| not d.installed? }
-      puts "  dependencies to install: #{(deps.map { |d| d.name }).join(', ')}"
-
-      if deps.count > 0
-        puts "installing dependencies for #{name}:"
-        deps.each { |d| d.install d.releases.last, options.as_hash }
-        puts""
-      end
-
-      formula.install release, options.as_hash
-
-      puts "" if index + 1 < args.count
     end
   end
 end
