@@ -59,8 +59,8 @@ class Platforms < BasePackage
     Utils.pack archive, install_dir, *ARCHIVE_TOP_DIRS
 
     if options.update_shasum?
-      release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
-      update_shasum release, platform
+      release.shasum = Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
+      update_shasum release
     end
 
     if options.install?
