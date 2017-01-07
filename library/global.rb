@@ -52,7 +52,7 @@ module Global
       case o
       when '--backtrace', '-b'
         @options[:backtrace] = true
-      when '--no-warnongs', '-W'
+      when '--no-warnings', '-W'
         @options[:no_warnings] = true
       else
         raise "unknown global option: #{o}"
