@@ -6,6 +6,7 @@ ENV_SYNTAX     = 'env [env_options]'.freeze
 LIST_SYNTAX    = 'list [list_options] [name1 name2 ...]'.freeze
 INSTALL_SYNTAX = 'install [install_options] name[:version] ...'.freeze
 BUILD_SYNTAX   = 'build [build_options] name[:version] ...'.freeze
+SHASUM_SYNTAX  = 'shasum [shasum_options] [name1 name2 ...]'.freeze
 
 NAME_RULES = <<-EOS
 Name for a formula can specified in two ways. First, it can be specified
@@ -60,6 +61,8 @@ COMMAND is one of the following:
   update          update crew repository information
   upgrade         install most recent versions
   cleanup [-n]    uninstall old versions and clean cache
+  #{SHASUM_SYNTAX}
+                  check or update SHA256 sums
 EOS
 
 
@@ -109,7 +112,7 @@ the NDK directory:
 EOS
 
 INSTALL_HELP = <<-EOS
-#{INSTALL_SYNTAX}
+             #{INSTALL_SYNTAX}
 
 #{NAME_RULES}
 
@@ -185,6 +188,20 @@ Options for building libraries:
                  by default the formula will be built for all ABIs
 EOS
 
+SHASUM_HELP = <<-EOS
+#{SHASUM_SYNTAX}
+
+The SHASUM command supports the following options:
+
+--update={last|all}
+                 for every specified formula check SHA256 sum for either 'last'
+                 or 'all' versions; if check fails then command will calculate
+                 sum and save it to the formula file;
+                 if no formula name was specified then command will check
+                 (and update) sums for all formulas
+
+EOS
+
 CMD_HELP = {
   'version'       => NO_HELP,
   'help'          => NO_HELP,
@@ -198,7 +215,8 @@ CMD_HELP = {
   'remove-source' => NO_HELP,
   'update'        => NO_HELP,
   'upgrade'       => NO_HELP,
-  'cleanup'       => NO_HELP
+  'cleanup'       => NO_HELP,
+  'shasum'        => SHASUM_HELP
 }
 
 module Crew
