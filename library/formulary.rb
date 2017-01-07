@@ -80,16 +80,6 @@ class Formulary
     @formulary.each_value(&block)
   end
 
-  # def member?(name)
-  #   @formulary.member? name
-  # end
-  # def select(&block)
-  #   @formulary.select(&block)
-  # end
-
-
-  # private
-
   def self.factory(path)
     Formulary.klass(path).new(path)
   end
