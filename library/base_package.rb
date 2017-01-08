@@ -40,13 +40,13 @@ class BasePackage < Formula
     File.open(path, 'w') { |f| f.puts s }
   end
 
-  def archive_filename(release, _)
+  def archive_filename(release, _ = nil)
     "#{file_name}-#{release}.tar.xz"
   end
 
   private
 
-  def sha256_sum(release, _)
+  def sha256_sum(release, _ = nil)
     release.shasum(:android)
   end
 
