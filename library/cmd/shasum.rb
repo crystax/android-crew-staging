@@ -1,6 +1,7 @@
 require_relative '../exceptions.rb'
 require_relative '../release.rb'
 require_relative '../formulary.rb'
+require_relative '../platform.rb'
 require_relative '../shasum_options.rb'
 
 
@@ -27,7 +28,11 @@ module Crew
             puts "updated"
           end
         else
-          Platform.NAMES.each do |platform_name|
+          options.platforms.each do |platform_name|
+            # an ugly special case for windows toolbox
+            # it seems that everything related to windows is ugly
+            next if formula.name == 'toolbox' and not platform_name.start_with?('windows')
+            #
             archive = File.join(Global::PKG_CACHE_DIR, formula.archive_filename(release, platform_name))
             raise "archive not found: #{archive}" unless File.exist? archive
             print "#{formula.fqn} #{release} #{platform_name}: "
@@ -37,7 +42,8 @@ module Crew
               puts "OK"
             else
               release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
-              update_shasum release, platform
+              formula.update_shasum release, platform
+              puts "updated"
             end
           end
         end
