@@ -46,8 +46,8 @@ class HostFormula < Formula
     File.join base_dir_for_platform(platform), 'build.log'
   end
 
-  def sha256_sum(release, platform_name = Global::PLATFORM_NAME)
-    release.shasum(Platform.new(platform_name).to_sym)
+  def sha256_sum(release)
+    release.shasum(Platform.new(Global::PLATFORM_NAME).to_sym)
   end
 
   def update_shasum(release, platform)
