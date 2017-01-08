@@ -36,7 +36,8 @@ class BasePackage < Formula
   end
 
   def update_shasum(release)
-    s = File.read(path).sub(/sha256:\s+'\h+'/, "sha256: '#{release.shasum}'")
+    regexp = /(release\s+version:\s+'#{release.version}',\s+crystax_version:\s+#{release.crystax_version},\s+sha256:\s+')(\h+)('.*)/
+    s = File.read(path).sub(regexp, '\1' +  release.shasum + '\3')
     File.open(path, 'w') { |f| f.puts s }
   end
 
