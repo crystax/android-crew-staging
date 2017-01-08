@@ -4,10 +4,10 @@ class Expat < BuildDependency
   homepage "http://expat.sourceforge.net"
   url "https://downloads.sourceforge.net/project/expat/expat/${version}/expat-${version}.tar.bz2"
 
-  release version: '2.2.0', crystax_version: 1, sha256: { linux_x86_64:   '0',
+  release version: '2.2.0', crystax_version: 1, sha256: { linux_x86_64:   'f9cd960399d7b842f5035ae31528255ff4cdcd503b7e811ee4f4c539eadd9423',
                                                           darwin_x86_64:  '0',
-                                                          windows_x86_64: '0',
-                                                          windows:        '0'
+                                                          windows_x86_64: 'f74b64ff4de92745418a57d23ae5a54307880b704eebd6a632c90f8348c89f1d',
+                                                          windows:        '8cd07504302f8d8c4d56794386582406184fa8cb916a292d90c93dfabc9b250b'
                                                         }
 
 

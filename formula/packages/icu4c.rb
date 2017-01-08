@@ -4,7 +4,7 @@ class Icu4c < Package
   homepage "http://site.icu-project.org/"
   url "https://ssl.icu-project.org/files/icu4c/${version}/icu4c-${block}-src.tgz" do |r| r.version.gsub('.', '_') end
 
-  release version: '57.1', crystax_version: 1, sha256: '0'
+  release version: '57.1', crystax_version: 1, sha256: '3bb090dcee4fb04adc67ea336d7aff0e5793d732b55bddc4373c0548c75ede57'
 
   build_libs 'libicudata', 'libicui18n', 'libicuio', 'libicule', 'libiculx', 'libicutest', 'libicutu', 'libicuuc'
   build_copy 'license.html'

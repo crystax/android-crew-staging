@@ -4,7 +4,7 @@ class Openssl < Package
   homepage "https://openssl.org/"
   url 'https://openssl.org/source/openssl-${version}.tar.gz'
 
-  release version: '1.0.2h', crystax_version: 1, sha256: '0'
+  release version: '1.0.2h', crystax_version: 1, sha256: 'b1e0dbd480095924de7e0f876902ec8566dedd98490ba6724f9b782afa3c5e4c'
 
   build_options copy_installed_dirs: ['bin', 'include', 'lib']
   build_copy 'LICENSE'

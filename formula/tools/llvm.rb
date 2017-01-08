@@ -4,22 +4,22 @@ class Llvm < Tool
   homepage "http://llvm.org/"
   url "toolchain/llvm-${version}"
 
-  release version: '3.6', crystax_version: 1, sha256: { linux_x86_64:   '0',
+  release version: '3.6', crystax_version: 1, sha256: { linux_x86_64:   'c7bec68f592f09072ad4796d101b038d9af56aa4c605163dc7a1bfd321461d92',
                                                         darwin_x86_64:  '0',
-                                                        windows_x86_64: '0',
-                                                        windows:        '0'
+                                                        windows_x86_64: 'bf3ea48904bf29b426f716284d89e3159ccfa5fb9d9015dbe61878a5b087ec32',
+                                                        windows:        'da343b18506284e7dcaca9c799174ef444d2c92bae49f49901f804160376a531'
                                                       }
 
-  release version: '3.7', crystax_version: 1, sha256: { linux_x86_64:   '0',
+  release version: '3.7', crystax_version: 1, sha256: { linux_x86_64:   '61a8eb0bddf9cdbabb3f3fa22ba571574b87bc0714f57bc17216243f9ce4b1ad',
                                                         darwin_x86_64:  '0',
-                                                        windows_x86_64: '0',
-                                                        windows:        '0'
+                                                        windows_x86_64: '5112484a39edb35a020e5ebb0f824c07a1b1b0fbf7be25edf10b714ff2cf16fd',
+                                                        windows:        '80a1aea7065b0c1cb74cb10e644f552c743cc86f14077239f92a36e0ebe076e6'
                                                       }
 
-  release version: '3.8', crystax_version: 1, sha256: { linux_x86_64:   '0',
+  release version: '3.8', crystax_version: 1, sha256: { linux_x86_64:   '542ece3f373cd8f1a4d6899f909693bff0bcd60bf46ab93b0b781f70cfee0fc7',
                                                         darwin_x86_64:  '0',
-                                                        windows_x86_64: '0',
-                                                        windows:        '0'
+                                                        windows_x86_64: '13b7cea8ad781a485ce949488012742516e99b75e9fef8f008cc070e1aaf1672',
+                                                        windows:        'f74c3858c05e46b7e0154877c46844a2bcac30db18154b125c7be2099a632db0'
                                                       }
 
   build_depends_on 'libedit'

@@ -4,10 +4,10 @@ class Zlib < BuildDependency
   homepage 'http://zlib.net/'
   url 'http://zlib.net/zlib-${version}.tar.xz'
 
-  release version: '1.2.10', crystax_version: 1, sha256: { linux_x86_64:   '0',
+  release version: '1.2.10', crystax_version: 1, sha256: { linux_x86_64:   '145dc9f32d1a3a6d61b238b42833af3ac6717d1fca284874cdd77cae31c21495',
                                                            darwin_x86_64:  '0',
-                                                           windows_x86_64: '0',
-                                                           windows:        '0'
+                                                           windows_x86_64: 'c4c71bbb0487bbe6fe2e18080ece5d7bab7ec998475d05ff30f363f270c830b9',
+                                                           windows:        '2944b7add5ef08c9f5f06964b2938c0ad36c22fc7588f3e3b8200aa61cbcc626'
                                                          }
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)

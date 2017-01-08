@@ -4,10 +4,10 @@ class Libedit < BuildDependency
   homepage "http://thrysoee.dk/editline/"
   url "http://thrysoee.dk/editline/libedit-${version}.tar.gz"
 
-  release version: '20150325-3.1', crystax_version: 1, sha256: { linux_x86_64:   '0',
+  release version: '20150325-3.1', crystax_version: 1, sha256: { linux_x86_64:   'f4544a32dbe933c269301ef6ea4ee44f0929470e5e10df56161dcd9e00b7d8ec',
                                                                  darwin_x86_64:  '0',
-                                                                 windows_x86_64: '0',
-                                                                 windows:        '0'
+                                                                 windows_x86_64: 'e755520925e4ad279cdb97bca1f7feb948fbacb442db4c1f1a04893d3ded87aa',
+                                                                 windows:        'c44470d728df69067bae6d40bcb2ab68f06de808685316acf8afc482a8c019a9'
 
                                                                }
   # todo: version 20160618-3.1 fails to build on darwin

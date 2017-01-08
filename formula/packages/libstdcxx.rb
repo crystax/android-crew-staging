@@ -6,9 +6,9 @@ class Libstdcxx < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '4.9', crystax_version: 1, sha256: '0'
-  release version: '5',   crystax_version: 1, sha256: '0'
-  release version: '6',   crystax_version: 1, sha256: '0'
+  release version: '4.9', crystax_version: 1, sha256: '78a88a8251f3427ec6119041968c4bbbaba3fda919e3a54c0178a1b6ca521b0c'
+  release version: '5',   crystax_version: 1, sha256: '173bfcc99dbb1fd8da00e22fd7fb94c67c1c7f39830792d8bbaf5f9b7e3ede81'
+  release version: '6',   crystax_version: 1, sha256: '3e438b4e565a2999cfba49d3db6a5e57b83fd4d978a77df33b32698866d9c6f2'
 
   # todo:
   #build_depends_on 'platforms'
