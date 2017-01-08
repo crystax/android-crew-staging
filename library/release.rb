@@ -35,7 +35,7 @@ class Release
     @r[:source_installed]
   end
 
-  # 's' must be either a hash like this { platform_name: 'sha256_sum' } or just a string
+  # 's' must be either a hash like this { platform_name: 'sha256 sum' } or just a string
   def shasum=(s)
     if s.is_a? Hash
       @shasum.update(s)

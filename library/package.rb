@@ -316,7 +316,7 @@ class Package < Formula
 
   private
 
-  def sha256_sum(release)
+  def sha256_sum(release, _ = nil)
     release.shasum(:android)
   end
 

@@ -78,9 +78,10 @@ class Formula
   #
   def install(r = releases.last, options = { platform: Global::PLATFORM_NAME, check_shasum: true, cache_only: false })
     release = find_release(r)
-    file = archive_filename(release, options[:platform])
+    platform_name = options[:platform]
+    file = archive_filename(release, platform_name)
 
-    cachepath = download_archive(file, options[:check_shasum] ? sha256_sum(release) : nil, options[:cache_only])
+    cachepath = download_archive(file, options[:check_shasum] ? sha256_sum(release, platform_name) : nil, options[:cache_only])
 
     puts "unpacking archive"
     install_archive release, cachepath, options[:platform]
