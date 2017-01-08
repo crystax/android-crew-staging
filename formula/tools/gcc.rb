@@ -5,19 +5,19 @@ class Gcc < Tool
   url "toolchain/gcc"
 
   release version: '4.9', crystax_version: 1, sha256: { linux_x86_64:   '6adaeb9e69058f41a6d803f48ac3efa18caa8a9214d5c101538570944c27b4f8',
-                                                        darwin_x86_64:  '0',
+                                                        darwin_x86_64:  'ff9980e8119a0de408aab0fca9616db05b54fb514fa8ee85a798022d086968db',
                                                         windows_x86_64: 'a91aa6b16b134d31f06be7f86167ee33f33b6e49202a1117dd13e9a3a098cb3e',
                                                         windows:        'd0142acf9eafe5019ab4f7b8b86483461ff28d960be3f92def91f2f0983f1ff4'
                                                       }
 
   release version: '5', crystax_version: 1, sha256: { linux_x86_64:   '68b11178b4c29dcc65b677ad99a7c2554f31857e1537d33ed43503a60bda50a6',
-                                                      darwin_x86_64:  '0',
+                                                      darwin_x86_64:  '5e9fcba4c9bb93ebe9d3738fdfd2cd70f30a9ae679b8bc4c587450756292302a',
                                                       windows_x86_64: '54d43f033271fd9e10d156325ce359303d42c4954ba94d914eda48b23343d938',
                                                       windows:        '5d641434e5b602eccfdab7bf85bb9e31263901abaa1367eefb52ea1215d53a67'
                                                     }
 
   release version: '6', crystax_version: 1, sha256: { linux_x86_64:   'd831540bf6fc461dc477333a84d874858ade9cd70bba2361a7c8eba713daf905',
-                                                      darwin_x86_64:  '0',
+                                                      darwin_x86_64:  '07cc6e9a5e8180be4d42e169e8437bd30f0fc67439119c97b21809a2f0fce595',
                                                       windows_x86_64: '7f069c9a1d64dececa4b6a2edbcbfad669e7ce5547d71d1c65535d1ad48c6d13',
                                                       windows:        '695117b44f480d77d49130ebd363d6ad6f7746df4a0c59876df81f946340ed8c'
                                                     }

@@ -4,7 +4,7 @@ class NdkDepends < Utility
   homepage ""
 
   release version: '1', crystax_version: 1, sha256: { linux_x86_64:   '4fc102d6c631364a079deefe94ad0952c494e3f92bf6dacf3e0a27221b9cb8f4',
-                                                      darwin_x86_64:  '0',
+                                                      darwin_x86_64:  '9b2b9cf43f463c469c6bca57909b781de38e1e6e68270bbc695cd77e3686acf9',
                                                       windows_x86_64: 'd1395cfd7b81d547e2d0b3d16c70789f9946a40ede876a0c066ce99a6ae1ea09',
                                                       windows:        'a5a630d2e65dd8602e39add85f1809318baaa4a75651623f98872f0ff8e65c93'
                                                     }

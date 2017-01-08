@@ -5,7 +5,7 @@ class Libgit2 < BuildDependency
   url 'https://github.com/libgit2/libgit2/archive/v${version}.tar.gz'
 
   release version: '0.24.2', crystax_version: 1, sha256: { linux_x86_64:   '016d5d27b1c053c77e6a3e0b232d3566b3c4566b822bc987f876a4d8d320170c',
-                                                           darwin_x86_64:  '0',
+                                                           darwin_x86_64:  '8acf90127948cfe2d1705d3754c4526b3667cc5cee670b32759aa7f0254df46c',
                                                            windows_x86_64: '631d40074f3257468b1cfd4840b9c87418405b8700c53f63234f35d1d206c5a0',
                                                            windows:        '99884c2697707b5f77d3b3aa5e2a0b8a3db4050e0c6d14f6273e1219e6a3359e'
                                                          }

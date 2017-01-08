@@ -6,7 +6,7 @@ class Libarchive < Utility
   url 'http://www.libarchive.org/downloads/libarchive-${version}.tar.gz'
 
   release version: '3.2.0', crystax_version: 1, sha256: { linux_x86_64:   'a5499ae01a311c1d2c47b9d2231e045d3739d36d22da3c2d98e27f7173715f20',
-                                                          darwin_x86_64:  '0',
+                                                          darwin_x86_64:  'cf35ce53dab94ca800146c8be7ca3a9b823329e0a75f57cb0171db6608a75d94',
                                                           windows_x86_64: 'c9d8eddfd990d1b1d63fdbeaf8bb9848b1982a45654e793254926ee4f401a68a',
                                                           windows:        '34532411bd60d2f4edba594bc5657db8b06d5cb9f0b09539c9800b838ff1e901'
                                                         }
