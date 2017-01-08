@@ -21,7 +21,7 @@ class ShasumOptions
         u = opt.split('=')[1]
         raise "bad update value: #{u}; must be 'all' or 'last'" if u != 'all' and u != 'last'
         @update = true
-        @all_versions = true
+        @all_versions = (u == 'all')
       when /^--platforms=/
         @platforms = opt.split('=')[1].split(',')
         @platforms.each { |p| raise "unsupported platform #{p}" unless Platform::NAMES.include? p }
