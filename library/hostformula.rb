@@ -55,7 +55,7 @@ class HostFormula < Formula
     cxver = release.crystax_version
     sum = release.shasum(platform.to_sym)
     release_regexp = /^[[:space:]]*release[[:space:]]+version:[[:space:]]+'#{ver}',[[:space:]]+crystax_version:[[:space:]]+#{cxver}/
-    platform_regexp = /#{platform.to_sym}:/
+    platform_regexp = /(.*#{platform.to_sym}:\s+')(\h+)('.*)/
     lines = []
     state = :copy
     File.foreach(path) do |l|
@@ -71,7 +71,7 @@ class HostFormula < Formula
             lines << l
           else
             state = :updated
-            lines << l.gsub(/'[[:xdigit:]]+'/, "'#{sum}'")
+            lines << l.sub(platform_regexp, '\1' + sum + '\3')
           end
         end
       when :updating
@@ -79,7 +79,7 @@ class HostFormula < Formula
           lines << l
         else
           state = :updated
-          lines << l.gsub(/'[[:xdigit:]]+'/, "'#{sum}'")
+          lines << l.sub(platform_regexp, '\1' + sum + '\3')
         end
       else
         raise "in formula #{File.basename(file_name)} bad state #{state} on line: #{l}"
