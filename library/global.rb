@@ -52,7 +52,7 @@ module Global
       case o
       when '--backtrace', '-b'
         @options[:backtrace] = true
-      when '--no-warnongs', '-W'
+      when '--no-warnings', '-W'
         @options[:no_warnings] = true
       else
         raise "unknown global option: #{o}"
@@ -72,6 +72,10 @@ module Global
     dir = Pathname.new(File.join(*args))
     FileUtils.mkdir_p dir unless dir.directory?
     dir
+  end
+
+  def self.pkg_cache_dir(formula)
+    File.join(PKG_CACHE_DIR, NS_DIR[formula.namespace])
   end
 
   VERSION = "0.3.0"

@@ -6,25 +6,29 @@ class Libcrystax < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '1', crystax_version: 1, sha256: '0'
+  release version: '1', crystax_version: 1, sha256: '9da1dc9cacd9b8d1aceaf333b27d31688b02e31adcef0970334a7b59664c4a11'
 
   # todo:
-  #build_depends_on 'platforms'
+  build_depends_on 'platforms'
   #build_depends_on default_gcc_compiler
+
+  def release_directory(_release = nil, _platform_ndk = nil)
+    "#{Global::NDK_DIR}/#{archive_sub_dir}"
+  end
 
   # todo: move method to the BasePackage class?
   def install_archive(release, archive, _platform_name = nil)
-    rel_dir = release_directory(release)
-    FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir
-    prop = get_properties(rel_dir)
+    prop_dir = properties_directory(release)
+    FileUtils.mkdir_p prop_dir
+    prop = get_properties(prop_dir)
 
-    FileUtils.rm_rf "#{Global::NDK_DIR}/#{archive_sub_dir}"
-    puts "Unpacking archive into #{Global::NDK_DIR}/#{archive_sub_dir}"
+    FileUtils.rm_rf release_directory
+    puts "Unpacking archive into #{release_directory}"
     Utils.unpack archive, Global::NDK_DIR
 
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version
-    save_properties prop, rel_dir
+    save_properties prop, prop_dir
 
     release.installed = release.crystax_version
   end
@@ -49,7 +53,7 @@ class Libcrystax < BasePackage
         build_dir = File.join(arch_build_dir, abi, 'build')
         FileUtils.mkdir_p build_dir
         FileUtils.cd(build_dir) { [:static, :shared].each { |lt| build_for_abi abi, release, lib_type: lt } }
-        FileUtils.cp_r "#{Global::NDK_DIR}/#{archive_sub_dir}", dst_dir unless options.build_only?
+        FileUtils.cp_r release_directory, dst_dir unless options.build_only?
       end
       FileUtils.rm_rf arch_build_dir unless options.no_clean?
     end
@@ -81,7 +85,7 @@ class Libcrystax < BasePackage
     lib_type = options[:lib_type]
     build_dir = File.join(Dir.pwd, lib_type.to_s)
     FileUtils.mkdir build_dir
-    crystax_dir = "#{Global::NDK_DIR}/#{File.dirname(archive_sub_dir)}"
+    crystax_dir = File.dirname(release_directory)
 
     # todo: why strictly gcc 4.9 must be used?
     args = [lib_type,

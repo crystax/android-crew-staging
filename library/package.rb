@@ -1,17 +1,11 @@
 require 'fileutils'
-require 'digest'
-require_relative 'formula.rb'
-require_relative 'properties.rb'
 require_relative 'release.rb'
 require_relative 'build.rb'
 require_relative 'build_options.rb'
+require_relative 'target_base.rb'
 
 
-class Package < Formula
-
-  namespace :target
-
-  include Properties
+class Package < TargetBase
 
   SRC_DIR_BASENAME = 'src'
 
@@ -32,15 +26,6 @@ class Package < Formula
 
   attr_reader :pre_build_result, :post_build_result
 
-  def initialize(path)
-    super path
-
-    # mark installed releases and sources
-    releases.each { |r| r.update get_properties(release_directory(r)) }
-
-    @pre_build_result = nil
-  end
-
   def home_directory
     File.join(Global::HOLD_DIR, file_name)
   end
@@ -49,8 +34,8 @@ class Package < Formula
     File.join(home_directory, release.version)
   end
 
-  def cache_file(release)
-    File.join(Global::PKG_CACHE_DIR, archive_filename(release))
+  def properties_directory(release)
+    release_directory release
   end
 
   def install_archive(release, archive, _platform_name = nil)
@@ -278,11 +263,6 @@ class Package < Formula
     end
   end
 
-  def update_shasum(release)
-    s = File.read(path).sub(/sha256:\s+'\h+'/, "sha256: '#{release.shasum}'")
-    File.open(path, 'w') { |f| f.puts s }
-  end
-
   class << self
 
     def build_copy(*args)
@@ -310,22 +290,10 @@ class Package < Formula
     self.class.build_libs
   end
 
-  def archive_filename(release, _ = nil)
-    "#{file_name}-#{release}.tar.xz"
-  end
-
   private
-
-  def sha256_sum(release)
-    release.shasum(:android)
-  end
 
   def binary_files(rel_dir)
     Dir["#{rel_dir}/*"].select{ |a| File.basename(a) != SRC_DIR_BASENAME }
-  end
-
-  def build_base_dir
-    "#{Build::BASE_TARGET_DIR}/#{file_name}"
   end
 
   def package_dir
@@ -342,10 +310,6 @@ class Package < Formula
 
   def install_dir_for_abi(abi)
     "#{base_dir_for_abi(abi)}/install"
-  end
-
-  def build_log_file
-    "#{build_base_dir}/build.log"
   end
 
   def host_for_abi(abi)

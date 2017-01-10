@@ -6,9 +6,9 @@ class Libstdcxx < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '4.9', crystax_version: 1, sha256: '0'
-  release version: '5',   crystax_version: 1, sha256: '0'
-  release version: '6',   crystax_version: 1, sha256: '0'
+  release version: '4.9', crystax_version: 1, sha256: 'aca527fcde6802100d858e9bc855ba3082d4a7465f824be77ab05fe652bdae68'
+  release version: '5',   crystax_version: 1, sha256: 'cd080db3b1ed38b90becdbc5396ff01567db81547445a44b2cd49417c3007c72'
+  release version: '6',   crystax_version: 1, sha256: '7faed7f694942bedc7e3729af6a83d3ea45ea0ee1677186626b151dd19d3adb6'
 
   # todo:
   #build_depends_on 'platforms'
@@ -17,9 +17,9 @@ class Libstdcxx < BasePackage
 
   # todo: move method to the BasePackage class?
   def install_archive(release, archive, _platform_name = nil)
-    rel_dir = release_directory(release)
-    FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir
-    prop = get_properties(rel_dir)
+    prop_dir = properties_directory(release)
+    FileUtils.mkdir_p prop_dir unless Dir.exists? prop_dir
+    prop = get_properties(prop_dir)
 
     FileUtils.rm_rf "#{Global::NDK_DIR}/#{archive_sub_dir(release)}"
     puts "Unpacking archive into #{Global::NDK_DIR}/#{archive_sub_dir(release)}"
@@ -27,7 +27,7 @@ class Libstdcxx < BasePackage
 
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version
-    save_properties prop, rel_dir
+    save_properties prop, prop_dir
 
     release.installed = release.crystax_version
   end

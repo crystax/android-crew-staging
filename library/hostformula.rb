@@ -23,7 +23,7 @@ class HostFormula < Formula
   end
 
   def cache_file(release, plaform_name)
-    File.join(Global::PKG_CACHE_DIR, archive_filename(release, plaform_name))
+    File.join(Global.pkg_cache_dir(self), archive_filename(release, plaform_name))
   end
 
   def build_base_dir
@@ -46,8 +46,8 @@ class HostFormula < Formula
     File.join base_dir_for_platform(platform), 'build.log'
   end
 
-  def sha256_sum(release)
-    release.shasum(Global::PLATFORM_NAME.gsub(/-/, '_').to_sym)
+  def sha256_sum(release, platform_name = Global::PLATFORM_NAME)
+    release.shasum(Platform.new(platform_name).to_sym)
   end
 
   def update_shasum(release, platform)
@@ -55,7 +55,7 @@ class HostFormula < Formula
     cxver = release.crystax_version
     sum = release.shasum(platform.to_sym)
     release_regexp = /^[[:space:]]*release[[:space:]]+version:[[:space:]]+'#{ver}',[[:space:]]+crystax_version:[[:space:]]+#{cxver}/
-    platform_regexp = /#{platform.to_sym}:/
+    platform_regexp = /(.*#{platform.to_sym}:\s+')(\h+)('.*)/
     lines = []
     state = :copy
     File.foreach(path) do |l|
@@ -71,7 +71,7 @@ class HostFormula < Formula
             lines << l
           else
             state = :updated
-            lines << l.gsub(/'[[:xdigit:]]+'/, "'#{sum}'")
+            lines << l.sub(platform_regexp, '\1' + sum + '\3')
           end
         end
       when :updating
@@ -79,7 +79,7 @@ class HostFormula < Formula
           lines << l
         else
           state = :updated
-          lines << l.gsub(/'[[:xdigit:]]+'/, "'#{sum}'")
+          lines << l.sub(platform_regexp, '\1' + sum + '\3')
         end
       else
         raise "in formula #{File.basename(file_name)} bad state #{state} on line: #{l}"

@@ -90,7 +90,7 @@ module Crew
       # todo: add supported platforms to formula class?
       platforms = ((Global::OS == 'linux') and (n.end_with?('toolbox'))) ? ['windows-x86_64', 'windows'] : std_platforms
       releases.each do |release|
-        platforms.map { |p| File.join(Global::PKG_CACHE_DIR, formula.archive_filename(release, p)) }.uniq.each do |file|
+        platforms.map { |p| formula.cache_file(release, p) }.uniq.each do |file|
           # puts "file: #{file}"
           # puts "file exist:       #{File.exist?(file)}"
           # puts "file ctime:       #{File.ctime(file)}"
