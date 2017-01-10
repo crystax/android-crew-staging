@@ -166,6 +166,9 @@ Common options:
 --num-jobs=N     set number of jobs for a make commad;
                  default value depends on the machine used
 
+--all-versions   build all versions; by default, the command will build
+                 only latest version
+
 Options for building utilities:
 
 --platforms=LIST the list of platforms for which to build formulas;
