@@ -74,6 +74,10 @@ module Global
     dir
   end
 
+  def self.pkg_cache_dir(formula)
+    File.join(PKG_CACHE_DIR, NS_DIR[formula.namespace])
+  end
+
   VERSION = "0.3.0"
   OS = operating_system
 

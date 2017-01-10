@@ -1,0 +1,48 @@
+require_relative 'release.rb'
+require_relative 'properties.rb'
+require_relative 'formula.rb'
+
+
+class TargetBase < Formula
+
+  namespace :target
+
+  include Properties
+
+  def initialize(path)
+    super path
+
+    # mark installed releases and sources
+    releases.each { |r| r.update get_properties(properties_directory(r)) }
+
+    @pre_build_result = nil
+  end
+
+  def archive_filename(release, _ = nil)
+    "#{file_name}-#{release}.tar.xz"
+  end
+
+  def cache_file(release, _ = nil)
+    File.join(Global.pkg_cache_dir(self), archive_filename(release))
+  end
+
+  def sha256_sum(release, _ = nil)
+    release.shasum(:android)
+  end
+
+  def update_shasum(release)
+    regexp = /(release\s+version:\s+'#{release.version}',\s+crystax_version:\s+#{release.crystax_version},\s+sha256:\s+')(\h+)('.*)/
+    s = File.read(path).sub(regexp, '\1' +  release.shasum + '\3')
+    File.open(path, 'w') { |f| f.puts s }
+  end
+
+  private
+
+  def build_base_dir
+    "#{Build::BASE_TARGET_DIR}/#{file_name}"
+  end
+
+  def build_log_file
+    "#{build_base_dir}/build.log"
+  end
+end

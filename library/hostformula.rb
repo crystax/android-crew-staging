@@ -23,7 +23,7 @@ class HostFormula < Formula
   end
 
   def cache_file(release, plaform_name)
-    File.join(Global::PKG_CACHE_DIR, archive_filename(release, plaform_name))
+    File.join(Global.pkg_cache_dir(self), archive_filename(release, plaform_name))
   end
 
   def build_base_dir

@@ -5,7 +5,7 @@ class Platforms < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '24', crystax_version: 1, sha256: 'bd6214a72280906c6052160e9880a2717199a2b5513db9ad139e602ac201221b'
+  release version: '24', crystax_version: 1, sha256: 'dc81a15c71991414c5b4480040465d087e1f8b23a56d36e112971a728b5b9b4a'
 
   # todo:
   #build_depends_on default_compiler
@@ -14,18 +14,22 @@ class Platforms < BasePackage
 
   attr_accessor :src_dir, :install_dir
 
+  def release_directory(release, _ = nil)
+    File.join Global::NDK_DIR, ARCHIVE_TOP_DIRS[0]
+  end
+
   # todo: move method to the BasePackage class
   def install_archive(release, archive, _platform_name = nil)
-    rel_dir = release_directory(release)
-    FileUtils.mkdir_p rel_dir
-    prop = get_properties(rel_dir)
+    prop_dir = properties_directory(release)
+    FileUtils.mkdir_p prop_dir
+    prop = get_properties(prop_dir)
 
     FileUtils.rm_rf ARCHIVE_TOP_DIRS.map { |d| File.join Global::NDK_DIR, d }
     Utils.unpack archive, Global::NDK_DIR
 
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version
-    save_properties prop, rel_dir
+    save_properties prop, prop_dir
 
     release.installed = release.crystax_version
   end

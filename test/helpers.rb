@@ -135,7 +135,7 @@ module Spec
     end
 
     def in_cache?(type, name, version, cxver)
-      File.exists?(File.join(Global::PKG_CACHE_DIR, archive_name(type, name, version, cxver)))
+      File.exists?(File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[type], archive_name(type, name, version, cxver)))
     end
 
     def cache_empty?

@@ -16,7 +16,7 @@ module Crew
       releases = options.all_versions? ? formula.releases : [formula.releases.last]
       releases.each do |release|
         if formula.namespace == :target
-          archive = File.join(Global::PKG_CACHE_DIR, formula.archive_filename(release))
+          archive = formula.cache_file(release)
           raise "archive not found: #{archive}" unless File.exist? archive
           print "#{formula.fqn} #{release}: "
           sum = Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
@@ -33,7 +33,7 @@ module Crew
             # it seems that everything related to windows is ugly
             next if formula.name == 'toolbox' and not platform_name.start_with?('windows')
             #
-            archive = File.join(Global::PKG_CACHE_DIR, formula.archive_filename(release, platform_name))
+            archive = formula.cache_file(release, platform_name)
             raise "archive not found: #{archive}" unless File.exist? archive
             print "#{formula.fqn} #{release} #{platform_name}: "
             sum = Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))

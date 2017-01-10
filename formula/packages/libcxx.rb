@@ -6,9 +6,9 @@ class Libcxx < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '3.6', crystax_version: 1, sha256: '6c32191b1ce189022c682f69359ecf2b1eef6a0cee5b81ce24f6fe38a9b64402'
-  release version: '3.7', crystax_version: 1, sha256: '6a86de6045223bcc521e1fc77f37b901c6aaabf2b2dbcb8674ab86acf86c0eee'
-  release version: '3.8', crystax_version: 1, sha256: '391668defe0b9c00006469b373551052ca02b0735f08f6001aef7dde4d84e0d9'
+  release version: '3.6', crystax_version: 1, sha256: 'aa9d5489caba158db7366a13cb26b2ff94307f96d33c279dc241c60c571b3138'
+  release version: '3.7', crystax_version: 1, sha256: '74c4f36617125d7fe6521dc031ff84fd2d86851659981d9b350c8ed67a8223a5'
+  release version: '3.8', crystax_version: 1, sha256: '0b3002b42995198fe7295819cbb8ca69e2e4134e26a4574cc3ef0b21280e1267'
 
   # todo:
   #build_depends_on 'platforms'
@@ -17,9 +17,9 @@ class Libcxx < BasePackage
 
   # todo: move method to the BasePackage class?
   def install_archive(release, archive, _platform_name = nil)
-    rel_dir = release_directory(release)
-    FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir
-    prop = get_properties(rel_dir)
+    prop_dir = properties_directory(release)
+    FileUtils.mkdir_p prop_dir
+    prop = get_properties(prop_dir)
 
     # todo: do not remove historical symlink; or remove?
     FileUtils.rm_rf "#{Global::NDK_DIR}/#{archive_sub_dir(release)}/libs"
@@ -28,7 +28,7 @@ class Libcxx < BasePackage
 
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version
-    save_properties prop, rel_dir
+    save_properties prop, prop_dir
 
     release.installed = release.crystax_version
   end

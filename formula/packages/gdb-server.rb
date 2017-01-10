@@ -5,7 +5,7 @@ class GdbServer < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '7.10', crystax_version: 1, sha256: 'd4eda712d9d322004710e51b680aaf6a6a633d8e8c9a1a2fcf2b93de6682049a'
+  release version: '7.10', crystax_version: 1, sha256: '5a6eb1aa124b75aa1b5c822f6ec63d00d7b604152db09477367e024f1da0de2c'
 
   # todo:
   #build_depends_on default_compiler
@@ -14,17 +14,21 @@ class GdbServer < BasePackage
   ARCHIVE_SUB_DIRS  = Build::ARCH_LIST.map { |arch| "android-#{arch}" }
   API_LEVEL = 21
 
-  def install_archive(release, archive, _platform_name = nil)
-    rel_dir = release_directory(release)
-    FileUtils.mkdir_p rel_dir
-    prop = get_properties(rel_dir)
+  def release_directory(_release = nil, _platform_name = nil)
+    File.join Global::NDK_DIR, 'prebuilt'
+  end
 
-    FileUtils.rm_rf ARCHIVE_SUB_DIRS.map { |d| File.join Global::NDK_DIR, 'prebuilt', d }
+  def install_archive(release, archive, _platform_name = nil)
+    prop_dir = properties_directory(release)
+    FileUtils.mkdir_p prop_dir
+    prop = get_properties(prop_dir)
+
+    FileUtils.rm_rf ARCHIVE_SUB_DIRS.map { |d| File.join release_directory, d }
     Utils.unpack archive, Global::NDK_DIR
 
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version
-    save_properties prop, rel_dir
+    save_properties prop, prop_dir
 
     release.installed = release.crystax_version
   end
@@ -68,7 +72,7 @@ class GdbServer < BasePackage
       end
 
       if options.install?
-        puts "Unpacking archive into #{release_directory(release)}"
+        puts "Unpacking archive into #{release_directory}"
         install_archive release, archive
       end
     end

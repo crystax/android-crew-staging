@@ -73,27 +73,27 @@ class Formula
   end
 
   # derived classes must define two methods in order to use install method:
-  #   archive_filename
+  #   cache_file
   #   install_archive
   #
   def install(r = releases.last, options = { platform: Global::PLATFORM_NAME, check_shasum: true, cache_only: false })
     release = find_release(r)
     platform_name = options[:platform]
-    file = archive_filename(release, platform_name)
 
-    cachepath = download_archive(file, options[:check_shasum] ? sha256_sum(release, platform_name) : nil, options[:cache_only])
+    cachepath = download_archive(release, platform_name, options[:check_shasum] ? sha256_sum(release, platform_name) : nil, options[:cache_only])
 
     puts "unpacking archive"
     install_archive release, cachepath, options[:platform]
   end
 
-  def download_archive(archive, shasum, cache_only)
-    cachepath = File.join(Global::PKG_CACHE_DIR, archive)
+  def download_archive(release, platform_name, shasum, cache_only)
+    cachepath = cache_file(release, platform_name)
+    archive = File.basename(cachepath)
 
     if File.exists? cachepath
       puts "using cached file #{archive}"
     else
-      raise "#{archive} not found in the packages cache #{Global::PKG_CACHE_DIR}" if cache_only
+      raise "#{archive} not found in the packages cache #{Global.pkg_cache_dir(self)}" if cache_only
       url = "#{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[namespace]}/#{file_name}/#{archive}"
       puts "downloading #{url}"
       Utils.download(url, cachepath)
