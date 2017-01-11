@@ -111,10 +111,7 @@ class Gcc < Tool
         dirs << UNWIND_SUB_DIR.split('/')[0] if Toolchain::DEFAULT_GCC.version == release.version
         Utils.pack archive, base_dir_for_platform(platform), *dirs
 
-        if options.update_shasum?
-          release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
-          update_shasum release, platform
-        end
+        update_shasum release, platform if options.update_shasum?
 
         puts "= installing #{archive}"
         install_archive release, archive, platform.name

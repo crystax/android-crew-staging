@@ -1,11 +1,11 @@
-class NdkBase < HostFormula
+class NdkBase < HostBase
 
   desc "Base NDK directory structure, sources, build tools and scripts"
   homepage "https://www.crystax.net"
   url 'https://github.com/crystax/android-platform-ndk.git|git_tag:$(version)_$(crystax_version)'
 
   release version: '11', crystax_version: 1, sha256: { linux_x86_64:   'e0661ea924662ebc1be64b792472647b7fc3bd8350768cfab7fbb03b26f01aa3',
-                                                       darwin_x86_64:  'ad43727e4f96ea8bbe85bfac2481e176ccc6b410218d656ead076f9b6c7677a3',
+                                                       darwin_x86_64:  '8dbc4bcabc26b54b3cf4ba98813e077f1bc2624cad2f6115e5617dcbd7ec948e',
                                                        windows_x86_64: '9d7a3dacd02f1df531c95891f4b4a71eb407b507f31b255222a676c1ef4eb080',
                                                        windows:        'b169a27b088cafed0662188f4f8489e523cb339018e5566c11718c9881922117'
                                                      }
@@ -83,10 +83,7 @@ class NdkBase < HostFormula
       archive = cache_file(release, platform.name)
       Utils.pack archive, install_dir
 
-      if options.update_shasum?
-        release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
-        update_shasum release, platform
-      end
+      update_shasum release, platform if options.update_shasum?
       install_archive release, archive, platform.name
       FileUtils.rm_rf base_dir unless options.no_clean?
     end

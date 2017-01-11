@@ -62,10 +62,7 @@ class Platforms < BasePackage
     puts "= packaging #{archive}"
     Utils.pack archive, install_dir, *ARCHIVE_TOP_DIRS
 
-    if options.update_shasum?
-      release.shasum = Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
-      update_shasum release
-    end
+    update_shasum release if options.update_shasum?
 
     if options.install?
       puts "= installing #{archive}"

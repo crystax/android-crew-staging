@@ -23,8 +23,7 @@ module Crew
           if sum == release.shasum
             puts "OK"
           else
-            release.shasum = sum
-            formula.update_shasum(release)
+            formula.update_shasum release
             puts "updated"
           end
         else
@@ -41,7 +40,6 @@ module Crew
             if sum == release.shasum(platform.to_sym)
               puts "OK"
             else
-              release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
               formula.update_shasum release, platform
               puts "updated"
             end

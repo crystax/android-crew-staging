@@ -135,10 +135,7 @@ class Llvm < Tool
         puts "= packaging #{archive}"
         Utils.pack archive, base_dir, ARCHIVE_TOP_DIR
 
-        if options.update_shasum?
-          release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
-          update_shasum release, platform
-        end
+        update_shasum release, platform if options.update_shasum?
 
         puts "= installing #{archive}"
         install_archive release, archive, platform.name

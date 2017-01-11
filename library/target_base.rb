@@ -31,9 +31,16 @@ class TargetBase < Formula
   end
 
   def update_shasum(release)
+    archive = cache_file(release)
+    release.shasum = Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
+
     regexp = /(release\s+version:\s+'#{release.version}',\s+crystax_version:\s+#{release.crystax_version},\s+sha256:\s+')(\h+)('.*)/
     s = File.read(path).sub(regexp, '\1' +  release.shasum + '\3')
     File.open(path, 'w') { |f| f.puts s }
+
+    # we want archive modification time to be after formula file modification time
+    # otherwise we'll be constantly rebuilding formulas for nothing
+    FileUtils.touch archive
   end
 
   private

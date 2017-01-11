@@ -1,9 +1,9 @@
 require_relative 'properties.rb'
 require_relative 'platform.rb'
 require_relative 'formula.rb'
-require_relative 'hostformula.rb'
+require_relative 'host_base.rb'
 
-class Tool < HostFormula
+class Tool < HostBase
 
   namespace :host
 
@@ -65,10 +65,7 @@ class Tool < HostFormula
       archive = cache_file(release, platform.name)
       Utils.pack archive, base_dir, ARCHIVE_TOP_DIR
       #
-      if options.update_shasum?
-        release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
-        update_shasum release, platform
-      end
+      update_shasum release, platform if options.update_shasum?
       install_archive release, archive, platform.name
       FileUtils.rm_rf base_dir unless options.no_clean?
     end
