@@ -114,10 +114,13 @@ class Ruby < Utility
     FileUtils.rm_rf File.join(install_dir, 'lib', 'pkgconfig')
     FileUtils.rm_rf File.join(install_dir, 'share')
 
-    install_gems install_dir, 'rspec', 'minitest'
+    gem = gem_path(release, platform, install_dir)
+    rspec_opts = (release.version == '2.2.2') ? { version: '3.4' } : {}
+    install_gem platform, install_dir, 'rspec', rspec_opts
+    install_gem platform, install_dir, 'minitest'
   end
 
-  def install_gems(install_dir, *gems)
+  def install_gem(gem, install_dir, name, options = {})
     build_env.clear
     build_env['GEM_HOME'] = "#{install_dir}/lib/ruby/gems/2.2.0"
     build_env['GEM_PATH'] = "#{install_dir}/lib/ruby/gems/2.2.0"
@@ -129,7 +132,9 @@ class Ruby < Utility
             "--bindir #{install_dir}/bin"
            ]
 
-    system 'gem', 'install', *args, *gems
+    opts = ['-v', options[:version]] if options[:version]
+
+    system gem, 'install', *args, name, *opts
   end
 
   def host_ssl_cert_file
@@ -180,5 +185,17 @@ class Ruby < Utility
     raise "not found required line in Makefile" unless replaced
 
     File.open(file, 'w') { |f| f.puts lines }
+  end
+
+  # to build ruby for windows platforms one must build and install ruby for linux platfrom
+  # because here we need to run gem script and we can't run windows script on linux
+  # and we can't relay on system's gem script because of subtle versions differences
+  def gem_path(release, platform, install_dir)
+    case platform.target_os
+    when 'darwin', 'linux'
+      "#{install_dir}/bin/gem"
+    else
+      "#{release_directory('linux-x86_64')}/bin/gem"
+    end
   end
 end
