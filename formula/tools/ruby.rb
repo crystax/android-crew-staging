@@ -194,7 +194,7 @@ class Ruby < Utility
     when 'darwin', 'linux'
       "#{install_dir}/bin/gem"
     else
-      "#{release_directory('linux-x86_64')}/bin/gem"
+      "#{release_directory(release, 'linux-x86_64')}/bin/gem"
     end
   end
 end
