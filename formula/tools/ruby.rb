@@ -116,8 +116,7 @@ class Ruby < Utility
 
     gem = gem_path(release, platform, install_dir)
     rspec_opts = (release.version == '2.2.2') ? { version: '3.4' } : {}
-    install_gem platform, install_dir, 'rspec', rspec_opts
-    install_gem platform, install_dir, 'minitest'
+    install_gem gem, install_dir, 'rspec', rspec_opts
   end
 
   def install_gem(gem, install_dir, name, options = {})
