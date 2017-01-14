@@ -78,6 +78,6 @@ class Tool < HostBase
   end
 
   def install_dir_for_platform(platform, release)
-    File.join base_dir_for_platform(platform), 'prebuilt', platform.name, Global::UTILITIES_BASE_DIR, file_name, release.to_s
+    File.join base_dir_for_platform(platform), 'prebuilt', platform.name, self.class::INSTALL_DIR_NAME, file_name, release.to_s
   end
 end

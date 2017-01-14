@@ -8,7 +8,7 @@ require_relative 'platform.rb'
 class BuildDependency < Tool
 
   # tool trait
-  INSTALL_DIR_NAME = File.basename(Global::SHIPYARD_DIR)  #'build_dependencies'
+  INSTALL_DIR_NAME = Global::BUILD_DEPENDENCIES_BASE_DIR
 
   include Properties
 
@@ -30,7 +30,7 @@ class BuildDependency < Tool
   end
 
   def home_directory(platform_name)
-    File.join(Global.shipyard_dir(platform_name), file_name)
+    File.join(Global.build_dependencies_dir(platform_name), file_name)
   end
 
   def release_directory(release, platform_name = Global::PLATFORM_NAME)

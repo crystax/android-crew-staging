@@ -9,6 +9,8 @@ require_relative 'build_options.rb'
 
 class Utility < Tool
 
+  # tool trait
+  INSTALL_DIR_NAME = Global::UTILITIES_BASE_DIR
   ACTIVE_FILE_NAME = 'active_version.txt'
 
   def self.active_path(util_name, utilities_dir = Global::UTILITIES_DIR)
