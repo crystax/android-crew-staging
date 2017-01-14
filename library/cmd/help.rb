@@ -67,7 +67,7 @@ EOS
 
 
 NO_HELP = <<-EOS
-There is no additional info the command.
+There is no additional info for the command.
 EOS
 
 ENV_HELP = <<-EOS
