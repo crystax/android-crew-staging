@@ -20,7 +20,7 @@ describe "crew list" do
       it "outputs error message" do
         crew 'list', 'a', 'b', 'c'
         expect(exitstatus).to_not be_zero
-        expect(err.split("\n")[0]).to eq('error: this command requires either one or no arguments')
+        expect(err.split("\n")[0]).to eq('error: bad command syntax; try ./crew help list')
         expect(out).to eq('')
       end
     end
@@ -29,25 +29,16 @@ describe "crew list" do
       it "outputs error message" do
         crew 'list', 'a', 'b'
         expect(exitstatus).to_not be_zero
-        expect(err.split("\n")[0]).to eq('error: this command requires either one or no arguments')
+        expect(err.split("\n")[0]).to eq('error: bad command syntax; try ./crew help list')
         expect(out).to eq('')
       end
     end
 
-    context "with 2 correct arguments" do
-      it "outputs error message" do
-        crew 'list', 'utils', 'libs'
-        expect(exitstatus).to_not be_zero
-        expect(err.split("\n")[0]).to eq('error: this command requires either one or no arguments')
-        expect(out).to eq('')
-      end
-    end
-
-    context "with incorrect argument" do
+    context "with one incorrect argument" do
       it "outputs error message" do
         crew 'list', 'a'
         expect(exitstatus).to_not be_zero
-        expect(err.split("\n")[0]).to eq('error: argument must be either \'--packages\', or \'--tools\'')
+        expect(err.split("\n")[0]).to eq('error: bad command syntax; try ./crew help list')
         expect(out).to eq('')
       end
     end
