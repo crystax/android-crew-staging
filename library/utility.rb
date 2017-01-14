@@ -9,20 +9,19 @@ require_relative 'build_options.rb'
 
 class Utility < Tool
 
-  INSTALL_DIR_NAME = 'crew'
   ACTIVE_FILE_NAME = 'active_version.txt'
 
-  def self.active_path(util_name, engine_dir = Global::ENGINE_DIR)
-    File.join(engine_dir, util_name, ACTIVE_FILE_NAME)
+  def self.active_path(util_name, utilities_dir = Global::UTILITIES_DIR)
+    File.join(utilities_dir, util_name, ACTIVE_FILE_NAME)
   end
 
-  def self.active_version(util_name, engine_dir = Global::ENGINE_DIR)
-    file = Utility.active_path(util_name, engine_dir)
+  def self.active_version(util_name, utilities_dir = Global::UTILITIES_DIR)
+    file = Utility.active_path(util_name, utilities_dir)
     File.exists?(file) ? File.read(file).split("\n")[0] : nil
   end
 
-  def self.active_dir(util_name, engine_dir = Global::ENGINE_DIR)
-    File.join(engine_dir, util_name, active_version(util_name, engine_dir), 'bin')
+  def self.active_dir(util_name, utilities_dir = Global::UTILITIES_DIR)
+    File.join(utilities_dir, util_name, active_version(util_name, utilities_dir), 'bin')
   end
 
   # For utilities a release considered as 'installed' only if it's version is equal
@@ -41,15 +40,15 @@ class Utility < Tool
   end
 
   def home_directory(platform_name)
-    File.join(Global.engine_dir(platform_name), file_name)
+    File.join(Global.utilities_dir(platform_name), file_name)
   end
 
   def release_directory(release, platform_name = Global::PLATFORM_NAME)
     File.join(home_directory(platform_name), release.to_s)
   end
 
-  def active_version(engine_dir = Global::ENGINE_DIR)
-    Utility.active_version file_name, engine_dir
+  def active_version(utilities_dir = Global::UTILITIES_DIR)
+    Utility.active_version file_name, utilities_dir
   end
 
   def install_archive(release, archive, platform_name)
@@ -96,7 +95,7 @@ class Utility < Tool
     FileUtils.mkdir_p File.dirname(wrapper)
 
     if not platform_name.start_with?('windows')
-      sub_dir = "#{File.basename(Global::ENGINE_DIR)}/#{file_name}"
+      sub_dir = "#{File.basename(Global::UTILITIES_DIR)}/#{file_name}"
       File.open(wrapper, 'w') do |f|
         f.puts '#!/bin/bash'
         f.puts
@@ -110,7 +109,7 @@ class Utility < Tool
       end
       FileUtils.chmod "a+x", wrapper
     else
-      sub_dir = "#{File.basename(Global::ENGINE_DIR)}\\#{file_name}"
+      sub_dir = "#{File.basename(Global::UTILITIES_DIR)}\\#{file_name}"
       exe += '.exe'
       File.open(wrapper, 'w') do |f|
         f.puts '@echo off'

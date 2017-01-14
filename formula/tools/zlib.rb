@@ -5,7 +5,7 @@ class Zlib < BuildDependency
   url 'http://zlib.net/zlib-${version}.tar.xz'
 
   release version: '1.2.10', crystax_version: 1, sha256: { linux_x86_64:   '145dc9f32d1a3a6d61b238b42833af3ac6717d1fca284874cdd77cae31c21495',
-                                                           darwin_x86_64:  'f7cf92989369145ce0470472b142ecb276b3bc48c26ed5de3a0a1c3f8c98993d',
+                                                           darwin_x86_64:  '66672ebc707a69303dc7d14211c584dae371b2a6f0023d90065b0b2bf94a2a29',
                                                            windows_x86_64: 'c4c71bbb0487bbe6fe2e18080ece5d7bab7ec998475d05ff30f363f270c830b9',
                                                            windows:        '2944b7add5ef08c9f5f06964b2938c0ad36c22fc7588f3e3b8200aa61cbcc626'
                                                          }

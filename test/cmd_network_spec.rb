@@ -9,7 +9,7 @@ describe "Test how Crew works over HTTPS" do
   before(:each) do
     clean_hold
     clean_cache
-    clean_engine
+    clean_utilities
     repository_network_init
     repository_network_clone
   end

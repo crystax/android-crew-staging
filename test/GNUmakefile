@@ -33,10 +33,10 @@ ifeq ($(host_os),windows)
   ruby_version := $(shell $(TOOLS_DIR)/bin/awk "{print}" $(TOOLS_DIR)/crew/ruby/active_version.txt)
 else
   ruby_prog := ruby
-  ruby_version := $(shell cat $(TOOLS_DIR)/crew/ruby/active_version.txt)
+  ruby_version := $(shell cat $(TOOLS_DIR)/utilities/ruby/active_version.txt)
 endif
 
-RUBY_DIR := $(TOOLS_DIR)/crew/ruby/$(ruby_version)/bin
+RUBY_DIR := $(TOOLS_DIR)/utilities/ruby/$(ruby_version)/bin
 RUBY     := $(RUBY_DIR)/$(ruby_prog)
 RSPEC    := $(RUBY_DIR)/$(ruby_prog) $(RUBY_DIR)/rspec
 

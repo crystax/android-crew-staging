@@ -152,13 +152,13 @@ module Spec
       FileUtils.mkdir_p Global::HOLD_DIR
     end
 
-    def clean_engine
-      orig_engine_dir = "#{Crew_test::NDK_COPY_DIR}/prebuilt/#{Global::PLATFORM_NAME}/crew"
-      engine_dir = "#{Crew_test::NDK_DIR}/prebuilt/#{Global::PLATFORM_NAME}/crew"
+    def clean_utilities
+      orig_utilities_dir = "#{Crew_test::NDK_COPY_DIR}/prebuilt/#{Global::PLATFORM_NAME}/crew"
+      utilities_dir = "#{Crew_test::NDK_DIR}/prebuilt/#{Global::PLATFORM_NAME}/crew"
       Crew_test::UTILS.each do |util|
-        version = Utility.active_version(util, orig_engine_dir)
-        File.open(Utility.active_path(util, engine_dir), 'w') { |f| f.puts version }
-        FileUtils.cd("#{engine_dir}/#{util}") do
+        version = Utility.active_version(util, orig_utilities_dir)
+        File.open(Utility.active_path(util, utilities_dir), 'w') { |f| f.puts version }
+        FileUtils.cd("#{utilities_dir}/#{util}") do
           dirs = Dir['*'].select { |d| File.directory?(d) }
           d = dirs.pop
           dirs.each { |d| FileUtils.rm_rf d }

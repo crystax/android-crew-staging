@@ -303,7 +303,7 @@ class Gcc < Tool
            ["--disable-werror",
             "--with-expat",
             "--with-libexpat-prefix=#{expat_dir}",
-            "--with-python=#{Utility.active_dir('python', Global::engine_dir(platform.name))}/python-config.sh",
+            "--with-python=#{Utility.active_dir('python', Global::utilities_dir(platform.name))}/python-config.sh",
             "--with-sysroot=#{sysroot_dir}"
            ]
 

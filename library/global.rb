@@ -35,12 +35,18 @@ module Global
 
   # public
 
-  def self.engine_dir(platform_name)
-    File.join(NDK_DIR, 'prebuilt', platform_name, 'crew')
+  UTILITIES_BASE_DIR = 'utilities'
+
+  def self.tools_dir(platform_name)
+    File.join(NDK_DIR, 'prebuilt', platform_name)
+  end
+
+  def self.utilities_dir(platform_name)
+    File.join(tools_dir(platform_name), UTILITIES_BASE_DIR)
   end
 
   def self.shipyard_dir(platform_name)
-    File.join(NDK_DIR, 'prebuilt', platform_name, 'build_dependencies')
+    File.join(tools_dir(platform_name), 'build_dependencies')
   end
 
   def self.raise_env_var_not_set(var)
@@ -93,7 +99,7 @@ module Global
 
   HOLD_DIR               = create_required_dir(NDK_DIR, 'packages').realpath
   SERVICE_DIR            = create_required_dir(NDK_DIR, '.crew').realpath
-  ENGINE_DIR             = create_required_dir(TOOLS_DIR, 'crew').realpath
+  UTILITIES_DIR          = create_required_dir(utilities_dir(PLATFORM_NAME)).realpath
   SHIPYARD_DIR           = create_required_dir(TOOLS_DIR, 'build_dependencies').realpath
   REPOSITORY_DIR         = Pathname.new(BASE_DIR).realpath
   PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath

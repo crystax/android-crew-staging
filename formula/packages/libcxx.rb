@@ -6,9 +6,9 @@ class Libcxx < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '3.6', crystax_version: 1, sha256: 'c57b42b6386789f5a622e2ec68845e1034b1039891761b1ad0c557e78bc315ff'
-  release version: '3.7', crystax_version: 1, sha256: '1f263f611a580c19ffda13f21c8a08dfdaa6fdc8cc65fcb5877bfcfe3238628f'
-  release version: '3.8', crystax_version: 1, sha256: 'b61c9ad07b5f47e4587bff7a20bcf73aa83180e0c757fb013f33de13e99e462f'
+  release version: '3.6', crystax_version: 1, sha256: '8a3ed8ea5f0af016a8e646e0086a896b3df8f7f785718871b103f53500ed0505'
+  release version: '3.7', crystax_version: 1, sha256: '0f09c6d433e27a98ccafde7797dd5f8bb268e442d8445077cc60ccb8546bf1b3'
+  release version: '3.8', crystax_version: 1, sha256: '9516a80b7a3d49d73f6d0863cf844fa573119df2e7a49cd25bb589b44c4c6a30'
 
   # todo:
   #build_depends_on 'platforms'
