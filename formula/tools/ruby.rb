@@ -29,7 +29,7 @@ class Ruby < Utility
 
     # download and unpack rugged sources
     rugged_url = "https://github.com/libgit2/rugged/archive/v#{rugged_ver}.tar.gz"
-    rugged_archive = src_cache_file(rugged_url)
+    rugged_archive = src_cache_file(Release.new(rugged_ver), rugged_url)
     if File.exists? rugged_archive
       puts "#{log_prefix} using cached file #{rugged_archive}"
     else
