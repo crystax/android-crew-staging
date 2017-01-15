@@ -3,6 +3,7 @@ class Zlib < BuildDependency
   desc 'A Massively Spiffy Yet Delicately Unobtrusive Compression Library'
   homepage 'http://zlib.net/'
   url 'http://zlib.net/zlib-${version}.tar.xz'
+  url 'https://github.com/madler/zlib/archive/v${version}.tar.gz'
 
   release version: '1.2.10', crystax_version: 1, sha256: { linux_x86_64:   '145dc9f32d1a3a6d61b238b42833af3ac6717d1fca284874cdd77cae31c21495',
                                                            darwin_x86_64:  '66672ebc707a69303dc7d14211c584dae371b2a6f0023d90065b0b2bf94a2a29',
