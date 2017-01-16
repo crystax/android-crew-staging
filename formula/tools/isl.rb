@@ -3,6 +3,7 @@ class Isl < BuildDependency
   desc "Integer Set Library for the polyhedral model"
   homepage "http://isl.gforge.inria.fr"
   url "http://isl.gforge.inria.fr/isl-${version}.tar.xz"
+  url "https://mirrors.ocf.berkeley.edu/debian/pool/main/i/isl/isl-${version}.orig.tar.xz"
 
   release version: '0.17.1', crystax_version: 1, sha256: { linux_x86_64:   '4bdfe888e49bca326419eb574495ad768b9fc463ab8f643c81d2032bc94d05aa',
                                                            darwin_x86_64:  'e528165b1b621a386ebb02eb8dc7eb6f1ccf0577d2364cc5836e6e6fab8f6244',
