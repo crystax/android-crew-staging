@@ -82,24 +82,30 @@ module Crew
 
   def self.list_require_rebuild(check_type, args, formulary)
     names = []
-    std_platforms = (Global::OS == 'darwin') ? ['darwin-x86_64'] : ['linux-x86_64', 'windows-x86_64', 'windows']
+
+    win_platforms = [Platform.new('windows-x86_64'), Platform.new('windows')]
+    std_platforms = (Global::OS == 'darwin') ? [Platform.new('darwin-x86_64')] : [Platform.new('linux-x86_64')] + win_platforms
+
     args.each do |n|
       formula = formulary[n]
-      fct = File.ctime(formula.path)
       releases = (check_type == 'last') ? [formula.releases.last] : formula.releases
       # todo: add supported platforms to formula class?
-      platforms = ((Global::OS == 'linux') and (n.end_with?('toolbox'))) ? ['windows-x86_64', 'windows'] : std_platforms
-      releases.each do |release|
-        platforms.map { |p| formula.cache_file(release, p) }.uniq.each do |file|
-          # puts "file: #{file}"
-          # puts "file exist:       #{File.exist?(file)}"
-          # puts "file ctime:       #{File.ctime(file)}"
-          # puts "fct:              #{fct}"
-          # puts "file ctime < fct: #{File.ctime(file) < fct}"
-          names << n if not File.exist?(file) or (File.ctime(file) < fct)
+      if formula.namespace == :target
+        releases.each do |release|
+          file = formula.cache_file(release)
+          names << n if not File.exist?(file) or (Digest::SHA256.hexdigest(File.read(file, mode: "rb")) != release.shasum)
+        end
+      else
+        platforms = ((Global::OS == 'linux') and (n.end_with?('toolbox'))) ? win_platforms : std_platforms
+        releases.each do |release|
+          platforms.each do |platform|
+            file = formula.cache_file(release, platform.name)
+            names << n if not File.exist?(file) or ((Digest::SHA256.hexdigest(File.read(file, mode: "rb")) != release.shasum(platform.to_sym)))
+          end
         end
       end
     end
+
     puts names.uniq.join(' ')
   end
 end
