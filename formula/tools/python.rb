@@ -4,7 +4,7 @@ class Python < Utility
   homepage "https://www.python.org"
 
   release version: '2.7.5', crystax_version: 1, sha256: { linux_x86_64:   '363dd6932d40b06c1dec831516f760d3c396141c9fd7c39d7d22a63e8870bf30',
-                                                          darwin_x86_64:  'e87f42a00f90bef99b85d885bca65a002fdee71493218c93775f957172a30d4f',
+                                                          darwin_x86_64:  '2a789426df9036c42829626be2a7c054d033ffb8f84f1523c5df500c34690128',
                                                           windows_x86_64: '32347aa9053e658c0451debb3c9dcbf858251b9cdd214ed1b681d0ed2604ff90',
                                                           windows:        '1656a4943c8271792539afd61f0926e398683db9bd679cb15be80ae840a9b94f'
                                                         }

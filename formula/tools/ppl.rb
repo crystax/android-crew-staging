@@ -5,7 +5,7 @@ class Ppl < BuildDependency
   url "http://bugseng.com/products/ppl/download/ftp/releases/${version}/ppl-${version}.tar.xz"
 
   release version: '1.2', crystax_version: 1, sha256: { linux_x86_64:   '4f43860c31525a86bd5b987c53453e23b9bac12d0207675ebb838f73e5b374c3',
-                                                        darwin_x86_64:  '62d2cbc9bcbf1b8426b069d2929e2b714339a5a300ed78cc5323e5f6032bdbda',
+                                                        darwin_x86_64:  'a1cc83df8cf1e00c4969321c8c44456196fff08aea4bec6f6264c7deabd02db9',
                                                         windows_x86_64: '27d3a12ec40bc4de7aba36892ab10364a76d8e19c8d7ab523214c8121b46a7ab',
                                                         windows:        '652de1b95ea413725793bcfde82a5789725c3f4e6062dee9063bef1178f817bc'
                                                       }

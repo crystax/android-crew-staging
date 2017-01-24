@@ -4,7 +4,7 @@ class NdkStack < Utility
   homepage ""
 
   release version: '1', crystax_version: 1, sha256: { linux_x86_64:   '955ed00fa1b315c9550ab0fac7defce5af0ca994a6ccf3aa3c43c1c467792356',
-                                                      darwin_x86_64:  'f8cf0f6c79e888e4cb8b27ee5962665fa110d66e357da17b1577b8cee715783c',
+                                                      darwin_x86_64:  '8061238750eebc02fba0e09e69ba60313b7813ee1b132e78c129d7312e7d16df',
                                                       windows_x86_64: '8141efe48691c68d7f4837ffb2e935639fd42c723b9961cd2e8e0c1fe0e717fe',
                                                       windows:        '23f5b1467759cbe3f0dd35d5e01d97f2dba042f00d2b46a5aee4a738d2686c15'
                                                     }

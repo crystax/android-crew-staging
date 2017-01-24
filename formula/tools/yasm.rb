@@ -5,7 +5,7 @@ class Yasm < Utility
   url "https://www.tortall.net/projects/yasm/releases/yasm-${version}.tar.gz"
 
   release version: '1.3.0', crystax_version: 1, sha256: { linux_x86_64:   '98684483c5a5523108985db022cb1c502e5f947053172ac0e0eda849224f252c',
-                                                          darwin_x86_64:  'd7e2cf68c8cbbcc67cd46dee0dd75826db965c5529e52e6ff8235894834a4bd8',
+                                                          darwin_x86_64:  '8a3134da05f5778b60c470ee78fe9e463fb92bb3274c77480c698b81081834b9',
                                                           windows_x86_64: '962a482818a4d38dabddd934e968783ad06a42d662bb5991c88732db7a09fe5c',
                                                           windows:        '577c834049d473cbbe9434494f4c5673ab67985e1c52a7b225d942f7e11990ab'
                                                         }
