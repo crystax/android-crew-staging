@@ -203,6 +203,8 @@ The SHASUM command supports the following options:
                  if no formula name was specified then command will check
                  (and update) sums for all formulas
 
+--check          check SHA256 sum for every release of every formula
+
 EOS
 
 CMD_HELP = {
