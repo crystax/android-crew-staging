@@ -6,7 +6,7 @@ class Zlib < BuildDependency
   url 'https://github.com/madler/zlib/archive/v${version}.tar.gz'
 
   release version: '1.2.10', crystax_version: 1, sha256: { linux_x86_64:   '145dc9f32d1a3a6d61b238b42833af3ac6717d1fca284874cdd77cae31c21495',
-                                                           darwin_x86_64:  '66672ebc707a69303dc7d14211c584dae371b2a6f0023d90065b0b2bf94a2a29',
+                                                           darwin_x86_64:  'e562e160ff035b4dadd0e46995cc4646867699289c4dad963cf16bb60b5717d6',
                                                            windows_x86_64: 'c4c71bbb0487bbe6fe2e18080ece5d7bab7ec998475d05ff30f363f270c830b9',
                                                            windows:        '2944b7add5ef08c9f5f06964b2938c0ad36c22fc7588f3e3b8200aa61cbcc626'
                                                          }

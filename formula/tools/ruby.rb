@@ -5,7 +5,7 @@ class Ruby < Utility
   url 'https://cache.ruby-lang.org/pub/ruby/${block}/ruby-${version}.tar.gz' do |r| r.version.split('.').slice(0, 2).join('.') end
 
   release version: '2.2.2', crystax_version: 1, sha256: { linux_x86_64:   'eff7d941e360f11f0b00b52c76ae80f7c3b54b6de5115ba195f09aa724e37450',
-                                                          darwin_x86_64:  'ea636a6c8c64548461e12c57e634245491f5256ded8c2d04bfcc92727066ff1a',
+                                                          darwin_x86_64:  '3c334d8e95a8a77b858d4e36a92be16d2c04ae4a6ee172b3ebe8bcb2fd1a085a',
                                                           windows_x86_64: '9787fae15f71dc6dfd59098b084038d837575d91aadc8fe598e5a734e1bc9556',
                                                           windows:        '1bca2d7b33564f1833467da1df4e1e4aeff99cb90a6540dea4c7ed808031e65d'
                                                         }

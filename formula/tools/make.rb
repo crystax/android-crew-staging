@@ -5,7 +5,7 @@ class Make < Utility
   #url "https://ftpmirror.gnu.org/make/make-${version}.tar.bz2"
 
   release version: '3.81', crystax_version: 1, sha256: { linux_x86_64:   'a169f2b40f50de30a9d1ee42f1d9096244f4f4e85578bc4d6544b410a8ab4cc1',
-                                                         darwin_x86_64:  '083982581fba1e3b91b5b333103eb9e39759ba50f1514eb78da9dcf35c5479ce',
+                                                         darwin_x86_64:  '2ba0cda0313b6474a6017b96c9fa3889d07763102096bbaf585f65e64fcb093a',
                                                          windows_x86_64: 'fe97b9c79bcf996a06688d5aa91e3d033a450cecbf81c1e1970660f0ec22db18',
                                                          windows:        '1d289c2f7ebd45e14113530cfc34ea7c0941c6a1fd2e5b441649fce8420dde81'
                                                        }

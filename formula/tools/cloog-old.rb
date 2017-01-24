@@ -5,7 +5,7 @@ class CloogOld < BuildDependency
   url "https://www.bastoul.net/cloog/pages/download/cloog-${version}.tar.gz"
 
   release version: '0.18.0', crystax_version: 1, sha256: { linux_x86_64:   '91c90970dbeb22826369fbc6ff5a3da3af02cc11bad2f0f280f89cb690723adc',
-                                                           darwin_x86_64:  '584d99fb0df2d81cbe0b4972a781919719720983d06eddac59eccb2cfd29944b',
+                                                           darwin_x86_64:  '215e187a21c3546d2801eb2cbe9dca2feaacf0cf2edd4947c940014e7a184c8b',
                                                            windows_x86_64: '041eb181b0f41e802c6bc6e796d5cb02cec1fd371881ca7876fd12b0560a73e6',
                                                            windows:        '47434090adb4a92786201a61777c188419a2f60c29a5b733abe06a4eeeac5578'
                                                          }

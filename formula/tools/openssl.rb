@@ -5,7 +5,7 @@ class Openssl < BuildDependency
   url 'https://www.openssl.org/source/openssl-${version}.tar.gz'
 
   release version: '1.0.2j', crystax_version: 1, sha256: { linux_x86_64:   '346ae2cd3a4bb3cac1c67272fd1f6d17845df470e2020eac41fe69c7141004f4',
-                                                           darwin_x86_64:  'ba700c9207e8dec4b278b7ccf2f257cccd92d9482ea59d395012ed345f4eaaec',
+                                                           darwin_x86_64:  '2cf65c48ca9adf478bd99723833715c67cd5e8c7b2928b72737d51bb8ca7da7a',
                                                            windows_x86_64: '6ce0c97aff467ac020b892d0a301d73bedd4e112f6211701275f0e7cf9c18798',
                                                            windows:        'bb18b84504fa59e63e693766319741e97f4e2aceef01ea1ade75daeb94e5890e'
                                                          }
