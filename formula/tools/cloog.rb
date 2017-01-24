@@ -4,10 +4,10 @@ class Cloog < BuildDependency
   homepage "https://www.cloog.org/"
   url "https://www.bastoul.net/cloog/pages/download/cloog-${version}.tar.gz"
 
-  release version: '0.18.4', crystax_version: 1, sha256: { linux_x86_64:   '15ff75e68672f0ffeed9f65e219c59609969b5d0c66c9ae5706d04c9949a0775',
+  release version: '0.18.4', crystax_version: 1, sha256: { linux_x86_64:   'e27213d578982f41e67246fcd25581959a467d4dea66fa4d4c7f007b4a779731',
                                                            darwin_x86_64:  'b6509414a7a3ebcc273a3028a65f9ac386d611ecf497312efc343c8fa392c21e',
-                                                           windows_x86_64: '8b8fa2fe501469423d19522ac3a0a3026484abbef296b447582c94b9dac48130',
-                                                           windows:        'd598fde21e96070680b1d395ff7a7e378ea0fce0aa0dcb49819982598e9755ed'
+                                                           windows_x86_64: 'e1ef66f459ff5bbdfab28969c252d882f90baad282f3b06d7ed6fa4b61e41995',
+                                                           windows:        '638a64e58790ebc4cdbf4153a0cd360d3e2151d4693d10e9e76d3b2f825b2d7d'
                                                          }
 
   depends_on 'gmp'

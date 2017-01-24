@@ -4,10 +4,10 @@ class Xz < BuildDependency
   homepage "http://tukaani.org/xz/"
   url "http://tukaani.org/xz/xz-${version}.tar.xz"
 
-  release version: '5.2.2', crystax_version: 1, sha256: { linux_x86_64:   '0bf361b508924bc91edb16c9a5cf2a2c7298ebd1316c4183814822f693ea45d4',
+  release version: '5.2.2', crystax_version: 1, sha256: { linux_x86_64:   '3ca8d84b5ae91aa073e335e15bbb14cfa453e2e098abdf595e19738a3e91b042',
                                                           darwin_x86_64:  '5f48cdd2c35bb5ce0983cee2578f67bc6db9a0dba39680cace492c3d4f6013c2',
-                                                          windows_x86_64: 'ef600c460d4145499a7cd31f621ce87a9e79dc13524b3f9d2f3697be52e8ceab',
-                                                          windows:        '3cd9a05f91df830362d6112842c783fc2f4717d85dc4bb3a9de276768b383b35'
+                                                          windows_x86_64: 'f8041496bfd4c299c2962a0adcca64614f3a2b21fe1cbae926f9d184112ae3ac',
+                                                          windows:        'e11adeeae2849183f876fabb71282ce4f16ab3276283efdd213f8d060bd74866'
                                                         }
 
   def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)

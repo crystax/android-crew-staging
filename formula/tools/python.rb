@@ -3,10 +3,10 @@ class Python < Utility
   desc "Interpreted, interactive, object-oriented programming language"
   homepage "https://www.python.org"
 
-  release version: '2.7.5', crystax_version: 1, sha256: { linux_x86_64:   '3e71e76c64e00fc1fd2f215eaf7e85b2c7c783047a5b9905d06a685755d41dc2',
+  release version: '2.7.5', crystax_version: 1, sha256: { linux_x86_64:   '363dd6932d40b06c1dec831516f760d3c396141c9fd7c39d7d22a63e8870bf30',
                                                           darwin_x86_64:  'e87f42a00f90bef99b85d885bca65a002fdee71493218c93775f957172a30d4f',
-                                                          windows_x86_64: '96317ecd17494b41eff35c939ca307f76acd05915c2071e97af616d303957257',
-                                                          windows:        '775f696ace8c6020e6ecc8a598945f5ebcebeef3ced3b8797e603bbe22d7062b'
+                                                          windows_x86_64: '32347aa9053e658c0451debb3c9dcbf858251b9cdd214ed1b681d0ed2604ff90',
+                                                          windows:        '1656a4943c8271792539afd61f0926e398683db9bd679cb15be80ae840a9b94f'
                                                         }
 
   executables 'python'

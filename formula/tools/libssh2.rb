@@ -4,10 +4,10 @@ class Libssh2 < BuildDependency
   homepage 'http://www.libssh2.org/'
   url 'http://www.libssh2.org/download/libssh2-${version}.tar.gz'
 
-  release version: '1.7.0', crystax_version: 1, sha256: { linux_x86_64:   '14c27f40c15288920dc544ef7cf96c740883ecf56906a61bab05118756fcc2fe',
+  release version: '1.7.0', crystax_version: 1, sha256: { linux_x86_64:   'c7cc5da9231f3b7fac0488c01852a383234924acb81c3d6e6007f03c452467fe',
                                                           darwin_x86_64:  'e0290a11ee2af9d7eb65007b1bda661a4378cbd323890a58bc3f71ee240dbc1e',
-                                                          windows_x86_64: '25b0fac82061fa5ae50189e1b18c26ce68301f56df1080c8a5ac42f1bb456344',
-                                                          windows:        '9e96f85fe8eded8796aa114d0c3b45ffb4294ec2587acd6a5d3396ece07610fa'
+                                                          windows_x86_64: '8cf8d142c292a2db2252de22e322c21db91f064382dcf64c5d32c8d2b3b1ab8a',
+                                                          windows:        'd3fbd0bfe8678a0e12e5fcdd5530de8580c15b3533929004324df94d6a5df031'
                                                         }
 
   depends_on 'zlib'

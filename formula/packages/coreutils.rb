@@ -4,7 +4,7 @@ class Coreutils < Package
   homepage "https://www.gnu.org/software/coreutils"
   url "http://ftpmirror.gnu.org/coreutils/coreutils-8.25.tar.xz"
 
-  release version: '8.25', crystax_version: 1, sha256: '0'
+  release version: '8.25', crystax_version: 1, sha256: '39ea670201b00010b9e032dbc9389163255b5c9c680d603e67e9f341d18b655f'
 
   build_options copy_installed_dirs: ['bin'],
                 gen_android_mk:      false

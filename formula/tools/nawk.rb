@@ -4,10 +4,10 @@ class Nawk < Utility
   homepage "https://www.cs.princeton.edu/~bwk/btl.mirror/"
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '20071023', crystax_version: 1, sha256: { linux_x86_64:   'b7e4fea021225c7bc628cbdb304f6e7630ce6faddbeda2a4faec46a932de37d9',
+  release version: '20071023', crystax_version: 1, sha256: { linux_x86_64:   'c21c911dc00d21435a6430afd546ab4061b8961a233270994a9d4a70247786de',
                                                              darwin_x86_64:  'e92361007eb3f47a4ada0767ef582d47ee67f024d5c7c4c7c248b5bbf55c1c8d',
-                                                             windows_x86_64: '49eabdfae5b5af478a1dd799dd17ac3ae85e0c092fa7b44594ab35e3f09b3578',
-                                                             windows:        '82511ab010e24ee06a23da66dca5df70546c2e2142f082401381f704b0d479a4'
+                                                             windows_x86_64: '6eb77d48a7119900cc6483dc810965833049227f6b8cca656b3480621a2655d8',
+                                                             windows:        '3bb79262ec1d92bc61d228fd9624fd85edb8ba26f955da6707b6e463185e2574'
                                                            }
 
   executables 'awk'

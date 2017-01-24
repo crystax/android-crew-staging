@@ -5,10 +5,10 @@ class Libarchive < Utility
   homepage 'http://www.libarchive.org'
   url 'http://www.libarchive.org/downloads/libarchive-${version}.tar.gz'
 
-  release version: '3.2.0', crystax_version: 1, sha256: { linux_x86_64:   'a5499ae01a311c1d2c47b9d2231e045d3739d36d22da3c2d98e27f7173715f20',
+  release version: '3.2.0', crystax_version: 1, sha256: { linux_x86_64:   '3c32292566dd9236b8d383d74d0e83a4a9731b4e2a2161caa20811d2d38cb205',
                                                           darwin_x86_64:  'cf35ce53dab94ca800146c8be7ca3a9b823329e0a75f57cb0171db6608a75d94',
-                                                          windows_x86_64: 'c9d8eddfd990d1b1d63fdbeaf8bb9848b1982a45654e793254926ee4f401a68a',
-                                                          windows:        '34532411bd60d2f4edba594bc5657db8b06d5cb9f0b09539c9800b838ff1e901'
+                                                          windows_x86_64: 'a133293cec3b70d76b74164545720c726bc12f7f12924b6238054c7a741aa1b5',
+                                                          windows:        '91212ed23b896f02249372c3ebfead630a1b8254e06da4f3c9ad8ede8d10c1a1'
                                                         }
 
   build_depends_on 'xz'

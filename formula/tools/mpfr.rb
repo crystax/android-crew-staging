@@ -4,10 +4,10 @@ class Mpfr < BuildDependency
   homepage "http://www.mpfr.org/"
   url "http://www.mpfr.org/mpfr-${version}/mpfr-${version}.tar.xz"
 
-  release version: '3.1.5', crystax_version: 1, sha256: { linux_x86_64:   'a61d81a096919605de2b57d7cf9e3fd97a43a3cd734724787dbec85058e0e6d3',
+  release version: '3.1.5', crystax_version: 1, sha256: { linux_x86_64:   'bef3856aa8e27fc26dcf450ea4a0aadff38ac6d90a03e01e3f6eb566a4dc64cd',
                                                           darwin_x86_64:  '1aa19d47c7a5c3e5541781a755cba616f43016d13f4d44a74a51c70ae753c210',
-                                                          windows_x86_64: '54112d2cd4ea78f9ba7e8c43c1cceec40aa5503ece9842ec6cd894c016d80d24',
-                                                          windows:        '1dd9449d43327f04268bfdb33739b13cb0aafa55f964de6ef26baae6b39da500'
+                                                          windows_x86_64: '0e3220b88a1d842a04393a49549a00aac3e7760d3b7e480cf428a8a0b7729767',
+                                                          windows:        'e662f69f330c4c2df6859eb67932a344fb24858d3f3e8b582fa3d64664815f35'
                                                         }
 
   depends_on 'gmp'

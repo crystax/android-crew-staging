@@ -4,10 +4,10 @@ class Ruby < Utility
   homepage 'https://www.ruby-lang.org/'
   url 'https://cache.ruby-lang.org/pub/ruby/${block}/ruby-${version}.tar.gz' do |r| r.version.split('.').slice(0, 2).join('.') end
 
-  release version: '2.2.2', crystax_version: 1, sha256: { linux_x86_64:   'eff7d941e360f11f0b00b52c76ae80f7c3b54b6de5115ba195f09aa724e37450',
+  release version: '2.2.2', crystax_version: 1, sha256: { linux_x86_64:   '70fc209d1a44db6ef12543e42f03d24d4c083d9fffdd65e69df69c5239b5b8e7',
                                                           darwin_x86_64:  'ea636a6c8c64548461e12c57e634245491f5256ded8c2d04bfcc92727066ff1a',
-                                                          windows_x86_64: '9787fae15f71dc6dfd59098b084038d837575d91aadc8fe598e5a734e1bc9556',
-                                                          windows:        '1bca2d7b33564f1833467da1df4e1e4aeff99cb90a6540dea4c7ed808031e65d'
+                                                          windows_x86_64: '91cf2f7bc92762ef9208779c3759e19a3eec88050d63882228060ce1fa41f543',
+                                                          windows:        '5c5495a91fc3b3c35587325caaeee746bb69b68aff2dc894f30dd021a423be4f'
                                                         }
 
   build_depends_on 'zlib'

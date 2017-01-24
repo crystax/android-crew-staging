@@ -3,10 +3,10 @@ class NdkStack < Utility
   desc "A ndk-stack utility"
   homepage ""
 
-  release version: '1', crystax_version: 1, sha256: { linux_x86_64:   '1f55e1a99c4e56723e1b9e819321a31a2323cd536af59b364c72738dc6bdca06',
+  release version: '1', crystax_version: 1, sha256: { linux_x86_64:   '955ed00fa1b315c9550ab0fac7defce5af0ca994a6ccf3aa3c43c1c467792356',
                                                       darwin_x86_64:  'f8cf0f6c79e888e4cb8b27ee5962665fa110d66e357da17b1577b8cee715783c',
-                                                      windows_x86_64: '63718c682a89d4ec4aa8973f0893cba7d316192919692160fa983809bec6f64f',
-                                                      windows:        'a0b9b1153ed178b8321877ed7905f72a47e77ae3c14acbd2a3a6d3114422c020'
+                                                      windows_x86_64: '8141efe48691c68d7f4837ffb2e935639fd42c723b9961cd2e8e0c1fe0e717fe',
+                                                      windows:        '23f5b1467759cbe3f0dd35d5e01d97f2dba042f00d2b46a5aee4a738d2686c15'
                                                     }
 
   executables 'ndk-stack'
