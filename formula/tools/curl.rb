@@ -5,7 +5,7 @@ class Curl < Utility
   url 'https://curl.haxx.se/download/curl-${version}.tar.bz2'
 
   release version: '7.48.0', crystax_version: 1, sha256: { linux_x86_64:   '3e228c41da62a87b5a8a3bc9220d833c9fd0c905b24432f895b12b7e4d084ae1',
-                                                           darwin_x86_64:  '0ec2f173b0114e0fa64597183fa3f6a17c05e1953f6b1c25c74adcc8ad7c40af',
+                                                           darwin_x86_64:  '5aa198ab72b613bd7055243ec6be64d2c9344ebdd670849c0ebc8dcfc99f5a76',
                                                            windows_x86_64: 'fc040fe41a67f51c36135e0be275708591d0e1a99d2eb01746360c11f3fffa83',
                                                            windows:        'ec2c055540dce82220fbf73cb864339ab8f2e7c15081e4df1a57387a39476830'
                                                          }
