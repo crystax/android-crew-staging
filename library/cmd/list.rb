@@ -81,31 +81,35 @@ module Crew
   end
 
   def self.list_require_rebuild(check_type, args, formulary)
-    names = []
+    results = Hash.new { |h, k| h[k] = Array.new }
 
     win_platforms = [Platform.new('windows-x86_64'), Platform.new('windows')]
     std_platforms = (Global::OS == 'darwin') ? [Platform.new('darwin-x86_64')] : [Platform.new('linux-x86_64')] + win_platforms
 
     args.each do |n|
       formula = formulary[n]
+      fqn = formula.fqn
       releases = (check_type == 'last') ? [formula.releases.last] : formula.releases
+      vers = releases.map(&:to_s)
       # todo: add supported platforms to formula class?
       if formula.namespace == :target
-        releases.each do |release|
-          file = formula.cache_file(release)
-          names << n if not File.exist?(file) or (Digest::SHA256.hexdigest(File.read(file, mode: "rb")) != release.shasum)
-        end
+         needs_rebuild = releases.any? do |release|
+           file = formula.cache_file(release)
+           not File.exist?(file) or (Digest::SHA256.hexdigest(File.read(file, mode: "rb")) != release.shasum)
+         end
       else
-        platforms = ((Global::OS == 'linux') and (n.end_with?('toolbox'))) ? win_platforms : std_platforms
-        releases.each do |release|
-          platforms.each do |platform|
+        platforms = std_platforms
+        platforms = (Global::OS == 'linux') ? win_platforms : [] if n.end_with?('toolbox')
+        needs_rebuild = releases.any? do |release|
+          platforms.any? do |platform|
             file = formula.cache_file(release, platform.name)
-            names << n if not File.exist?(file) or ((Digest::SHA256.hexdigest(File.read(file, mode: "rb")) != release.shasum(platform.to_sym)))
+            not File.exist?(file) or ((Digest::SHA256.hexdigest(File.read(file, mode: "rb")) != release.shasum(platform.to_sym)))
           end
         end
       end
+      results[fqn] << vers if needs_rebuild
     end
 
-    puts names.uniq.join(' ')
+    results.each { |fqn, vers| puts "#{fqn}: #{vers.join(', ')}" }
   end
 end
