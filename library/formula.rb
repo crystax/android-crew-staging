@@ -39,6 +39,10 @@ class Formula
     "#{namespace}/#{name}"
   end
 
+  def qfn
+    "#{Global::NS_DIR[namespace]}/#{File.basename(path)}"
+  end
+
   def file_name
     File.basename(@path, '.rb')
   end
