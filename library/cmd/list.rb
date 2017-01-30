@@ -88,7 +88,6 @@ module Crew
 
     args.each do |n|
       formula = formulary[n]
-      fqn = formula.fqn
       releases = (check_type == 'last') ? [formula.releases.last] : formula.releases
       vers = releases.map(&:to_s)
       # todo: add supported platforms to formula class?
@@ -107,9 +106,13 @@ module Crew
           end
         end
       end
-      results[fqn] << vers if needs_rebuild
+      if needs_rebuild
+        fqn = formula.fqn
+        results[fqn] << formula.qfn
+        results[fqn] << vers
+      end
     end
 
-    results.each { |fqn, vers| puts "#{fqn}: #{vers.join(', ')}" }
+    results.each { |fqn, a| puts "#{fqn}: #{a[0]}: #{a[1].join(', ')}" }
   end
 end
