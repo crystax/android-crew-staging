@@ -94,13 +94,7 @@ module Crew
     end
 
     def make_creds
-      if repository.remotes['origin'].url =~ /^git@/
-        Rugged::Credentials::SshKey.new(username: 'git',
-                                        publickey: File.expand_path("~/.ssh/id_rsa.pub"),
-                                        privatekey: File.expand_path("~/.ssh/id_rsa"))
-      else
-        nil
-      end
+      Utils.make_git_credentials repository.remotes['origin'].url
     end
   end
 
