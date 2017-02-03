@@ -2,9 +2,10 @@ class Libobjc2 < Package
 
   desc 'GNUstep Objective-C Runtime'
   homepage 'https://github.com/gnustep/libobjc2'
-  url 'https://github.com/crystax/android-vendor-libobjc2.git|git_tag:$(version)_$(crystax_version)'
+  # todo: use commit? tag? something else?
+  url 'https://github.com/crystax/android-vendor-libobjc2.git|git_commit:36d73233f25183d7f371176e0417ca1c94c43c6f'
 
-  release version: '1.8.1', crystax_version: 1, sha256: 'ecc54ab613cca8236eac12619356445140da65103fd2d74b5c0d5dd9508694f9'
+  release version: '1.8.1', crystax_version: 1, sha256: '0'
 
   build_options setup_env: false
 

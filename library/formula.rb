@@ -244,10 +244,12 @@ class Formula
         eurl = expand_url(url, release)
         src_dir = File.join(dir, src_name)
         if git_repo_spec? eurl
-          repo = Rugged::Repository.clone_at(git_url(eurl), src_dir)
-        # todo: checkout the specified tag
-        # todo: remove or not?
-        # FileUtils.rm_rf File.join(src_dir, '.git')
+          git_url, git_commit = parse_git_url(eurl)
+          repo = Rugged::Repository.clone_at(git_url, src_dir, Utils.make_git_credentials(git_url))
+          repo.checkout git_commit
+          repo.close
+          # todo: remove?
+          #FileUtils.rm_rf File.join(src_dir, '.git')
         else
           archive = src_cache_file(release, eurl)
           if File.exist? archive
@@ -291,20 +293,20 @@ class Formula
   end
 
   def git_repo_spec?(uri)
-    uri =~ /\|git_tag:/
+    uri =~ /\|git_commit:/
   end
 
-  def git_url(uri)
+  def parse_git_url(uri)
     url = ''
-    tag = ''
+    commit = ''
     uri.split('|').each do |e|
-      if e.start_with? 'git_tag:'
-        tag = e.split(':')[1]
+      if e.start_with? 'git_commit:'
+        commit = e.split(':')[1]
       else
         url = e
       end
     end
-    url
+    [url, commit]
   end
 
   def system(*args)
