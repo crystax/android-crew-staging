@@ -2,12 +2,15 @@ class NdkBase < HostBase
 
   desc "Base NDK directory structure, sources, build tools and scripts"
   homepage "https://www.crystax.net"
-  url 'https://github.com/crystax/android-platform-ndk.git|git_tag:$(version)_$(crystax_version)'
+  # todo: use commit? use master branch? something else?
+  #       choose somehow between gitlab and github repos
+  #url 'https://github.com/crystax/android-platform-ndk.git|git_branch:crew-development'
+  url 'https://git.crystax.net/android/platform-ndk.git|git_commit:dddcaf549291b796bc0467a97b55a1bfcb9c5ac8'
 
-  release version: '11', crystax_version: 1, sha256: { linux_x86_64:   'e0661ea924662ebc1be64b792472647b7fc3bd8350768cfab7fbb03b26f01aa3',
-                                                       darwin_x86_64:  '8dbc4bcabc26b54b3cf4ba98813e077f1bc2624cad2f6115e5617dcbd7ec948e',
-                                                       windows_x86_64: '9d7a3dacd02f1df531c95891f4b4a71eb407b507f31b255222a676c1ef4eb080',
-                                                       windows:        'b169a27b088cafed0662188f4f8489e523cb339018e5566c11718c9881922117'
+  release version: '11', crystax_version: 1, sha256: { linux_x86_64:   '0',
+                                                       darwin_x86_64:  '0',
+                                                       windows_x86_64: '0',
+                                                       windows:        '0'
                                                      }
 
   # todo: fix files list
@@ -49,6 +52,13 @@ class NdkBase < HostBase
     save_properties prop, rel_dir
 
     release.installed = release.crystax_version
+  end
+
+  def prepare_source_code(release, dir, src_name, log_prefix)
+    dst_dir = File.join(dir, src_name)
+    puts "#{log_prefix} coping sources into #{dst_dir}"
+    FileUtils.mkdir_p dst_dir
+    FileUtils.cd(Global::NDK_DIR) { FileUtils.cp_r TOP_FILES_AND_DIRS, dst_dir }
   end
 
   def build(release, options, host_dep_dirs, target_dep_dirs)
