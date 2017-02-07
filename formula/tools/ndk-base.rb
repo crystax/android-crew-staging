@@ -4,11 +4,12 @@ class NdkBase < HostBase
   homepage "https://www.crystax.net"
   # todo: use commit? use master branch? something else?
   #       choose somehow between gitlab and github repos
-  #url 'https://github.com/crystax/android-platform-ndk.git|git_branch:crew-development'
+  url 'git@git.crystax.net:android/platform-ndk.git|git_commit:dddcaf549291b796bc0467a97b55a1bfcb9c5ac8'
   url 'https://git.crystax.net/android/platform-ndk.git|git_commit:dddcaf549291b796bc0467a97b55a1bfcb9c5ac8'
+  #url 'https://github.com/crystax/android-platform-ndk.git|git_branch:crew-development'
 
   release version: '11', crystax_version: 1, sha256: { linux_x86_64:   '6f0d8a210038fba6431b4a247a87d3869b865991073c648fba56a50ece1f68d9',
-                                                       darwin_x86_64:  '8c8204113a9282eed94d0bc89d217d4ac50d0021595cb457c11801999b88278c',
+                                                       darwin_x86_64:  '1a964b2b046f9d391f06d4470eee6d6849906160316ea29bcfbc76a1c2ef79bf',
                                                        windows_x86_64: 'a82b15ac5ce8b67b84a7e14b9e767fe84cbcdacdc11bb93d1cbc0202630c8849',
                                                        windows:        '442166788025975d472fe3c725df7f8993e6edc9d95721e52f8d05fb4fedb1c8'
                                                      }
@@ -54,12 +55,12 @@ class NdkBase < HostBase
     release.installed = release.crystax_version
   end
 
-  def prepare_source_code(release, dir, src_name, log_prefix)
-    dst_dir = File.join(dir, src_name)
-    puts "#{log_prefix} coping sources into #{dst_dir}"
-    FileUtils.mkdir_p dst_dir
-    FileUtils.cd(Global::NDK_DIR) { FileUtils.cp_r TOP_FILES_AND_DIRS+WIN_FILES, dst_dir }
-  end
+  # def prepare_source_code(release, dir, src_name, log_prefix)
+  #   dst_dir = File.join(dir, src_name)
+  #   puts "#{log_prefix} coping sources into #{dst_dir}"
+  #   FileUtils.mkdir_p dst_dir
+  #   FileUtils.cd(Global::NDK_DIR) { FileUtils.cp_r TOP_FILES_AND_DIRS+WIN_FILES, dst_dir }
+  # end
 
   def build(release, options, host_dep_dirs, target_dep_dirs)
     platforms = options.platforms.map { |name| Platform.new(name) }
@@ -93,9 +94,9 @@ class NdkBase < HostBase
       archive = cache_file(release, platform.name)
       Utils.pack archive, install_dir
 
-      update_shasum release, platform if options.update_shasum?
-      install_archive release, archive, platform.name
-      FileUtils.rm_rf base_dir unless options.no_clean?
+      update_shasum release, platform                 if options.update_shasum?
+      install_archive release, archive, platform.name if options.install?
+      FileUtils.rm_rf base_dir                        if options.clean?
     end
 
     if options.no_clean?
