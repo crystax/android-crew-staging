@@ -58,7 +58,7 @@ class NdkBase < HostBase
     dst_dir = File.join(dir, src_name)
     puts "#{log_prefix} coping sources into #{dst_dir}"
     FileUtils.mkdir_p dst_dir
-    FileUtils.cd(Global::NDK_DIR) { FileUtils.cp_r TOP_FILES_AND_DIRS, dst_dir }
+    FileUtils.cd(Global::NDK_DIR) { FileUtils.cp_r TOP_FILES_AND_DIRS+WIN_FILES, dst_dir }
   end
 
   def build(release, options, host_dep_dirs, target_dep_dirs)
