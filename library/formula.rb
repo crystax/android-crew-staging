@@ -245,11 +245,10 @@ class Formula
         src_dir = File.join(dir, src_name)
         if git_repo_spec? eurl
           git_url, git_commit = parse_git_url(eurl)
-          repo = Rugged::Repository.clone_at(git_url, src_dir, Utils.make_git_credentials(git_url))
-          repo.checkout git_commit
+          repo = Rugged::Repository.clone_at(git_url, src_dir, credentials: Utils.make_git_credentials(git_url))
+          repo.checkout git_commit, strategy: :force
           repo.close
-          # todo: remove?
-          #FileUtils.rm_rf File.join(src_dir, '.git')
+          FileUtils.rm_rf File.join(src_dir, '.git')
         else
           archive = src_cache_file(release, eurl)
           if File.exist? archive
