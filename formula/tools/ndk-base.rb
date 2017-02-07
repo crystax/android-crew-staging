@@ -7,10 +7,10 @@ class NdkBase < HostBase
   #url 'https://github.com/crystax/android-platform-ndk.git|git_branch:crew-development'
   url 'https://git.crystax.net/android/platform-ndk.git|git_commit:dddcaf549291b796bc0467a97b55a1bfcb9c5ac8'
 
-  release version: '11', crystax_version: 1, sha256: { linux_x86_64:   '0',
+  release version: '11', crystax_version: 1, sha256: { linux_x86_64:   '6f0d8a210038fba6431b4a247a87d3869b865991073c648fba56a50ece1f68d9',
                                                        darwin_x86_64:  '8c8204113a9282eed94d0bc89d217d4ac50d0021595cb457c11801999b88278c',
-                                                       windows_x86_64: '0',
-                                                       windows:        '0'
+                                                       windows_x86_64: 'a82b15ac5ce8b67b84a7e14b9e767fe84cbcdacdc11bb93d1cbc0202630c8849',
+                                                       windows:        '442166788025975d472fe3c725df7f8993e6edc9d95721e52f8d05fb4fedb1c8'
                                                      }
 
   # todo: fix files list
