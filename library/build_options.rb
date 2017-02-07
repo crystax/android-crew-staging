@@ -64,6 +64,10 @@ class BuildOptions
     @install
   end
 
+  def clean?
+    @no_clean == false
+  end
+
   def no_clean?
     @no_clean
   end
