@@ -9,7 +9,7 @@ class NdkBase < HostBase
   #url 'https://github.com/crystax/android-platform-ndk.git|git_branch:crew-development'
 
   release version: '11', crystax_version: 1, sha256: { linux_x86_64:   '6f0d8a210038fba6431b4a247a87d3869b865991073c648fba56a50ece1f68d9',
-                                                       darwin_x86_64:  '1a964b2b046f9d391f06d4470eee6d6849906160316ea29bcfbc76a1c2ef79bf',
+                                                       darwin_x86_64:  'd489390c9897e42ef6023dba3c7423ce4fcae01f56e2270c9ee35b4b63da9b43',
                                                        windows_x86_64: 'a82b15ac5ce8b67b84a7e14b9e767fe84cbcdacdc11bb93d1cbc0202630c8849',
                                                        windows:        '442166788025975d472fe3c725df7f8993e6edc9d95721e52f8d05fb4fedb1c8'
                                                      }
@@ -31,6 +31,7 @@ class NdkBase < HostBase
                         'ndk-gdb',
                         'ndk-gdb.py',
                         'ndk-which',
+                        'sources',
                         'tests',
                         'tools'
                        ]
