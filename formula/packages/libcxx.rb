@@ -6,9 +6,9 @@ class Libcxx < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '3.6', crystax_version: 1, sha256: '387bee4256403e00a933c324d91fdc229fdcd33e0049f4dbbd549c35e5af04c2'
-  release version: '3.7', crystax_version: 1, sha256: 'd4e344ec0183309f6c21a0745b6ccdbb0c6d14addeff6cd61c03adf3288d7e46'
-  release version: '3.8', crystax_version: 1, sha256: 'cc94852266cffc02a707c0e246b509b926f5ea4a0825a3f09215c9ad8ce9e4e8'
+  release version: '3.6', crystax_version: 1, sha256: 'b61aeec32a6c9e1e748cddc345a56b119fedcb4c577221c3699cc4ad80b8d170'
+  release version: '3.7', crystax_version: 1, sha256: 'd5c5fde06538c51760c9e97f91c6bb9966b63ec612bdddf17b7d065fb6480099'
+  release version: '3.8', crystax_version: 1, sha256: '8599e195327e1ee5dccc9abf496b45f5cd810b841a4cf58133588708ddd31cf0'
 
   # todo:
   #build_depends_on 'platforms'
@@ -58,6 +58,13 @@ class Libcxx < BasePackage
         end
       end
       FileUtils.rm_rf arch_build_dir unless options.no_clean?
+      # copy sources
+      llvm_dir = "#{Build::TOOLCHAIN_SRC_DIR}/llvm-#{release.version}"
+      cxx_src_out_dir = "#{package_dir}/#{archive_sub_dir(release)}/libcxx"
+      # todo: copy libcxxabi too?
+      # cxxabi_src_out_dir = "#{archive_sub_dir(release)}/libcxxabi"
+      FileUtils.mkdir_p cxx_src_out_dir
+      FileUtils.cp_r ['include', 'src', 'test'].map{ |d| "#{llvm_dir}/libcxx/#{d}" },  "#{cxx_src_out_dir}/"
     end
 
     if options.build_only?
