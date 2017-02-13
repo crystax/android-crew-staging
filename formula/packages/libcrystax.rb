@@ -52,8 +52,12 @@ class Libcrystax < BasePackage
         puts "  building for abi: #{abi}"
         build_dir = File.join(arch_build_dir, abi, 'build')
         FileUtils.mkdir_p build_dir
-        FileUtils.cd(build_dir) { [:static, :shared].each { |lt| build_for_abi abi, release, lib_type: lt } }
-        FileUtils.cp_r release_directory, dst_dir unless options.build_only?
+        FileUtils.cd(build_dir) do
+          [:static, :shared].each do |lt|
+            build_for_abi abi, release, lib_type: lt
+            FileUtils.cp_r release_directory, dst_dir unless options.build_only?
+          end
+        end
       end
       FileUtils.rm_rf arch_build_dir unless options.no_clean?
     end
