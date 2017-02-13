@@ -151,9 +151,6 @@ The BUILD command supports the following options:
 
 Common options:
 
---source-only    just prepare sources for building and do nothing else;
-                 implies --no-clean
-
 --build-only     do not create package in the cache dir and do not install
                  formula; implies --no-clean
 
@@ -171,6 +168,9 @@ Common options:
 
 Options for building utilities:
 
+--source-only    just prepare sources for building and do nothing else;
+                 implies --no-clean
+
 --platforms=LIST the list of platforms for which to build formulas;
                  platforms must be separated with comma;
                  available platforms on darwin hosts are darwin-x86_64;
@@ -182,7 +182,7 @@ Options for building utilities:
 --check          run tests if host OS and platform OS are the same;
                  by default tests will not be run
 
-Options for building libraries:
+Options for building target packages:
 
 --abis=LIST      the list of ABIs for which to build formulas;
                  ABIs must be separated with comma;
