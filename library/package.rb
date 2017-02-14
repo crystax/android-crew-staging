@@ -12,9 +12,11 @@ class Package < TargetBase
   DEF_BUILD_OPTIONS = { source_archive_without_top_dir: false,
                         c_wrapper:                      'cc',
                         sysroot_in_cflags:              true,
+                        ldflags_in_c_wrapper:           false,
                         use_cxx:                        false,
                         cxx_wrapper:                    'c++',
                         setup_env:                      true,
+                        debug_compiler_args:            false,
                         copy_installed_dirs:            ['lib', 'include'],
                         gen_android_mk:                 true,
                         wrapper_fix_soname:             true,
@@ -192,7 +194,8 @@ class Package < TargetBase
     else
       cc = build_options[:c_wrapper] == true ? toolchain.c_compiler_name : build_options[:c_wrapper]
       cc = "#{build_dir_for_abi(abi)}/#{cc}"
-      Build.gen_compiler_wrapper cc, c_comp, toolchain, build_options
+      ldflags_wrapper_arg = build_options[:ldflags_in_c_wrapper] ? { before: ldflags, after: '' } : nil
+      Build.gen_compiler_wrapper cc, c_comp, toolchain, build_options, '', ldflags_wrapper_arg
     end
 
     @build_env = {'CC'      => cc,
