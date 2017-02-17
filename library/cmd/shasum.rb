@@ -11,7 +11,7 @@ module Crew
     options, args = ShasumOptions.parse_args(args)
 
     if options.update?
-      select_formulas(args).each do |formula|
+      Formulary.new.select(args).each do |formula|
         releases = options.all_versions? ? formula.releases : [formula.releases.last]
         releases.each do |release|
           if formula.namespace == :target
@@ -88,16 +88,5 @@ module Crew
     else
       raise "either --update or --check must be specified"
     end
-  end
-
-  def self.select_formulas(args)
-    formulary = Formulary.new
-    formulas = []
-    if args.size == 0
-      formulary.each { |f| formulas << f }
-    else
-      args.each { |n| formulas << formulary[n] }
-    end
-    formulas
   end
 end

@@ -38,8 +38,6 @@ module Crew
         list_elements formulary.packages
       when '--tools'
         list_elements formulary.tools
-      when /^--require-rebuild=/
-        raise "--require-rebuild requires at least one formula name specified"
       else
         raise "bad command syntax; try ./crew help list"
       end
@@ -78,41 +76,5 @@ module Crew
     list.sort.each do |l|
       printf " %s %-#{max_name_len}s  %-#{max_ver_len}s  %-#{max_cxver_len}s%s\n", l.installed_sign, l.name, l.version, l.crystax_version, l.installed_source
     end
-  end
-
-  def self.list_require_rebuild(check_type, args, formulary)
-    results = Hash.new { |h, k| h[k] = Array.new }
-
-    win_platforms = [Platform.new('windows-x86_64'), Platform.new('windows')]
-    std_platforms = (Global::OS == 'darwin') ? [Platform.new('darwin-x86_64')] : [Platform.new('linux-x86_64')] + win_platforms
-
-    args.each do |n|
-      formula = formulary[n]
-      releases = (check_type == 'last') ? [formula.releases.last] : formula.releases
-      vers = releases.map(&:to_s)
-      # todo: add supported platforms to formula class?
-      if formula.namespace == :target
-         needs_rebuild = releases.any? do |release|
-           file = formula.cache_file(release)
-           not File.exist?(file) or (Digest::SHA256.hexdigest(File.read(file, mode: "rb")) != release.shasum)
-         end
-      else
-        platforms = std_platforms
-        platforms = (Global::OS == 'linux') ? win_platforms : [] if n.end_with?('toolbox')
-        needs_rebuild = releases.any? do |release|
-          platforms.any? do |platform|
-            file = formula.cache_file(release, platform.name)
-            not File.exist?(file) or ((Digest::SHA256.hexdigest(File.read(file, mode: "rb")) != release.shasum(platform.to_sym)))
-          end
-        end
-      end
-      if needs_rebuild
-        fqn = formula.fqn
-        results[fqn] << formula.qfn
-        results[fqn] << vers
-      end
-    end
-
-    results.each { |fqn, a| puts "#{fqn}: #{a[0]}: #{a[1].join(', ')}" }
   end
 end
