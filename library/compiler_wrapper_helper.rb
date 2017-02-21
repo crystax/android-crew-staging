@@ -28,11 +28,12 @@ end
 
 def fix_soname(args)
   next_param_is_libname = false
+  regex = /.*(lib[a-zA-z_]+)(\d*).so/
   args.each_index do |i|
     if next_param_is_libname
       puts "args[#{i}] = #{args[i]}"
-      libname = /.*(lib[^\.]*\.so)/.match(args[i])[1]    # `expr "x$p" : "^x.*\\(lib[^\\.]*\\.so\\)"`
-      args[i] = "-Wl,#{libname}"
+      libname = regex.match(args[i])[1]
+      args[i] = "-Wl,#{libname}.so"
       next_param_is_libname = false
     else
       case args[i]
@@ -40,8 +41,9 @@ def fix_soname(args)
         args[i] = '-Wl,-soname'
         next_param_is_libname = true
       when /-Wl,-soname,lib.*|-Wl,-h,lib.*/
-        libname = /.*(lib[^\.]*\.so)/.match(args[i])[1]  #`expr "x$p" : "^x.*\\(lib[^\\.]*\\.so\\)"`
-        args[i] = "-Wl,-soname,-l#{libname}"
+        puts "args[#{i}] = #{args[i]}"
+        libname = regex.match(args[i])[1]
+        args[i] = "-Wl,-soname,-l#{libname}.so"
       end
     end
   end
