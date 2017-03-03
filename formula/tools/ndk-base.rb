@@ -4,9 +4,8 @@ class NdkBase < HostBase
   homepage "https://www.crystax.net"
   # todo: use commit? use master branch? something else?
   #       choose somehow between gitlab and github repos
-  url 'git@git.crystax.net:android/platform-ndk.git|git_commit:61b46a0fa05180bc6f46fbc395f8713309155405'
-  url 'https://git.crystax.net/android/platform-ndk.git|git_commit:61b46a0fa05180bc6f46fbc395f8713309155405'
-  #url 'https://github.com/crystax/android-platform-ndk.git|git_branch:crew-development'
+  url 'git@git.crystax.net:android/platform-ndk.git|git_commit:50971b3a5e4fe86dd012f7e6e9b7e71c8ef56eca'
+  url 'https://git.crystax.net/android/platform-ndk.git|git_commit:50971b3a5e4fe86dd012f7e6e9b7e71c8ef56eca'
 
   release version: '11', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                        darwin_x86_64:  '0',
@@ -72,13 +71,6 @@ class NdkBase < HostBase
 
     release.installed = release.crystax_version
   end
-
-  # def prepare_source_code(release, dir, src_name, log_prefix)
-  #   dst_dir = File.join(dir, src_name)
-  #   puts "#{log_prefix} coping sources into #{dst_dir}"
-  #   FileUtils.mkdir_p dst_dir
-  #   FileUtils.cd(Global::NDK_DIR) { FileUtils.cp_r TOP_FILES_AND_DIRS+WIN_FILES, dst_dir }
-  # end
 
   def build(release, options, host_dep_dirs, target_dep_dirs)
     platforms = options.platforms.map { |name| Platform.new(name) }
