@@ -51,6 +51,7 @@ class Tool < HostBase
       build_env['CXX']      = platform.cxx
       build_env['AR']       = platform.ar
       build_env['RANLIB']   = platform.ranlib
+      build_env['NM']       = platform.nm
       build_env['CFLAGS']   = platform.cflags
       build_env['CXXFLAGS'] = platform.cxxflags
       build_env['LANG']     = 'C'

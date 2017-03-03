@@ -191,8 +191,14 @@ class Ruby < Utility
   # and we can't relay on system's gem script because of subtle versions differences
   def gem_path(release, platform, install_dir)
     case platform.target_os
-    when 'darwin', 'linux'
+    when 'linux'
       "#{install_dir}/bin/gem"
+    when 'darwin'
+      if platform.host_os == 'darwin'
+        "#{install_dir}/bin/gem"
+      else
+        "#{release_directory(release, 'linux-x86_64')}/bin/gem"
+      end
     else
       "#{release_directory(release, 'linux-x86_64')}/bin/gem"
     end

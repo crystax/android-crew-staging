@@ -28,9 +28,17 @@ class Python < Utility
     build_env['DARWIN_SYSROOT'] = platform.sysroot if platform.target_os == 'darwin'
     build_env['LDSHARED'] = "#{platform.cc} -shared "
     build_env['LDFLAGS'] = platform.cflags
+
     case platform.target_os
     when 'darwin'
       build_env['LDSHARED'] = "#{platform.cc} -bundle -undefined dynamic_lookup "
+      if platform.host_os == 'linux'
+        File.open('config.site', 'w') do |f|
+          f.puts "ac_cv_file__dev_ptmx=yes"
+          f.puts "ac_cv_file__dev_ptc=no"
+        end
+        build_env['CONFIG_SITE'] = 'config.site'
+      end
     when 'linux'
       build_env['CFLAGS'] += " -fPIC"
     when 'windows'

@@ -89,7 +89,7 @@ class BuildOptions
   def default_platforms
     case Global::OS
     when 'linux'
-      ['linux-x86_64', 'windows-x86_64', 'windows']
+      ['linux-x86_64', 'darwin-x86_64', 'windows-x86_64', 'windows']
     when 'darwin'
       ['darwin-x86_64']
     else
