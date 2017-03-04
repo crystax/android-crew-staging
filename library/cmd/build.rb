@@ -29,6 +29,7 @@ module Crew
 
       host_deps, target_deps = deps.partition { |d| d.namespace == :host }
 
+      # really stupid hash behaviour: just Hash.new({}) does not work
       host_dep_dirs = Hash.new { |h, k| h[k] = Hash.new }
       host_deps.each do |d|
         f = formulary[d.fqn]
@@ -38,7 +39,6 @@ module Crew
         end
       end
 
-      # really stupid hash behaviour: just Hash.new({}) does not work
       target_dep_dirs = {}
       target_deps.each do |d|
         f = formulary[d.fqn]
