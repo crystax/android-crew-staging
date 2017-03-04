@@ -69,6 +69,7 @@ class Platform
       @ar     = 'ar'
       @ranlib = 'ranlib'
       @strip  = 'strip'
+      @nm     = 'nm'
     else
       @ar     = File.join(path, "#{prefix}#{toolchain[:ar]}")
       @ranlib = File.join(path, "#{prefix}#{toolchain[:ranlib]}")
@@ -81,24 +82,24 @@ class Platform
       @sysroot         = "#{Build::PLATFORM_PREBUILTS_DIR}/sysroot/darwin-x86/MacOSX10.6.sdk"
       @cflags          = "-isysroot#{sysroot} -mmacosx-version-min=#{MACOSX_VERSION_MIN} -DMACOSX_DEPLOYMENT_TARGET=#{MACOSX_VERSION_MIN} -m64"
       @configure_host  = 'x86_64-darwin10'
-      @toolchain_build = (@host_os == 'darwin') ? @toolchain_build : 'x86_64-linux-gnu'
       @toolchain_host  = 'x86_64-apple-darwin'
+      @toolchain_build = (@host_os == 'darwin') ? @toolchain_host : 'x86_64-linux-gnu'
     when 'linux-x86_64'
       @sysroot         = "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/sysroot"
       @cflags          = "--sysroot=#{sysroot}"
       @configure_host  = 'x86_64-linux'
-      @toolchain_build = 'x86_64-linux-gnu'
-      @toolchain_host  = @toolchain_build
+      @toolchain_host  = 'x86_64-linux-gnu'
+      @toolchain_build = @toolchain_host
     when 'windows-x86_64'
       @cflags          = '-m64'
       @configure_host  = 'x86_64-w64-mingw32'
-      @toolchain_build = 'x86_64-linux-gnu'
       @toolchain_host  = 'x86_64-pc-mingw32msvc'
+      @toolchain_build = 'x86_64-linux-gnu'
     when 'windows'
       @cflags          = '-m32'
       @configure_host  = 'x86_64-w64-mingw32'
-      @toolchain_build = 'x86_64-linux-gnu'
       @toolchain_host  = 'i586-pc-mingw32msvc'
+      @toolchain_build = 'x86_64-linux-gnu'
     end
 
     @cxxflags = @cflags
