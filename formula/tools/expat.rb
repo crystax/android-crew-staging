@@ -14,8 +14,8 @@ class Expat < BuildDependency
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform, release)
 
-    args = ["--prefix=#{install_dir}",
-            "--host=#{platform.configure_host}",
+    args = platform.configure_args +
+           ["--prefix=#{install_dir}",
             "--disable-shared"
            ]
 

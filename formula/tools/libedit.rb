@@ -19,8 +19,8 @@ class Libedit < BuildDependency
       return
     end
 
-    args = ["--prefix=#{install_dir}",
-            "--host=#{platform.configure_host}",
+    args = platform.configure_args +
+           ["--prefix=#{install_dir}",
             "--enable-static",
             "--disable-shared",
             "--with-pic",

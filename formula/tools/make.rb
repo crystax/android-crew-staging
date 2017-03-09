@@ -20,8 +20,8 @@ class Make < Utility
     src_dir = File.join(Build::NDK_HOST_TOOLS_DIR, "make-#{release.version}")
     install_dir = install_dir_for_platform(platform, release)
 
-    args = ["--prefix=#{install_dir}",
-            "--host=#{platform.configure_host}",
+    args = platform.configure_args +
+           ["--prefix=#{install_dir}",
             "--disable-nls",
             "--disable-rpath"
            ]

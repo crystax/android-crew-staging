@@ -19,9 +19,8 @@ class Python < Utility
     src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'python', "Python-#{release.version}")
     install_dir = install_dir_for_platform(platform, release)
 
-    args = ["--prefix=#{install_dir}",
-            "--build=#{platform.toolchain_build}",
-            "--host=#{platform.toolchain_host}",
+    args = platform.configure_args +
+           ["--prefix=#{install_dir}",
             "--disable-ipv6"
            ]
 

@@ -21,8 +21,8 @@ class Libarchive < Utility
     build_env['LDFLAGS']  = "-L#{xz_dir}/lib"
 
     #env['LDFLAGS'] = ' -ldl' if options.target_os == 'linux'
-    args = ["--prefix=#{install_dir}",
-            "--host=#{platform.configure_host}",
+    args = platform.configure_args +
+           ["--prefix=#{install_dir}",
             "--disable-shared",
             "--without-iconv",
             "--without-nettle",
@@ -31,6 +31,7 @@ class Libarchive < Utility
             "--disable-silent-rules",
             "--with-sysroot"
            ]
+
     system "#{src_dir}/configure", *args
     system 'make', '-j', num_jobs
     system 'make', 'check' if options.check? platform

@@ -13,13 +13,13 @@ class Gmp < BuildDependency
   def build_for_platform(platform, release, options, _host_deps_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform, release)
 
-    args = ["--prefix=#{install_dir}",
-            "--host=#{platform.configure_host}",
+    args = platform.configure_args +
+           ["--prefix=#{install_dir}",
             "--enable-cxx",
             "--disable-shared"
            ]
-    args << 'ABI=32'             if platform.target_name == 'windows'
-    args << '--disable-assembly' if platform.target_os == 'darwin'
+    args += ['ABI=32']             if platform.target_name == 'windows'
+    args += ['--disable-assembly'] if platform.target_os == 'darwin'
 
     system "#{src_dir}/configure", *args
     system 'make', '-j', num_jobs

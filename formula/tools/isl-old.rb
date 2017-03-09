@@ -20,8 +20,8 @@ class IslOld < BuildDependency
     # without -O2 there is uresolved reference to ffs()
     build_env['CFLAGS'] += ' -O2' if platform.target_os == 'windows'
 
-    args = ["--prefix=#{install_dir}",
-            "--host=#{platform.configure_host}",
+    args = platform.configure_args +
+           ["--prefix=#{install_dir}",
             "--with-gmp-prefix=#{gmp_dir}",
             "--disable-shared",
             "--disable-silent-rules",

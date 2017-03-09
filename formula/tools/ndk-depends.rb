@@ -23,8 +23,7 @@ class NdkDepends < Utility
     build_dir = Dir.pwd
     debug = ''
 
-    build_env['CFLAGS']  += ' -O2 -ffunction-sections -fdata-sections'
-    build_env['CFLAGS']  += ' -s' unless (platform.target_os == 'darwin' and platform.host_os == 'linux')
+    build_env['CFLAGS']  += ' -O2 -s -ffunction-sections -fdata-sections'
     build_env['LDFLAGS']  = ''
     build_env['LDFLAGS'] += ' -m32' if platform.target_cpu == 'x86'
     build_env['LDFLAGS'] += ' -Wl,-gc-sections' unless platform.target_os  == 'darwin'

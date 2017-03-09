@@ -24,8 +24,8 @@ class Libssh2 < BuildDependency
     build_env['LIBS']     = "-lcrypt32 -lgdi32" if platform.target_os == 'windows'
     build_env['LIBS']     = "-ldl"              if platform.target_os == 'linux'
 
-    args = ["--prefix=#{install_dir}",
-            "--host=#{platform.configure_host}",
+    args = platform.configure_args +
+           ["--prefix=#{install_dir}",
             "--disable-shared",
             "--disable-examples-build",
             "--with-libssl-prefix=#{openssl_dir}",

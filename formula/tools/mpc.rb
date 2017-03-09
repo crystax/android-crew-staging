@@ -19,8 +19,8 @@ class Mpc < BuildDependency
     gmp_dir  = host_dep_dirs[platform.name]['gmp']
     mpfr_dir = host_dep_dirs[platform.name]['mpfr']
 
-    args = ["--prefix=#{install_dir}",
-            "--host=#{platform.configure_host}",
+    args = platform.configure_args +
+           ["--prefix=#{install_dir}",
             "--with-gmp=#{gmp_dir}",
             "--with-mpfr=#{mpfr_dir}",
             "--disable-shared",

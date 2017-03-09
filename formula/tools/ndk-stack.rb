@@ -32,6 +32,7 @@ class NdkStack < Utility
     build_env['LDFLAGS']  = ''
     build_env['LDFLAGS'] += ' -Wl,-gc-sections' unless platform.target_os == "darwin"
     build_env['LDFLAGS'] += ' -m32' if platform.target_cpu == 'x86'
+    build_env['PATH']     = "#{platform.toolchain_path}:#{ENV['PATH']}" #if platform.target_os == 'darwin'
 
     puts "  building binutils"
     build_binutils platform, binutils_src_dir, binutils_build_dir
@@ -73,8 +74,8 @@ class NdkStack < Utility
   end
 
   def build_binutils(platform, src_dir, build_dir)
-    args = ["--host=#{platform.toolchain_host}",
-            "--build=#{platform.toolchain_build}",
+    args = ["--host=#{platform.configure_host}",
+            "--build=#{platform.configure_build}",
             "--disable-nls",
             "--with-bug-report-url=#{Build::BUG_URL}"
            ]

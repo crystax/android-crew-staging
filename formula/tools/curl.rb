@@ -24,14 +24,14 @@ class Curl < Utility
     build_env['LIBS']     = '-ldl'      if platform.target_os == 'linux'
     build_env['LIBS']     = '-lcrypt32' if platform.target_os == 'windows'
 
-    args = ["--prefix=#{install_dir}",
-            "--host=#{platform.configure_host}",
-            "--disable-shared",
-            "--disable-ldap",
-            "--with-ssl=#{openssl_dir}",
-            "--with-zlib=#{zlib_dir}",
-            "--with-libssh2=#{libssh2_dir}"
-           ]
+    args  = platform.configure_args +
+            ["--prefix=#{install_dir}",
+             "--disable-shared",
+             "--disable-ldap",
+             "--with-ssl=#{openssl_dir}",
+             "--with-zlib=#{zlib_dir}",
+             "--with-libssh2=#{libssh2_dir}"
+            ]
 
     system "#{src_dir}/configure", *args
     system 'make', '-j', num_jobs

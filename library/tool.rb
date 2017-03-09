@@ -49,16 +49,19 @@ class Tool < HostBase
       build_env.clear
       build_env['CC']       = platform.cc
       build_env['CXX']      = platform.cxx
+      build_env['LD']       = platform.ld
       build_env['AR']       = platform.ar
       build_env['RANLIB']   = platform.ranlib
       build_env['NM']       = platform.nm
       build_env['CFLAGS']   = platform.cflags
       build_env['CXXFLAGS'] = platform.cxxflags
       build_env['LANG']     = 'C'
-      if platform.target_os == 'windows'
-        build_env['PATH'] = "#{File.dirname(platform.cc)}:#{ENV['PATH']}"
-        build_env['RC'] = "x86_64-w64-mingw32-windres -F pe-i386" if platform.target_cpu == 'x86'
-      end
+      build_env['PATH']     = "#{platform.toolchain_path}:#{ENV['PATH']}" #if platform.target_os == 'darwin'
+      build_env['RC']       = platform.windres if platform.target_os == 'windows'
+      # if platform.target_os == 'windows'
+      #   build_env['PATH'] = "#{File.dirname(platform.cc)}:#{ENV['PATH']}"
+      #   build_env['RC'] = "x86_64-w64-mingw32-windres -F pe-i386" if platform.target_cpu == 'x86'
+      # end
       #
       FileUtils.cd(build_dir) { build_for_platform platform, release, options, host_dep_dirs, target_dep_dirs }
       next if options.build_only?

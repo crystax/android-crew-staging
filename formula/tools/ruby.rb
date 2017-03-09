@@ -81,18 +81,18 @@ class Ruby < Utility
              ].join(' ')
     end
 
-    build_env['CFLAGS']          += ' ' + cflags
+    build_env['CFLAGS']         += ' ' + cflags
     build_env['LDFLAGS']         = ldflags
     build_env['LIBS']            = libs
     build_env['SSL_CERT_FILE']   = host_ssl_cert_file
     build_env['RUGGED_CFLAGS']   = "#{cflags} -DRUBY_UNTYPED_DATA_WARNING=0 -I#{openssl_dir}/include -I#{libssh2_dir}/include -I#{libgit2_dir}/include"
     build_env['RUGGED_MAKEFILE'] = "#{build_dir_for_platform(platform)}/ext/rugged/Makefile"
     build_env['DESTDIR']         = install_dir
-    build_env['PATH']            = "#{File.dirname(platform.cc)}:#{ENV['PATH']}" if platform.target_os == 'windows'
+    build_env['PATH']            = "#{platform.toolchain_path}:#{ENV['PATH']}" if platform.target_os == 'windows'
     build_env['V']               = '1'
 
-    args = ["--prefix=/",
-            "--host=#{platform.configure_host}",
+    args = platform.configure_args +
+           ["--prefix=/",
             "--disable-install-doc",
             "--enable-load-relative",
             "--with-openssl-dir=#{openssl_dir}",
@@ -104,7 +104,7 @@ class Ruby < Utility
            ]
 
     system "#{src_dir}/configure", *args
-    fix_winres_params if platform.target_os == 'windows' and platform.target_cpu == 'x86'
+    fix_winres_params if platform.name == 'windows'
     fix_win_makefile  if platform.target_os == 'windows'
     system 'make', '-j', num_jobs
     system 'make', 'test' if options.check? platform
@@ -158,7 +158,7 @@ class Ruby < Utility
       if not l.start_with?('WINDRES = ')
         lines << l
       else
-        lines << l.gsub('windres ', 'windres -F pe-i386 ')
+        lines << l.gsub(/(.*-windres)/, '\1 -F pe-i386')
         replaced = true
       end
     end
