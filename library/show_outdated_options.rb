@@ -18,7 +18,7 @@ class ShowOutdatedOptions
         when 'all'
           @all_versions = true
         when 'last'
-          @all_versions = true
+          @all_versions = false
         else
           raise "bad version value: #{u}; must be 'all' or 'last'"
         end
