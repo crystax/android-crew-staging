@@ -76,8 +76,8 @@ class Gcc < Tool
     platforms.each do |platform|
       puts "= building for #{platform.name}"
       # todo:
-      [Build::ARCH_LIST[0]].each do |arch|
-      #Build::ARCH_LIST.each do |arch|
+      #[Build::ARCH_LIST[0]].each do |arch|
+      Build::ARCH_LIST.each do |arch|
         base_dir = base_dir(platform, arch)
         self.log_file = build_log_file(base_dir)
         printf  "  %-#{max_arch_name_len+1}s ", "#{arch.name}:"
@@ -97,8 +97,8 @@ class Gcc < Tool
       if not options.build_only?
         pkg_dir = File.join(build_base_dir, platform.name, ARCHIVE_TOP_DIR)
         # todo:
-        [Build::ARCH_LIST[0]].each do |arch|
-        #Build::ARCH_LIST.each do |arch|
+        #[Build::ARCH_LIST[0]].each do |arch|
+        Build::ARCH_LIST.each do |arch|
           base_dir = base_dir(platform, arch)
           arch_pkg_dir = File.join(pkg_dir, "#{arch.toolchain}-#{release.version}", 'prebuilt', platform.name)
           FileUtils.mkdir_p arch_pkg_dir
@@ -228,10 +228,11 @@ class Gcc < Tool
     build_target   = ''
     install_target = 'install'
     if canadian_build? platform
-      if platform.target_cpu == 'x86'
-        build_env['CFLAGS_FOR_BUILD']   += ' -m32'
-        build_env['CXXFLAGS_FOR_BUILD'] += ' -m32'
-      end
+      # todo: these flags should be added to CFLAGS, not _for_target?
+      # if platform.target_cpu == 'x86'
+      #   build_env['CFLAGS_FOR_BUILD']   += ' -m32'
+      #   build_env['CXXFLAGS_FOR_BUILD'] += ' -m32'
+      # end
       build_env['PATH'] = "#{File.join(base_dir, 'host', 'install', 'bin')}:#{build_env['PATH']}"
       # When building canadian cross toolchain we cannot build GCC target libraries.
       # So we build the compilers only and copy the target libraries from
@@ -412,19 +413,21 @@ class Gcc < Tool
 
   def prepare_build_environment(platform)
     build_env.clear
-    build_env['PATH']     = "#{platform.toolchain_path}:#{ENV['PATH']}"
-    build_env['LANG']     = 'C'
-    build_env['CC']       = platform.cc
-    build_env['CXX']      = platform.cxx
-    build_env['AR']       = platform.ar
-    build_env['RANLIB']   = platform.ranlib
-    build_env['CFLAGS']   = '-O2 -s -Wno-error'
+    build_env['PATH']   = "#{platform.toolchain_path}:#{ENV['PATH']}"
+    build_env['LANG']   = 'C'
+    build_env['CC']     = platform.cc
+    build_env['CXX']    = platform.cxx
+    build_env['AR']     = platform.ar
+    build_env['RANLIB'] = platform.ranlib
+    build_env['CFLAGS'] = '-O2 -s -Wno-error'
+    # todo: do we need '-s' option?
     #build_env['CFLAGS']  += ' -s' if platform.compiler_major_version < 6
 
     build_env['CXXFLAGS'] = build_env['CFLAGS']
 
     if platform.target_os == 'windows'
       build_env['CFLAGS'] += ' -D__USE_MINGW_ANSI_STDIO=1'
+      build_env['CFLAGS'] += (platform.target_cpu == 'x86') ? ' -m32' : ' -m64'
       build_env['RC'] = platform.windres
       # build_env['RC']  = "#{File.dirname(platform.cc)}/x86_64-w64-mingw32-windres"
       # build_env['RC'] += ' -F pe-i386' if platform.target_cpu == 'x86'
