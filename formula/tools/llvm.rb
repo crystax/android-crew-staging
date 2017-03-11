@@ -78,8 +78,8 @@ class Llvm < Tool
       prepare_build_env platform, libedit_dir, python_dir
 
       args = ["--prefix=#{install_dir}",
-              "--host=#{platform.toolchain_host}",
-              "--build=#{platform.toolchain_build}",
+              "--host=#{platform.configure_host}",
+              "--build=#{platform.configure_build}",
               "--with-bugurl=#{Build::BUG_URL}",
               "--enable-targets=arm,mips,x86,aarch64",
               "--enable-optimized",
@@ -147,18 +147,25 @@ class Llvm < Tool
 
   def prepare_build_env(platform, libedit_dir, python_dir)
     cflags  = " -O2 -I#{libedit_dir}/include -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
-    ldflags = "-L#{libedit_dir}/lib -static-libstdc++ -static-libgcc"
-
     cflags += ' -fPIC' if platform.target_os == 'linux'
+
+    ldflags  = "-L#{libedit_dir}/lib -static-libgcc -static-libstdc++"
     ldflags += ' -static' if platform.target_os == 'windows'
 
+
     if platform.target_os == 'darwin'
-      # todo: build more recent toolchains
-      # Disable wchar support for libedit since it require recent C++11 support which we don't
-      # have yet in used x86_64-apple-darwin-4.9.2 prebuilt toolchain
-      cflags  += " -I#{platform.sysroot}/usr/include -DLLDB_EDITLINE_USE_WCHAR=0"
-      ldflags += " -L#{platform.sysroot}/usr/lib -Wl,-syslibroot,#{platform.sysroot} -mmacosx-version-min=10.6"
+      cflags  += " -I#{platform.sysroot}/usr/include"
+      # todo:
+      #ldflags += " -L#{platform.sysroot}/usr/lib -Wl,-syslibroot,#{platform.sysroot} -mmacosx-version-min=10.6"
     end
+
+    # if platform.target_os == 'darwin'
+    #   # todo: build more recent toolchains
+    #   # Disable wchar support for libedit since it require recent C++11 support which we don't
+    #   # have yet in used x86_64-apple-darwin-4.9.2 prebuilt toolchain
+    #   cflags  += " -I#{platform.sysroot}/usr/include -DLLDB_EDITLINE_USE_WCHAR=0"
+    #   ldflags += " -L#{platform.sysroot}/usr/lib -Wl,-syslibroot,#{platform.sysroot} -mmacosx-version-min=10.6"
+    # end
 
     if platform.target_os == 'windows'
       # lldb doesnt' support python and curses on Windows
@@ -168,11 +175,18 @@ class Llvm < Tool
       ldflags += " -L#{python_dir}/lib"
     end
 
-    cflags += ' ' + platform.cflags
+    # todo:
+    # cflags += ' ' + platform.cflags
+
+    python_home = (platform.target_os == 'darwin' and platform.cross_compile?) ? python_dir.gsub(/darwin/, 'linux') : python_dir
+
+    path = "#{platform.toolchain_path}:#{Build.path}"
+    path = "#{python_home}/bin:#{path}" unless platform.target_os == 'windows'
+
 
     build_env.clear
 
-    build_env['PATH']           = (platform.target_os == 'windows') ? Build.path : "#{python_dir}/bin:#{Build.path}"
+    build_env['PATH']           = path # (platform.target_os == 'windows') ? Build.path : "#{python_dir}/bin:#{Build.path}"
     build_env['LANG']           = 'C'
     build_env['CC']             = platform.cc
     build_env['CXX']            = platform.cxx
@@ -183,25 +197,25 @@ class Llvm < Tool
     build_env['LDFLAGS']        = ldflags
     build_env['REQUIRES_RTTI']  = '1'
     build_env['DARWIN_SYSROOT'] = platform.sysroot if platform.target_os == 'darwin'
-    build_env['PYTHONHOME']     = python_dir
+    build_env['PYTHONHOME']     = python_home
 
-    if platform.target_os == 'darwin'
-      # from build-llvm.sh:
-      #   For compilation LLDB's Objective-C++ sources we need use clang++, since g++ have a bug
-      #   not distinguishing between Objective-C call and definition of C++11 lambda:
-      #   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=57607
-      #   To workaround this, we're using prebuilt clang++
-      #   with includes from our g++, to keep binary compatibility of produced code
-      # todo:
-      #   build and use more modern gcc (5 or 6)
-      #   replace hardcoded versions: 4.9.3, 3.7.0
-      #
-      gcc_dir = Pathname.new(platform.cc).dirname.dirname
-      cxx_inc_dir = File.join(gcc_dir, 'include', 'c++', '4.9.3')
-      cxx_bits_inc = File.join(cxx_inc_dir, 'x86_64-apple-darwin')
-      objcxx = File.join(Build::PLATFORM_PREBUILTS_DIR, 'clang', 'darwin-x86', 'host', 'x86_64-apple-darwin-3.7.0', 'bin', 'clang++')
-      build_env['OBJCXX'] = "#{objcxx} -I#{cxx_bits_inc} -I#{cxx_inc_dir}"
-    end
+    # if platform.target_os == 'darwin'
+    #   # from build-llvm.sh:
+    #   #   For compilation LLDB's Objective-C++ sources we need use clang++, since g++ have a bug
+    #   #   not distinguishing between Objective-C call and definition of C++11 lambda:
+    #   #   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=57607
+    #   #   To workaround this, we're using prebuilt clang++
+    #   #   with includes from our g++, to keep binary compatibility of produced code
+    #   # todo:
+    #   #   build and use more modern gcc (5 or 6)
+    #   #   replace hardcoded versions: 4.9.3, 3.7.0
+    #   #
+    #   gcc_dir = Pathname.new(platform.cc).dirname.dirname
+    #   cxx_inc_dir = File.join(gcc_dir, 'include', 'c++', '4.9.3')
+    #   cxx_bits_inc = File.join(cxx_inc_dir, 'x86_64-apple-darwin')
+    #   objcxx = File.join(Build::PLATFORM_PREBUILTS_DIR, 'clang', 'darwin-x86', 'host', 'x86_64-apple-darwin-3.7.0', 'bin', 'clang++')
+    #   build_env['OBJCXX'] = "#{objcxx} -I#{cxx_bits_inc} -I#{cxx_inc_dir}"
+    # end
 
     # if platform.target_os == 'windows'
     #   build_env['PATH'] = "#{File.dirname(platform.cc)}:#{ENV['PATH']}"
