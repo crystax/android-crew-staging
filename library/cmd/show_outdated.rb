@@ -25,9 +25,9 @@ module Crew
           elsif File.ctime(formula.path) > File.ctime(archive)
             reason = 'outdated'
             true
-          elsif Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) != release.shasum
-            reason = 'SHA256 mismatch'
-            true
+          # elsif Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) != release.shasum
+          #   reason = 'SHA256 mismatch'
+          #   true
           else
             false
           end
@@ -44,9 +44,9 @@ module Crew
             elsif File.ctime(formula.path) > File.ctime(archive)
               reason = 'outdated'
               true
-            elsif Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) != release.shasum(platform.to_sym)
-              reason = 'SHA256 mismatch'
-              true
+            # elsif Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) != release.shasum(platform.to_sym)
+            #   reason = 'SHA256 mismatch'
+            #   true
             else
               false
             end
