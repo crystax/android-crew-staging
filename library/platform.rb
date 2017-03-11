@@ -6,6 +6,7 @@ class Platform
   MACOSX_VERSION_MIN = '10.6'
   TOOLCHAIN = { 'darwin/darwin' => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/darwin-x86/host/x86_64-apple-darwin-4.9.3/bin",
                                      tool_prefix:   '',
+                                     major_version: 4,
                                      gcc:           'gcc',
                                      gxx:           'g++',
                                      # no ld in darwin/gcc toolchain
@@ -17,6 +18,7 @@ class Platform
                                    },
                 'linux/linux'   => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/bin",
                                      tool_prefix:   'x86_64-linux-',
+                                     major_version: 4,
                                      gcc:           'gcc',
                                      gxx:           'g++',
                                      ld:            'ld',
@@ -26,8 +28,9 @@ class Platform
                                      nm:            'nm'
                                      # no windres
                                    },
-                'linux/darwin'  => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-apple-darwin10-6.3/bin",
+                'linux/darwin'  => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-apple-darwin10-4.9.4/bin",
                                      tool_prefix:   'x86_64-apple-darwin10-',
+                                     major_version: 4,
                                      gcc:           'gcc',
                                      gxx:           'g++',
                                      ld:            'ld',
@@ -37,8 +40,21 @@ class Platform
                                      nm:            'nm'
                                      # no windres
                                    },
+                # 'linux/darwin'  => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-apple-darwin10-6.3/bin",
+                #                      tool_prefix:   'x86_64-apple-darwin10-',
+                #                      major_version: 6,
+                #                      gcc:           'gcc',
+                #                      gxx:           'g++',
+                #                      ld:            'ld',
+                #                      ar:            'ar',
+                #                      ranlib:        'ranlib',
+                #                      strip:         'strip',
+                #                      nm:            'nm'
+                #                      # no windres
+                #                    },
                 'linux/windows' => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-w64-mingw32-4.9.3/bin",
                                      tool_prefix:   'x86_64-w64-mingw32-',
+                                     major_version: 4,
                                      gcc:           'gcc',
                                      gxx:           'g++',
                                      ld:            'ld',
@@ -67,8 +83,12 @@ class Platform
     @target_cpu = 'x86' if @target_cpu == nil
 
     os_pair = "#{@host_os}/#{@target_os}"
-    raise "unsupported host OS / target OS pair: #{os_pair}" unless TOOLCHAIN[os_pair]
+    #raise "unsupported host OS / target OS pair: #{os_pair}" unless TOOLCHAIN[os_pair]
+    # todo: use special toolchain class
     toolchain = TOOLCHAIN[os_pair]
+
+    return unless toolchain
+
     prefix = toolchain[:tool_prefix]
 
     @toolchain_path = toolchain[:tool_path]
@@ -125,7 +145,7 @@ class Platform
     @target_exe_ext = (@target_os == 'windows') ? '.exe' : ''
   end
 
-  def cross_compile
+  def cross_compile?
     host_os != target_os
   end
 
