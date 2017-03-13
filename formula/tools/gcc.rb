@@ -213,26 +213,28 @@ class Gcc < Tool
 
     build_env['CFLAGS'] += ' -static-libgcc -static-libstdc++'
     export_target_binutils install_dir(base_dir), arch
-    cflags_for_target = '-O2 -Os -g -DTARGET_POSIX_IO -fno-short-enums'
-    cxxflags_for_target = cflags_for_target
+    cflags_for_build = '-O2 -Os -g -DTARGET_POSIX_IO -fno-short-enums'
+    cxxflags_for_build = cflags_for_build
     case arch.name
     when 'x86', 'x86_64'
-      cflags_for_target += ' -fPIC'
+      cflags_for_build += ' -fPIC'
     when 'mips', 'mips64'
-      cflags_for_target += ' -fexceptions -fpic'
-      cxxflags_for_target += ' -frtti -fpic'
+      cflags_for_build += ' -fexceptions -fpic'
+      cxxflags_for_build += ' -frtti -fpic'
     end
-    build_env['CFLAGS_FOR_TARGET']   = cflags_for_target
-    build_env['CXXFLAGS_FOR_TARGET'] = cxxflags_for_target
+    build_env['CFLAGS_FOR_BUILD']   = cflags_for_build
+    build_env['CXXFLAGS_FOR_BUILD'] = cxxflags_for_build
 
     build_target   = ''
     install_target = 'install'
     if canadian_build? platform
       # todo: these flags should be added to CFLAGS, not _for_target?
-      # if platform.name == 'windows'
-      #   build_env['CFLAGS_FOR_BUILD']   += ' -m32'
-      #   build_env['CXXFLAGS_FOR_BUILD'] += ' -m32'
-      # end
+      # expr.c:(.text+0x2708): undefined reference to `__udivdi3'
+      if platform.name == 'windows'
+        build_env['CFLAGS_FOR_BUILD']   += ' -m32'
+        build_env['CXXFLAGS_FOR_BUILD'] += ' -m32'
+        #build_env['LDFLAGS_FOR_BUILD']   = ' -m32'
+      end
       build_env['PATH'] = "#{File.join(base_dir, 'host', 'install', 'bin')}:#{build_env['PATH']}"
       # When building canadian cross toolchain we cannot build GCC target libraries.
       # So we build the compilers only and copy the target libraries from
@@ -425,10 +427,11 @@ class Gcc < Tool
 
     if platform.target_os == 'windows'
       build_env['CFLAGS'] += ' -D__USE_MINGW_ANSI_STDIO=1'
-      build_env['CFLAGS'] += (platform.target_cpu == 'x86') ? ' -m32' : ' -m64'
       build_env['RC'] = platform.windres
-      # build_env['RC']  = "#{File.dirname(platform.cc)}/x86_64-w64-mingw32-windres"
-      # build_env['RC'] += ' -F pe-i386' if platform.target_cpu == 'x86'
+      if platform.target_cpu == 'x86'
+        build_env['CFLAGS'] += ' -m32'
+        #build_env['LDFLAGS'] = ' -m32'
+      end
     end
 
     build_env['CXXFLAGS'] = build_env['CFLAGS']
