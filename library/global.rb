@@ -106,7 +106,7 @@ module Global
   REPOSITORY_DIR         = Pathname.new(BASE_DIR).realpath
   PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
   FORMULA_DIR            = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
-  SRC_CACHE_DIR          = SRC_CACHE_BASE ? "#{SRC_CACHE_BASE}/crew-src-cache-#{ENV['USER']}" : Pathname.new(File.join(BASE_DIR, 'cache')).realpath
+  SRC_CACHE_DIR          = create_required_dir(SRC_CACHE_BASE ? "#{SRC_CACHE_BASE}/crew-src-cache-#{ENV['USER']}" : File.join(BASE_DIR, 'cache')).realpath.to_s
   PKG_CACHE_DIR          = "#{PKG_CACHE_BASE}/crew-pkg-cache-#{ENV['USER']}"
 
   EXE_EXT  = RUBY_PLATFORM =~ /mingw/ ? '.exe' : ''
