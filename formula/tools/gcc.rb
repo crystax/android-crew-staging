@@ -229,7 +229,7 @@ class Gcc < Tool
     install_target = 'install'
     if canadian_build? platform
       # todo: these flags should be added to CFLAGS, not _for_target?
-      # if platform.target_cpu == 'x86'
+      # if platform.name == 'windows'
       #   build_env['CFLAGS_FOR_BUILD']   += ' -m32'
       #   build_env['CXXFLAGS_FOR_BUILD'] += ' -m32'
       # end
@@ -413,17 +413,15 @@ class Gcc < Tool
 
   def prepare_build_environment(platform)
     build_env.clear
-    build_env['PATH']   = "#{platform.toolchain_path}:#{ENV['PATH']}"
-    build_env['LANG']   = 'C'
-    build_env['CC']     = platform.cc
-    build_env['CXX']    = platform.cxx
-    build_env['AR']     = platform.ar
-    build_env['RANLIB'] = platform.ranlib
-    build_env['CFLAGS'] = '-O2 -s -Wno-error'
+    build_env['PATH']    = "#{platform.toolchain_path}:#{ENV['PATH']}"
+    build_env['LANG']    = 'C'
+    build_env['CC']      = platform.cc
+    build_env['CXX']     = platform.cxx
+    build_env['AR']      = platform.ar
+    build_env['RANLIB']  = platform.ranlib
+    build_env['CFLAGS']  = '-O2 -s -Wno-error'
     # todo: do we need '-s' option?
     #build_env['CFLAGS']  += ' -s' if platform.compiler_major_version < 6
-
-    build_env['CXXFLAGS'] = build_env['CFLAGS']
 
     if platform.target_os == 'windows'
       build_env['CFLAGS'] += ' -D__USE_MINGW_ANSI_STDIO=1'
@@ -432,6 +430,8 @@ class Gcc < Tool
       # build_env['RC']  = "#{File.dirname(platform.cc)}/x86_64-w64-mingw32-windres"
       # build_env['RC'] += ' -F pe-i386' if platform.target_cpu == 'x86'
     end
+
+    build_env['CXXFLAGS'] = build_env['CFLAGS']
   end
 
   # here we do what ./build/tools/gen-platforms.sh --minimal does
