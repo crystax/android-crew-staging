@@ -81,6 +81,9 @@ The ENV command supports the following options:
 --pkg-cache-dir  output path to the directory used as
                  a cache for crew packages
 
+--src-cache-dir  output path to the directory used as
+                 a cache for sources for the crew packages
+
 EOS
 
 LIST_HELP = <<-EOS

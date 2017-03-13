@@ -90,6 +90,7 @@ module Global
 
   DOWNLOAD_BASE  = [nil, ''].include?(ENV['CREW_DOWNLOAD_BASE'])  ? "https://crew.crystax.net:9876"                      : ENV['CREW_DOWNLOAD_BASE']
   PKG_CACHE_BASE = [nil, ''].include?(ENV['CREW_PKG_CACHE_BASE']) ? "/var/tmp"                                           : ENV['CREW_PKG_CACHE_BASE']
+  SRC_CACHE_BASE = [nil, ''].include?(ENV['CREW_SRC_CACHE_BASE']) ? nil                                                  : ENV['CREW_SRC_CACHE_BASE']
   BASE_DIR       = [nil, ''].include?(ENV['CREW_BASE_DIR'])       ? Pathname.new(__FILE__).realpath.dirname.dirname.to_s : Pathname.new(ENV['CREW_BASE_DIR']).realpath.to_s
   NDK_DIR        = [nil, ''].include?(ENV['CREW_NDK_DIR'])        ? Pathname.new(BASE_DIR).realpath.dirname.to_s         : Pathname.new(ENV['CREW_NDK_DIR']).realpath.to_s
   TOOLS_DIR      = def_tools_dir(NDK_DIR, OS)
@@ -105,8 +106,8 @@ module Global
   REPOSITORY_DIR         = Pathname.new(BASE_DIR).realpath
   PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
   FORMULA_DIR            = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
-  SRC_CACHE_DIR          = Pathname.new(File.join(BASE_DIR, 'cache')).realpath
-  PKG_CACHE_DIR          = "#{PKG_CACHE_BASE}/crew-cache-#{ENV['USER']}"
+  SRC_CACHE_DIR          = SRC_CACHE_BASE ? "#{SRC_CACHE_BASE}/crew-src-cache-#{ENV['USER']}" : Pathname.new(File.join(BASE_DIR, 'cache')).realpath
+  PKG_CACHE_DIR          = "#{PKG_CACHE_BASE}/crew-pkg-cache-#{ENV['USER']}"
 
   EXE_EXT  = RUBY_PLATFORM =~ /mingw/ ? '.exe' : ''
   ARCH_EXT = 'tar.xz'
