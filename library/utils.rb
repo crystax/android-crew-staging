@@ -126,7 +126,7 @@ module Utils
                                         privatekey: File.expand_path("~/.ssh/id_rsa"))
     when /https:\/\/git\.crystax\.net/
       # when we run on the CI machine GITLAB_USERNAME and GITLAB_PASSWORD env vars must be set
-      if [nil, ''].include? ENV['GITLAB_USERNAME']
+      unless [nil, ''].include? ENV['GITLAB_USERNAME']
         Rugged::Credentials::UserPassword.new(username: ENV['GITLAB_USERNAME'], password: ENV['GITLAB_PASSWORD'])
       else
         nil
