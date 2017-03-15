@@ -198,13 +198,15 @@ class Package < TargetBase
       Build.gen_compiler_wrapper cc, c_comp, toolchain, build_options, '', ldflags_wrapper_arg
     end
 
-    @build_env = {'CC'      => cc,
-                  'CPP'     => "#{cc} #{cflags} -E",
-                  'AR'      => ar,
-                  'RANLIB'  => ranlib,
-                  'READELF' => readelf,
-                  'CFLAGS'  => cflags,
-                  'LDFLAGS' => ldflags
+    @build_env = {'LANG'        => 'C',
+                  'LC_MESSAGES' => 'C',
+                  'CC'          => cc,
+                  'CPP'         => "#{cc} #{cflags} -E",
+                  'AR'          => ar,
+                  'RANLIB'      => ranlib,
+                  'READELF'     => readelf,
+                  'CFLAGS'      => cflags,
+                  'LDFLAGS'     => ldflags
                  }
 
     if build_options[:use_cxx]
