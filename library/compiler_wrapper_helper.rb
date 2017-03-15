@@ -28,11 +28,10 @@ end
 
 def fix_soname(args)
   next_param_is_libname = false
-  regex = /.*(lib[a-zA-z_]+)(\d*).so/
   args.each_index do |i|
     if next_param_is_libname
       puts "args[#{i}] = #{args[i]}"
-      libname = regex.match(args[i])[1]
+      libname = extract_libname(args[i])
       args[i] = "-Wl,#{libname}.so"
       next_param_is_libname = false
     else
@@ -42,11 +41,32 @@ def fix_soname(args)
         next_param_is_libname = true
       when /-Wl,-soname,lib.*|-Wl,-h,lib.*/
         puts "args[#{i}] = #{args[i]}"
-        libname = regex.match(args[i])[1]
+        libname = extract_libname(args[i])
         args[i] = "-Wl,-soname,-l#{libname}.so"
       end
     end
   end
+end
+
+def extract_libname(s)
+  regex1 = /.*(lib[a-zA-z_]+)(\d*).so/
+  regex2 = /.*(lib[a-zA-z_]+)(\d*)([a-zA-z_]+).so/
+
+  # to cover cases like libpng16.so
+  m = regex1.match(s)
+  if m
+    libname = m[1]
+    return libname
+  end
+
+  # to cover cases like libicui18n.so.57
+  m = regex2.match(s)
+  if m
+    libname = m[1] + m[2] + m[3]
+    return libname
+  end
+
+  raise "do not know how to handle libname: #{s}"
 end
 
 def remove_args(args, toremove)
