@@ -32,9 +32,9 @@ class Python < Package
     build_dir
   end
 
-  # def post_build(pkg_dir, release)
-  #   gen_android_mk pkg_dir, release
-  # end
+  def post_build(pkg_dir, release)
+    gen_android_mk pkg_dir, release
+  end
 
   attr_reader :install_include_dir, :install_frozen_include_dir
   attr_reader :pybin_install_shared_dir, :pybin_install_shared_libs_dir, :pybin_install_shared_modules_dir
@@ -258,22 +258,36 @@ class Python < Package
     major_ver == 2 ? "cpython-#{python_abi}m" : nil
   end
 
-  # def gen_android_mk(pkg_dir, release)
-  #   v = release.version.split('.')
-  #   vs = v[0] +'.' + v[1]
-  #   vs += 'm' if (v[0].to_i > 2)
-  #   File.open("#{pkg_dir}/Android.mk", "w") do |f|
-  #     f.puts Build::COPYRIGHT_STR
-  #     f.puts ''
-  #     f.puts 'LOCAL_PATH := $(call my-dir)'
-  #     f.puts ''
-  #     f.puts 'include $(CLEAR_VARS)'
-  #     f.puts 'LOCAL_MODULE := python_shared'
-  #     f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/libpython#{vs}.so"
-  #     f.puts 'LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include/python'
-  #     f.puts 'include $(PREBUILT_SHARED_LIBRARY)'
-  #   end
-  # end
+  def gen_android_mk(pkg_dir, release)
+    formulary = Formulary.new
+    openssl_rel = formulary['target/openssl'].highest_installed_release
+    sqlite_rel  = formulary['target/sqlite'].highest_installed_release
+
+    v = release.version.split('.')
+    vs = v[0] +'.' + v[1]
+    vs += 'm' if (v[0].to_i > 2)
+
+    File.open("#{pkg_dir}/Android.mk", "w") do |f|
+      f.puts Build::COPYRIGHT_STR
+      f.puts ''
+      f.puts "# bdc: openssl #{openssl_rel}"
+      f.puts "# bdc: sqlite  #{sqlite_rel}"
+      f.puts ''
+      f.puts 'LOCAL_PATH := $(call my-dir)'
+      f.puts ''
+      f.puts 'include $(CLEAR_VARS)'
+      f.puts 'LOCAL_MODULE := python_shared'
+      f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/libpython#{vs}.so"
+      f.puts 'LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include/python'
+      f.puts 'include $(PREBUILT_SHARED_LIBRARY)'
+      f.puts ''
+      f.puts 'include $(CLEAR_VARS)'
+      f.puts 'LOCAL_MODULE := python_static'
+      f.puts "LOCAL_SRC_FILES := static/libs/$(TARGET_ARCH_ABI)/libpython#{vs}.a"
+      f.puts 'LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include/python'
+      f.puts 'include $(PREBUILT_STATIC_LIBRARY)'
+    end
+  end
 
   def gen_core_android_mk(dir, src_dir, core_type)
     filename = File.join(dir, 'Android.mk')
