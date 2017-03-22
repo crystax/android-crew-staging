@@ -20,9 +20,15 @@ class Python < Package
     FileUtils.mkdir_p build_dir
     FileUtils.cp_r "#{src_dir}/.", build_dir
 
-    Build.gen_host_compiler_wrapper "#{build_dir}/gcc", 'gcc'
-    Build.gen_host_compiler_wrapper "#{build_dir}/g++", 'g++'
+    gcc_path = "#{build_dir}/gcc"
+    gxx_path = "#{build_dir}/g++"
+
+    Build.gen_host_compiler_wrapper gcc_path, 'gcc'
+    Build.gen_host_compiler_wrapper gxx_path, 'g++'
+
     build_env['PATH'] = "#{build_dir}:#{ENV['PATH']}"
+    build_env['CC']   = gcc_path
+    build_env['CXX']  = gxx_path
 
     FileUtils.cd(build_dir) do
       system './configure'
@@ -89,8 +95,13 @@ class Python < Package
     #
     # Step 2: build shared and static python-core
     #
-    py_c_getpath     = "#{support_dir}/getpath.c.#{python_abi}"
-    py_c_frozen      = "#{support_dir}/frozen.c.#{python_abi}"
+    if major_ver == 2
+      py_c_getpath = "#{support_dir}/getpath.c.#{python_abi}"
+      py_c_frozen  = "#{support_dir}/frozen.c.#{python_abi}"
+    else
+      py_c_getpath = "#{support_dir}/getpath.c.3.x"
+      py_c_frozen  = "#{support_dir}/frozen.c.3.x"
+    end
     py_c_config_file = "#{support_dir}/config.c.#{python_abi}"
     pyconfig_h_file  = "#{support_dir}/pyconfig.h"
     pyconfig_for_abi = "pyconfig_#{abi.gsub('-', '_')}.h"
@@ -332,13 +343,17 @@ class Python < Package
       f.puts 'include $(CLEAR_VARS)'
       f.puts 'LOCAL_MODULE := python'
       f.puts 'LOCAL_SRC_FILES := interpreter.c'
-      f.puts "LOCAL_C_INCLUDES := #{install_include_dir}"
-      f.puts "LOCAL_LDFLAGS := -L #{pybin_install_shared_libs_dir}"
-      f.puts "LOCAL_LDLIBS := -lpython#{python_abi} -lz"
+      # todo: remove commented lines
+      #f.puts "LOCAL_C_INCLUDES := #{install_include_dir}"
+      #f.puts "LOCAL_LDFLAGS := -L #{pybin_install_shared_libs_dir}"
+      #f.puts "LOCAL_LDLIBS := -lpython#{python_abi_as_lib_suffix} -lz"
+      f.puts 'LOCAL_SHARED_LIBRARIES := python_shared'
+      f.puts "LOCAL_LDLIBS := -lz"
       f.puts 'include $(BUILD_EXECUTABLE)'
+      # todo: remove commented lines
       # we can't include modules that is part of the package we're building
-      #f.puts 'LOCAL_STATIC_LIBRARIES := python_shared'
       #f.puts "$(call import-module,python/#{python_abi})"
+      f.puts python_shared_section
     end
   end
 
@@ -612,9 +627,11 @@ class Python < Package
       options[:libraries].each { |l| libs += ' ' + l }
       case options[:module_type]
       when :shared
-        f.puts "LOCAL_SHARED_LIBRARIES := #{libs}" if libs.size > 0
-        f.puts "LOCAL_LDFLAGS := -L #{pybin_install_shared_libs_dir}"
-        f.puts "LOCAL_LDLIBS := -lpython#{python_abi}"
+        f.puts 'LOCAL_SHARED_LIBRARIES := python_shared'
+        f.puts "LOCAL_SHARED_LIBRARIES += #{libs}" if libs.size > 0
+        # todo: remove commented lines
+        # f.puts "LOCAL_LDFLAGS := -L #{pybin_install_shared_libs_dir}"
+        # f.puts "LOCAL_LDLIBS := -lpython#{python_abi}"
         f.puts 'include $(BUILD_SHARED_LIBRARY)'
       when :static
         f.puts "LOCAL_STATIC_LIBRARIES := #{libs}" if libs.size > 0
@@ -623,6 +640,8 @@ class Python < Package
         raise "unsupport module type: #{options[:module_type]}"
       end
       #
+      f.puts python_shared_section if options[:module_type] == :shared
+
       options[:imports].each { |im| f.puts "$(call import-module,#{im})" }
     end
   end
@@ -641,7 +660,7 @@ class Python < Package
       File.open(filename, 'w') do |f|
         f.puts '#pragma once'
         f.puts ''
-        if major_ver = 2
+        if major_ver == 2
           f.puts "extern void init#{module_name}(void);"
         else
           f.puts '#include <Python.h>'
@@ -693,7 +712,7 @@ class Python < Package
       f.puts ''
       f.puts 'include $(CLEAR_VARS)'
       f.puts 'LOCAL_MODULE := python_static'
-      f.puts "LOCAL_SRC_FILES := #{pybin_install_static_libs_dir}/libpython#{python_abi}.a"
+      f.puts "LOCAL_SRC_FILES := #{pybin_install_static_libs_dir}/libpython#{python_abi_as_lib_suffix}.a"
       f.puts "LOCAL_EXPORT_C_INCLUDES := #{install_include_dir}"
       f.puts 'include $(PREBUILT_STATIC_LIBRARY)'
       f.puts ''
@@ -716,6 +735,10 @@ class Python < Package
     end
   end
 
+  def python_abi_as_lib_suffix
+    (major_ver == 2) ? python_abi : "#{python_abi}m"
+  end
+
   # take two last components of the path
   def import_module_path(path)
     v = path.split('/')
@@ -731,5 +754,16 @@ class Python < Package
     else
       raise "unsupported abi: #{abi}"
     end
+  end
+
+  def python_shared_section
+    # could not use constant here since pybin_install_shared_libs_dir, etc
+    # gets defined only in build_for_abi method
+    "\n"                                                                                            +
+    "include $(CLEAR_VARS)\n"                                                                       +
+    "LOCAL_MODULE := python_shared\n"                                                               +
+    "LOCAL_SRC_FILES := #{pybin_install_shared_libs_dir}/libpython#{python_abi_as_lib_suffix}.so\n" +
+    "LOCAL_EXPORT_C_INCLUDES := #{install_include_dir}\n"                                           +
+    "include $(PREBUILT_SHARED_LIBRARY)\n"
   end
 end
