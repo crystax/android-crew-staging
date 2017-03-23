@@ -115,6 +115,8 @@ class Package < TargetBase
     @log_file = build_log_file
     @num_jobs = options.num_jobs
 
+    build_env.clear
+
     if self.respond_to? :pre_build
       print "= executing pre build step: "
       @pre_build_result = pre_build(src_dir, release)
