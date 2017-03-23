@@ -9,26 +9,38 @@ class Python < Package
 
   depends_on 'sqlite'
   depends_on 'openssl'
+  build_depends_on 'python', ns: :host
 
   build_copy 'LICENSE'
   build_options sysroot_in_cflags:   false,
                 copy_installed_dirs: [],
                 gen_android_mk:      false
 
-  def pre_build(src_dir, _release)
+  def pre_build(src_dir, release)
     build_dir = "#{build_base_dir}/native"
     FileUtils.mkdir_p build_dir
     FileUtils.cp_r "#{src_dir}/.", build_dir
 
-    gcc_path = "#{build_dir}/gcc"
-    gxx_path = "#{build_dir}/g++"
+    # use system compiler on darwin to build 3.5.1
+    # prebuilt gcc builds python that fails to run
+    unless Global::OS == 'darwin' and release.version == '3.5.1'
+      gcc_path = "#{build_dir}/gcc"
+      gxx_path = "#{build_dir}/g++"
 
-    Build.gen_host_compiler_wrapper gcc_path, 'gcc'
-    Build.gen_host_compiler_wrapper gxx_path, 'g++'
+      Build.gen_host_compiler_wrapper gcc_path, 'gcc'
+      Build.gen_host_compiler_wrapper gxx_path, 'g++'
 
-    build_env['PATH'] = "#{build_dir}:#{ENV['PATH']}"
-    build_env['CC']   = gcc_path
-    build_env['CXX']  = gxx_path
+      build_env['PATH'] = "#{build_dir}:#{ENV['PATH']}"
+      build_env['CC']   = gcc_path
+      build_env['CXX']  = gxx_path
+
+      platform = Platform.new(Global::PLATFORM_NAME)
+
+      if platform.target_os == 'darwin'
+        build_env['DARWIN_SYSROOT'] = platform.sysroot
+        build_env['MACOSX_DEPLOYMENT_TARGET'] = '10.6'
+      end
+    end
 
     FileUtils.cd(build_dir) do
       system './configure'
@@ -49,7 +61,6 @@ class Python < Package
   attr_reader :major_ver, :python_abi
 
   def build_for_abi(abi, toolchain, release, _host_dep_dirs, target_dep_dirs)
-    #install_dir = install_dir_for_abi(abi)
     src_dir = build_dir_for_abi(abi)
     build_dir = "#{src_dir}/build"
 
@@ -78,7 +89,7 @@ class Python < Package
     python_for_build = "#{pre_build_result}/python"
     build_env['CONFIG_SITE'] = config_site
     build_env['PYTHON_FOR_BUILD'] = python_for_build
-    build_env['PGEN_FOR_BUILD'] = "#{pre_build_result}/Parser/pgen"
+    #build_env['PGEN_FOR_BUILD'] = "#{pre_build_result}/Parser/pgen"
 
     args = ["--prefix=#{build_config_dir}/install",
             "--host=#{host_for_abi(abi)}",
@@ -211,7 +222,6 @@ class Python < Package
     # Step 6: build python modules
     #
     FileUtils.mkdir_p pybin_install_shared_modules_dir
-    # todo: what version to use?
     openssl_dir = import_module_path(target_dep_dirs['openssl'])
     sqlite_dir = import_module_path(target_dep_dirs['sqlite'])
     #
@@ -343,16 +353,9 @@ class Python < Package
       f.puts 'include $(CLEAR_VARS)'
       f.puts 'LOCAL_MODULE := python'
       f.puts 'LOCAL_SRC_FILES := interpreter.c'
-      # todo: remove commented lines
-      #f.puts "LOCAL_C_INCLUDES := #{install_include_dir}"
-      #f.puts "LOCAL_LDFLAGS := -L #{pybin_install_shared_libs_dir}"
-      #f.puts "LOCAL_LDLIBS := -lpython#{python_abi_as_lib_suffix} -lz"
       f.puts 'LOCAL_SHARED_LIBRARIES := python_shared'
       f.puts "LOCAL_LDLIBS := -lz"
       f.puts 'include $(BUILD_EXECUTABLE)'
-      # todo: remove commented lines
-      # we can't include modules that is part of the package we're building
-      #f.puts "$(call import-module,python/#{python_abi})"
       f.puts python_shared_section
     end
   end
@@ -629,9 +632,6 @@ class Python < Package
       when :shared
         f.puts 'LOCAL_SHARED_LIBRARIES := python_shared'
         f.puts "LOCAL_SHARED_LIBRARIES += #{libs}" if libs.size > 0
-        # todo: remove commented lines
-        # f.puts "LOCAL_LDFLAGS := -L #{pybin_install_shared_libs_dir}"
-        # f.puts "LOCAL_LDLIBS := -lpython#{python_abi}"
         f.puts 'include $(BUILD_SHARED_LIBRARY)'
       when :static
         f.puts "LOCAL_STATIC_LIBRARIES := #{libs}" if libs.size > 0
