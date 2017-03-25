@@ -5,6 +5,7 @@ require_relative '../build.rb'
 ENV_SYNTAX           = 'env [options]'.freeze
 LIST_SYNTAX          = 'list [options] [name1 name2 ...]'.freeze
 INSTALL_SYNTAX       = 'install [options] name[:version] ...'.freeze
+SOURCE_SYNTAX        = 'source [options] name[:version] ...'.freeze
 BUILD_SYNTAX         = 'build [options] name[:version] ...'.freeze
 SHASUM_SYNTAX        = 'shasum [options] [name1 name2 ...]'.freeze
 SHOW_OUTDATED_SYNTAX = 'show-outdated [options] [name1 name2 ...]'.freeze
@@ -53,7 +54,7 @@ COMMAND is one of the following:
                   install the specified formula(s)
   remove name[:version] ...
                   uninstall the specified formulas
-  source name[:version] ...
+  #{SOURCE_SYNTAX}
                   install source code for the specified formula(s)
   #{BUILD_SYNTAX}
                   build the specified formula(s) from the source code
@@ -101,7 +102,7 @@ Filters:
 EOS
 
 INSTALL_HELP = <<-EOS
-             #{INSTALL_SYNTAX}
+#{INSTALL_SYNTAX}
 
 #{NAME_RULES}
 
@@ -123,6 +124,17 @@ The INSTALL command support the following options:
 --force          install even if specified formula(s) installed
 
 --all-versions   install all version of the specified formula(s)
+EOS
+
+SOURCE_HELP = <<-EOS
+#{SOURCE_SYNTAX}
+
+#{NAME_RULES}
+
+The SOURCE command support the following options:
+
+--all-versions   install source code for all version of the specified
+                 formula(s)
 EOS
 
 BUILD_HELP = <<-EOS
@@ -224,7 +236,7 @@ CMD_HELP = {
   'info'          => NO_HELP,
   'install'       => INSTALL_HELP,
   'remove'        => NO_HELP,
-  'source'        => NO_HELP,
+  'source'        => SOURCE_HELP,
   'build'         => BUILD_HELP,
   'remove-source' => NO_HELP,
   'update'        => NO_HELP,
