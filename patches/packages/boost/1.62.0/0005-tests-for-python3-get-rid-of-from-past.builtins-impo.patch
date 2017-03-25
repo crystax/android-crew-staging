@@ -1,0 +1,40 @@
+From 0472ab732733db1e7278b5cdca2c6c7af3da0cc6 Mon Sep 17 00:00:00 2001
+From: vmurashev <vitaly.murashev@gmail.com>
+Date: Mon, 19 Dec 2016 21:02:32 +0300
+Subject: [PATCH 3/3] tests for python3 - get rid of 'from past.builtins import
+ long'
+
+---
+ libs/python/test/long.py                    | 2 +-
+ libs/python/test/test_builtin_converters.py | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libs/python/test/long.py b/libs/python/test/long.py
+index 3e5881d..f639236 100644
+--- a/libs/python/test/long.py
++++ b/libs/python/test/long.py
+@@ -3,7 +3,7 @@
+ # file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+ import sys
+ if (sys.version_info.major >= 3):
+-    from past.builtins import long
++    long = int
+ '''
+ >>> from long_ext import *
+ >>> print(new_long())
+diff --git a/libs/python/test/test_builtin_converters.py b/libs/python/test/test_builtin_converters.py
+index c3191d9..fb3c55c 100644
+--- a/libs/python/test/test_builtin_converters.py
++++ b/libs/python/test/test_builtin_converters.py
+@@ -3,7 +3,7 @@
+ # file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+ import sys
+ if (sys.version_info.major >= 3):
+-    from past.builtins import long
++    long = int
+ r"""
+ >>> from builtin_converters_ext import *
+ 
+-- 
+2.9.3
+

@@ -6,6 +6,9 @@ class Boost < Package
 
   release version: '1.62.0', crystax_version: 1, sha256: '0'
 
+  # todo: add versions, like this: python:2.7.*, python:3.*.*
+  depends_on 'python'
+
   build_options setup_env:            false,
                 copy_installed_dirs:  [],
                 gen_android_mk:       false,
@@ -13,6 +16,7 @@ class Boost < Package
                 wrapper_replace_args: { '-dynamiclib' => '-shared', '-undefined' => '-u' }
 
   build_copy 'LICENSE_1_0.txt'
+  # todo: build libs list automatically?
   build_libs 'atomic',
              'chrono',
              'container',
@@ -34,9 +38,8 @@ class Boost < Package
              'math_tr1l',
              'prg_exec_monitor',
              'program_options',
-             # todo: python
-             #'python',
-             #'python3',
+             'python',
+             'python3',
              'random',
              'regex',
              'serialization',
@@ -88,14 +91,12 @@ class Boost < Package
                     "architecture=#{bjam_arch}",
                     "abi=#{bjam_abi}",
                     "--user-config=user-config.jam",
-                    "--layout=system",
-                    without_libs(release, arch).map { |lib| "--without-#{lib}" },
-             "install"
-           ].flatten
+                    "--layout=system"
+                  ]
 
-    #[Toolchain::GCC_4_9].each do |toolchain|
+    [Toolchain::GCC_4_9].each do |toolchain|
     #[Toolchain::LLVM_3_6].each do |toolchain|
-    Build::TOOLCHAIN_LIST.each do |toolchain|
+    #Build::TOOLCHAIN_LIST.each do |toolchain|
       stl_name = toolchain.stl_name
       puts "    using C++ standard library: #{stl_name}"
       # todo: copy sources for every toolchain
@@ -109,8 +110,7 @@ class Boost < Package
       build_env['PATH'] = "#{work_dir}:#{ENV['PATH']}"
       system './bootstrap.sh',  "--with-toolset=cc"
 
-      gen_project_config_jam src_dir, arch, abi, stl_name
-      gen_user_config_jam    src_dir
+      gen_user_config_jam src_dir
 
       build_env.clear
       cxx = "#{build_dir_for_abi(abi)}/#{toolchain.cxx_compiler_name}"
@@ -119,22 +119,42 @@ class Boost < Package
                  toolchain.search_path_for_stl_includes(abi) + ' ' +
                  '-fPIC -Wno-long-long'
 
-      ldflags  = { before: toolchain.ldflags(abi) + ' ' +
-                           "--sysroot=#{Build.sysroot(abi)}" + ' ' +
-                           toolchain.search_path_for_stl_libs(abi),
-                   after:  "-l#{toolchain.stl_lib_name}_shared"
-                 }
-
-      Build.gen_compiler_wrapper cxx, toolchain.cxx_compiler(arch, abi), toolchain, build_options, cxxflags, ldflags
-      #['as', 'ar', 'ranlib', 'strip'].each { |tool| Build.gen_tool_wrapper build_dir_for_abi(abi), tool, toolchain, arch }
-
       build_env['PATH'] = "#{src_dir}:#{ENV['PATH']}"
 
-      build_dir = "#{work_dir}/build"
+      # build without python
       prefix_dir = "#{work_dir}/install"
-      args = common_args + ["--prefix=#{prefix_dir}", "--build-dir=#{build_dir}"]
+      build_dir = "#{work_dir}/build"
+      ldflags = { before: "#{toolchain.ldflags(abi)} --sysroot=#{Build.sysroot(abi)} #{toolchain.search_path_for_stl_libs(abi)}",
+                  after:  "-l#{toolchain.stl_lib_name}_shared"
+                }
+      gen_project_config_jam src_dir, arch, abi, stl_name, { ver: :none }
+      Build.gen_compiler_wrapper cxx, toolchain.cxx_compiler(arch, abi), toolchain, build_options, cxxflags, ldflags
+      puts "      building boost libraries"
+      args = common_args + [' --without-python', "--build-dir=#{build_dir}", "--prefix=#{prefix_dir}", "--user-config=#{src_dir}/user-config.jam"]
+      system "#{src_dir}/b2", *args, 'install'
 
-      system './b2', *args
+      # build python libs
+      python_versions.each do |py_ver|
+        py_dir = "#{Global::HOLD_DIR}/python/#{py_ver}"
+        py_lib_dir = "#{py_dir}/shared/#{abi}/libs"
+        ldflags[:after] = "-L#{py_lib_dir} -l#{python_lib_name(py_ver)} " + ldflags[:after]
+        Build.gen_compiler_wrapper cxx, toolchain.cxx_compiler(arch, abi), toolchain, build_options, cxxflags, ldflags
+        py_data = { ver:     py_ver,
+                    abi:     python_abi(py_ver),
+                    dir:     py_dir,
+                    lib_dir: py_lib_dir,
+                    inc_dir: "#{py_dir}/include/python"
+                  }
+        gen_project_config_jam src_dir, arch, abi, stl_name, py_data
+        args = common_args + ["--build-dir=#{build_dir}-#{py_ver}", "--prefix=#{prefix_dir}-#{py_ver}", "--user-config=#{src_dir}/user-config.jam"]
+        #
+        FileUtils.cd("#{src_dir}/libs/python/build") do
+          puts "      building python library for python #{py_ver}"
+          system "#{src_dir}/b2", *args, 'install'
+        end
+        #
+        Dir["#{prefix_dir}-#{py_ver}/lib/*"].each { |p| FileUtils.copy_entry p, "#{prefix_dir}/lib/#{File.basename(p)}" }
+      end
 
       # find and store dependencies for the built libraries
       Dir["#{prefix_dir}/lib/*.so"].each do |lib|
@@ -190,33 +210,31 @@ class Boost < Package
     exclude = {}
     major, minor, _ = release.version.split('.').map { |a| a.to_i }
 
-    # Boost.Context in 1.61.0 and earlier don't support mips64
-    if major == 1 and minor <= 61
-      exclude['context'] = ['mips64']
-    end
+    # # Boost.Context in 1.61.0 and earlier don't support mips64
+    # if major == 1 and minor <= 61
+    #   exclude['context'] = ['mips64']
+    # end
 
-    # Boost.Coroutine depends on Boost.Context
-    if archs = exclude['context']
-      exclude['coroutine'] = archs
-      # Starting from 1.59.0, there is Boost.Coroutine2 library, which depends on Boost.Context too
-      if major == 1 and minor >= 59
-        exclude['coroutine2'] = archs
-      end
-    end
+    # # Boost.Coroutine depends on Boost.Context
+    # if archs = exclude['context']
+    #   exclude['coroutine'] = archs
+    #   # Starting from 1.59.0, there is Boost.Coroutine2 library, which depends on Boost.Context too
+    #   if major == 1 and minor >= 59
+    #     exclude['coroutine2'] = archs
+    #   end
+    # end
 
     exclude
   end
 
-  def gen_project_config_jam(dir, arch, abi, stl_name)
-    # todo: handle python
-    python_version = '3.5'
-    python_dir = "#{Global::NDK_DIR}/sources/python/#{python_version}"
-
+  def gen_project_config_jam(dir, arch, abi, stl_name, python_data)
     File.open("#{dir}/project-config.jam", 'w') do |f|
       f.puts "import option ;"
       f.puts "import feature ;"
-      f.puts "import python ;"
-      f.puts "using python : #{python_version} : #{python_dir} : #{python_dir}/include/python : #{python_dir}/libs/#{abi} ;"
+      unless python_data[:ver] == :none
+        #f.puts "import python ;" unless python_data[:ver] =~ /^2\..*/
+        f.puts "using python : #{python_data[:abi]} : #{python_data[:dir]} : #{python_data[:inc_dir]} : #{python_data[:lib_dir]} : <target-os>android ;"
+      end
       case stl_name
       when /^gnu-/
         f.puts "using gcc : #{arch.name} : g++ ;"
@@ -299,5 +317,27 @@ class Boost < Package
         f.puts ''
       end
     end
+  end
+
+  def python_versions
+    # todo: get last versions for 2.* and 3.*
+    ['2.7.11', '3.5.1']
+  end
+
+  def python_lib_name(ver)
+    abi = python_abi(ver)
+    case abi
+    when /^2\..*/
+      "python#{abi}"
+    when /^3\..*/
+      "python#{abi}m"
+    else
+      raise "unsupported python version: #{ver}"
+    end
+  end
+
+  def python_abi(ver)
+    v = ver.split('.')
+    "#{v[0]}.#{v[1]}"
   end
 end
