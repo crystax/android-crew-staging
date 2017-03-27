@@ -64,6 +64,7 @@ class Boost < Package
 
   def post_build(pkg_dir, release)
     gen_android_mk pkg_dir, release
+    nil
   end
 
   def build_for_abi(abi, toolchain, release, _host_dep_dirs, _target_dep_dirs)
@@ -78,6 +79,8 @@ class Boost < Package
     arch = Build.arch_for_abi(abi)
     bjam_arch, bjam_abi = bjam_data(arch)
 
+    src_dir = build_dir_for_abi(abi)
+
     common_args = [ "-d+2",
                     "-q",
                     "-j#{num_jobs}",
@@ -90,17 +93,19 @@ class Boost < Package
                     "address-model=#{arch.num_bits}",
                     "architecture=#{bjam_arch}",
                     "abi=#{bjam_abi}",
-                    "--user-config=user-config.jam",
-                    "--layout=system"
-                  ]
+                    "--user-config=#{src_dir}/user-config.jam",
+                    "--layout=system",
+                    "--without-mpi",
+                    without_libs(release, arch).map { |lib| "--without-#{lib}" }
+                  ].flatten
 
-    [Toolchain::GCC_4_9].each do |toolchain|
+    #[Toolchain::GCC_4_9].each do |toolchain|
+    [Toolchain::GCC_6].each do |toolchain|
     #[Toolchain::LLVM_3_6].each do |toolchain|
     #Build::TOOLCHAIN_LIST.each do |toolchain|
       stl_name = toolchain.stl_name
       puts "    using C++ standard library: #{stl_name}"
       # todo: copy sources for every toolchain
-      src_dir = build_dir_for_abi(abi)
       work_dir = "#{src_dir}/#{stl_name}"
       host_tc_dir = "#{work_dir}/host-bin"
       FileUtils.mkdir_p host_tc_dir
@@ -130,7 +135,7 @@ class Boost < Package
       gen_project_config_jam src_dir, arch, abi, stl_name, { ver: :none }
       Build.gen_compiler_wrapper cxx, toolchain.cxx_compiler(arch, abi), toolchain, build_options, cxxflags, ldflags
       puts "      building boost libraries"
-      args = common_args + [' --without-python', "--build-dir=#{build_dir}", "--prefix=#{prefix_dir}", "--user-config=#{src_dir}/user-config.jam"]
+      args = common_args + [' --without-python', "--build-dir=#{build_dir}", "--prefix=#{prefix_dir}"]
       system "#{src_dir}/b2", *args, 'install'
 
       # build python libs
@@ -146,7 +151,7 @@ class Boost < Package
                     inc_dir: "#{py_dir}/include/python"
                   }
         gen_project_config_jam src_dir, arch, abi, stl_name, py_data
-        args = common_args + ["--build-dir=#{build_dir}-#{py_ver}", "--prefix=#{prefix_dir}-#{py_ver}", "--user-config=#{src_dir}/user-config.jam"]
+        args = common_args + ["--build-dir=#{build_dir}-#{py_ver}", "--prefix=#{prefix_dir}-#{py_ver}"]
         #
         FileUtils.cd("#{src_dir}/libs/python/build") do
           puts "      building python library for python #{py_ver}"
@@ -157,6 +162,7 @@ class Boost < Package
       end
 
       # find and store dependencies for the built libraries
+      @lib_deps = Hash.new([])
       Dir["#{prefix_dir}/lib/*.so"].each do |lib|
         name = File.basename(lib).split('.')[0].sub('libboost_', '')
         abi_deps = toolchain.find_so_needs(lib, arch).select { |l| l.start_with? 'libboost_' }.map { |l| l.split('_')[1].split('.')[0] }.sort
@@ -210,19 +216,20 @@ class Boost < Package
     exclude = {}
     major, minor, _ = release.version.split('.').map { |a| a.to_i }
 
-    # # Boost.Context in 1.61.0 and earlier don't support mips64
-    # if major == 1 and minor <= 61
-    #   exclude['context'] = ['mips64']
-    # end
+    # Boost.Context in 1.62.0 and earlier don't support mips64
+    # check next versions
+    if major == 1 and minor <= 62
+      exclude['context'] = ['mips64']
+    end
 
-    # # Boost.Coroutine depends on Boost.Context
-    # if archs = exclude['context']
-    #   exclude['coroutine'] = archs
-    #   # Starting from 1.59.0, there is Boost.Coroutine2 library, which depends on Boost.Context too
-    #   if major == 1 and minor >= 59
-    #     exclude['coroutine2'] = archs
-    #   end
-    # end
+    # Boost.Coroutine depends on Boost.Context
+    if archs = exclude['context']
+      exclude['coroutine'] = archs
+      # Starting from 1.59.0, there is Boost.Coroutine2 library, which depends on Boost.Context too
+      if major == 1 and minor >= 59
+        exclude['coroutine2'] = archs
+      end
+    end
 
     exclude
   end
@@ -251,7 +258,10 @@ class Boost < Package
   end
 
   def gen_user_config_jam(dir)
-    File.open("#{dir}/user-config.jam", 'w') { |f| f.puts "using mpi ;" }
+    FileUtils.touch "#{dir}/user-config.jam"
+    # 'using mpi' break build on linux because build system
+    # tries to use locally found (system) mpi libs
+    #File.open("#{dir}/user-config.jam", 'w') { |f| f.puts "using mpi ;" }
   end
 
   def gen_android_mk(pkg_dir, release)
