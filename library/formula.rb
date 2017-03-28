@@ -205,7 +205,8 @@ class Formula
   private
 
   def expand_url(url, release)
-    str, block = url
+    url_str, block = url
+    str = url_str.dup
     str.gsub! '${version}', release.version
     str.gsub! '${crystax_version}', release.crystax_version.to_s
     if block
