@@ -9,7 +9,6 @@ class Python < Package
 
   depends_on 'sqlite'
   depends_on 'openssl'
-  build_depends_on 'python', ns: :host
 
   build_copy 'LICENSE'
   build_options sysroot_in_cflags:   false,

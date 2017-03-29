@@ -31,7 +31,7 @@ class Gcc < Tool
   build_depends_on 'expat'
   build_depends_on 'isl-old'
   build_depends_on 'cloog-old'
-  build_depends_on 'python', ns: 'host'
+  build_depends_on 'python'
 
   ARCHIVE_TOP_DIR  = 'toolchains'
   UNWIND_SUB_DIR   = 'sources/android/gccunwind/libs'
