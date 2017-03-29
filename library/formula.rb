@@ -186,13 +186,8 @@ class Formula
 
     def add_dependency(name, options, deps)
       deps = [] if !deps
-      ns = options.delete(:ns)
-      if not ns
-        ns = namespace
-      elsif ns.class == String
-        ns = ns.to_sym
-      end
-      deps << Dependency.new(name, ns, options)
+      nm, ns = parse_name(name)
+      deps << Dependency.new(nm, ns, options)
     end
 
     def build_options(hash = nil)
@@ -202,7 +197,20 @@ class Formula
     end
   end
 
+  def self.parse_name(name)
+    nm, ns = name.split('/')
+    if not ns
+      ns = namespace
+    elsif
+      ns = ns.to_sym
+      raise "bad namespace: #{ns}" unless [:host, :target].include? ns
+    end
+    [nm, ns]
+  end
+
+
   private
+
 
   def expand_url(url, release)
     url_str, block = url
