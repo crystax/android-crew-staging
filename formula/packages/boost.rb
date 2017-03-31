@@ -53,6 +53,8 @@ class Boost < Package
              'wave',
              'wserialization'
 
+  STATIC_ONLY = ['exception', 'test_exec_monitor']
+
   def initialize(path)
     super path
     @lib_deps = Hash.new([])
@@ -297,7 +299,7 @@ class Boost < Package
         end
         f.puts 'include $(CLEAR_VARS)'
         f.puts "LOCAL_MODULE := boost_#{name}_static"
-        f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/libboost_#{name}.a"
+        f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/$(__boost_libstdcxx_subdir)/libboost_#{name}.a"
         f.puts 'LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include'
         f.puts 'ifneq (,$(filter clang%,$(NDK_TOOLCHAIN_VERSION)))'
         f.puts 'LOCAL_EXPORT_LDLIBS := -latomic'
@@ -307,17 +309,19 @@ class Boost < Package
         end
         f.puts 'include $(PREBUILT_STATIC_LIBRARY)'
         f.puts ''
-        f.puts 'include $(CLEAR_VARS)'
-        f.puts "LOCAL_MODULE := boost_#{name}_shared"
-        f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/libboost_#{name}.so"
-        f.puts 'LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include'
-        f.puts 'ifneq (,$(filter clang%,$(NDK_TOOLCHAIN_VERSION)))'
-        f.puts 'LOCAL_EXPORT_LDLIBS := -latomic'
-        f.puts 'endif'
-        @lib_deps[name].each do |dep|
-          f.puts "LOCAL_SHARED_LIBRARIES += boost_#{dep}_shared"
+        unless STATIC_ONLY.include? name
+          f.puts 'include $(CLEAR_VARS)'
+          f.puts "LOCAL_MODULE := boost_#{name}_shared"
+          f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/$(__boost_libstdcxx_subdir)/libboost_#{name}.so"
+          f.puts 'LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include'
+          f.puts 'ifneq (,$(filter clang%,$(NDK_TOOLCHAIN_VERSION)))'
+          f.puts 'LOCAL_EXPORT_LDLIBS := -latomic'
+          f.puts 'endif'
+          @lib_deps[name].each do |dep|
+            f.puts "LOCAL_SHARED_LIBRARIES += boost_#{dep}_shared"
+          end
+          f.puts 'include $(PREBUILT_SHARED_LIBRARY)'
         end
-        f.puts 'include $(PREBUILT_SHARED_LIBRARY)'
         if exclude_flag
           f.puts 'endif'
           exclude_flag = false
