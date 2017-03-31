@@ -10,7 +10,7 @@ class Xz < BuildDependency
                                                           windows:        'e11adeeae2849183f876fabb71282ce4f16ab3276283efdd213f8d060bd74866'
                                                         }
 
-  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform, release)
 
     args = platform.configure_args +
