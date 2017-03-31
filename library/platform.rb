@@ -117,9 +117,10 @@ class Platform
 
     case @name
     when 'darwin-x86_64'
+      # openssl build fails if put a blank bettwen -isysroot and sysroot path
+      # --sysroot can not be used here even for gcc, it will break almost all builds on darwin
       @sysroot         = "#{Build::PLATFORM_PREBUILTS_DIR}/sysroot/darwin-x86/MacOSX10.6.sdk"
-      # openssl build failed with blank bettwen -isysroot and sysroot
-      @cflags          = "--sysroot=#{sysroot} -mmacosx-version-min=#{MACOSX_VERSION_MIN} -DMACOSX_DEPLOYMENT_TARGET=#{MACOSX_VERSION_MIN} -m64"
+      @cflags          = "-isysroot#{sysroot} -mmacosx-version-min=#{MACOSX_VERSION_MIN} -DMACOSX_DEPLOYMENT_TARGET=#{MACOSX_VERSION_MIN} -m64"
       @configure_host  = 'x86_64-apple-darwin10'
       @configure_build = (@host_os == 'darwin') ? @configure_host : 'x86_64-linux-gnu'
       #@toolchain_host  = 'x86_64-darwin10' #'x86_64-apple-darwin'
