@@ -421,7 +421,7 @@ class Gcc < Tool
     build_env['CXX']     = platform.cxx
     build_env['AR']      = platform.ar
     build_env['RANLIB']  = platform.ranlib
-    build_env['CFLAGS']  = '-O2 -s -Wno-error'
+    build_env['CFLAGS']  = platform.cflags + ' -O2 -s -Wno-error'
     # todo: do we need '-s' option?
     #build_env['CFLAGS']  += ' -s' if platform.compiler_major_version < 6
 
