@@ -37,6 +37,9 @@ class Openssl < BuildDependency
             "-lz"
            ]
 
+    # paralles build seems to be broken on darwin
+    num_jobs = 1 if platform.host_os == 'darwin'
+
     system './Configure',  *args
     system 'make', 'depend'
     system 'make', '-j', num_jobs
