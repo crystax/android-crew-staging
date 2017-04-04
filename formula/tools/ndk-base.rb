@@ -4,8 +4,8 @@ class NdkBase < HostBase
   homepage "https://www.crystax.net"
   # todo: use commit? use master branch? something else?
   #       choose somehow between gitlab and github repos
-  url 'git@git.crystax.net:android/platform-ndk.git|git_commit:4337aac72f9703d0935ab3aa9ba8433388e0050d'
-  url 'https://git.crystax.net/android/platform-ndk.git|git_commit:4337aac72f9703d0935ab3aa9ba8433388e0050d'
+  url 'git@git.crystax.net:android/platform-ndk.git|git_commit:2af4dcb89d2d8508f357cc410be7da085ff1c2d8'
+  url 'https://git.crystax.net/android/platform-ndk.git|git_commit:2af4dcb89d2d8508f357cc410be7da085ff1c2d8'
 
   release version: '11', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                        darwin_x86_64:  '0',
