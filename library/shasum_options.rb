@@ -14,7 +14,7 @@ class ShasumOptions
     @update = nil
     @check = nil
     @all_versions = nil
-    @platforms = [ Global::PLATFORM_NAME ]
+    @platforms = Platform.default_names_for_host_os
 
     opts.each do |opt|
       case opt
@@ -31,7 +31,6 @@ class ShasumOptions
         @check = true
         @update = false
         @all_versions = true
-        @platforms = Platform::NAMES
       else
         raise "unknow option: #{opt}"
       end

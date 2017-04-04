@@ -2,7 +2,9 @@ require_relative 'build.rb'
 
 class Platform
 
-  NAMES = ['darwin-x86_64', 'linux-x86_64', 'windows-x86_64', 'windows']
+  DEF_LINUX_NAMES  = ['linux-x86_64', 'windows-x86_64', 'windows']
+  DEF_DARWIN_NAMES = ['darwin-x86_64']
+  NAMES = DEF_LINUX_NAMES + DEF_DARWIN_NAMES
   MACOSX_VERSION_MIN = '10.6'
   TOOLCHAIN = { 'darwin/darwin' => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/darwin-x86/host/x86_64-apple-darwin-4.9.3/bin",
                                      tool_prefix:   '',
@@ -65,6 +67,17 @@ class Platform
                                      windres:       'windres'
                                    }
               }
+
+  def self.default_names_for_host_os
+    case Global::OS
+    when 'darwin'
+      DEF_DARWIN_NAMES
+    when 'linux'
+      DEF_LINUX_NAMES
+    else
+      []
+    end
+  end
 
   attr_reader :name, :host_os, :target_os, :target_cpu
   attr_reader :toolchain_path
