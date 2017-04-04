@@ -230,8 +230,8 @@ class Gcc < Tool
     if canadian_build? platform
       # expr.c:(.text+0x2708): undefined reference to `__udivdi3'
       if platform.name == 'windows'
-        build_env['CFLAGS_FOR_BUILD']   += ' -m32'
-        build_env['CXXFLAGS_FOR_BUILD'] += ' -m32'
+        build_env['CFLAGS_FOR_BUILD']   = ' -m32'
+        build_env['CXXFLAGS_FOR_BUILD'] = ' -m32'
       end
       build_env['PATH'] = "#{File.join(base_dir, 'host', 'install', 'bin')}:#{build_env['PATH']}"
       # When building canadian cross toolchain we cannot build GCC target libraries.
