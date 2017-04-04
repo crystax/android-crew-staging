@@ -199,6 +199,12 @@ The SHASUM command supports the following options:
                  (and update) sums for all formulas
 
 --check          check SHA256 sum for every release of every formula
+
+--platforms=LIST the list of platforms for which to apply the command;
+                 platforms must be separated with comma;
+                 default platforms on darwin hosts are darwin-x86_64;
+                 default platforms on linux hosts are linux-x86_64,
+                 windows-x86_64, windows
 EOS
 
 SHOW_OUTDATED_HELP = <<-EOS
