@@ -68,17 +68,11 @@ class Gcc < Tool
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"
 
-    # sometimes building GCC on darwin just eats all system resources
-    self.num_jobs  = options.num_jobs
-    self.num_jobs /= 4 if Global::OS == 'darwin'
-    self.num_jobs  = 1 if self.num_jobs < 1
-    puts "num jobs: #{num_jobs}"
-
     FileUtils.rm_rf build_base_dir
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"
-      #[Build::ARCH_LIST[0]].each do |arch|
+      #[Build::ARCH_LIST[2]].each do |arch|
       Build::ARCH_LIST.each do |arch|
         base_dir = base_dir(platform, arch)
         self.log_file = build_log_file(base_dir)
@@ -415,7 +409,7 @@ class Gcc < Tool
 
   def prepare_build_environment(platform)
     build_env.clear
-    build_env['PATH']    = "#{platform.toolchain_path}:#{ENV['PATH']}"
+    build_env['PATH']    = "#{platform.toolchain_path}:#{Build.path}"
     build_env['LANG']    = 'C'
     build_env['CC']      = platform.cc
     build_env['CXX']     = platform.cxx
