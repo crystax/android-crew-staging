@@ -68,14 +68,16 @@ class Gcc < Tool
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"
 
-    self.num_jobs = options.num_jobs
+    # sometimes building GCC on darwin just eats all system resources
+    self.num_jobs  = options.num_jobs
+    self.num_jobs /= 4 if Global::OS == 'darwin'
+    self.num_jobs  = 1 if self.num_jobs < 1
+    puts "num jobs: #{num_jobs}"
 
-    # todo:
     FileUtils.rm_rf build_base_dir
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"
-      # todo:
       #[Build::ARCH_LIST[0]].each do |arch|
       Build::ARCH_LIST.each do |arch|
         base_dir = base_dir(platform, arch)
