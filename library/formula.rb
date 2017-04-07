@@ -327,7 +327,8 @@ class Formula
       log.puts "=="
 
       status = nil
-      Open3.popen2e(build_env, cmd) do |cin, cout, wt|
+      #Open3.popen2e(build_env, cmd) do |cin, cout, wt|
+      Open3.popen2e(build_env, *args) do |cin, cout, wt|
         cin.close
         ot = Thread.start do
           line = nil
