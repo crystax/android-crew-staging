@@ -1,0 +1,69 @@
+diff -Naur a/lib/common_test/test_server/ts_install.erl b/lib/common_test/test_server/ts_install.erl
+--- a/lib/common_test/test_server/ts_install.erl	2017-04-07 14:52:22.000000000 +0300
++++ b/lib/common_test/test_server/ts_install.erl	2017-04-07 14:54:59.000000000 +0300
+@@ -1,7 +1,7 @@
+ %%
+ %% %CopyrightBegin%
+ %%
+-%% Copyright Ericsson AB 1997-2016. All Rights Reserved.
++%% Copyright Ericsson AB 1997-2017. All Rights Reserved.
+ %%
+ %% Licensed under the Apache License, Version 2.0 (the "License");
+ %% you may not use this file except in compliance with the License.
+@@ -134,7 +134,7 @@
+     Args = Host ++ Build ++ Threads ++ Debug ++ " " ++ MXX_Build,
+     case filelib:is_file(Configure) of
+ 	true ->
+-	    OSXEnv = macosx_cflags(),
++	    OSXEnv = macosx_cflags(Env),
+ 	    UnQuotedEnv = assign_vars(unquote(Env++OSXEnv)),
+ 	    io:format("Running ~s~nEnv: ~p~n",
+ 		      [lists:flatten(Configure ++ Args),UnQuotedEnv]),
+@@ -179,7 +179,7 @@
+     end;
+ get_var_name([], VarR) ->
+     {lists:reverse(VarR),[]}.
+-	    
++
+ assign_var(VarName) ->
+     case os:getenv(VarName) of
+ 	false -> "";
+@@ -202,7 +202,7 @@
+     end.
+ 
+ 
+-macosx_cflags() ->
++macosx_cflags([]) ->
+     case os:type() of
+ 	{unix, darwin} ->
+ 	    %% To ensure that the drivers we build can be loaded
+@@ -212,7 +212,10 @@
+ 	    [{"CFLAGS", Mflag},{"LDFLAGS", Mflag}];
+ 	_ ->
+ 	    []
+-    end.
++    end;
++%% do not add flags if cross env is not empty
++macosx_cflags(_CrossEnv) ->
++    [].
+ 
+ parse_xcomp_file(undefined) ->
+     [{cross,"no"}];
+@@ -312,7 +315,7 @@
+ platform_id(Vars) ->
+     {Id,_,_,_} = platform(Vars),
+     Id.
+-    
++
+ platform(Vars) ->
+     Hostname = hostname(),
+ 
+@@ -431,7 +434,7 @@
+ 	no_spread -> "/sbtns";
+ 	_ -> ""
+     end.
+-					
++
+ 
+ debug() ->
+     case string:str(erlang:system_info(system_version), "debug") of

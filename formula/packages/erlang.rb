@@ -4,7 +4,7 @@ class Erlang < Package
   homepage "https://www.erlang.org/"
   url "https://github.com/erlang/otp/archive/OTP-${version}.tar.gz"
 
-  release version: '19.2.3', crystax_version: 1, sha256: '0'
+  release version: '19.3.1', crystax_version: 1, sha256: '0'
 
   depends_on 'ncurses'
   depends_on 'openssl'
@@ -18,6 +18,8 @@ class Erlang < Package
                 gen_android_mk:      false
 
   build_copy 'LICENSE.txt'
+
+  # todo: support interface with java?
 
   def build_for_abi(abi, toolchain,  _release, _host_dep_dirs, target_dep_dirs)
     install_dir = install_dir_for_abi(abi)
@@ -38,25 +40,26 @@ class Erlang < Package
     system './otp_build', 'release', '-a', "#{install_dir}/#{abi}"
     system './otp_build', 'tests'
 
-    erl = "#{Dir.pwd}//bootstrap/bin/erl"
+    erl = "#{Dir.pwd}/bootstrap/bin/erl"
+    xcomp_file = gen_xcomp_file(abi, toolchain, ncurses_dir, openssl_dir, true)
     FileUtils.cd('release/tests/test_server') do
-      args = ['-eval', "'ts:install([{xcomp,\"#{xcomp_file}\"}])'",
+      # we do not support interface with java
+      FileUtils.rm_rf ['../ic_test', '../jinterface_test']
+      args = ['-noshell',
+              '-eval', "ts:install([{xcomp,\"#{xcomp_file}\"}])",
               '-s', 'ts', 'compile_testcases',
               '-s', 'init', 'stop'
              ]
       system erl, *args
     end
 
-    tests_dir = "#{package_dir}/tests/native/#{abi}"
-    FileUtils.mkdir_p tests_dir
     FileUtils.cp_r "#{install_dir}/#{abi}", package_dir
-    FileUtils.cp_r "release/tests", tests_dir
+    FileUtils.cp_r "release/tests", "#{package_dir}/#{abi}/releases/tests"
 
     replace_shell_in "#{package_dir}/#{abi}"
-    replace_shell_in tests_dir
   end
 
-  def gen_xcomp_file(abi, toolchain, ncurses_dir, openssl_dir)
+  def gen_xcomp_file(abi, toolchain, ncurses_dir, openssl_dir, ldflags_in_cc = false)
     arch = Build.arch_for_abi(abi)
     sysroot = "--sysroot=#{Build.sysroot(abi)}"
     crystax_libs_dir = "#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
@@ -73,6 +76,12 @@ class Erlang < Package
     cppflags = "-I#{ncurses_dir}/include -I#{openssl_dir}/include"
     ldflags  = toolchain.ldflags(abi) + " -fPIE -pie -L#{ncurses_dir}/libs/#{abi} -L#{openssl_dir}/libs/#{abi}"
     ded_ldflags = toolchain.ldflags(abi) + " -shared -Wl,-Bsymbolic -L#{openssl_dir}/libs/#{abi} -L#{crystax_libs_dir}"
+
+    # ldflags in cc and cxx are required to build tests
+    if ldflags_in_cc
+      cc  += ' ' + ldflags
+      cxx += ' ' + ldflags
+    end
 
     conf_args = ["--disable-hipe",
                  "--without-javac",
