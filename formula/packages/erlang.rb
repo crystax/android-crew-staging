@@ -46,7 +46,7 @@ class Erlang < Package
       # we do not support interface with java
       FileUtils.rm_rf ['../ic_test', '../jinterface_test']
       args = ['-noshell',
-              '-eval', "ts:install([{xcomp,\"#{xcomp_file}\"}])",
+              '-eval', "'ts:install([{xcomp,\"#{xcomp_file}\"}])'",
               '-s', 'ts', 'compile_testcases',
               '-s', 'init', 'stop'
              ]
