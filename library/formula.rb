@@ -234,7 +234,7 @@ class Formula
     @patches[version]
   end
 
-  def src_cache_file(release, url)
+  def self.src_cache_file(formula_name, release, url)
     url_file = File.basename(URI.parse(url).path)
     a = url_file.split('.')
     if a.size == 1
@@ -243,8 +243,12 @@ class Formula
       ext = a[-1]
       ext = 'tar.' + ext if a[-2] == 'tar'
     end
-    file = "#{file_name}-#{release.version}.#{ext}"
+    file = "#{formula_name}-#{release.version}.#{ext}"
     File.join(Global::SRC_CACHE_DIR, file)
+  end
+
+  def src_cache_file(release, url)
+    Formula.src_cache_file(file_name, release, url)
   end
 
   def prepare_source_code(release, dir, src_name, log_prefix)
