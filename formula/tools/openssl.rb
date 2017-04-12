@@ -37,8 +37,8 @@ class Openssl < BuildDependency
             "-lz"
            ]
 
-    # paralles build seems to be broken on darwin
-    num_jobs = 1 if platform.host_os == 'darwin'
+    # parallel build seems to be broken not only on darwin
+    num_jobs = 1 if ['darwin', 'windows'].include? platform.target_os
 
     system './Configure',  *args
     system 'make', 'depend'
