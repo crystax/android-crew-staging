@@ -32,6 +32,9 @@ class Libarchive < Utility
             "--with-sysroot"
            ]
 
+    # todo: remove when fixed upstream
+    args << '--disable-acl' if platform.host_os == 'darwin'
+
     system "#{src_dir}/configure", *args
     system 'make', '-j', num_jobs
     system 'make', 'check' if options.check? platform
