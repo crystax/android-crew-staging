@@ -14,8 +14,10 @@ else
 endif
 
 ifeq ($(origin CREW_NDK_DIR), undefined)
-  CREW_NDK_DIR := $(realpath ../../..)
+  CREW_NDK_DIR := $(realpath ../..)
 endif
+
+$(info Using CREW_NDK_DIR: $(CREW_NDK_DIR))
 
 ifneq ($(wildcard $(CREW_NDK_DIR)/prebuilt/$(host_os)-x86_64),)
   TOOLS_DIR := $(CREW_NDK_DIR)/prebuilt/$(host_os)-x86_64
