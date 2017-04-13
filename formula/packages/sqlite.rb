@@ -2,9 +2,9 @@ class Sqlite < Package
 
   desc "SQLite library"
   homepage "https://sqlite.org/"
-  url "https://sqlite.org/2016/sqlite-amalgamation-${block}.zip" do |r| ('%s%-2s%-2s00' % r.version.split('.')).gsub(' ', '0') end
+  url "https://sqlite.org/2017/sqlite-amalgamation-${block}.zip" do |r| ('%s%-2s%-2s00' % r.version.split('.')).gsub(' ', '0') end
 
-  release version: '3.13.0', crystax_version: 1, sha256: '68a0e21bb4932730efaa888a4f8647a1d63da53c970542f36f97b2f01fcf227c'
+  release version: '3.18.0', crystax_version: 1, sha256: '68a0e21bb4932730efaa888a4f8647a1d63da53c970542f36f97b2f01fcf227c'
 
   build_options setup_env: false
   build_libs 'libsqlite3'
