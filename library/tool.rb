@@ -1,9 +1,9 @@
 require_relative 'properties.rb'
 require_relative 'platform.rb'
 require_relative 'formula.rb'
-require_relative 'hostformula.rb'
+require_relative 'host_base.rb'
 
-class Tool < HostFormula
+class Tool < HostBase
 
   namespace :host
 
@@ -49,15 +49,15 @@ class Tool < HostFormula
       build_env.clear
       build_env['CC']       = platform.cc
       build_env['CXX']      = platform.cxx
+      build_env['LD']       = platform.ld
       build_env['AR']       = platform.ar
       build_env['RANLIB']   = platform.ranlib
+      build_env['NM']       = platform.nm
       build_env['CFLAGS']   = platform.cflags
       build_env['CXXFLAGS'] = platform.cxxflags
       build_env['LANG']     = 'C'
-      if platform.target_os == 'windows'
-        build_env['PATH'] = "#{File.dirname(platform.cc)}:#{ENV['PATH']}"
-        build_env['RC'] = "x86_64-w64-mingw32-windres -F pe-i386" if platform.target_cpu == 'x86'
-      end
+      build_env['PATH']     = "#{platform.toolchain_path}:#{Build.path}"
+      build_env['RC']       = platform.windres if platform.target_os == 'windows'
       #
       FileUtils.cd(build_dir) { build_for_platform platform, release, options, host_dep_dirs, target_dep_dirs }
       next if options.build_only?
@@ -65,10 +65,7 @@ class Tool < HostFormula
       archive = cache_file(release, platform.name)
       Utils.pack archive, base_dir, ARCHIVE_TOP_DIR
       #
-      if options.update_shasum?
-        release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
-        update_shasum release, platform
-      end
+      update_shasum release, platform if options.update_shasum?
       install_archive release, archive, platform.name
       FileUtils.rm_rf base_dir unless options.no_clean?
     end

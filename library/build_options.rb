@@ -1,5 +1,6 @@
 require_relative 'global.rb'
 require_relative 'utils.rb'
+require_relative 'platform.rb'
 require_relative 'command_options.rb'
 
 
@@ -20,7 +21,7 @@ class BuildOptions
     @all_versions = false
     @update_shasum = false
     @num_jobs = Utils.processor_count * 2
-    @platforms = default_platforms
+    @platforms = Platform.default_names_for_host_os
 
     opts.each do |opt|
       case opt
@@ -64,6 +65,10 @@ class BuildOptions
     @install
   end
 
+  def clean?
+    @no_clean == false
+  end
+
   def no_clean?
     @no_clean
   end
@@ -78,18 +83,5 @@ class BuildOptions
 
   def all_versions?
     @all_versions
-  end
-
-  private
-
-  def default_platforms
-    case Global::OS
-    when 'linux'
-      ['linux-x86_64', 'windows-x86_64', 'windows']
-    when 'darwin'
-      ['darwin-x86_64']
-    else
-      []
-    end
   end
 end

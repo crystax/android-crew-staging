@@ -1,0 +1,19 @@
+diff -Naur a/Lib/distutils/command/build_ext.py b/Lib/distutils/command/build_ext.py
+--- a/Lib/distutils/command/build_ext.py	2017-03-22 23:05:45.090978250 +0300
++++ b/Lib/distutils/command/build_ext.py	2017-03-22 23:07:22.150931428 +0300
+@@ -523,6 +523,15 @@
+         for undef in ext.undef_macros:
+             macros.append((undef,))
+ 
++	# zuav: this is a hack
++	#
++	# somebody adds (at least for unix comiler) paths to search for include dirs like those:
++	#  '/usr/include/x86_64-linux-gnu', or '/usr/local/include'
++	# since we always build with our own sysroot these extra search dirs can (and do) break compilation
++	# of extensions;
++	# hence I remove them here:
++        self.compiler.include_dirs = [e for e in self.compiler.include_dirs if not e.startswith('/usr/include') or e.startswith('/usr/local')]
++
+         objects = self.compiler.compile(sources,
+                                          output_dir=self.build_temp,
+                                          macros=macros,

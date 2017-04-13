@@ -14,8 +14,10 @@ else
 endif
 
 ifeq ($(origin CREW_NDK_DIR), undefined)
-  CREW_NDK_DIR := $(realpath ../../..)
+  CREW_NDK_DIR := $(realpath ../..)
 endif
+
+$(info Using CREW_NDK_DIR: $(CREW_NDK_DIR))
 
 ifneq ($(wildcard $(CREW_NDK_DIR)/prebuilt/$(host_os)-x86_64),)
   TOOLS_DIR := $(CREW_NDK_DIR)/prebuilt/$(host_os)-x86_64
@@ -33,10 +35,10 @@ ifeq ($(host_os),windows)
   ruby_version := $(shell $(TOOLS_DIR)/bin/awk "{print}" $(TOOLS_DIR)/crew/ruby/active_version.txt)
 else
   ruby_prog := ruby
-  ruby_version := $(shell cat $(TOOLS_DIR)/crew/ruby/active_version.txt)
+  ruby_version := $(shell cat $(TOOLS_DIR)/utilities/ruby/active_version.txt)
 endif
 
-RUBY_DIR := $(TOOLS_DIR)/crew/ruby/$(ruby_version)/bin
+RUBY_DIR := $(TOOLS_DIR)/utilities/ruby/$(ruby_version)/bin
 RUBY     := $(RUBY_DIR)/$(ruby_prog)
 RSPEC    := $(RUBY_DIR)/$(ruby_prog) $(RUBY_DIR)/rspec
 

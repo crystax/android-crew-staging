@@ -10,7 +10,7 @@ describe "crew upgrade" do
   before(:each) do
     clean_cache
     clean_hold
-    clean_engine
+    clean_utilities
     repository_init
     repository_clone
   end
@@ -89,8 +89,8 @@ describe "crew upgrade" do
                           "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/curl/#{file}\n" \
                           "checking integrity of the archive file #{file}\n"          \
                           "unpacking archive\n")
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{ver}_1")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{ver}_#{cxver}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/curl/#{ver}_1")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/curl/#{ver}_#{cxver}")).to eq(true)
         expect(Utility.active_version('curl')).to eq("#{ver}_#{cxver}")
         expect(in_cache?(:host, 'curl', ver, cxver)).to eq(true)
       end
@@ -111,8 +111,8 @@ describe "crew upgrade" do
                           "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/curl/#{file}\n" \
                           "checking integrity of the archive file #{file}\n"              \
                           "unpacking archive\n")
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{old_rel}")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{ver}_#{cxver}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/curl/#{old_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/curl/#{ver}_#{cxver}")).to eq(true)
         expect(Utility.active_version('curl')).to eq("#{ver}_#{cxver}")
         expect(in_cache?(:host, 'curl', ver, cxver)).to eq(true)
       end
@@ -147,12 +147,12 @@ describe "crew upgrade" do
                           "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/ruby/#{ruby_file}\n"             \
                           "checking integrity of the archive file #{ruby_file}\n"                          \
                           "unpacking archive\n")
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/libarchive/#{libarchive_old_rel}")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/libarchive/#{libarchive_new_rel}")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_old_rel}")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_new_rel}")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/#{ruby_old_rel}")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/#{ruby_new_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/libarchive/#{libarchive_old_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/libarchive/#{libarchive_new_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/curl/#{curl_old_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/curl/#{curl_new_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/ruby/#{ruby_old_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/ruby/#{ruby_new_rel}")).to eq(true)
         expect(in_cache?(:host, 'libarchive', libarchive_new_rel.version,  libarchive_new_rel.crystax_version)).to eq(true)
         expect(in_cache?(:host, 'curl',       curl_new_rel.version,        curl_new_rel.crystax_version)).to       eq(true)
         expect(in_cache?(:host, 'ruby',       ruby_new_rel.version,        ruby_new_rel.crystax_version)).to       eq(true)
@@ -186,8 +186,8 @@ describe "crew upgrade" do
                                        "checking integrity of the archive file #{libtwo_file}",
                                        "unpacking archive"
                                       ])
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_old_rel}")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_new_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/curl/#{curl_old_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/curl/#{curl_new_rel}")).to eq(true)
         expect(Utility.active_version('curl')).to eq(curl_new_rel.to_s)
         expect(in_cache?(:host, 'curl', curl_new_rel.version, curl_new_rel.crystax_version)).to eq(true)
       end
@@ -236,12 +236,12 @@ describe "crew upgrade" do
                                        "checking integrity of the archive file #{ruby_file}",
                                        "unpacking archive"
                                       ])
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/libarchive/#{libarchive_old_rel}")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/libarchive/#{libarchive_new_rel}")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_old_rel}")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/curl/#{curl_new_rel}")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/#{ruby_old_rel}")).to eq(true)
-        expect(Dir.exists?("#{Global::ENGINE_DIR}/ruby/#{ruby_new_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/libarchive/#{libarchive_old_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/libarchive/#{libarchive_new_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/curl/#{curl_old_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/curl/#{curl_new_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/ruby/#{ruby_old_rel}")).to eq(true)
+        expect(Dir.exists?("#{Global::UTILITIES_DIR}/ruby/#{ruby_new_rel}")).to eq(true)
         expect(in_cache?(:host, 'libarchive', libarchive_new_rel.version,  libarchive_new_rel.crystax_version)).to eq(true)
         expect(in_cache?(:host, 'curl',       curl_new_rel.version,        curl_new_rel.crystax_version)).to       eq(true)
         expect(in_cache?(:host, 'ruby',       ruby_new_rel.version,        ruby_new_rel.crystax_version)).to       eq(true)

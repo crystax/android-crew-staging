@@ -1,0 +1,33 @@
+From 9f3aab81a1a220c1ad783ca9e59d35d3b7c3d305 Mon Sep 17 00:00:00 2001
+From: Alexander Zhukov <zuav@crystax.net>
+Date: Wed, 21 Sep 2016 15:39:36 +0300
+Subject: [PATCH] Remove excessive include dir from compiler
+
+These dirs break python build on linux.
+---
+ Lib/distutils/command/build_ext.py | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/Lib/distutils/command/build_ext.py b/Lib/distutils/command/build_ext.py
+index 1c3219f..0ed79e6 100644
+--- a/Lib/distutils/command/build_ext.py
++++ b/Lib/distutils/command/build_ext.py
+@@ -492,6 +492,15 @@ class build_ext (Command):
+         for undef in ext.undef_macros:
+             macros.append((undef,))
+ 
++	# zuav: this is a hack
++	#
++	# somebody adds (at least for unix comiler) paths to search for include dirs like those:
++	#  '/usr/include/x86_64-linux-gnu', or '/usr/local/include'
++	# since we always build with our own sysroot these extra search dirs can (and do) break compilation
++	# of extensions;
++	# hence I remove them here:
++        self.compiler.include_dirs = [e for e in self.compiler.include_dirs if not e.startswith('/usr/include') or e.startswith('/usr/local')]
++
+         objects = self.compiler.compile(sources,
+                                          output_dir=self.build_temp,
+                                          macros=macros,
+-- 
+2.12.0
+

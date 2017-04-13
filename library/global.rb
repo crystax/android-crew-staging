@@ -35,12 +35,19 @@ module Global
 
   # public
 
-  def self.engine_dir(platform_name)
-    File.join(NDK_DIR, 'prebuilt', platform_name, 'crew')
+  UTILITIES_BASE_DIR          = 'utilities'
+  BUILD_DEPENDENCIES_BASE_DIR = 'build_dependencies'
+
+  def self.tools_dir(platform_name)
+    File.join(NDK_DIR, 'prebuilt', platform_name)
   end
 
-  def self.shipyard_dir(platform_name)
-    File.join(NDK_DIR, 'prebuilt', platform_name, 'build_dependencies')
+  def self.utilities_dir(platform_name)
+    File.join(tools_dir(platform_name), UTILITIES_BASE_DIR)
+  end
+
+  def self.build_dependencies_dir(platform_name)
+    File.join(tools_dir(platform_name), 'build_dependencies')
   end
 
   def self.raise_env_var_not_set(var)
@@ -83,6 +90,7 @@ module Global
 
   DOWNLOAD_BASE  = [nil, ''].include?(ENV['CREW_DOWNLOAD_BASE'])  ? "https://crew.crystax.net:9876"                      : ENV['CREW_DOWNLOAD_BASE']
   PKG_CACHE_BASE = [nil, ''].include?(ENV['CREW_PKG_CACHE_BASE']) ? "/var/tmp"                                           : ENV['CREW_PKG_CACHE_BASE']
+  SRC_CACHE_BASE = [nil, ''].include?(ENV['CREW_SRC_CACHE_BASE']) ? nil                                                  : ENV['CREW_SRC_CACHE_BASE']
   BASE_DIR       = [nil, ''].include?(ENV['CREW_BASE_DIR'])       ? Pathname.new(__FILE__).realpath.dirname.dirname.to_s : Pathname.new(ENV['CREW_BASE_DIR']).realpath.to_s
   NDK_DIR        = [nil, ''].include?(ENV['CREW_NDK_DIR'])        ? Pathname.new(BASE_DIR).realpath.dirname.to_s         : Pathname.new(ENV['CREW_NDK_DIR']).realpath.to_s
   TOOLS_DIR      = def_tools_dir(NDK_DIR, OS)
@@ -93,13 +101,13 @@ module Global
 
   HOLD_DIR               = create_required_dir(NDK_DIR, 'packages').realpath
   SERVICE_DIR            = create_required_dir(NDK_DIR, '.crew').realpath
-  ENGINE_DIR             = create_required_dir(TOOLS_DIR, 'crew').realpath
-  SHIPYARD_DIR           = create_required_dir(TOOLS_DIR, 'build_dependencies').realpath
+  UTILITIES_DIR          = create_required_dir(utilities_dir(PLATFORM_NAME)).realpath
+  BUILD_DEPENDENCIES_DIR = create_required_dir(build_dependencies_dir(PLATFORM_NAME)).realpath
   REPOSITORY_DIR         = Pathname.new(BASE_DIR).realpath
   PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
   FORMULA_DIR            = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
-  SRC_CACHE_DIR          = Pathname.new(File.join(BASE_DIR, 'cache')).realpath
-  PKG_CACHE_DIR          = "#{PKG_CACHE_BASE}/crew-cache-#{ENV['USER']}"
+  SRC_CACHE_DIR          = create_required_dir(SRC_CACHE_BASE ? "#{SRC_CACHE_BASE}/crew-src-cache-#{ENV['USER']}" : File.join(BASE_DIR, 'cache')).realpath.to_s
+  PKG_CACHE_DIR          = "#{PKG_CACHE_BASE}/crew-pkg-cache-#{ENV['USER']}"
 
   EXE_EXT  = RUBY_PLATFORM =~ /mingw/ ? '.exe' : ''
   ARCH_EXT = 'tar.xz'

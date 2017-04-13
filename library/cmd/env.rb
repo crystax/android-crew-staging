@@ -7,12 +7,16 @@ module Crew
     when 0
       puts "DOWNLOAD_BASE:  #{Global::DOWNLOAD_BASE}"
       puts "PKG_CACHE_BASE: #{Global::PKG_CACHE_BASE}"
+      puts "SRC_CACHE_BASE: #{Global::SRC_CACHE_BASE}"
       puts "BASE_DIR:       #{Global::BASE_DIR}"
       puts "NDK_DIR:        #{Global::NDK_DIR}"
       puts "TOOLS_DIR:      #{Global::TOOLS_DIR}"
     when 1
-      if args[0] == '--pkg-cache-dir'
+      case args[0]
+      when '--pkg-cache-dir'
         puts Global::PKG_CACHE_DIR
+      when '--src-cache-dir'
+        puts Global::SRC_CACHE_DIR
       else
         raise "bad argument: #{args[0]}"
       end

@@ -39,6 +39,10 @@ class Formula
     "#{namespace}/#{name}"
   end
 
+  def qfn
+    "#{Global::NS_DIR[namespace]}/#{File.basename(path)}"
+  end
+
   def file_name
     File.basename(@path, '.rb')
   end
@@ -51,8 +55,8 @@ class Formula
     self.class.homepage
   end
 
-  def url
-    self.class.url
+  def urls
+    self.class.urls
   end
 
   # releases are stored in the order they're written in the formula file
@@ -149,19 +153,16 @@ class Formula
   class << self
 
     attr_rw :name, :desc, :homepage, :namespace
-    attr_reader :releases, :dependencies, :build_dependencies
+    attr_reader :urls, :releases, :dependencies, :build_dependencies
 
     # called when self inherited by subclass
     def inherited(subclass)
       subclass.namespace self.namespace
     end
 
-    def url(url = nil, &block)
-      if url == nil
-        [@url, @block]
-      else
-        @url, @block = url, block
-      end
+    def url(url, &block)
+      @urls ||= []
+      @urls << [url, block]
     end
 
     def release(r)
@@ -185,13 +186,8 @@ class Formula
 
     def add_dependency(name, options, deps)
       deps = [] if !deps
-      ns = options.delete(:ns)
-      if not ns
-        ns = namespace
-      elsif ns.class == String
-        ns = ns.to_sym
-      end
-      deps << Dependency.new(name, ns, options)
+      nm, ns = parse_name(name)
+      deps << Dependency.new(nm, ns, options)
     end
 
     def build_options(hash = nil)
@@ -201,10 +197,24 @@ class Formula
     end
   end
 
+  def self.parse_name(name)
+    nm, ns = name.split('/')
+    if not ns
+      ns = namespace
+    elsif
+      ns = ns.to_sym
+      raise "bad namespace: #{ns}" unless [:host, :target].include? ns
+    end
+    [nm, ns]
+  end
+
+
   private
 
-  def expand_url(release)
-    str, block = url
+
+  def expand_url(url, release)
+    url_str, block = url
+    str = url_str.dup
     str.gsub! '${version}', release.version
     str.gsub! '${crystax_version}', release.crystax_version.to_s
     if block
@@ -224,63 +234,91 @@ class Formula
     @patches[version]
   end
 
-  def src_cache_file(url)
-    archive = File.join(Global::SRC_CACHE_DIR, File.basename(URI.parse(url).path))
+  def self.src_cache_file(formula_name, release, url)
+    url_file = File.basename(URI.parse(url).path)
+    a = url_file.split('.')
+    if a.size == 1
+      ext = ''
+    else
+      ext = a[-1]
+      ext = 'tar.' + ext if a[-2] == 'tar'
+    end
+    file = "#{formula_name}-#{release.version}.#{ext}"
+    File.join(Global::SRC_CACHE_DIR, file)
+  end
+
+  def src_cache_file(release, url)
+    Formula.src_cache_file(file_name, release, url)
   end
 
   def prepare_source_code(release, dir, src_name, log_prefix)
-    eurl = expand_url(release)
-    src_dir = File.join(dir, src_name)
-    if git_repo_spec? eurl
-      git_url = ''
-      git_tag = ''
-      eurl.split('|').each do |e|
-        if e.start_with? 'git_tag:'
-          git_tag = e.split(':')[1]
+    urls.each do |url|
+      begin
+        eurl = expand_url(url, release)
+        src_dir = File.join(dir, src_name)
+        if git_repo_spec? eurl
+          git_url, git_commit = parse_git_url(eurl)
+          repo = Rugged::Repository.clone_at(git_url, src_dir, credentials: Utils.make_git_credentials(git_url))
+          repo.checkout git_commit, strategy: :force
+          repo.close
+          FileUtils.rm_rf File.join(src_dir, '.git')
         else
-          git_url = e
-        end
-      end
-      repo = Rugged::Repository.clone_at(git_url, src_dir)
-      # todo: checkout the specified tag
-      # todo: remove or not?
-      #FileUtils.rm_rf File.join(src_dir, '.git')
-    else
-      archive = src_cache_file(eurl)
-      if File.exists? archive
-        puts "#{log_prefix} using cached file #{archive}"
-      else
-        puts "#{log_prefix} downloading #{eurl}"
-        Utils.download(eurl, archive)
-      end
+          archive = src_cache_file(release, eurl)
+          if File.exist? archive
+            puts "#{log_prefix} using cached file #{archive}"
+          else
+            puts "#{log_prefix} downloading #{eurl}"
+            Utils.download(eurl, archive)
+          end
 
-      if build_options[:source_archive_without_top_dir]
-        FileUtils.mkdir_p src_dir
-        puts "#{log_prefix} unpacking #{File.basename(archive)} into #{src_dir}"
-        Utils.unpack(archive, src_dir)
-      else
-        mask = File.join(dir, '*')
-        old_dir = Dir[mask]
-        puts "#{log_prefix} unpacking #{File.basename(archive)} into #{dir}"
-        Utils.unpack(archive, dir)
-        new_dir = Dir[mask]
-        diff = old_dir.empty? ? new_dir : new_dir - old_dir
-        raise "source archive does not have top directory, diff: #{diff}" if diff.count != 1
-        FileUtils.cd(dir) { FileUtils.mv diff[0], src_name }
-      end
+          if build_options[:source_archive_without_top_dir]
+            FileUtils.mkdir_p src_dir
+            puts "#{log_prefix} unpacking #{File.basename(archive)} into #{src_dir}"
+            Utils.unpack(archive, src_dir)
+          else
+            mask = File.join(dir, '*')
+            old_dir = Dir[mask]
+            puts "#{log_prefix} unpacking #{File.basename(archive)} into #{dir}"
+            Utils.unpack(archive, dir)
+            new_dir = Dir[mask]
+            diff = old_dir.empty? ? new_dir : new_dir - old_dir
+            raise "source archive does not have top directory, diff: #{diff}" if diff.count != 1
+            FileUtils.cd(dir) { FileUtils.mv diff[0], src_name }
+          end
 
-      if patches(release.version).size > 0
-        puts "#{log_prefix} patching in dir #{src_dir}"
-        patches(release.version).each do |p|
-          puts "#{log_prefix}   applying #{File.basename(p.path)}"
-          p.apply src_dir
+          if patches(release.version).size > 0
+            puts "#{log_prefix} patching in dir #{src_dir}"
+            patches(release.version).each do |p|
+              puts "#{log_prefix}   applying #{File.basename(p.path)}"
+              p.apply src_dir
+            end
+          end
         end
+      rescue Exception => e
+        warning "failed to handle #{eurl}; reason: #{e}"
+      else
+        # here is the point of the normal exit
+        return
       end
     end
+    raise
   end
 
   def git_repo_spec?(uri)
-    uri =~ /\|git_tag:/
+    uri =~ /\|git_commit:/
+  end
+
+  def parse_git_url(uri)
+    url = ''
+    commit = ''
+    uri.split('|').each do |e|
+      if e.start_with? 'git_commit:'
+        commit = e.split(':')[1]
+      else
+        url = e
+      end
+    end
+    [url, commit]
   end
 
   def system(*args)
@@ -294,6 +332,8 @@ class Formula
 
       status = nil
       Open3.popen2e(build_env, cmd) do |cin, cout, wt|
+      # args = args.map { |a| a.to_s }
+      # Open3.popen2e(build_env, *args) do |cin, cout, wt|
         cin.close
         ot = Thread.start do
           line = nil

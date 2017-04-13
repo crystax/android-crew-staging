@@ -4,10 +4,10 @@ class Openssl < BuildDependency
   homepage "https://openssl.org/"
   url 'https://www.openssl.org/source/openssl-${version}.tar.gz'
 
-  release version: '1.0.2j', crystax_version: 1, sha256: { linux_x86_64:   '346ae2cd3a4bb3cac1c67272fd1f6d17845df470e2020eac41fe69c7141004f4',
-                                                           darwin_x86_64:  'ba700c9207e8dec4b278b7ccf2f257cccd92d9482ea59d395012ed345f4eaaec',
-                                                           windows_x86_64: '6ce0c97aff467ac020b892d0a301d73bedd4e112f6211701275f0e7cf9c18798',
-                                                           windows:        'bb18b84504fa59e63e693766319741e97f4e2aceef01ea1ade75daeb94e5890e'
+  release version: '1.0.2k', crystax_version: 1, sha256: { linux_x86_64:   'c6671886250a6517efc203b87af6e50a6ac8da74a08d3ffb57c52d1c4f91d510',
+                                                           darwin_x86_64:  '2cf65c48ca9adf478bd99723833715c67cd5e8c7b2928b72737d51bb8ca7da7a',
+                                                           windows_x86_64: 'dcf9ac52f0b9dbb2b179a7c22eeb2c4e1aba6be98744fe420f25e1dd53deeec7',
+                                                           windows:        'ce5958fe799bb08d91bf564d1e9a2eb8c175ff94ee6192e9ea005956313f8f0b'
                                                          }
   # todo: add possibility to depend_on specici version before uncommenting this
   # release version: '1.1.0b', crystax_version: 1, sha256: { linux_x86_64:   '0',
@@ -36,6 +36,9 @@ class Openssl < BuildDependency
             "-L#{zlib_dir}/lib",
             "-lz"
            ]
+
+    # parallel build seems to be broken not only on darwin
+    num_jobs = 1 if ['darwin', 'windows'].include? platform.target_os
 
     system './Configure',  *args
     system 'make', 'depend'

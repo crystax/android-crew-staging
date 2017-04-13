@@ -12,7 +12,7 @@ module Crew
 
     formulary = Formulary.new
 
-    args.each.with_index do |n, index|
+    args.each do |n|
       name, ver = n.split(':')
       formula = formulary[name]
       releases = options.all_versions? ? formula.releases : [formula.find_release(Release.new(ver))]
@@ -20,7 +20,10 @@ module Crew
       releases.each do |release|
         if release.installed?
           warning "#{name}:#{release} already installed"
-          next unless options.force?
+          unless options.force?
+            puts "" unless (release == releases.last) and (n == args.last)
+            next
+          end
         end
 
         formula.releases.select { |r| r.source_installed? and r.version == release.version }.each do |c|
@@ -42,7 +45,7 @@ module Crew
 
         formula.install release, options.as_hash
 
-        puts "" if index + 1 < args.count
+        puts "" unless (release == releases.last) and (n == args.last)
       end
     end
   end

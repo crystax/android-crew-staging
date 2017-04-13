@@ -4,10 +4,10 @@ class Make < Utility
   homepage "https://www.gnu.org/software/make/"
   #url "https://ftpmirror.gnu.org/make/make-${version}.tar.bz2"
 
-  release version: '3.81', crystax_version: 1, sha256: { linux_x86_64:   'a169f2b40f50de30a9d1ee42f1d9096244f4f4e85578bc4d6544b410a8ab4cc1',
-                                                         darwin_x86_64:  '083982581fba1e3b91b5b333103eb9e39759ba50f1514eb78da9dcf35c5479ce',
-                                                         windows_x86_64: 'fe97b9c79bcf996a06688d5aa91e3d033a450cecbf81c1e1970660f0ec22db18',
-                                                         windows:        '1d289c2f7ebd45e14113530cfc34ea7c0941c6a1fd2e5b441649fce8420dde81'
+  release version: '3.81', crystax_version: 1, sha256: { linux_x86_64:   '0bc17909588d6c909960ad3814be244ca5b5b044e4128fd981098710ba8f41e7',
+                                                         darwin_x86_64:  '2ba0cda0313b6474a6017b96c9fa3889d07763102096bbaf585f65e64fcb093a',
+                                                         windows_x86_64: 'ad3f8902baf777bc0a512a6c77228d0d375df1d3c3381edd0bda6d68eca279fb',
+                                                         windows:        '0fd4bf8f9be5c0abe4402ae407f84cbe99f61c8e812ae675407f3a84e2bd1332'
                                                        }
 
   executables 'make'
@@ -20,8 +20,8 @@ class Make < Utility
     src_dir = File.join(Build::NDK_HOST_TOOLS_DIR, "make-#{release.version}")
     install_dir = install_dir_for_platform(platform, release)
 
-    args = ["--prefix=#{install_dir}",
-            "--host=#{platform.configure_host}",
+    args = platform.configure_args +
+           ["--prefix=#{install_dir}",
             "--disable-nls",
             "--disable-rpath"
            ]

@@ -78,8 +78,8 @@ class Llvm < Tool
       prepare_build_env platform, libedit_dir, python_dir
 
       args = ["--prefix=#{install_dir}",
-              "--host=#{platform.toolchain_host}",
-              "--build=#{platform.toolchain_build}",
+              "--host=#{platform.configure_host}",
+              "--build=#{platform.configure_build}",
               "--with-bugurl=#{Build::BUG_URL}",
               "--enable-targets=arm,mips,x86,aarch64",
               "--enable-optimized",
@@ -135,10 +135,7 @@ class Llvm < Tool
         puts "= packaging #{archive}"
         Utils.pack archive, base_dir, ARCHIVE_TOP_DIR
 
-        if options.update_shasum?
-          release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
-          update_shasum release, platform
-        end
+        update_shasum release, platform if options.update_shasum?
 
         puts "= installing #{archive}"
         install_archive release, archive, platform.name
@@ -150,10 +147,19 @@ class Llvm < Tool
 
   def prepare_build_env(platform, libedit_dir, python_dir)
     cflags  = " -O2 -I#{libedit_dir}/include -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"
-    ldflags = "-L#{libedit_dir}/lib -static-libstdc++ -static-libgcc"
-
     cflags += ' -fPIC' if platform.target_os == 'linux'
+
+    ldflags  = "-L#{libedit_dir}/lib -static-libgcc -static-libstdc++"
     ldflags += ' -static' if platform.target_os == 'windows'
+
+
+    if platform.target_os == 'darwin'
+      # todo: build more recent toolchains
+      # Disable wchar support for libedit since it require recent C++11 support which we don't
+      # have yet in used x86_64-apple-darwin-4.9.2 prebuilt toolchain
+      cflags  += " -I#{platform.sysroot}/usr/include -DLLDB_EDITLINE_USE_WCHAR=0"
+      ldflags += " -L#{platform.sysroot}/usr/lib -Wl,-syslibroot,#{platform.sysroot} -mmacosx-version-min=10.6"
+    end
 
     if platform.target_os == 'darwin'
       # todo: build more recent toolchains
@@ -173,9 +179,15 @@ class Llvm < Tool
 
     cflags += ' ' + platform.cflags
 
+    python_home = (platform.target_os == 'darwin' and platform.cross_compile?) ? python_dir.gsub(/darwin/, 'linux') : python_dir
+
+    path = "#{platform.toolchain_path}:#{Build.path}"
+    path = "#{python_home}/bin:#{path}" unless platform.target_os == 'windows'
+
+
     build_env.clear
 
-    build_env['PATH']           = (platform.target_os == 'windows') ? Build.path : "#{python_dir}/bin:#{Build.path}"
+    build_env['PATH']           = path
     build_env['LANG']           = 'C'
     build_env['CC']             = platform.cc
     build_env['CXX']            = platform.cxx
@@ -186,7 +198,7 @@ class Llvm < Tool
     build_env['LDFLAGS']        = ldflags
     build_env['REQUIRES_RTTI']  = '1'
     build_env['DARWIN_SYSROOT'] = platform.sysroot if platform.target_os == 'darwin'
-    build_env['PYTHONHOME']     = python_dir
+    build_env['PYTHONHOME']     = python_home
 
     if platform.target_os == 'darwin'
       # from build-llvm.sh:

@@ -5,7 +5,7 @@ class Platforms < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '24', crystax_version: 1, sha256: 'aa32f5571191b8c6ecd4c51476cc73c5dba30f2a8f30a60c15f68293b43ad536'
+  release version: '24', crystax_version: 1, sha256: '60f2ef6e33907f19f2fd0addcdfd88df169f093e2538605ac35a06ce0784d436'
 
   # todo:
   #build_depends_on default_compiler
@@ -62,10 +62,7 @@ class Platforms < BasePackage
     puts "= packaging #{archive}"
     Utils.pack archive, install_dir, *ARCHIVE_TOP_DIRS
 
-    if options.update_shasum?
-      release.shasum = Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
-      update_shasum release
-    end
+    update_shasum release if options.update_shasum?
 
     if options.install?
       puts "= installing #{archive}"

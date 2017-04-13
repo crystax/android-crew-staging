@@ -5,7 +5,7 @@ class Ncurses < Package
   #url "http://ftp.gnu.org/gnu/ncurses/ncurses-${version}.tar.gz"
   url "https://github.com/mirror/ncurses/archive/v${version}.tar.gz"
 
-  release version: '6.0', crystax_version: 1, sha256: '0'
+  release version: '6.0', crystax_version: 1, sha256: 'f625b434865d126566b5492feea45e91a9199338cb7a42d087b31a0291074d2e'
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'lib', 'include', 'share'],

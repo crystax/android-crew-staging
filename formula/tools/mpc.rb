@@ -4,10 +4,10 @@ class Mpc < BuildDependency
   homepage "http://multiprecision.org"
   url "https://ftpmirror.gnu.org/mpc/mpc-${version}.tar.gz"
 
-  release version: '1.0.3', crystax_version: 1, sha256: { linux_x86_64:   'c0b4629625a692d8ef79cd5c21aef77e326960e1aff6f1d167d4630b2f68441f',
-                                                          darwin_x86_64:  '911aff37188fe212aeb84836e846cba75c9a333b78409abb129583d1e71063d2',
-                                                          windows_x86_64: '41863c0455aec6921a18a801a84ed1ae0a53a53984de4a6f02c75a7499dd07f2',
-                                                          windows:        'e5ae5d26c2ed15bc0c5e2556fe5c1a6d7982c118edb9d44fc33a52c77e6de48a'
+  release version: '1.0.3', crystax_version: 1, sha256: { linux_x86_64:   'd17b9b0f15eb2e1ec476896275dfe5004315ddd7d9731becd03d22eb0310083f',
+                                                          darwin_x86_64:  '8d8784bbda78af0e9d40a31bb712883e72532aa5988acd032ee81607c355dd8c',
+                                                          windows_x86_64: '4966c1fb5bc5c1f8b055f26a1b7aa6ce30a90234f6b45a1dab6381d65bf8a8ef',
+                                                          windows:        '464db801947350e8aca7ab2059154b31687fe870f5021f4b9f1409ca55eb43a5'
                                                         }
 
   depends_on 'gmp'
@@ -19,8 +19,8 @@ class Mpc < BuildDependency
     gmp_dir  = host_dep_dirs[platform.name]['gmp']
     mpfr_dir = host_dep_dirs[platform.name]['mpfr']
 
-    args = ["--prefix=#{install_dir}",
-            "--host=#{platform.configure_host}",
+    args = platform.configure_args +
+           ["--prefix=#{install_dir}",
             "--with-gmp=#{gmp_dir}",
             "--with-mpfr=#{mpfr_dir}",
             "--disable-shared",

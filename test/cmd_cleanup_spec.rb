@@ -10,7 +10,7 @@ describe "crew cleanup" do
   before(:each) do
     clean_cache
     clean_hold
-    clean_engine
+    clean_utilities
     repository_init
     repository_clone
   end
@@ -120,7 +120,7 @@ describe "crew cleanup" do
   #     curl_new_rel = Crew_test::UTILS_RELEASES['curl'][1]
   #     curl_old_rel = Crew_test::UTILS_RELEASES['curl'][0]
   #     expect(result).to eq(:ok)
-  #     expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/#{curl_old_rel}\n")
+  #     expect(out).to eq("removing: #{Global::UTILITIES_DIR}/curl/#{curl_old_rel}\n")
   #     expect(in_cache?(:host, 'curl', curl_new_rel.version, curl_new_rel.crystax_version)).to eq(true)
   #   end
   # end
@@ -134,7 +134,7 @@ describe "crew cleanup" do
   #     curl_new_rel = Crew_test::UTILS_RELEASES['curl'][2]
   #     curl_old_rel = Crew_test::UTILS_RELEASES['curl'][0]
   #     expect(result).to eq(:ok)
-  #     expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/#{curl_old_rel}\n")
+  #     expect(out).to eq("removing: #{Global::UTILITIES_DIR}/curl/#{curl_old_rel}\n")
   #     expect(in_cache?(:host, 'curl', curl_new_rel.version, curl_new_rel.crystax_version)).to eq(true)
   #   end
   # end
@@ -150,8 +150,8 @@ describe "crew cleanup" do
   #     ruby_new_rel = Crew_test::UTILS_RELEASES['ruby'][1]
   #     ruby_old_rel = Crew_test::UTILS_RELEASES['ruby'][0]
   #     expect(result).to eq(:ok)
-  #     expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/#{curl_old_rel}\n" \
-  #                       "removing: #{Global::ENGINE_DIR}/ruby/#{ruby_old_rel}\n")
+  #     expect(out).to eq("removing: #{Global::UTILITIES_DIR}/curl/#{curl_old_rel}\n" \
+  #                       "removing: #{Global::UTILITIES_DIR}/ruby/#{ruby_old_rel}\n")
   #     expect(in_cache?(:host, 'curl', curl_new_rel.version, curl_new_rel.crystax_version)).to eq(true)
   #     expect(in_cache?(:host, 'ruby', ruby_new_rel.version, ruby_new_rel.crystax_version)).to eq(true)
   #   end
@@ -170,8 +170,8 @@ describe "crew cleanup" do
   #     curl_1_rel = Crew_test::UTILS_RELEASES['curl'][1]
   #     curl_0_rel = Crew_test::UTILS_RELEASES['curl'][0]
   #     expect(result).to eq(:ok)
-  #     expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/#{curl_0_rel}\n" \
-  #                       "removing: #{Global::ENGINE_DIR}/curl/#{curl_1_rel}\n" \
+  #     expect(out).to eq("removing: #{Global::UTILITIES_DIR}/curl/#{curl_0_rel}\n" \
+  #                       "removing: #{Global::UTILITIES_DIR}/curl/#{curl_1_rel}\n" \
   #                       "removing: #{Global::PKG_CACHE_DIR}/curl-#{curl_1_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}\n")
   #     expect(in_cache?(:host, 'curl', curl_2_rel.version, curl_2_rel.crystax_version)).to eq(true)
   #   end
@@ -195,10 +195,10 @@ describe "crew cleanup" do
   #     ruby_1_rel = Crew_test::UTILS_RELEASES['ruby'][1]
   #     ruby_0_rel = Crew_test::UTILS_RELEASES['ruby'][0]
   #     expect(result).to eq(:ok)
-  #     expect(out).to eq("removing: #{Global::ENGINE_DIR}/curl/#{curl_0_rel}\n"         \
-  #                       "removing: #{Global::ENGINE_DIR}/curl/#{curl_1_rel}\n"         \
-  #                       "removing: #{Global::ENGINE_DIR}/libarchive/#{bsdtar_0_rel}\n" \
-  #                       "removing: #{Global::ENGINE_DIR}/ruby/#{ruby_0_rel}\n"         \
+  #     expect(out).to eq("removing: #{Global::UTILITIES_DIR}/curl/#{curl_0_rel}\n"         \
+  #                       "removing: #{Global::UTILITIES_DIR}/curl/#{curl_1_rel}\n"         \
+  #                       "removing: #{Global::UTILITIES_DIR}/libarchive/#{bsdtar_0_rel}\n" \
+  #                       "removing: #{Global::UTILITIES_DIR}/ruby/#{ruby_0_rel}\n"         \
   #                       "removing: #{Global::PKG_CACHE_DIR}/curl-#{curl_1_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}\n")
   #     expect(in_cache?(:host, 'libarchive', bsdtar_1_rel.version, bsdtar_1_rel.crystax_version)).to eq(true)
   #     expect(in_cache?(:host, 'curl',       curl_2_rel.version,   curl_2_rel.crystax_version)).to   eq(true)
@@ -219,7 +219,7 @@ describe "crew cleanup" do
   #     curl_2_rel = Crew_test::UTILS_RELEASES['curl'][2]
   #     curl_0_rel = Crew_test::UTILS_RELEASES['curl'][0]
   #     expect(result).to eq(:ok)
-  #     expect(out.split("\n")).to eq(["removing: #{Global::ENGINE_DIR}/curl/#{curl_0_rel}",
+  #     expect(out.split("\n")).to eq(["removing: #{Global::UTILITIES_DIR}/curl/#{curl_0_rel}",
   #                                    "removing: #{Global::HOLD_DIR}/libtwo/1.1.0",
   #                                    "removing: #{Global::PKG_CACHE_DIR}/#{archive_name(:target, 'libtwo', '1.1.0', 1)}"
   #                                   ])
@@ -255,10 +255,10 @@ describe "crew cleanup" do
   #     ruby_1_rel = Crew_test::UTILS_RELEASES['ruby'][1]
   #     ruby_0_rel = Crew_test::UTILS_RELEASES['ruby'][0]
   #     expect(result).to eq(:ok)
-  #     expect(out.split("\n")).to eq(["removing: #{Global::ENGINE_DIR}/curl/#{curl_0_rel}",
-  #                                    "removing: #{Global::ENGINE_DIR}/curl/#{curl_1_rel}",
-  #                                    "removing: #{Global::ENGINE_DIR}/libarchive/#{bsdtar_0_rel}",
-  #                                    "removing: #{Global::ENGINE_DIR}/ruby/#{ruby_0_rel}",
+  #     expect(out.split("\n")).to eq(["removing: #{Global::UTILITIES_DIR}/curl/#{curl_0_rel}",
+  #                                    "removing: #{Global::UTILITIES_DIR}/curl/#{curl_1_rel}",
+  #                                    "removing: #{Global::UTILITIES_DIR}/libarchive/#{bsdtar_0_rel}",
+  #                                    "removing: #{Global::UTILITIES_DIR}/ruby/#{ruby_0_rel}",
   #                                    "removing: #{Global::HOLD_DIR}/libthree/1.1.1",
   #                                    "removing: #{Global::HOLD_DIR}/libthree/2.2.2",
   #                                    "removing: #{Global::HOLD_DIR}/libtwo/1.1.0",

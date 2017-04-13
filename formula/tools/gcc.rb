@@ -5,19 +5,19 @@ class Gcc < Tool
   url "toolchain/gcc"
 
   release version: '4.9', crystax_version: 1, sha256: { linux_x86_64:   '6adaeb9e69058f41a6d803f48ac3efa18caa8a9214d5c101538570944c27b4f8',
-                                                        darwin_x86_64:  'ff9980e8119a0de408aab0fca9616db05b54fb514fa8ee85a798022d086968db',
+                                                        darwin_x86_64:  'dd636c74190d00d4e2de94a0ee311ed0653d7472ec99f585e2968d80c39b08b7',
                                                         windows_x86_64: 'a91aa6b16b134d31f06be7f86167ee33f33b6e49202a1117dd13e9a3a098cb3e',
                                                         windows:        'd0142acf9eafe5019ab4f7b8b86483461ff28d960be3f92def91f2f0983f1ff4'
                                                       }
 
   release version: '5', crystax_version: 1, sha256: { linux_x86_64:   '68b11178b4c29dcc65b677ad99a7c2554f31857e1537d33ed43503a60bda50a6',
-                                                      darwin_x86_64:  '5e9fcba4c9bb93ebe9d3738fdfd2cd70f30a9ae679b8bc4c587450756292302a',
+                                                      darwin_x86_64:  '07945c33db4d238e5a1dc1124ea29760adfc3dc8d18948ec7f74ee371e2904b4',
                                                       windows_x86_64: '54d43f033271fd9e10d156325ce359303d42c4954ba94d914eda48b23343d938',
                                                       windows:        '5d641434e5b602eccfdab7bf85bb9e31263901abaa1367eefb52ea1215d53a67'
                                                     }
 
   release version: '6', crystax_version: 1, sha256: { linux_x86_64:   'd831540bf6fc461dc477333a84d874858ade9cd70bba2361a7c8eba713daf905',
-                                                      darwin_x86_64:  '07cc6e9a5e8180be4d42e169e8437bd30f0fc67439119c97b21809a2f0fce595',
+                                                      darwin_x86_64:  'e3c7dad11b5b0daa05fbd4b7da4eb16eae2c99e22d399df8a103b23dc3902bc5',
                                                       windows_x86_64: '7f069c9a1d64dececa4b6a2edbcbfad669e7ce5547d71d1c65535d1ad48c6d13',
                                                       windows:        '695117b44f480d77d49130ebd363d6ad6f7746df4a0c59876df81f946340ed8c'
                                                     }
@@ -31,7 +31,7 @@ class Gcc < Tool
   build_depends_on 'expat'
   build_depends_on 'isl-old'
   build_depends_on 'cloog-old'
-  build_depends_on 'python', ns: 'host'
+  build_depends_on 'python'
 
   ARCHIVE_TOP_DIR  = 'toolchains'
   UNWIND_SUB_DIR   = 'sources/android/gccunwind/libs'
@@ -68,23 +68,22 @@ class Gcc < Tool
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"
 
-    self.num_jobs = options.num_jobs
-
     FileUtils.rm_rf build_base_dir
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"
-      #[Build::ARCH_LIST[0]].each do |arch|
+      #[Build::ARCH_LIST[2]].each do |arch|
       Build::ARCH_LIST.each do |arch|
         base_dir = base_dir(platform, arch)
         self.log_file = build_log_file(base_dir)
         printf  "  %-#{max_arch_name_len+1}s ", "#{arch.name}:"
-        if platform.target_os == 'windows'
-          # when building widows based toolchain we must at first build toolchain
+        # todo:
+        if canadian_build? platform
+          # when building widows based toolchain (or darwin based on linux) we must at first build toolchain
           # that targets the same arch and works on the host we're building on
           host_platform = Platform.new(Global::PLATFORM_NAME)
           update_dep_dirs(host_dep_dirs, platform, host_platform)
-          build_toolchain host_platform, arch, release, host_dep_dirs, File.join(base_dir, 'host'), build_gdb: false
+          build_toolchain host_platform, arch, release, host_dep_dirs, File.join(base_dir, 'host'), build_gdb: false, strip_executables: false
           print '   '
         end
         build_toolchain platform, arch, release, host_dep_dirs, base_dir
@@ -93,6 +92,7 @@ class Gcc < Tool
 
       if not options.build_only?
         pkg_dir = File.join(build_base_dir, platform.name, ARCHIVE_TOP_DIR)
+        # todo:
         #[Build::ARCH_LIST[0]].each do |arch|
         Build::ARCH_LIST.each do |arch|
           base_dir = base_dir(platform, arch)
@@ -111,10 +111,7 @@ class Gcc < Tool
         dirs << UNWIND_SUB_DIR.split('/')[0] if Toolchain::DEFAULT_GCC.version == release.version
         Utils.pack archive, base_dir_for_platform(platform), *dirs
 
-        if options.update_shasum?
-          release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
-          update_shasum release, platform
-        end
+        update_shasum release, platform if options.update_shasum?
 
         puts "= installing #{archive}"
         install_archive release, archive, platform.name
@@ -132,7 +129,11 @@ class Gcc < Tool
 
   private
 
-  def build_toolchain(platform, arch, release, host_dep_dirs, base_dir, params = { build_gdb: true })
+  def canadian_build?(platform)
+    platform.cross_compile?
+  end
+
+  def build_toolchain(platform, arch, release, host_dep_dirs, base_dir, params = { build_gdb: true, strip_executables: true })
     # prepare base dirs and log file
     install_dir = install_dir(base_dir)
     FileUtils.mkdir_p install_dir
@@ -143,23 +144,26 @@ class Gcc < Tool
 
     common_args = ["--prefix=#{install_dir}",
                    "--target=#{arch.host}",
-                   "--build=#{platform.toolchain_build}",
-                   "--host=#{platform.toolchain_host}",
+                   "--build=#{platform.configure_build}",
+                   "--host=#{platform.configure_host}",
                    "--disable-shared",
                    "--disable-nls",
                    "--with-bugurl=#{Build::BUG_URL}",
                    "--program-transform-name='s&^&#{arch.host}-&'"
                   ]
 
+    # todo:
     build_binutils platform, arch, release, host_dep_dirs, common_args, sysroot_dir, base_dir
     build_gcc      platform, arch, release, host_dep_dirs, common_args, sysroot_dir, base_dir
     build_gdb      platform, arch, release, host_dep_dirs, common_args, sysroot_dir, base_dir if params[:build_gdb]
 
     # strip executables
-    build_env.clear
-    self.system_ignore_result = true
-    find_executables(install_dir, platform).each { |exe| system platform.strip, exe }
-    self.system_ignore_result = false
+    if params[:strip_executables]
+      build_env.clear
+      self.system_ignore_result = true
+      find_executables(install_dir, platform).each { |exe| system platform.strip, exe }
+      self.system_ignore_result = false
+    end
   end
 
   def build_binutils(platform, arch, release, host_dep_dirs, cfg_args, sysroot_dir, base_dir)
@@ -174,6 +178,8 @@ class Gcc < Tool
     gmp_dir   = host_dep_dirs[platform.name]['gmp']
     isl_dir   = host_dep_dirs[platform.name][release.version == '4.9' ? 'isl-old' : 'isl']
     cloog_dir = host_dep_dirs[platform.name][release.version == '4.9' ? 'cloog-old' : 'cloog']
+
+    build_env['CXXFLAGS'] += ' -std=gnu++98' if (platform.target_os == 'darwin' and platform.cross_compile?) # gcc 6.0
 
     args = cfg_args + binutils_arch_args(arch) + binutils_libstdcxx_args(platform) +
            ["--disable-werror",
@@ -200,8 +206,8 @@ class Gcc < Tool
     FileUtils.mkdir_p build_dir
 
     prepare_build_environment platform
+
     build_env['CFLAGS'] += ' -static-libgcc -static-libstdc++'
-    build_env['CFLAGS'] += ' -D__USE_MINGW_ANSI_STDIO=1' if platform.target_os == 'windows'
     export_target_binutils install_dir(base_dir), arch
     cflags_for_target = '-O2 -Os -g -DTARGET_POSIX_IO -fno-short-enums'
     cxxflags_for_target = cflags_for_target
@@ -217,12 +223,13 @@ class Gcc < Tool
 
     build_target   = ''
     install_target = 'install'
-    if platform.target_os == 'windows'
-      if platform.target_cpu == 'x86'
-        build_env['CFLAGS_FOR_BUILD']  = ' -m32'
+    if canadian_build? platform
+      # expr.c:(.text+0x2708): undefined reference to `__udivdi3'
+      if platform.name == 'windows'
+        build_env['CFLAGS_FOR_BUILD']   = ' -m32'
         build_env['CXXFLAGS_FOR_BUILD'] = ' -m32'
       end
-      build_env['PATH'] = "#{File.join(base_dir, 'host', 'install', 'bin')}:#{ENV['PATH']}"
+      build_env['PATH'] = "#{File.join(base_dir, 'host', 'install', 'bin')}:#{build_env['PATH']}"
       # When building canadian cross toolchain we cannot build GCC target libraries.
       # So we build the compilers only and copy the target libraries from
       # '...host/install' directory
@@ -270,12 +277,11 @@ class Gcc < Tool
     FileUtils.cd(build_dir) do
       system "#{src_dir}/configure", *args
       system 'make', '-j', num_jobs, build_target
-      #system 'make', build_target
       system 'make', install_target
     end
 
     install_dir = install_dir(base_dir)
-    if platform.target_os == 'windows'
+    if canadian_build? platform
       libgcc_dir = File.join(install_dir, 'lib', 'gcc')
       FileUtils.mkdir_p libgcc_dir
       host_libgcc_dir = File.join(base_dir, 'host', 'install', 'lib', 'gcc')
@@ -298,7 +304,7 @@ class Gcc < Tool
 
     expat_dir = host_dep_dirs[platform.name]['expat']
 
-    if platform.target_os == 'windows'
+    if canadian_build? platform
       build_env['CC_FOR_BUILD'] = Platform.new(Global::PLATFORM_NAME).cc
     end
 
@@ -306,7 +312,7 @@ class Gcc < Tool
            ["--disable-werror",
             "--with-expat",
             "--with-libexpat-prefix=#{expat_dir}",
-            "--with-python=#{Utility.active_dir('python', Global::engine_dir(platform.name))}/python-config.sh",
+            "--with-python=#{Utility.active_dir('python', Global::utilities_dir(platform.name))}/python-config.sh",
             "--with-sysroot=#{sysroot_dir}"
            ]
 
@@ -403,18 +409,26 @@ class Gcc < Tool
 
   def prepare_build_environment(platform)
     build_env.clear
-    build_env['LANG']     = 'C'
-    build_env['CC']       = platform.cc
-    build_env['CXX']      = platform.cxx
-    build_env['AR']       = platform.ar
-    build_env['RANLIB']   = platform.ranlib
-    build_env['CFLAGS']   = platform.cflags + ' -O2 -s -Wno-error'
-    build_env['CXXFLAGS'] = platform.cxxflags
+    build_env['PATH']    = "#{platform.toolchain_path}:#{Build.path}"
+    build_env['LANG']    = 'C'
+    build_env['CC']      = platform.cc
+    build_env['CXX']     = platform.cxx
+    build_env['AR']      = platform.ar
+    build_env['RANLIB']  = platform.ranlib
+    build_env['CFLAGS']  = platform.cflags + ' -O2 -s -Wno-error'
+    # todo: do we need '-s' option?
+    #build_env['CFLAGS']  += ' -s' if platform.compiler_major_version < 6
+
     if platform.target_os == 'windows'
       build_env['CFLAGS'] += ' -D__USE_MINGW_ANSI_STDIO=1'
-      build_env['PATH'] = "#{File.dirname(platform.cc)}:#{ENV['PATH']}"
-      build_env['RC'] = "x86_64-w64-mingw32-windres -F pe-i386" if platform.target_cpu == 'x86'
+      build_env['RC'] = platform.windres
+      if platform.target_cpu == 'x86'
+        build_env['CFLAGS'] += ' -m32'
+        #build_env['LDFLAGS'] = ' -m32'
+      end
     end
+
+    build_env['CXXFLAGS'] = build_env['CFLAGS']
   end
 
   # here we do what ./build/tools/gen-platforms.sh --minimal does
@@ -496,7 +510,7 @@ class Gcc < Tool
   end
 
   def create_libgccunwind(platform, arch, base_dir)
-    base_dir = File.join(base_dir, 'host') if platform.target_os == 'windows'
+    base_dir = File.join(base_dir, 'host') if canadian_build? platform
     ar = File.join(build_dir_for_component(base_dir, 'binutils'), 'binutils', 'ar')
     arch.abis.each do |abi|
       unwind_lib = File.join(base_dir_for_platform(platform), UNWIND_SUB_DIR, abi, 'libgccunwind.a')

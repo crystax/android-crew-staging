@@ -4,10 +4,10 @@ class Curl < Utility
   homepage 'http://curl.haxx.se/'
   url 'https://curl.haxx.se/download/curl-${version}.tar.bz2'
 
-  release version: '7.48.0', crystax_version: 1, sha256: { linux_x86_64:   '005158291e9b2b9b965a04913b6b03e1466de0a1402274f65fbc05a330d653e1',
-                                                           darwin_x86_64:  '0ec2f173b0114e0fa64597183fa3f6a17c05e1953f6b1c25c74adcc8ad7c40af',
-                                                           windows_x86_64: '76fa24cb9b5320ec14c2c208e661e2ac5c3e5ea45ffd4b7f053cf2e09fc5bba9',
-                                                           windows:        '4612850f2b3a8c254d6e771d75d500ecf1ccc661344472c82e3a970b2d3ad269'
+  release version: '7.48.0', crystax_version: 1, sha256: { linux_x86_64:   '3e228c41da62a87b5a8a3bc9220d833c9fd0c905b24432f895b12b7e4d084ae1',
+                                                           darwin_x86_64:  '5aa198ab72b613bd7055243ec6be64d2c9344ebdd670849c0ebc8dcfc99f5a76',
+                                                           windows_x86_64: 'fc040fe41a67f51c36135e0be275708591d0e1a99d2eb01746360c11f3fffa83',
+                                                           windows:        'ec2c055540dce82220fbf73cb864339ab8f2e7c15081e4df1a57387a39476830'
                                                          }
 
   build_depends_on 'zlib'
@@ -24,14 +24,14 @@ class Curl < Utility
     build_env['LIBS']     = '-ldl'      if platform.target_os == 'linux'
     build_env['LIBS']     = '-lcrypt32' if platform.target_os == 'windows'
 
-    args = ["--prefix=#{install_dir}",
-            "--host=#{platform.configure_host}",
-            "--disable-shared",
-            "--disable-ldap",
-            "--with-ssl=#{openssl_dir}",
-            "--with-zlib=#{zlib_dir}",
-            "--with-libssh2=#{libssh2_dir}"
-           ]
+    args  = platform.configure_args +
+            ["--prefix=#{install_dir}",
+             "--disable-shared",
+             "--disable-ldap",
+             "--with-ssl=#{openssl_dir}",
+             "--with-zlib=#{zlib_dir}",
+             "--with-libssh2=#{libssh2_dir}"
+            ]
 
     system "#{src_dir}/configure", *args
     system 'make', '-j', num_jobs

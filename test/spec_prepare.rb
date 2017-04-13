@@ -11,6 +11,7 @@ if File.exists? Crew_test::DATA_READY_FILE
   exit 0
 end
 
+UTILITES_BASE_DIR = 'utilities'
 
 tools_dir          = ENV['CREW_TOOLS_DIR']
 PLATFORM           = File.basename(tools_dir)
@@ -18,15 +19,15 @@ PLATFORM_SYM       = PLATFORM.gsub(/-/, '_').to_sym
 utils_download_dir = File.join(Crew_test::DOCROOT_DIR, 'tools')
 orig_ndk_dir       = ENV['ORIG_NDK_DIR']
 orig_tools_dir     = File.join(orig_ndk_dir, 'prebuilt', PLATFORM)
-orig_engine_dir    = File.join(orig_tools_dir, 'crew')
+orig_utilities_dir = File.join(orig_tools_dir, UTILITES_BASE_DIR)
 
 # copy utils from NDK dir to tests directory structure
-FileUtils.mkdir_p File.join(tools_dir, 'crew')
+FileUtils.mkdir_p File.join(tools_dir, UTILITES_BASE_DIR)
 FileUtils.mkdir_p utils_download_dir
 FileUtils.cp_r File.join(orig_tools_dir, 'bin'),  tools_dir
 
 # copy only core utilites
-Crew_test::UTILS.each { |cu| FileUtils.cp_r File.join(orig_tools_dir, 'crew', cu), File.join(tools_dir, 'crew') }
+Crew_test::UTILS.each { |cu| FileUtils.cp_r File.join(orig_utilities_dir, cu), File.join(tools_dir, UTILITES_BASE_DIR) }
 FileUtils.cp_r Crew_test::NDK_DIR, Crew_test::NDK_COPY_DIR
 
 
@@ -37,7 +38,7 @@ require_relative '../library/utility.rb'
 
 ORIG_NDK_DIR       = Pathname.new(orig_ndk_dir).realpath.to_s
 ORIG_TOOLS_DIR     = Pathname.new(orig_tools_dir).realpath.to_s
-ORIG_ENGINE_DIR    = Pathname.new(orig_engine_dir).realpath.to_s
+ORIG_UTILITIES_DIR = Pathname.new(orig_utilities_dir).realpath.to_s
 ORIG_FORMULA_DIR   = Pathname.new(File.join('..', 'formula', 'tools')).realpath.to_s
 TOOLS_DIR          = Pathname.new(tools_dir).realpath.to_s
 UTILS_DOWNLOAD_DIR = Pathname.new(utils_download_dir).realpath.to_s
@@ -93,7 +94,7 @@ def get_lastest_utility_release(formula)
 end
 
 def create_archive(orig_release, release, util)
-  util_dir = File.join('tmp', 'prebuilt', PLATFORM, 'crew', util)
+  util_dir = File.join('tmp', 'prebuilt', PLATFORM, UTILITES_BASE_DIR, util)
   old = orig_release.to_s
   new = release.to_s
   FileUtils.cd(util_dir) do
@@ -101,12 +102,12 @@ def create_archive(orig_release, release, util)
     FileUtils.mv old, new if old != new
   end
   # make archive
-  dir_to_archive = File.join('prebuilt', PLATFORM, 'crew', util, new)
+  dir_to_archive = File.join('prebuilt', PLATFORM, UTILITES_BASE_DIR, util, new)
   archive_path = File.join(UTILS_DOWNLOAD_DIR, util, "#{util}-#{release}-#{PLATFORM}.#{Global::ARCH_EXT}")
   FileUtils.mkdir_p File.dirname(archive_path)
   FileUtils.cd('tmp') do
     args = ['-Jcf', archive_path, dir_to_archive]
-    Utils.run_command(File.join(Utility::active_dir('libarchive', ORIG_ENGINE_DIR), 'bsdtar'), *args)
+    Utils.run_command(File.join(Utility::active_dir('libarchive', ORIG_UTILITIES_DIR), 'bsdtar'), *args)
   end
   # rename new release back to old
   FileUtils.cd(util_dir) { FileUtils.mv new, old if old != new }
@@ -122,8 +123,8 @@ orig_releases = {}
 Crew_test::UTILS.each do |u|
   formula = File.join(ORIG_FORMULA_DIR, "#{u}.rb")
   orig_releases[u] = ur = get_lastest_utility_release(formula)
-  src_dir = File.join(ORIG_NDK_DIR, 'prebuilt', PLATFORM, 'crew', "#{u}", "#{ur.to_s}")
-  dst_dir = File.join('tmp', 'prebuilt', PLATFORM, 'crew', "#{u}")
+  src_dir = File.join(ORIG_NDK_DIR, 'prebuilt', PLATFORM, UTILITES_BASE_DIR, "#{u}", "#{ur.to_s}")
+  dst_dir = File.join('tmp', 'prebuilt', PLATFORM, UTILITES_BASE_DIR, "#{u}")
   FileUtils.mkdir_p dst_dir
   FileUtils.cp_r src_dir, dst_dir
 end

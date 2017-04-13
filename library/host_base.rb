@@ -1,7 +1,7 @@
 require_relative 'platform.rb'
 require_relative 'formula.rb'
 
-class HostFormula < Formula
+class HostBase < Formula
 
   include Properties
 
@@ -51,6 +51,9 @@ class HostFormula < Formula
   end
 
   def update_shasum(release, platform)
+    archive = cache_file(release, platform.name)
+    release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
+
     ver = release.version
     cxver = release.crystax_version
     sum = release.shasum(platform.to_sym)
@@ -87,5 +90,9 @@ class HostFormula < Formula
     end
 
     File.open(path, 'w') { |f| f.puts lines }
+
+    # we want archive modification time to be after formula file modification time
+    # otherwise we'll be constantly rebuilding formulas for nothing
+    FileUtils.touch archive
   end
 end

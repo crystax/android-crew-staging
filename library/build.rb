@@ -44,7 +44,7 @@ module Build
       raise 'can\'t determine brew root' unless brew_root.size > 0
       brew_path = ['opt/texinfo/bin',
                    'opt/m4/bin',
-                   'opt/flex/bin',
+                   #'opt/flex/bin',
                    'opt/bison/bin',
                    'opt/gnu-tar/libexec/gnubin',
                    'opt/gnu-sed/libexec/gnubin',

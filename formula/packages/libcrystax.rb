@@ -6,7 +6,7 @@ class Libcrystax < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '1', crystax_version: 1, sha256: '9da1dc9cacd9b8d1aceaf333b27d31688b02e31adcef0970334a7b59664c4a11'
+  release version: '1', crystax_version: 1, sha256: '10ba75046e62753a91b7d5df112a2882b40d67aaaf22c9f5462c88e14bfed4c9'
 
   # todo:
   build_depends_on 'platforms'
@@ -52,8 +52,12 @@ class Libcrystax < BasePackage
         puts "  building for abi: #{abi}"
         build_dir = File.join(arch_build_dir, abi, 'build')
         FileUtils.mkdir_p build_dir
-        FileUtils.cd(build_dir) { [:static, :shared].each { |lt| build_for_abi abi, release, lib_type: lt } }
-        FileUtils.cp_r release_directory, dst_dir unless options.build_only?
+        FileUtils.cd(build_dir) do
+          [:static, :shared].each do |lt|
+            build_for_abi abi, release, lib_type: lt
+            FileUtils.cp_r release_directory, dst_dir unless options.build_only?
+          end
+        end
       end
       FileUtils.rm_rf arch_build_dir unless options.no_clean?
     end
@@ -69,10 +73,7 @@ class Libcrystax < BasePackage
       install_archive release, archive if options.install?
     end
 
-    if options.update_shasum?
-      release.shasum = Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
-      update_shasum release
-    end
+    update_shasum release if options.update_shasum?
 
     if options.no_clean?
       puts "No cleanup, for build artifacts see #{base_dir}"

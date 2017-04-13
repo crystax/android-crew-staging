@@ -47,6 +47,16 @@ class Formulary
     end
   end
 
+  def select(names)
+    formulas = []
+    if names.size == 0
+      formulas = @formulary.values
+    else
+      names.each { |n| formulas << self[n] }
+    end
+    formulas
+  end
+
   def dependants_of(fqn)
     list = []
     @formulary.values.each do |f|

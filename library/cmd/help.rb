@@ -2,11 +2,13 @@ require_relative '../exceptions.rb'
 require_relative '../build.rb'
 
 
-ENV_SYNTAX     = 'env [env_options]'.freeze
-LIST_SYNTAX    = 'list [list_options] [name1 name2 ...]'.freeze
-INSTALL_SYNTAX = 'install [install_options] name[:version] ...'.freeze
-BUILD_SYNTAX   = 'build [build_options] name[:version] ...'.freeze
-SHASUM_SYNTAX  = 'shasum [shasum_options] [name1 name2 ...]'.freeze
+ENV_SYNTAX           = 'env [options]'.freeze
+LIST_SYNTAX          = 'list [options] [name1 name2 ...]'.freeze
+INSTALL_SYNTAX       = 'install [options] name[:version] ...'.freeze
+SOURCE_SYNTAX        = 'source [options] name[:version] ...'.freeze
+BUILD_SYNTAX         = 'build [options] name[:version] ...'.freeze
+SHASUM_SYNTAX        = 'shasum [options] [name1 name2 ...]'.freeze
+SHOW_OUTDATED_SYNTAX = 'show-outdated [options] [name1 name2 ...]'.freeze
 
 NAME_RULES = <<-EOS
 Name for a formula can specified in two ways. First, it can be specified
@@ -52,7 +54,7 @@ COMMAND is one of the following:
                   install the specified formula(s)
   remove name[:version] ...
                   uninstall the specified formulas
-  source name[:version] ...
+  #{SOURCE_SYNTAX}
                   install source code for the specified formula(s)
   #{BUILD_SYNTAX}
                   build the specified formula(s) from the source code
@@ -63,11 +65,13 @@ COMMAND is one of the following:
   cleanup [-n]    uninstall old versions and clean cache
   #{SHASUM_SYNTAX}
                   check or update SHA256 sums
+  #{SHOW_OUTDATED_SYNTAX}
+                  list packages that require rebuilding
 EOS
 
 
 NO_HELP = <<-EOS
-There is no additional info the command.
+There is no additional info for the command.
 EOS
 
 ENV_HELP = <<-EOS
@@ -77,6 +81,9 @@ The ENV command supports the following options:
 
 --pkg-cache-dir  output path to the directory used as
                  a cache for crew packages
+
+--src-cache-dir  output path to the directory used as
+                 a cache for sources for the crew packages
 
 EOS
 
@@ -92,27 +99,10 @@ Filters:
 
 --tools          list only tools, t.i. formulas with
                  'host' namespace
-
---require-rebuild=WHICH name1 name2 ...
-                 selects from the specified names those for which
-                 there is no archive in the package cache directory, or
-                 an existing archive is older than formula
-                 file;
-                 if 'WHICH' is 'last' then command whill check only
-                 last version described in a formula;
-                 if 'WHICH' is 'all' then command will check all versions
-                 described in a formula
-
-For example, to list crew utilities with obsolete or absent archive
-files for a last versions of the programs one could run the command from
-the NDK directory:
-
-./crew list --require-rebuild=last bsdtar curl ruby
-
 EOS
 
 INSTALL_HELP = <<-EOS
-             #{INSTALL_SYNTAX}
+#{INSTALL_SYNTAX}
 
 #{NAME_RULES}
 
@@ -134,12 +124,17 @@ The INSTALL command support the following options:
 --force          install even if specified formula(s) installed
 
 --all-versions   install all version of the specified formula(s)
+EOS
 
-NB
+SOURCE_HELP = <<-EOS
+#{SOURCE_SYNTAX}
 
-All options the INSTALL command supports are intended for CREW
-developers mainly.
+#{NAME_RULES}
 
+The SOURCE command support the following options:
+
+--all-versions   install source code for all version of the specified
+                 formula(s)
 EOS
 
 BUILD_HELP = <<-EOS
@@ -150,9 +145,6 @@ BUILD_HELP = <<-EOS
 The BUILD command supports the following options:
 
 Common options:
-
---source-only    just prepare sources for building and do nothing else;
-                 implies --no-clean
 
 --build-only     do not create package in the cache dir and do not install
                  formula; implies --no-clean
@@ -171,6 +163,9 @@ Common options:
 
 Options for building utilities:
 
+--source-only    just prepare sources for building and do nothing else;
+                 implies --no-clean
+
 --platforms=LIST the list of platforms for which to build formulas;
                  platforms must be separated with comma;
                  available platforms on darwin hosts are darwin-x86_64;
@@ -182,7 +177,7 @@ Options for building utilities:
 --check          run tests if host OS and platform OS are the same;
                  by default tests will not be run
 
-Options for building libraries:
+Options for building target packages:
 
 --abis=LIST      the list of ABIs for which to build formulas;
                  ABIs must be separated with comma;
@@ -203,6 +198,40 @@ The SHASUM command supports the following options:
                  if no formula name was specified then command will check
                  (and update) sums for all formulas
 
+--check          check SHA256 sum for every release of every formula
+
+--platforms=LIST the list of platforms for which to apply the command;
+                 platforms must be separated with comma;
+                 default platforms on darwin hosts are darwin-x86_64;
+                 default platforms on linux hosts are linux-x86_64,
+                 windows-x86_64, windows
+EOS
+
+SHOW_OUTDATED_HELP = <<-EOS
+#{SHOW_OUTDATED_SYNTAX}
+
+If no formulas names were specified then command will check all
+available formulas.
+
+The command works as follows:
+
+- check that required archive exists in the cache;
+- compares modification times of the archive and formula file;
+- compares SHA256 sum of the archive and the one in the formula.
+
+The SHOW-OUTDATED command supports the following options:
+
+--version=WHICH  if 'WHICH' is 'last' then command whill check only
+                 last version described in a formula;
+                 if 'WHICH' is 'all' then command will check all versions
+                 described in a formula;
+                 by default command will check last version
+
+For example, to list crew utilities with obsolete or absent archive
+files for a last versions of the programs one could run the command from
+the NDK directory:
+
+./crew show-outdated --version=last bsdtar curl ruby
 EOS
 
 CMD_HELP = {
@@ -213,13 +242,14 @@ CMD_HELP = {
   'info'          => NO_HELP,
   'install'       => INSTALL_HELP,
   'remove'        => NO_HELP,
-  'source'        => NO_HELP,
+  'source'        => SOURCE_HELP,
   'build'         => BUILD_HELP,
   'remove-source' => NO_HELP,
   'update'        => NO_HELP,
   'upgrade'       => NO_HELP,
   'cleanup'       => NO_HELP,
-  'shasum'        => SHASUM_HELP
+  'shasum'        => SHASUM_HELP,
+  'show-outdated' => SHOW_OUTDATED_HELP
 }
 
 module Crew

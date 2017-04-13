@@ -49,6 +49,7 @@ describe "simple crew commands" do
       expect(result).to eq(:ok)
       expect(out).to eq("DOWNLOAD_BASE:  #{Global::DOWNLOAD_BASE}\n"  \
                         "PKG_CACHE_BASE: #{Global::PKG_CACHE_BASE}\n" \
+                        "SRC_CACHE_BASE: #{Global::SRC_CACHE_BASE}\n" \
                         "BASE_DIR:       #{Global::BASE_DIR}\n"       \
                         "NDK_DIR:        #{Global::NDK_DIR}\n"        \
                         "TOOLS_DIR:      #{Global::TOOLS_DIR}\n")
@@ -60,6 +61,14 @@ describe "simple crew commands" do
       crew 'env --pkg-cache-dir'
       expect(result).to eq(:ok)
       expect(out).to eq("#{Global::PKG_CACHE_DIR}\n")
+    end
+  end
+
+  context "crew env --src-cache-dir" do
+    it "outputs crew's packages cache directory" do
+      crew 'env --src-cache-dir'
+      expect(result).to eq(:ok)
+      expect(out).to eq("#{Global::SRC_CACHE_DIR}\n")
     end
   end
 end

@@ -2,92 +2,169 @@ require_relative 'build.rb'
 
 class Platform
 
-  NAMES = ['darwin-x86_64', 'linux-x86_64', 'windows-x86_64', 'windows']
+  DEF_LINUX_NAMES  = ['linux-x86_64', 'windows-x86_64', 'windows']
+  DEF_DARWIN_NAMES = ['darwin-x86_64']
+  NAMES = DEF_LINUX_NAMES + DEF_DARWIN_NAMES
   MACOSX_VERSION_MIN = '10.6'
-  TOOLCHAIN = { 'darwin'  => { tool_path:   "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/darwin-x86/host/x86_64-apple-darwin-4.9.3/bin",
-                               tool_prefix: '',
-                               gcc:         'gcc',
-                               gxx:         'g++',
-                               ar:          'gcc-ar',
-                               ranlib:      'gcc-ranlib'
-                               # no strip in darwin/gcc toolchain
-                             },
-                'linux'   => { tool_path:   "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/bin",
-                               tool_prefix: 'x86_64-linux-',
-                               gcc:         'gcc',
-                               gxx:         'g++',
-                               ar:          'ar',
-                               ranlib:      'ranlib',
-                               strip:       'strip'
-                             },
-                'windows' => { tool_path:   "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-w64-mingw32-4.9.3/bin",
-                               tool_prefix: 'x86_64-w64-mingw32-',
-                               gcc:         'gcc',
-                               gxx:         'g++',
-                               ar:          'ar',
-                               ranlib:      'ranlib',
-                               strip:       'strip'
-                             }
+  TOOLCHAIN = { 'darwin/darwin' => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/darwin-x86/host/x86_64-apple-darwin-4.9.3/bin",
+                                     tool_prefix:   '',
+                                     major_version: 4,
+                                     gcc:           'gcc',
+                                     gxx:           'g++',
+                                     # no ld in darwin/gcc toolchain
+                                     ar:            'gcc-ar',
+                                     ranlib:        'gcc-ranlib',
+                                     # no strip in darwin/gcc toolchain
+                                     nm:            'gcc-nm'
+                                     # no windres
+                                   },
+                'linux/linux'   => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/bin",
+                                     tool_prefix:   'x86_64-linux-',
+                                     major_version: 4,
+                                     gcc:           'gcc',
+                                     gxx:           'g++',
+                                     ld:            'ld',
+                                     ar:            'ar',
+                                     ranlib:        'ranlib',
+                                     strip:         'strip',
+                                     nm:            'nm'
+                                     # no windres
+                                   },
+                'linux/darwin'  => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-apple-darwin10-4.9.4/bin",
+                                     tool_prefix:   'x86_64-apple-darwin10-',
+                                     major_version: 4,
+                                     gcc:           'gcc',
+                                     gxx:           'g++',
+                                     ld:            'ld',
+                                     ar:            'ar',
+                                     ranlib:        'ranlib',
+                                     strip:         'strip',
+                                     nm:            'nm'
+                                     # no windres
+                                   },
+                # 'linux/darwin'  => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-apple-darwin10-6.3/bin",
+                #                      tool_prefix:   'x86_64-apple-darwin10-',
+                #                      major_version: 6,
+                #                      gcc:           'gcc',
+                #                      gxx:           'g++',
+                #                      ld:            'ld',
+                #                      ar:            'ar',
+                #                      ranlib:        'ranlib',
+                #                      strip:         'strip',
+                #                      nm:            'nm'
+                #                      # no windres
+                #                    },
+                'linux/windows' => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-w64-mingw32-4.9.3/bin",
+                                     tool_prefix:   'x86_64-w64-mingw32-',
+                                     major_version: 4,
+                                     gcc:           'gcc',
+                                     gxx:           'g++',
+                                     ld:            'ld',
+                                     ar:            'ar',
+                                     ranlib:        'ranlib',
+                                     strip:         'strip',
+                                     nm:            'nm',
+                                     windres:       'windres'
+                                   }
               }
 
-  attr_reader :name, :target_os, :target_cpu
-  attr_reader :cc, :cxx, :ar, :ranlib, :strip
+  def self.default_names_for_host_os
+    case Global::OS
+    when 'darwin'
+      DEF_DARWIN_NAMES
+    when 'linux'
+      DEF_LINUX_NAMES
+    else
+      []
+    end
+  end
+
+  attr_reader :name, :host_os, :target_os, :target_cpu
+  attr_reader :toolchain_path
+  attr_reader :cc, :cxx, :ld, :ar, :ranlib, :strip, :nm, :windres
   attr_reader :sysroot
   attr_reader :cflags, :cxxflags
-  attr_reader :configure_host, :toolchain_host, :toolchain_build
+  attr_reader :configure_host, :configure_build
   attr_reader :target_exe_ext
 
   def initialize(name)
     raise "unsupported platform #{name}" unless NAMES.include? name
 
     @name = name
+    @host_os = Global::OS
     @target_os, @target_cpu = name.split('-')
     @target_cpu = 'x86' if @target_cpu == nil
-    #
-    toolchain = TOOLCHAIN[@target_os]
-    path = toolchain[:tool_path]
+
+    os_pair = "#{@host_os}/#{@target_os}"
+    #raise "unsupported host OS / target OS pair: #{os_pair}" unless TOOLCHAIN[os_pair]
+    # todo: use special toolchain class
+    toolchain = TOOLCHAIN[os_pair]
+
+    return unless toolchain
+
     prefix = toolchain[:tool_prefix]
-    @cc = File.join(path, "#{prefix}#{toolchain[:gcc]}")
-    @cxx = File.join(path, "#{prefix}#{toolchain[:gxx]}")
-    if @target_os == 'darwin'
+
+    @toolchain_path = toolchain[:tool_path]
+
+    @cc = File.join(@toolchain_path, "#{prefix}#{toolchain[:gcc]}")
+    @cxx = File.join(@toolchain_path, "#{prefix}#{toolchain[:gxx]}")
+    if @target_os == 'darwin' and @host_os == 'darwin'
+      # use system ld
+      @ld     = 'ld'
       # there is a problem with lt_plugin on darwin
-      @ar = 'ar'
+      @ar     = 'ar'
       @ranlib = 'ranlib'
-      @strip = 'strip'
+      @strip  = 'strip'
+      @nm     = 'nm'
     else
-      @ar = File.join(path, "#{prefix}#{toolchain[:ar]}")
-      @ranlib = File.join(path, "#{prefix}#{toolchain[:ranlib]}")
-      @strip = File.join(path, "#{prefix}#{toolchain[:strip]}")
+      @ld     = File.join(@toolchain_path, "#{prefix}#{toolchain[:ld]}")
+      @ar     = File.join(@toolchain_path, "#{prefix}#{toolchain[:ar]}")
+      @ranlib = File.join(@toolchain_path, "#{prefix}#{toolchain[:ranlib]}")
+      @strip  = File.join(@toolchain_path, "#{prefix}#{toolchain[:strip]}")
+      @nm     = File.join(@toolchain_path, "#{prefix}#{toolchain[:nm]}")
     end
-    #
+    if @target_os == 'windows'
+      @windres  = File.join(@toolchain_path, "#{prefix}#{toolchain[:windres]}")
+      @windres += ' -F pe-i386' if @target_cpu == 'x86'
+    end
+
     case @name
     when 'darwin-x86_64'
+      # openssl build fails if put a blank bettwen -isysroot and sysroot path
+      # --sysroot can not be used here even for gcc, it will break almost all builds on darwin
       @sysroot         = "#{Build::PLATFORM_PREBUILTS_DIR}/sysroot/darwin-x86/MacOSX10.6.sdk"
       @cflags          = "-isysroot#{sysroot} -mmacosx-version-min=#{MACOSX_VERSION_MIN} -DMACOSX_DEPLOYMENT_TARGET=#{MACOSX_VERSION_MIN} -m64"
-      @configure_host  = 'x86_64-darwin10'
-      @toolchain_build = 'x86_64-apple-darwin'
-      @toolchain_host  = @toolchain_build
+      @configure_host  = 'x86_64-apple-darwin10'
+      @configure_build = (@host_os == 'darwin') ? @configure_host : 'x86_64-linux-gnu'
+      #@toolchain_host  = 'x86_64-darwin10' #'x86_64-apple-darwin'
     when 'linux-x86_64'
       @sysroot         = "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/sysroot"
       @cflags          = "--sysroot=#{sysroot}"
       @configure_host  = 'x86_64-linux'
-      @toolchain_build = 'x86_64-linux-gnu'
-      @toolchain_host  = @toolchain_build
+      @configure_build = 'x86_64-linux-gnu'
     when 'windows-x86_64'
       @cflags          = '-m64'
       @configure_host  = 'x86_64-w64-mingw32'
-      @toolchain_build = 'x86_64-linux-gnu'
-      @toolchain_host  = 'x86_64-pc-mingw32msvc'
+      #@configure_host  = 'x86_64-pc-mingw32msvc'
+      @configure_build = 'x86_64-linux-gnu'
     when 'windows'
       @cflags          = '-m32'
       @configure_host  = 'x86_64-w64-mingw32'
-      @toolchain_build = 'x86_64-linux-gnu'
-      @toolchain_host  = 'i586-pc-mingw32msvc'
+      #@configure_host  = 'i586-pc-mingw32msvc'
+      @configure_build = 'x86_64-linux-gnu'
     end
 
     @cxxflags = @cflags
 
     @target_exe_ext = (@target_os == 'windows') ? '.exe' : ''
+  end
+
+  def cross_compile?
+    host_os != target_os
+  end
+
+  def configure_args
+    cross_compile? ? ["--host=#{configure_host}", "--build=#{configure_build}"] : []
   end
 
   def to_sym

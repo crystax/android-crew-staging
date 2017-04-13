@@ -4,10 +4,10 @@ class Libgit2 < BuildDependency
   homepage 'https://libgit2.github.com/'
   url 'https://github.com/libgit2/libgit2/archive/v${version}.tar.gz'
 
-  release version: '0.24.2', crystax_version: 1, sha256: { linux_x86_64:   '016d5d27b1c053c77e6a3e0b232d3566b3c4566b822bc987f876a4d8d320170c',
-                                                           darwin_x86_64:  '8acf90127948cfe2d1705d3754c4526b3667cc5cee670b32759aa7f0254df46c',
-                                                           windows_x86_64: '631d40074f3257468b1cfd4840b9c87418405b8700c53f63234f35d1d206c5a0',
-                                                           windows:        '99884c2697707b5f77d3b3aa5e2a0b8a3db4050e0c6d14f6273e1219e6a3359e'
+  release version: '0.24.6', crystax_version: 1, sha256: { linux_x86_64:   '3fcc31b5c42763403cc2de9606f76d90c1365235ba74a4610604e2c331264e95',
+                                                           darwin_x86_64:  '3aab051274820be9817948e258478a03e13ee068244430dbb38a49c1573a595c',
+                                                           windows_x86_64: '8a4158c66918acedb835868f007a1b83d73941da4e5b0c197c1dc0b2259edc02',
+                                                           windows:        '12c7539b9f4a046704e8e6a31d2e2114ee402429384e2c77a146658429593ba3'
                                                          }
 
   depends_on 'zlib'

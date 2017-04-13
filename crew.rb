@@ -34,6 +34,8 @@ if __FILE__ == $0
     goptions, cmd, args = split_arguments(ARGV)
     Global.set_options(goptions)
 
+    FileUtils.mkdir_p Global::NS_DIR.values.map { |d| File.join(Global::PKG_CACHE_DIR, d) }
+
     # todo:
     #Global.check_program(Utils.curl_prog)
     #Global.check_program(Utils.bsdtar_prog)

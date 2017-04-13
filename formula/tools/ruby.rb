@@ -4,10 +4,10 @@ class Ruby < Utility
   homepage 'https://www.ruby-lang.org/'
   url 'https://cache.ruby-lang.org/pub/ruby/${block}/ruby-${version}.tar.gz' do |r| r.version.split('.').slice(0, 2).join('.') end
 
-  release version: '2.2.2', crystax_version: 1, sha256: { linux_x86_64:   'eff7d941e360f11f0b00b52c76ae80f7c3b54b6de5115ba195f09aa724e37450',
-                                                          darwin_x86_64:  'ea636a6c8c64548461e12c57e634245491f5256ded8c2d04bfcc92727066ff1a',
-                                                          windows_x86_64: '9787fae15f71dc6dfd59098b084038d837575d91aadc8fe598e5a734e1bc9556',
-                                                          windows:        '1bca2d7b33564f1833467da1df4e1e4aeff99cb90a6540dea4c7ed808031e65d'
+  release version: '2.2.2', crystax_version: 1, sha256: { linux_x86_64:   '70fc209d1a44db6ef12543e42f03d24d4c083d9fffdd65e69df69c5239b5b8e7',
+                                                          darwin_x86_64:  '3c334d8e95a8a77b858d4e36a92be16d2c04ae4a6ee172b3ebe8bcb2fd1a085a',
+                                                          windows_x86_64: '91cf2f7bc92762ef9208779c3759e19a3eec88050d63882228060ce1fa41f543',
+                                                          windows:        '5c5495a91fc3b3c35587325caaeee746bb69b68aff2dc894f30dd021a423be4f'
                                                         }
 
   build_depends_on 'zlib'
@@ -29,7 +29,7 @@ class Ruby < Utility
 
     # download and unpack rugged sources
     rugged_url = "https://github.com/libgit2/rugged/archive/v#{rugged_ver}.tar.gz"
-    rugged_archive = src_cache_file(rugged_url)
+    rugged_archive = Formula.src_cache_file('rugged', Release.new(rugged_ver), rugged_url)
     if File.exists? rugged_archive
       puts "#{log_prefix} using cached file #{rugged_archive}"
     else
@@ -81,18 +81,18 @@ class Ruby < Utility
              ].join(' ')
     end
 
-    build_env['CFLAGS']          += ' ' + cflags
+    build_env['CFLAGS']         += ' ' + cflags
     build_env['LDFLAGS']         = ldflags
     build_env['LIBS']            = libs
     build_env['SSL_CERT_FILE']   = host_ssl_cert_file
     build_env['RUGGED_CFLAGS']   = "#{cflags} -DRUBY_UNTYPED_DATA_WARNING=0 -I#{openssl_dir}/include -I#{libssh2_dir}/include -I#{libgit2_dir}/include"
     build_env['RUGGED_MAKEFILE'] = "#{build_dir_for_platform(platform)}/ext/rugged/Makefile"
     build_env['DESTDIR']         = install_dir
-    build_env['PATH']            = "#{File.dirname(platform.cc)}:#{ENV['PATH']}" if platform.target_os == 'windows'
+    build_env['PATH']            = "#{platform.toolchain_path}:#{ENV['PATH']}" if platform.target_os == 'windows'
     build_env['V']               = '1'
 
-    args = ["--prefix=/",
-            "--host=#{platform.configure_host}",
+    args = platform.configure_args +
+           ["--prefix=/",
             "--disable-install-doc",
             "--enable-load-relative",
             "--with-openssl-dir=#{openssl_dir}",
@@ -104,7 +104,7 @@ class Ruby < Utility
            ]
 
     system "#{src_dir}/configure", *args
-    fix_winres_params if platform.target_os == 'windows' and platform.target_cpu == 'x86'
+    fix_winres_params if platform.name == 'windows'
     fix_win_makefile  if platform.target_os == 'windows'
     system 'make', '-j', num_jobs
     system 'make', 'test' if options.check? platform
@@ -114,10 +114,12 @@ class Ruby < Utility
     FileUtils.rm_rf File.join(install_dir, 'lib', 'pkgconfig')
     FileUtils.rm_rf File.join(install_dir, 'share')
 
-    install_gems install_dir, 'rspec', 'minitest'
+    gem = gem_path(release, platform, install_dir)
+    rspec_opts = (release.version == '2.2.2') ? { version: '3.4' } : {}
+    install_gem gem, install_dir, 'rspec', rspec_opts
   end
 
-  def install_gems(install_dir, *gems)
+  def install_gem(gem, install_dir, name, options = {})
     build_env.clear
     build_env['GEM_HOME'] = "#{install_dir}/lib/ruby/gems/2.2.0"
     build_env['GEM_PATH'] = "#{install_dir}/lib/ruby/gems/2.2.0"
@@ -129,7 +131,9 @@ class Ruby < Utility
             "--bindir #{install_dir}/bin"
            ]
 
-    system 'gem', 'install', *args, *gems
+    opts = ['-v', options[:version]] if options[:version]
+
+    system gem, 'install', *args, name, *opts
   end
 
   def host_ssl_cert_file
@@ -154,7 +158,7 @@ class Ruby < Utility
       if not l.start_with?('WINDRES = ')
         lines << l
       else
-        lines << l.gsub('windres ', 'windres -F pe-i386 ')
+        lines << l.gsub(/(.*-windres)/, '\1 -F pe-i386')
         replaced = true
       end
     end
@@ -180,5 +184,23 @@ class Ruby < Utility
     raise "not found required line in Makefile" unless replaced
 
     File.open(file, 'w') { |f| f.puts lines }
+  end
+
+  # to build ruby for windows platforms one must build and install ruby for linux platfrom
+  # because here we need to run gem script and we can't run windows script on linux
+  # and we can't relay on system's gem script because of subtle versions differences
+  def gem_path(release, platform, install_dir)
+    case platform.target_os
+    when 'linux'
+      "#{install_dir}/bin/gem"
+    when 'darwin'
+      if platform.host_os == 'darwin'
+        "#{install_dir}/bin/gem"
+      else
+        "#{release_directory(release, 'linux-x86_64')}/bin/gem"
+      end
+    else
+      "#{release_directory(release, 'linux-x86_64')}/bin/gem"
+    end
   end
 end

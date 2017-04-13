@@ -114,6 +114,14 @@ module Toolchain
       "#{tc_prefix(abi)}/bin/#{cxx_compiler_name} -target #{target(abi)} -gcc-toolchain #{gcc_toolchain.tc_prefix(arch)}"
     end
 
+    def tool(arch, name)
+      if name == 'cpp'
+        "#{c_compiler} -E"
+      else
+        gcc_toolchain.tool(arch, name)
+      end
+    end
+
     def tools(arch)
       gcc_toolchain.tools(arch)
     end

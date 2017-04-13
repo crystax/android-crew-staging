@@ -5,7 +5,7 @@ class IslOld < BuildDependency
   url "http://isl.gforge.inria.fr/isl-${version}.tar.gz"
 
   release version: '0.11.1', crystax_version: 1, sha256: { linux_x86_64:   'da5f3fdff32d4ce08984e8dae28d3b6ca9accf096d8a3bea5972b1a3417f6e87',
-                                                           darwin_x86_64:  'dd32c4eb9ec5459201b33b54728b1e5c81b899f78c9097c76417c3bc8ced4997',
+                                                           darwin_x86_64:  'b77b80be15cac363b8950c4e3ba03d61b20833c30245d1b64fe5ab5373bb20bf',
                                                            windows_x86_64: '4a740b626c3654148f985468cce63395c58e4701384d7e803484bfb13f9b597e',
                                                            windows:        '2a3f164b3478b31caa4cd198f15e1874430d4257368fb9e44514a6e8985880cb'
                                                          }
@@ -20,8 +20,8 @@ class IslOld < BuildDependency
     # without -O2 there is uresolved reference to ffs()
     build_env['CFLAGS'] += ' -O2' if platform.target_os == 'windows'
 
-    args = ["--prefix=#{install_dir}",
-            "--host=#{platform.configure_host}",
+    args = platform.configure_args +
+           ["--prefix=#{install_dir}",
             "--with-gmp-prefix=#{gmp_dir}",
             "--disable-shared",
             "--disable-silent-rules",

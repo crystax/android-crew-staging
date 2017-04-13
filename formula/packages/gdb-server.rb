@@ -5,7 +5,7 @@ class GdbServer < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '7.10', crystax_version: 1, sha256: '3dc5577659c609c3643c55c5f393c174caa04c9f848d285f7618c4257aad960a'
+  release version: '7.10', crystax_version: 1, sha256: '198075626e0305cce3c7452097976c664c7e81145342d26ee5a5a8a260c67802'
 
   # todo:
   #build_depends_on default_compiler
@@ -66,10 +66,7 @@ class GdbServer < BasePackage
       puts "Creating archive file #{archive}"
       Utils.pack archive, package_dir
 
-      if options.update_shasum?
-        release.shasum = Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
-        update_shasum release
-      end
+      update_shasum release if options.update_shasum?
 
       if options.install?
         puts "Unpacking archive into #{release_directory}"

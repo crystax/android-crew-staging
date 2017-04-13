@@ -6,9 +6,9 @@ class Libstdcxx < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '4.9', crystax_version: 1, sha256: 'aca527fcde6802100d858e9bc855ba3082d4a7465f824be77ab05fe652bdae68'
-  release version: '5',   crystax_version: 1, sha256: 'cd080db3b1ed38b90becdbc5396ff01567db81547445a44b2cd49417c3007c72'
-  release version: '6',   crystax_version: 1, sha256: '7faed7f694942bedc7e3729af6a83d3ea45ea0ee1677186626b151dd19d3adb6'
+  release version: '4.9', crystax_version: 1, sha256: '940549c833eb18be1bafde75175262ff470bb4a3045111153d526479a46b533b'
+  release version: '5',   crystax_version: 1, sha256: 'f68fabb5cdbae0e2484394149c0f6d0bbc34d68548808e1cdd97c17abd213e03'
+  release version: '6',   crystax_version: 1, sha256: '93379fbe3155f619814cda3a7d581098a46542a7d16f950bdd1b7efbce50e426'
 
   # todo:
   #build_depends_on 'platforms'
@@ -75,10 +75,7 @@ class Libstdcxx < BasePackage
       install_archive release, archive if options.install?
     end
 
-    if options.update_shasum?
-      release.shasum = Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
-      update_shasum release
-    end
+    update_shasum release if options.update_shasum?
 
     if options.no_clean?
       puts "No cleanup, for build artifacts see #{base_dir}"

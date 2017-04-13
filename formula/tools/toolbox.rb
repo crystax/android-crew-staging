@@ -6,8 +6,8 @@ class Toolbox < Utility
 
   release version: '1', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                       darwin_x86_64:  '0',
-                                                      windows_x86_64: 'e1e0d2f941327fdb0dc53de2b9759dbf69aee1c851aef925118ee5bb97fefe9b',
-                                                      windows:        '0c3835b7ff978ac953cb6ab7ec1d29dc3ca4328d7bd931511c77163424d8d316'
+                                                      windows_x86_64: 'bf2bf0e60ecb8b88e3ec8486b35f10493f67ee0982a0d533da9236160043af9f',
+                                                      windows:        'a565d14f6347efec23ff72e315298cc67f2b625708439c924fcf8aa348acc882'
                                                     }
 
   executables 'cmp', 'echo'

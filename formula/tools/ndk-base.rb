@@ -1,13 +1,16 @@
-class NdkBase < HostFormula
+class NdkBase < HostBase
 
   desc "Base NDK directory structure, sources, build tools and scripts"
   homepage "https://www.crystax.net"
-  url 'https://github.com/crystax/android-platform-ndk.git|git_tag:$(version)_$(crystax_version)'
+  # todo: use commit? use master branch? something else?
+  #       choose somehow between gitlab and github repos
+  url 'git@git.crystax.net:android/platform-ndk.git|git_commit:2af4dcb89d2d8508f357cc410be7da085ff1c2d8'
+  url 'https://git.crystax.net/android/platform-ndk.git|git_commit:2af4dcb89d2d8508f357cc410be7da085ff1c2d8'
 
-  release version: '11', crystax_version: 1, sha256: { linux_x86_64:   'e0661ea924662ebc1be64b792472647b7fc3bd8350768cfab7fbb03b26f01aa3',
-                                                       darwin_x86_64:  'ad43727e4f96ea8bbe85bfac2481e176ccc6b410218d656ead076f9b6c7677a3',
-                                                       windows_x86_64: '9d7a3dacd02f1df531c95891f4b4a71eb407b507f31b255222a676c1ef4eb080',
-                                                       windows:        'b169a27b088cafed0662188f4f8489e523cb339018e5566c11718c9881922117'
+  release version: '11', crystax_version: 1, sha256: { linux_x86_64:   '0',
+                                                       darwin_x86_64:  '0',
+                                                       windows_x86_64: '0',
+                                                       windows:        '0'
                                                      }
 
   # todo: fix files list
@@ -27,6 +30,7 @@ class NdkBase < HostFormula
                         'ndk-gdb',
                         'ndk-gdb.py',
                         'ndk-which',
+                        'sources',
                         'tests',
                         'tools'
                        ]
@@ -39,8 +43,25 @@ class NdkBase < HostFormula
     prop = get_properties(rel_dir)
 
     FileUtils.cd(Global::NDK_DIR) do
-      FileUtils.rm_rf TOP_FILES_AND_DIRS
+      FileUtils.rm_rf TOP_FILES_AND_DIRS.select { |d| d != 'sources' }
       FileUtils.rm_rf WIN_FILES if platform_name.start_with? 'windows'
+      Dir.exist?('sources') and FileUtils.cd('sources') do
+        FileUtils.rm_rf ['android', 'cpufeatures', 'host-tools', 'third_party']
+        Dir.exist?('crystax') and FileUtils.cd('crystax') do
+          FileUtils.rm_rf all_files_cwd - ['libs']
+        end
+        Dir.exist?('cxx-stl') and FileUtils.cd('cxx-stl') do
+          FileUtils.rm_rf ['gabi++', 'llvm-libc++abi', 'stlport', 'system']
+          Dir.exist?('gnu-libstdc++') and FileUtils.cd('gnu-libstdc++') do
+            # todo: gcc versions?
+            FileUtils.rm_rf all_files_cwd - ['4.9', '5', '6']
+          end
+          Dir.exist?('llvm-libc++') and FileUtils.cd('llvm-libc++') do
+             # todo: llvm versions?
+            FileUtils.rm_rf all_files_cwd - ['3.6', '3.7', '3.8']
+          end
+        end
+      end
     end
     Utils.unpack archive, Global::NDK_DIR
 
@@ -83,12 +104,9 @@ class NdkBase < HostFormula
       archive = cache_file(release, platform.name)
       Utils.pack archive, install_dir
 
-      if options.update_shasum?
-        release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
-        update_shasum release, platform
-      end
-      install_archive release, archive, platform.name
-      FileUtils.rm_rf base_dir unless options.no_clean?
+      update_shasum release, platform                 if options.update_shasum?
+      install_archive release, archive, platform.name if options.install?
+      FileUtils.rm_rf base_dir                        if options.clean?
     end
 
     if options.no_clean?
@@ -96,5 +114,9 @@ class NdkBase < HostFormula
     else
       FileUtils.rm_rf build_base_dir
     end
+  end
+
+  def all_files_cwd
+    Dir['*'] + Dir['.*'] - ['.', '..']
   end
 end

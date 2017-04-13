@@ -4,11 +4,10 @@ class Libedit < BuildDependency
   homepage "http://thrysoee.dk/editline/"
   url "http://thrysoee.dk/editline/libedit-${version}.tar.gz"
 
-  release version: '20150325-3.1', crystax_version: 1, sha256: { linux_x86_64:   'f4544a32dbe933c269301ef6ea4ee44f0929470e5e10df56161dcd9e00b7d8ec',
-                                                                 darwin_x86_64:  '6d92626f1a3d575131d72c65761f014bc20565e39460ae9ede44d417d795597f',
-                                                                 windows_x86_64: 'e755520925e4ad279cdb97bca1f7feb948fbacb442db4c1f1a04893d3ded87aa',
-                                                                 windows:        'c44470d728df69067bae6d40bcb2ab68f06de808685316acf8afc482a8c019a9'
-
+  release version: '20150325-3.1', crystax_version: 1, sha256: { linux_x86_64:   'ced36c2638caa5efd4ad8c4760bfa73445561b7c8aecc1ff1db3a14b0f373dbe',
+                                                                 darwin_x86_64:  '802e12ecd4a6aa9c2ef2970ba05cf6ca153b4d1cfeb2738d35d938af58e014a5',
+                                                                 windows_x86_64: '8baa4b5d20decefe568a41fc0b8efc2bd5d57146cf6044e2761922ecdeffe8ed',
+                                                                 windows:        'cc4075972f9af7f7ef26d5282fb73cdd4c33e969e3dd1f025afc69866aac178e'
                                                                }
   # todo: version 20160618-3.1 fails to build on darwin
 
@@ -20,8 +19,8 @@ class Libedit < BuildDependency
       return
     end
 
-    args = ["--prefix=#{install_dir}",
-            "--host=#{platform.configure_host}",
+    args = platform.configure_args +
+           ["--prefix=#{install_dir}",
             "--enable-static",
             "--disable-shared",
             "--with-pic",

@@ -3,10 +3,10 @@ class NdkDepends < Utility
   desc "A small portable program used to dump the dynamic dependencies of a shared library"
   homepage ""
 
-  release version: '1', crystax_version: 1, sha256: { linux_x86_64:   '4fc102d6c631364a079deefe94ad0952c494e3f92bf6dacf3e0a27221b9cb8f4',
-                                                      darwin_x86_64:  '9b2b9cf43f463c469c6bca57909b781de38e1e6e68270bbc695cd77e3686acf9',
-                                                      windows_x86_64: 'd1395cfd7b81d547e2d0b3d16c70789f9946a40ede876a0c066ce99a6ae1ea09',
-                                                      windows:        'a5a630d2e65dd8602e39add85f1809318baaa4a75651623f98872f0ff8e65c93'
+  release version: '1', crystax_version: 1, sha256: { linux_x86_64:   '28f6ac284c0ed03852c6ca26d266d96e676b61c02ff66b362f0d2ec7baee2eb9',
+                                                      darwin_x86_64:  'c2e7235574479016ed4c8e4c64ef8e001b1408bcb101a7f3c46f3a60ad3e3fa8',
+                                                      windows_x86_64: 'b34e9f7d627f3c81d5db4f5d1fba358a052eec80ec2646efa041094cae1d4344',
+                                                      windows:        'b3364122343f548a3482fa46432e1428c44c4b13493eb7faa4b3ce46bb386460'
                                                     }
 
   executables 'ndk-depends'

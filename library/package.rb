@@ -12,9 +12,11 @@ class Package < TargetBase
   DEF_BUILD_OPTIONS = { source_archive_without_top_dir: false,
                         c_wrapper:                      'cc',
                         sysroot_in_cflags:              true,
+                        ldflags_in_c_wrapper:           false,
                         use_cxx:                        false,
                         cxx_wrapper:                    'c++',
                         setup_env:                      true,
+                        debug_compiler_args:            false,
                         copy_installed_dirs:            ['lib', 'include'],
                         gen_android_mk:                 true,
                         wrapper_fix_soname:             true,
@@ -113,6 +115,8 @@ class Package < TargetBase
     @log_file = build_log_file
     @num_jobs = options.num_jobs
 
+    build_env.clear
+
     if self.respond_to? :pre_build
       print "= executing pre build step: "
       @pre_build_result = pre_build(src_dir, release)
@@ -155,10 +159,7 @@ class Package < TargetBase
       puts "Creating archive file #{archive}"
       Utils.pack(archive, package_dir)
 
-      if options.update_shasum?
-        release.shasum = Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
-        update_shasum release
-      end
+      update_shasum release if options.update_shasum?
 
       # install into packages (and update props if any)
       # we do not use Formula's install method here to bypass SHA256 sum checks,
@@ -195,16 +196,19 @@ class Package < TargetBase
     else
       cc = build_options[:c_wrapper] == true ? toolchain.c_compiler_name : build_options[:c_wrapper]
       cc = "#{build_dir_for_abi(abi)}/#{cc}"
-      Build.gen_compiler_wrapper cc, c_comp, toolchain, build_options
+      ldflags_wrapper_arg = build_options[:ldflags_in_c_wrapper] ? { before: ldflags, after: '' } : nil
+      Build.gen_compiler_wrapper cc, c_comp, toolchain, build_options, '', ldflags_wrapper_arg
     end
 
-    @build_env = {'CC'      => cc,
-                  'CPP'     => "#{cc} #{cflags} -E",
-                  'AR'      => ar,
-                  'RANLIB'  => ranlib,
-                  'READELF' => readelf,
-                  'CFLAGS'  => cflags,
-                  'LDFLAGS' => ldflags
+    @build_env = {'LANG'        => 'C',
+                  'LC_MESSAGES' => 'C',
+                  'CC'          => cc,
+                  'CPP'         => "#{cc} #{cflags} -E",
+                  'AR'          => ar,
+                  'RANLIB'      => ranlib,
+                  'READELF'     => readelf,
+                  'CFLAGS'      => cflags,
+                  'LDFLAGS'     => ldflags
                  }
 
     if build_options[:use_cxx]
