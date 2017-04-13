@@ -5,7 +5,7 @@ class Libpng < Package
   url "http://sourceforge.net/projects/libpng/files/libpng16/${version}/libpng-${version}.tar.xz"
   url "http://sourceforge.net/projects/libpng/files/libpng16/older-releases/${version}/libpng-${version}.tar.xz"
 
-  release version: '1.6.21', crystax_version: 1, sha256: 'b45ba063b511e9dddfd3b11f848fc75bbb5f2e343afecb82c0863b53e4096ac4'
+  release version: '1.6.29', crystax_version: 1, sha256: 'b45ba063b511e9dddfd3b11f848fc75bbb5f2e343afecb82c0863b53e4096ac4'
 
   build_copy 'LICENSE'
   build_options export_ldlibs: '-lz'
@@ -16,7 +16,7 @@ class Libpng < Package
               "--host=#{host_for_abi(abi)}",
               "--enable-shared",
               "--enable-static",
-              "--enable-werror",
+              "--disable-werror", # because of _POSIX_SOURCE redefinition
               "--with-pic",
               "--enable-unversioned-links"
             ]
