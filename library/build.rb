@@ -20,7 +20,9 @@ module Build
 
   # todo:
   VENDOR_TESTS_DIR         = Pathname.new("#{Global::NDK_DIR}/../../vendor/tests").cleanpath.to_s
+  VENDOR_SRC_DIR           = Pathname.new("#{Global::NDK_DIR}/../../vendor").cleanpath.to_s
   TOOLCHAIN_SRC_DIR        = Pathname.new("#{Global::NDK_DIR}/../../toolchain").cleanpath.to_s
+  PLATFORM_DIR             = Pathname.new("#{Global::NDK_DIR}/../../platform").cleanpath.to_s
   PLATFORM_DEVELOPMENT_DIR = Pathname.new("#{Global::NDK_DIR}/../../platform/development").cleanpath.to_s
   PLATFORM_PREBUILTS_DIR   = Pathname.new("#{Global::NDK_DIR}/../../platform/prebuilts").cleanpath.to_s
 
