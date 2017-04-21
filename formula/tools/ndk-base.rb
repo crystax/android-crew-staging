@@ -4,8 +4,8 @@ class NdkBase < HostBase
   homepage "https://www.crystax.net"
   # todo: use commit? use master branch? something else?
   #       choose somehow between gitlab and github repos
-  url 'git@git.crystax.net:android/platform-ndk.git|git_commit:2af4dcb89d2d8508f357cc410be7da085ff1c2d8'
-  url 'https://git.crystax.net/android/platform-ndk.git|git_commit:2af4dcb89d2d8508f357cc410be7da085ff1c2d8'
+  url 'git@git.crystax.net:android/platform-ndk.git|git_commit:14fb67a4702bc1d7865841a4022c40b0745eea46'
+  url 'https://git.crystax.net/android/platform-ndk.git|git_commit:14fb67a4702bc1d7865841a4022c40b0745eea46'
 
   release version: '11', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                        darwin_x86_64:  '0',
@@ -37,6 +37,12 @@ class NdkBase < HostBase
 
   WIN_FILES = ['crew.cmd', 'ndk-gdb.cmd']
 
+  # why to copy compiler-rt from llvm-3.6?
+  # compiler-rt -> ../../../../../toolchain/llvm-3.6/compiler-rt
+  # todo: decide with compiler-rt
+  CRYSTAX_VENDORS = ['freebsd', 'libkqueue', 'libpwq', 'musl'].map { |d| File.join(Build::VENDOR_SRC_DIR, d) }
+
+
   def install_archive(release, archive, platform_name)
     rel_dir = release_directory(release)
     FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir
@@ -51,7 +57,7 @@ class NdkBase < HostBase
           FileUtils.rm_rf all_files_cwd - ['libs']
         end
         Dir.exist?('cxx-stl') and FileUtils.cd('cxx-stl') do
-          FileUtils.rm_rf ['gabi++', 'llvm-libc++abi', 'stlport', 'system']
+          FileUtils.rm_rf ['gabi++', 'llvm-libc++abi', 'system']
           Dir.exist?('gnu-libstdc++') and FileUtils.cd('gnu-libstdc++') do
             # todo: gcc versions?
             FileUtils.rm_rf all_files_cwd - ['4.9', '5', '6']
@@ -86,6 +92,18 @@ class NdkBase < HostBase
       puts "Only sources were requested, find them in #{src_dir}"
       return
     end
+
+    FileUtils.cd(src_dir) do
+      crystax_vendors = 'sources/crystax/vendor'
+      crystax_tests   = 'sources/crystax/tests'
+      FileUtils.mkdir [crystax_vendors, crystax_tests]
+      FileUtils.cp_r CRYSTAX_VENDORS, crystax_vendors
+      FileUtils.cp_r File.join(Build::PLATFORM_DIR,   'bionic/tests'),   File.join(crystax_tests, 'bionic')
+      FileUtils.cp_r File.join(Build::VENDOR_SRC_DIR, 'libkqueue/test'), File.join(crystax_tests, 'libkqueue')
+      FileUtils.cp_r File.join(Build::VENDOR_SRC_DIR, 'libpwq/testing'), File.join(crystax_tests, 'libpwq')
+      FileUtils.cp_r File.join(Build::VENDOR_SRC_DIR, 'openpts'),        File.join(crystax_tests, 'openpts')
+    end
+    FileUtils.rm Dir.glob("#{src_dir}/**/.git")
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"
