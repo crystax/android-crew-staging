@@ -1,0 +1,28 @@
+From a1f467d25d815dc7613fbee06c632cae423f52ca Mon Sep 17 00:00:00 2001
+From: Dmitry Moskalchuk <dm@crystax.net>
+Date: Mon, 23 May 2016 14:29:51 +0300
+Subject: [PATCH] [android] Disable PCH for libs/math when using clang
+
+This is done to workaround clang's bug, when it crashes on simultaneous
+access of PCH file by different compiler instances.
+
+Signed-off-by: Dmitry Moskalchuk <dm@crystax.net>
+---
+ libs/math/build/Jamfile.v2 | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/libs/math/build/Jamfile.v2 b/libs/math/build/Jamfile.v2
+index e19fb2e..5e91719 100644
+--- a/libs/math/build/Jamfile.v2
++++ b/libs/math/build/Jamfile.v2
+@@ -14,6 +14,7 @@ project
+       <toolset>intel-darwin:<pch>off
+       <toolset>msvc-7.1:<pch>off
+       <toolset>gcc,<target-os>windows:<pch>off
++      <toolset>clang,<target-os>android:<pch>off
+       #<toolset>gcc:<cxxflags>-fvisibility=hidden
+       <toolset>intel-linux:<cxxflags>-fvisibility=hidden
+       #<toolset>sun:<cxxflags>-xldscope=hidden
+-- 
+2.9.0
+
