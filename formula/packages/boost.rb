@@ -4,7 +4,7 @@ class Boost < Package
   homepage "http://www.boost.org"
   url "https://downloads.sourceforge.net/project/boost/boost/${version}/boost_${block}.tar.bz2" do |r| r.version.gsub('.', '_') end
 
-  release version: '1.63.0', crystax_version: 1, sha256: '0'
+  release version: '1.64.0', crystax_version: 1, sha256: '0'
 
   # todo: add versions, like this: python:2.7.*, python:3.*.*
   depends_on 'python'
@@ -218,9 +218,9 @@ class Boost < Package
     exclude = {}
     major, minor, _ = release.version.split('.').map { |a| a.to_i }
 
-    # Boost.Context in 1.63.0 and earlier don't support mips64
+    # Boost.Context in 1.64.0 and earlier don't support mips64
     # check next versions
-    if major == 1 and minor <= 63
+    if major == 1 and minor <= 64
       exclude['context'] = ['mips64']
     end
 
