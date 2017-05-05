@@ -52,7 +52,10 @@ class NdkBase < HostBase
       FileUtils.rm_rf TOP_FILES_AND_DIRS.select { |d| d != 'sources' }
       FileUtils.rm_rf WIN_FILES if platform_name.start_with? 'windows'
       Dir.exist?('sources') and FileUtils.cd('sources') do
-        FileUtils.rm_rf ['android', 'cpufeatures', 'host-tools', 'third_party']
+        FileUtils.rm_rf ['cpufeatures', 'host-tools', 'third_party']
+        Dir.exist?('android') and FileUtils.cd('android') do
+          FileUtils.rm_rf all_files_cwd - ['gccunwind']
+        end
         Dir.exist?('crystax') and FileUtils.cd('crystax') do
           FileUtils.rm_rf all_files_cwd - ['libs']
         end

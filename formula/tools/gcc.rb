@@ -39,7 +39,7 @@ class Gcc < Tool
 
   LICENSE_MASK = 'COPYING*'
 
-  GDB_VER      = '7.10'
+  GDB_VER = '7.10'
 
   Lib = Struct.new(:name, :version, :url, :args, :templates)
 
@@ -72,7 +72,7 @@ class Gcc < Tool
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"
-      #[Build::ARCH_LIST[2]].each do |arch|
+      #[ARCH_ARM64].each do |arch|
       Build::ARCH_LIST.each do |arch|
         base_dir = base_dir(platform, arch)
         self.log_file = build_log_file(base_dir)
@@ -92,8 +92,7 @@ class Gcc < Tool
 
       if not options.build_only?
         pkg_dir = File.join(build_base_dir, platform.name, ARCHIVE_TOP_DIR)
-        # todo:
-        #[Build::ARCH_LIST[0]].each do |arch|
+        #[ARCH_ARM64].each do |arch|
         Build::ARCH_LIST.each do |arch|
           base_dir = base_dir(platform, arch)
           arch_pkg_dir = File.join(pkg_dir, "#{arch.toolchain}-#{release.version}", 'prebuilt', platform.name)
@@ -113,8 +112,10 @@ class Gcc < Tool
 
         update_shasum release, platform if options.update_shasum?
 
-        puts "= installing #{archive}"
-        install_archive release, archive, platform.name
+        if options.install?
+          puts "= installing #{archive}"
+          install_archive release, archive, platform.name
+        end
       end
 
       FileUtils.rm_rf base_dir_for_platform(platform) unless options.no_clean?
