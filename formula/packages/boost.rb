@@ -84,7 +84,6 @@ class Boost < Package
     src_dir = build_dir_for_abi(abi)
 
     common_args = [ "-d+2",
-                    "-q",
                     "-j#{num_jobs}",
                     "variant=release",
                     "link=static,shared",
