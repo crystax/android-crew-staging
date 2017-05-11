@@ -69,7 +69,7 @@ class Boost < Package
     nil
   end
 
-  def build_for_abi(abi, toolchain, release, _host_dep_dirs, _target_dep_dirs)
+  def build_for_abi(abi, _toolchain, release, _host_dep_dirs, _target_dep_dirs)
     args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
               "--enable-shared",
@@ -185,6 +185,11 @@ class Boost < Package
       FileUtils.mkdir_p libs_dir
       FileUtils.cp Dir["#{prefix_dir}/lib/*.a"],  libs_dir
       FileUtils.cp Dir["#{prefix_dir}/lib/*.so"], libs_dir
+      # run ranlib
+      FileUtils.cd(libs_dir) do
+        ranlib = toolchain.tool(arch, 'ranlib')
+        Dir['*.a'].each { |f| system ranlib, f }
+      end
     end
   end
 
