@@ -142,7 +142,7 @@ class Libcxx < BasePackage
       if options[:lib_type] == :static
         f.puts "\t$(AR) $(ARFLAGS) $@ #{obj_files.join(' ')}"
       else
-        f.puts "\t$(CXX) $(LDFLAGS) -o $@ #{crtbegin_so} #{obj_files.join(' ')} #{crtend_so}"
+        f.puts "\t$(CXX) $(LDFLAGS) -o $@ #{crtbegin_so} #{obj_files.join(' ')} -lgcc #{crtend_so}"
       end
       f.puts
       src_files.each do |src|
