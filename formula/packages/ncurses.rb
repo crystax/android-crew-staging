@@ -38,4 +38,20 @@ class Ncurses < Package
     system 'make', '-j', num_jobs
     system 'make', 'install'
   end
+
+  def post_build(package_dir, _release)
+    # fix link to terminfo
+    # it should point two levels up (not one), since libs are put in separate dirs per abi
+    FileUtils.cd("#{package_dir}/libs") do
+      terminfo = 'terminfo'
+      Build::ABI_LIST.each do |abi|
+        File.directory?(abi) and FileUtils.cd(abi) do
+          if File.symlink? terminfo
+            FileUtils.rm terminfo
+            FileUtils.symlink '../../share/terminfo', terminfo
+          end
+        end
+      end
+    end
+  end
 end
