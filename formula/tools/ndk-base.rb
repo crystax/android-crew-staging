@@ -4,8 +4,8 @@ class NdkBase < HostBase
   homepage "https://www.crystax.net"
   # todo: use commit? use master branch? something else?
   #       choose somehow between gitlab and github repos
-  url 'git@git.crystax.net:android/platform-ndk.git|git_commit:bea0cf3ed011ca3f17a9b76bcff2721e1d32003c'
-  url 'https://git.crystax.net/android/platform-ndk.git|git_commit:bea0cf3ed011ca3f17a9b76bcff2721e1d32003c'
+  url 'git@git.crystax.net:android/platform-ndk.git|git_commit:264610599786d8fe042547a0b5853308d4069705'
+  url 'https://git.crystax.net/android/platform-ndk.git|git_commit:264610599786d8fe042547a0b5853308d4069705'
 
   release version: '11', crystax_version: 1, sha256: { linux_x86_64:   '0',
                                                        darwin_x86_64:  '0',
@@ -35,7 +35,7 @@ class NdkBase < HostBase
                         'tools'
                        ]
 
-  WIN_FILES = ['crew.cmd', 'ndk-gdb.cmd']
+  WIN_FILES = ['crew.cmd', 'ndk-build.cmd', 'ndk-gdb.cmd']
 
   # why to copy compiler-rt from llvm-3.6?
   # compiler-rt -> ../../../../../toolchain/llvm-3.6/compiler-rt
