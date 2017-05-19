@@ -35,7 +35,8 @@ class NdkBase < HostBase
                         'tools'
                        ]
 
-  WIN_FILES = ['crew.cmd', 'ndk-build.cmd', 'ndk-gdb.cmd']
+  UNIX_FILES = ['crew', 'ndk-build', 'ndk-gdb']
+  WIN_FILES = UNIX_FILES.map { |f| "#{f}.cmd" }
 
   # why to copy compiler-rt from llvm-3.6?
   # compiler-rt -> ../../../../../toolchain/llvm-3.6/compiler-rt
@@ -50,7 +51,7 @@ class NdkBase < HostBase
 
     FileUtils.cd(Global::NDK_DIR) do
       FileUtils.rm_rf TOP_FILES_AND_DIRS.select { |d| d != 'sources' }
-      FileUtils.rm_rf WIN_FILES if platform_name.start_with? 'windows'
+      FileUtils.rm_rf (platform_name.start_with? 'windows') ? WIN_FILES : UNIX_FILES
       Dir.exist?('sources') and FileUtils.cd('sources') do
         FileUtils.rm_rf ['cpufeatures', 'host-tools', 'third_party']
         Dir.exist?('android') and FileUtils.cd('android') do
