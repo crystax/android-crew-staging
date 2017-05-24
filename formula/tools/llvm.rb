@@ -37,7 +37,7 @@ class Llvm < Tool
 
 
   def install_archive(release, archive, platform_name)
-    rel_dir = release_directory(release)
+    rel_dir = release_directory(release, platform_name)
     FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir
     prop = get_properties(rel_dir)
 
