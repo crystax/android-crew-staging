@@ -29,6 +29,7 @@ class HostBase < Formula
 
   def install_archive(release, archive, platform_name)
     # todo: handle multi platform
+    #       add platform support into Release class
     prev_release = releases.select { |r| r.installed? }.last
     uninstall_archive prev_release, platform_name if prev_release
 
@@ -156,6 +157,9 @@ class HostBase < Formula
       # remove dirs
       dirs.sort.reverse_each { |d| FileUtils.rmdir d if Dir['d/*'].empty? }
     end
+  # todo: remove this hack
+  rescue => e
+    warning "failed to remove archive files: #{e}"
   end
 
   def list_filename(platform_name)
