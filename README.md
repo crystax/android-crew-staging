@@ -339,25 +339,59 @@ Example:
     Removing: boost 1.57.0
 
 
-3. Directory structure
+3. Class Hierarchy
 --------------------------------
 
 ```
-platform/ndk/prebuilt/darwin-x86_64/bin/curl <--------------------|
-                                   /crew/curl/7.42.0_1/bin/curl --| 
-                                                       lib/
-                                                       share/
-             tools/crew/.git
-                        cache/
-                        etc/
-                        formula/
-                        library/
-             sources/android/
-                     libname/version-buildnum/.gitignore
-                                              Android.mk
-                                              include
-                                              libs
-                                              license.html
-                                              src/
+Formula
+    HostBase
+        NdkBase (single platform, single version) (f)
+        
+        Tool (multi platform, multi version)
+        
+            Gcc  (f)
+            Llvm (f)
 
+            Utility (multi platform, single version)
+            
+                Curl       (f)
+                Libarchive (f)
+                Make       (f)
+                Nawk       (f)
+                NdkDepends (f)
+                NdkStack   (f)
+                Python     (f)
+                Ruby       (f)
+                Toolbox    (f)
+                Yasm       (f)
+                
+        BuildDependency (multi platform, multi version)
+        
+                CloogOld (f)
+                Cloog    (f)
+                Expat    (f)
+                Gmp      (f)
+                IslOld   (f)
+                Isl      (f)
+                Libedit  (f)
+                Libgit2  (f)
+                Libssh2  (f)
+                Mpc      (f)
+                Mpfr     (f)
+                Openssl  (f)
+                Ppl      (f)
+                Xz       (f)
+                Zlib     (f) 
+                
+    TargetBase (single platform)
+    
+        BasePackage
+        
+            GdbServer  (f) (single version)
+            Platforms  (f) (single version)
+            Libcrystax (f) (single version)
+            Libcxx     (f) (multi version)
+            Libstdcxx  (f) (multi version)
+            
+        Package (multi version)
 ```
