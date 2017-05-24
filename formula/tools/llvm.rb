@@ -67,10 +67,10 @@ class Llvm < Tool
       src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, "llvm-#{release.version}", 'llvm')
       binutils_inc_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'binutils', "binutils-#{Build::BINUTILS_VER}", 'include')
 
-      base_dir = base_dir_for_platform(platform)
+      base_dir = base_dir_for_platform(platform.name)
       build_dir = File.join(base_dir, 'build')
       install_dir = File.join(base_dir, ARCHIVE_TOP_DIR, "llvm-#{release.version}", 'prebuilt', platform.name)
-      self.log_file = build_log_file(platform)
+      self.log_file = build_log_file(platform.name)
 
       libedit_dir = host_dep_dirs[platform.name]['libedit']
       python_dir  = host_dep_dirs[platform.name]['python']

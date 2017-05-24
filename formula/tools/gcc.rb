@@ -108,7 +108,7 @@ class Gcc < Tool
         puts "= packaging #{archive}"
         dirs = [ARCHIVE_TOP_DIR]
         dirs << UNWIND_SUB_DIR.split('/')[0] if Toolchain::DEFAULT_GCC.version == release.version
-        Utils.pack archive, base_dir_for_platform(platform), *dirs
+        Utils.pack archive, base_dir_for_platform(platform.name), *dirs
 
         update_shasum release, platform if options.update_shasum?
 
@@ -118,7 +118,7 @@ class Gcc < Tool
         end
       end
 
-      FileUtils.rm_rf base_dir_for_platform(platform) unless options.no_clean?
+      FileUtils.rm_rf base_dir_for_platform(platform.name) unless options.no_clean?
     end
 
     if options.no_clean?
@@ -514,7 +514,7 @@ class Gcc < Tool
     base_dir = File.join(base_dir, 'host') if canadian_build? platform
     ar = File.join(build_dir_for_component(base_dir, 'binutils'), 'binutils', 'ar')
     arch.abis.each do |abi|
-      unwind_lib = File.join(base_dir_for_platform(platform), UNWIND_SUB_DIR, abi, 'libgccunwind.a')
+      unwind_lib = File.join(base_dir_for_platform(platform.name), UNWIND_SUB_DIR, abi, 'libgccunwind.a')
       gcc_dir = File.join(build_dir_for_component(base_dir, 'gcc'), arch.host)
       unwind_objs = unwind_objs_for_abi(abi, gcc_dir)
       FileUtils.mkdir_p File.dirname(unwind_lib)
