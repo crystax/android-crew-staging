@@ -15,8 +15,6 @@ class Ruby < Utility
   build_depends_on 'libssh2'
   build_depends_on 'libgit2'
 
-  executables 'ruby'
-
   def wrapper_script_lines(_exe, platform_name)
     platform_name.start_with?('windows') ? ['set GEM_HOME=', 'set GEM_PATH='] : ['unset GEM_HOME', 'unset GEM_PATH']
   end
@@ -58,7 +56,7 @@ class Ruby < Utility
   end
 
   def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
-    install_dir = install_dir_for_platform(platform, release)
+    install_dir = install_dir_for_platform(platform.name, release)
     zlib_dir    = host_dep_dirs[platform.name]['zlib']
     openssl_dir = host_dep_dirs[platform.name]['openssl']
     libssh2_dir = host_dep_dirs[platform.name]['libssh2']
@@ -86,7 +84,7 @@ class Ruby < Utility
     build_env['LIBS']            = libs
     build_env['SSL_CERT_FILE']   = host_ssl_cert_file
     build_env['RUGGED_CFLAGS']   = "#{cflags} -DRUBY_UNTYPED_DATA_WARNING=0 -I#{openssl_dir}/include -I#{libssh2_dir}/include -I#{libgit2_dir}/include"
-    build_env['RUGGED_MAKEFILE'] = "#{build_dir_for_platform(platform)}/ext/rugged/Makefile"
+    build_env['RUGGED_MAKEFILE'] = "#{build_dir_for_platform(platform.name)}/ext/rugged/Makefile"
     build_env['DESTDIR']         = install_dir
     build_env['PATH']            = "#{platform.toolchain_path}:#{ENV['PATH']}" if platform.target_os == 'windows'
     build_env['V']               = '1'

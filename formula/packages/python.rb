@@ -5,7 +5,9 @@ class Python < Package
   url "https://www.python.org/ftp/python/${version}/Python-${version}.tgz"
 
   release version: '2.7.11', crystax_version: 1, sha256: '0'
+  #release version: '2.7.13', crystax_version: 1, sha256: '0'
   release version: '3.5.1',  crystax_version: 1, sha256: '0'
+  #release version: '3.5.2',  crystax_version: 1, sha256: '0'
 
   depends_on 'sqlite'
   depends_on 'openssl'

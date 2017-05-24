@@ -9,83 +9,15 @@ require_relative 'build_options.rb'
 
 class Utility < Tool
 
-  # tool trait
-  INSTALL_DIR_NAME = Global::UTILITIES_BASE_DIR
-  ACTIVE_FILE_NAME = 'active_version.txt'
-
-  def self.active_path(util_name, utilities_dir = Global::UTILITIES_DIR)
-    File.join(utilities_dir, util_name, ACTIVE_FILE_NAME)
-  end
-
-  def self.active_version(util_name, utilities_dir = Global::UTILITIES_DIR)
-    file = Utility.active_path(util_name, utilities_dir)
-    File.exists?(file) ? File.read(file).split("\n")[0] : nil
-  end
-
-  def self.active_dir(util_name, utilities_dir = Global::UTILITIES_DIR)
-    File.join(utilities_dir, util_name, active_version(util_name, utilities_dir), 'bin')
-  end
-
-  # For utilities a release considered as 'installed' only if it's version is equal
-  # to the one saved in the 'active' file.
-  #
-  def initialize(path)
-    super(path)
-
-    # todo: handle platform dependant installations
-    if not av = Utility.active_version(file_name)
-      # todo: output warning
-    else
-      ver, cxver = Utils.split_package_version(av)
-      releases.each { |r| r.installed = cxver if r.version == ver }
-    end
-  end
-
-  def home_directory(platform_name)
-    File.join(Global.utilities_dir(platform_name), file_name)
-  end
-
-  def release_directory(release, platform_name = Global::PLATFORM_NAME)
-    File.join(home_directory(platform_name), release.to_s)
-  end
-
-  def active_version(utilities_dir = Global::UTILITIES_DIR)
-    Utility.active_version file_name, utilities_dir
-  end
+  build_filelist true
 
   def install_archive(release, archive, platform_name)
-    rel_dir = release_directory(release, platform_name)
-    FileUtils.rm_rf rel_dir
-
-    # use system tar while updating bsdtar utility
+    Utils.use_copy_tar_prog if name == 'bsdtar'
+    super release, archive, platform_name
     Utils.reset_tar_prog if name == 'bsdtar'
-    Utils.unpack archive, Global::NDK_DIR
-    write_active_file File.dirname(rel_dir), release
-    Utils.reset_tar_prog if name == 'bsdtar'
-
-    release.installed = release.crystax_version
-
-    executables.each { |e| write_wrapper_script(e, platform_name) }
-  end
-
-  def executables
-    self.class.executables
-  end
-
-  def self.executables(*args)
-    if args.size == 0
-      @executables ? @executables : []
-    else
-      @executables = args
-    end
   end
 
   private
-
-  def write_active_file(home_dir, release)
-    file = File.join(home_dir, ACTIVE_FILE_NAME)
-    File.open(file, 'w') { |f| f.puts release.to_s }
-  end
 
   def wrapper_script_lines(_exe, _platform_name)
     []

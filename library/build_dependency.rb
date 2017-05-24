@@ -8,9 +8,7 @@ require_relative 'platform.rb'
 class BuildDependency < Tool
 
   # tool trait
-  INSTALL_DIR_NAME = Global::BUILD_DEPENDENCIES_BASE_DIR
-
-  include Properties
+  INSTALL_DIR_NAME =
 
   def initialize(path)
     super path
@@ -43,5 +41,10 @@ class BuildDependency < Tool
     Utils.unpack archive, Global::NDK_DIR
 
     release.installed = release.crystax_version
+  end
+
+
+  def install_dir_for_platform(platform_name, release)
+    File.join package_dir_for_platform(platform_name), 'prebuilt', platform_name, Global::BUILD_DEPENDENCIES_BASE_DIR, file_name, release.to_s
   end
 end

@@ -35,15 +35,10 @@ module Global
 
   # public
 
-  UTILITIES_BASE_DIR          = 'utilities'
   BUILD_DEPENDENCIES_BASE_DIR = 'build_dependencies'
 
   def self.tools_dir(platform_name)
     File.join(NDK_DIR, 'prebuilt', platform_name)
-  end
-
-  def self.utilities_dir(platform_name)
-    File.join(tools_dir(platform_name), UTILITIES_BASE_DIR)
   end
 
   def self.build_dependencies_dir(platform_name)
@@ -101,7 +96,6 @@ module Global
 
   HOLD_DIR               = create_required_dir(NDK_DIR, 'packages').realpath
   SERVICE_DIR            = create_required_dir(NDK_DIR, '.crew').realpath
-  UTILITIES_DIR          = create_required_dir(utilities_dir(PLATFORM_NAME)).realpath
   BUILD_DEPENDENCIES_DIR = create_required_dir(build_dependencies_dir(PLATFORM_NAME)).realpath
   REPOSITORY_DIR         = Pathname.new(BASE_DIR).realpath
   PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath

@@ -9,15 +9,13 @@ class Python < Utility
                                                           windows:        '1656a4943c8271792539afd61f0926e398683db9bd679cb15be80ae840a9b94f'
                                                         }
 
-  executables 'python'
-
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in toolchain/python repository
   end
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'python', "Python-#{release.version}")
-    install_dir = install_dir_for_platform(platform, release)
+    install_dir = install_dir_for_platform(platform.name, release)
 
     args = platform.configure_args +
            ["--prefix=#{install_dir}",

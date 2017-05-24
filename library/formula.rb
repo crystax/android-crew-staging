@@ -129,6 +129,10 @@ class Formula
     rel
   end
 
+  def build_filelist?
+    self.class.build_filelist
+  end
+
   class Dependency
 
     def initialize(name, ns, options)
@@ -152,12 +156,13 @@ class Formula
 
   class << self
 
-    attr_rw :name, :desc, :homepage, :namespace
+    attr_rw :name, :desc, :homepage, :namespace, :build_filelist
     attr_reader :urls, :releases, :dependencies, :build_dependencies
 
     # called when self inherited by subclass
     def inherited(subclass)
       subclass.namespace self.namespace
+      subclass.build_filelist self.build_filelist
     end
 
     def url(url, &block)

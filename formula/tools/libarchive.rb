@@ -14,7 +14,7 @@ class Libarchive < Utility
   build_depends_on 'xz'
 
   def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
-    install_dir = install_dir_for_platform(platform, release)
+    install_dir = install_dir_for_platform(platform.name, release)
     xz_dir = host_dep_dirs[platform.name]['xz']
 
     build_env['CFLAGS']  += " -I#{xz_dir}/include #{platform.cflags}"
@@ -41,7 +41,11 @@ class Libarchive < Utility
     system 'make', 'install'
 
     # remove unneeded files
-    FileUtils.rm_rf [File.join(install_dir, 'include'), File.join(install_dir, 'lib'), File.join(install_dir, 'share')]
-    FileUtils.rm_f  File.join(install_dir, 'bin', 'bsdcpio')
+    FileUtils.cd(install_dir) do
+      FileUtils.rm_rf ['include', 'lib', 'share']
+      FileUtils.cd('bin') do
+        FileUtils.rm_f  ['bsdcpio', 'bsdcat']
+      end
+    end
   end
 end

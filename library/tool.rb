@@ -5,23 +5,6 @@ require_relative 'host_base.rb'
 
 class Tool < HostBase
 
-  namespace :host
-
-  ARCHIVE_TOP_DIR = 'prebuilt'
-
-  include Properties
-
-  def initialize(path)
-    super path
-
-    # mark installed releases and sources
-    releases.each { |r| r.update get_properties(release_directory(r)) }
-  end
-
-  def release_directory(release)
-    File.join(Global::SERVICE_DIR, name, release.version)
-  end
-
   def build(release, options, host_dep_dirs, target_dep_dirs)
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"
@@ -40,11 +23,12 @@ class Tool < HostBase
     platforms.each do |platform|
       puts "= building for #{platform.name}"
       #
-      base_dir = base_dir_for_platform(platform)
-      build_dir = build_dir_for_platform(platform)
-      install_dir = install_dir_for_platform(platform, release)
+      base_dir = base_dir_for_platform(platform.name)
+      build_dir = build_dir_for_platform(platform.name)
+      package_dir = package_dir_for_platform(platform.name)
+      install_dir = install_dir_for_platform(platform.name, release)
       FileUtils.mkdir_p [build_dir, install_dir]
-      self.log_file = build_log_file(platform)
+      self.log_file = build_log_file(platform.name)
       # prepare standard build environment
       build_env.clear
       build_env['CC']       = platform.cc
@@ -60,14 +44,16 @@ class Tool < HostBase
       build_env['RC']       = platform.windres if platform.target_os == 'windows'
       #
       FileUtils.cd(build_dir) { build_for_platform platform, release, options, host_dep_dirs, target_dep_dirs }
+      write_file_list package_dir, platform.name if build_filelist?
+
       next if options.build_only?
       #
       archive = cache_file(release, platform.name)
-      Utils.pack archive, base_dir, ARCHIVE_TOP_DIR
+      Utils.pack archive, package_dir
       #
-      update_shasum release, platform if options.update_shasum?
-      install_archive release, archive, platform.name
-      FileUtils.rm_rf base_dir unless options.no_clean?
+      update_shasum release, platform                 if options.update_shasum?
+      install_archive release, archive, platform.name if options.install?
+      FileUtils.rm_rf base_dir                        if options.clean?
     end
 
     if options.no_clean?
@@ -77,7 +63,7 @@ class Tool < HostBase
     end
   end
 
-  def install_dir_for_platform(platform, release)
-    File.join base_dir_for_platform(platform), 'prebuilt', platform.name, self.class::INSTALL_DIR_NAME, file_name, release.to_s
+  def install_dir_for_platform(platform_name, _release)
+    File.join package_dir_for_platform(platform_name), 'prebuilt', platform_name
   end
 end

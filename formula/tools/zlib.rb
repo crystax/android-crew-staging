@@ -12,7 +12,7 @@ class Zlib < BuildDependency
                                                          }
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
-    install_dir = install_dir_for_platform(platform, release)
+    install_dir = install_dir_for_platform(platform.name, release)
 
     # copy sources; zlib doesn't support build in a separate directory
     FileUtils.cp_r File.join(src_dir, '.'), '.'

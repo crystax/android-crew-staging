@@ -10,8 +10,6 @@ class Nawk < Utility
                                                              windows:        '3bb79262ec1d92bc61d228fd9624fd85edb8ba26f955da6707b6e463185e2574'
                                                            }
 
-  executables 'awk'
-
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in source/host-tools/ directory
   end
@@ -30,7 +28,7 @@ class Nawk < Utility
 
     system 'make', '-j', num_jobs, '-C', src_dir
 
-    bin_dir = File.join(install_dir_for_platform(platform, release), 'bin')
+    bin_dir = File.join(install_dir_for_platform(platform.name, release), 'bin')
     FileUtils.mkdir_p bin_dir
     FileUtils.cp "ndk-awk", "#{bin_dir}/awk#{platform.target_exe_ext}"
   end

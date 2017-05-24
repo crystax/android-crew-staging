@@ -11,7 +11,7 @@ class Xz < BuildDependency
                                                         }
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
-    install_dir = install_dir_for_platform(platform, release)
+    install_dir = install_dir_for_platform(platform.name, release)
 
     args = platform.configure_args +
            ["--prefix=#{install_dir}",

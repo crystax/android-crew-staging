@@ -9,14 +9,12 @@ class NdkStack < Utility
                                                       windows:        '23f5b1467759cbe3f0dd35d5e01d97f2dba042f00d2b46a5aee4a738d2686c15'
                                                     }
 
-  executables 'ndk-stack'
-
   def prepare_source_code(release, dir, src_name, log_prefix)
   end
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     src_dir = File.join(Build::NDK_HOST_TOOLS_DIR, 'ndk-stack')
-    install_dir = File.join(install_dir_for_platform(platform, release), 'bin')
+    install_dir = File.join(install_dir_for_platform(platform.name, release), 'bin')
     binutils_src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'binutils', "binutils-#{Build::BINUTILS_VER}")
     binutils_build_dir = File.join(Dir.pwd, 'binutils')
     FileUtils.mkdir_p [install_dir, binutils_build_dir]

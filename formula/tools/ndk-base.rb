@@ -43,43 +43,10 @@ class NdkBase < HostBase
   # todo: decide with compiler-rt
   CRYSTAX_VENDORS = ['freebsd', 'libkqueue', 'libpwq', 'musl'].map { |d| File.join(Build::VENDOR_SRC_DIR, d) }
 
-
   def install_archive(release, archive, platform_name)
-    rel_dir = release_directory(release)
-    FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir
-    prop = get_properties(rel_dir)
-
-    FileUtils.cd(Global::NDK_DIR) do
-      FileUtils.rm_rf TOP_FILES_AND_DIRS.select { |d| d != 'sources' }
-      FileUtils.rm_rf (platform_name.start_with? 'windows') ? WIN_FILES : UNIX_FILES
-      Dir.exist?('sources') and FileUtils.cd('sources') do
-        FileUtils.rm_rf ['cpufeatures', 'host-tools', 'third_party']
-        Dir.exist?('android') and FileUtils.cd('android') do
-          FileUtils.rm_rf all_files_cwd - ['gccunwind']
-        end
-        Dir.exist?('crystax') and FileUtils.cd('crystax') do
-          FileUtils.rm_rf all_files_cwd - ['libs']
-        end
-        Dir.exist?('cxx-stl') and FileUtils.cd('cxx-stl') do
-          FileUtils.rm_rf ['gabi++', 'llvm-libc++abi', 'system']
-          Dir.exist?('gnu-libstdc++') and FileUtils.cd('gnu-libstdc++') do
-            # todo: gcc versions?
-            FileUtils.rm_rf all_files_cwd - ['4.9', '5', '6']
-          end
-          Dir.exist?('llvm-libc++') and FileUtils.cd('llvm-libc++') do
-             # todo: llvm versions?
-            FileUtils.rm_rf all_files_cwd - ['3.6', '3.7', '3.8']
-          end
-        end
-      end
-    end
-    Utils.unpack archive, Global::NDK_DIR
-
-    prop[:installed] = true
-    prop[:installed_crystax_version] = release.crystax_version
-    save_properties prop, rel_dir
-
-    release.installed = release.crystax_version
+    # disable warnings since ndk-base archive contains symlinks
+    Global::set_options(['-W'])
+    super release, archive, platform_name
   end
 
   def build(release, options, host_dep_dirs, target_dep_dirs)
@@ -112,16 +79,17 @@ class NdkBase < HostBase
     platforms.each do |platform|
       puts "= building for #{platform.name}"
 
-      base_dir = base_dir_for_platform(platform)
+      base_dir = base_dir_for_platform(platform.name)
       install_dir = File.join(base_dir, 'install')
       FileUtils.mkdir_p install_dir
-      self.log_file = build_log_file(platform)
+      self.log_file = build_log_file(platform.name)
 
       FileUtils.cd(src_dir) do
         FileUtils.cp_r TOP_FILES_AND_DIRS, install_dir
-        FileUtils.cp   WIN_FILES,          install_dir if platform.target_os == 'windows'
+        FileUtils.cp (platform.target_os == 'windows') ? WIN_FILES : UNIX_FILES, install_dir
       end
       next if options.build_only?
+      write_file_list install_dir, platform.name
 
       archive = cache_file(release, platform.name)
       Utils.pack archive, install_dir

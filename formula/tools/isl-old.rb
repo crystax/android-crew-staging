@@ -13,7 +13,7 @@ class IslOld < BuildDependency
   depends_on 'gmp'
 
   def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
-    install_dir = install_dir_for_platform(platform, release)
+    install_dir = install_dir_for_platform(platform.name, release)
 
     gmp_dir = host_dep_dirs[platform.name]['gmp']
 

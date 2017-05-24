@@ -9,6 +9,9 @@ module Utils
   @@curl_prog = nil
   @@tar_prog  = nil
 
+  @@crew_tar_prog      = File.join(Global::TOOLS_DIR, 'bin', "bsdtar#{Global::EXE_EXT}")
+  @@crew_copy_tar_prog = File.join(Global::TOOLS_DIR, 'bin', "bsdtar-copy#{Global::EXE_EXT}")
+
   @@patch_prog = '/usr/bin/patch'
   @@unzip_prog = '/usr/bin/unzip'
 
@@ -99,15 +102,22 @@ module Utils
   end
 
   def self.tar_prog
-    @@tar_prog = Pathname.new(Utility.active_dir('libarchive')).realpath + "bsdtar#{Global::EXE_EXT}" unless @@tar_prog
+    @@tar_prog = File.exist?(@@crew_tar_prog) ? @@crew_tar_prog : 'tar' unless @@tar_prog
     @@tar_prog
-  rescue
-    # todo: output warning?
-    @@tar_prog = 'tar'
+  end
+
+  def self.use_copy_tar_prog
+    if not File.exist? @@crew_tar_prog
+      @@tar_prog = nil
+    else
+      FileUtils.cp @@crew_tar_prog, @@crew_copy_tar_prog
+      @@tar_prog = @@crew_copy_tar_prog
+    end
   end
 
   def self.reset_tar_prog
     @@tar_prog = nil
+    FileUtils.rm_f @@crew_copy_tar_prog
   end
 
   def self.to_cmd_s(*args)

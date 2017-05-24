@@ -15,7 +15,7 @@ class CloogOld < BuildDependency
   depends_on 'isl-old'
 
   def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
-    install_dir = install_dir_for_platform(platform, release)
+    install_dir = install_dir_for_platform(platform.name, release)
 
     isl_dir = host_dep_dirs[platform.name]['isl-old']
     gmp_dir = host_dep_dirs[platform.name]['gmp']

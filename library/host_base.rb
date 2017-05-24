@@ -7,15 +7,43 @@ class HostBase < Formula
 
   namespace :host
 
+  LIST_FILE_EXT = 'list'
+
   def initialize(path)
     super path
 
+    # todo: handle platform dependant installations
     # mark installed releases and sources
-    releases.each { |r| r.update get_properties(release_directory(r)) }
+    releases.each { |r| r.update get_properties(release_directory(r, Global::PLATFORM_NAME)) }
   end
 
-  def release_directory(release)
-    File.join(Global::SERVICE_DIR, name, release.version)
+  def release_directory(release, platform_name)
+    File.join(Global::SERVICE_DIR, name, platform_name, release.version)
+  end
+
+  def uninstall_archive(release, platform_name)
+    rel_dir = release_directory(release, platform_name)
+    remove_archive_files rel_dir, platform_name
+    FileUtils.rm_rf rel_dir
+  end
+
+  def install_archive(release, archive, platform_name)
+    # todo: handle multi platform
+    prev_release = releases.select { |r| r.installed? }.last
+    uninstall_archive prev_release, platform_name if prev_release
+
+    rel_dir = release_directory(release, platform_name)
+    FileUtils.mkdir_p rel_dir
+
+    Utils.unpack archive, Global::NDK_DIR
+    FileUtils.mv File.join(Global::NDK_DIR, list_filename(platform_name)), rel_dir
+
+    prop = get_properties(rel_dir)
+    prop[:installed] = true
+    prop[:installed_crystax_version] = release.crystax_version
+    save_properties prop, rel_dir
+
+    release.installed = release.crystax_version
   end
 
   def archive_filename(release, platform_name = Global::PLATFORM_NAME)
@@ -34,16 +62,20 @@ class HostBase < Formula
     File.join build_base_dir, 'src'
   end
 
-  def base_dir_for_platform(platform)
-    File.join build_base_dir, platform.name
+  def base_dir_for_platform(platform_name)
+    File.join build_base_dir, platform_name
   end
 
-  def build_dir_for_platform(platform)
-    File.join base_dir_for_platform(platform), 'build'
+  def build_dir_for_platform(platform_name)
+    File.join base_dir_for_platform(platform_name), 'build'
   end
 
-  def build_log_file(platform)
-    File.join base_dir_for_platform(platform), 'build.log'
+  def package_dir_for_platform(platform_name)
+    File.join base_dir_for_platform(platform_name), 'package'
+  end
+
+  def build_log_file(platform_name)
+    File.join base_dir_for_platform(platform_name), 'build.log'
   end
 
   def sha256_sum(release, platform_name = Global::PLATFORM_NAME)
@@ -94,5 +126,39 @@ class HostBase < Formula
     # we want archive modification time to be after formula file modification time
     # otherwise we'll be constantly rebuilding formulas for nothing
     FileUtils.touch archive
+  end
+
+  def write_file_list(package_dir, platform_name)
+    FileUtils.cd(package_dir) do
+      list = Dir.glob('**/*', File::FNM_DOTMATCH).delete_if { |e| e.end_with? ('.') }
+      File.open(list_filename(platform_name), 'w') { |f| list.each { |l| f.puts l } }
+    end
+  end
+
+  def remove_archive_files(rel_dir, platform_name)
+    dirs = []
+    FileUtils.cd(Global::NDK_DIR) do
+      # remove normal files
+      File.read(File.join(rel_dir, list_filename(platform_name))).split("\n").each do |f|
+        case
+        when File.symlink?(f)
+          FileUtils.rm f
+        when File.directory?(f)
+          dirs << f
+        when File.file?(f)
+          FileUtils.rm f
+        when !File.exist?(f)
+          warning "#{name}, #{platform_name}: file not exists: #{f}"
+        else
+          raise ""#{name}, #{platform_name}: strange file in file list: #{f}"
+        end
+      end
+      # remove dirs
+      dirs.sort.reverse_each { |d| FileUtils.rmdir d if Dir['d/*'].empty? }
+    end
+  end
+
+  def list_filename(platform_name)
+    "#{platform_name}.#{LIST_FILE_EXT}"
   end
 end

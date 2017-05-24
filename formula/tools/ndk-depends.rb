@@ -9,14 +9,12 @@ class NdkDepends < Utility
                                                       windows:        'b3364122343f548a3482fa46432e1428c44c4b13493eb7faa4b3ce46bb386460'
                                                     }
 
-  executables 'ndk-depends'
-
   def prepare_source_code(release, dir, src_name, log_prefix)
   end
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     src_dir = File.join(Build::NDK_HOST_TOOLS_DIR, 'ndk-depends')
-    install_dir = File.join(install_dir_for_platform(platform, release), 'bin')
+    install_dir = File.join(install_dir_for_platform(platform.name, release), 'bin')
     FileUtils.mkdir_p install_dir
 
     prog_name = File.join(install_dir, "ndk-depends#{platform.target_exe_ext}")
