@@ -195,10 +195,10 @@ class Ruby < Utility
       if platform.host_os == 'darwin'
         "#{install_dir}/bin/gem"
       else
-        "#{release_directory(release, 'linux-x86_64')}/bin/gem"
+        "#{Global::tools_dir('linux-x86_64')}/bin/gem"
       end
     else
-      "#{release_directory(release, 'linux-x86_64')}/bin/gem"
+      "#{Global::tools_dir('linux-x86_64')}/bin/gem"
     end
   end
 end
