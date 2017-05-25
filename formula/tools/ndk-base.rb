@@ -49,6 +49,10 @@ class NdkBase < HostBase
     super release, archive, platform_name
   end
 
+  def code_directory(_release, _platform_name)
+    Global::NDK_DIR
+  end
+
   def build(release, options, host_dep_dirs, target_dep_dirs)
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"

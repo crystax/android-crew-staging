@@ -35,6 +35,10 @@ class BuildDependency < Tool
     File.join(home_directory(platform_name), release.to_s)
   end
 
+  def code_directory(release, platform_name)
+    release_directory release, platform_name
+  end
+
   def install_archive(release, archive, platform_name)
     rel_dir = release_directory(release, platform_name)
     FileUtils.rm_rf rel_dir

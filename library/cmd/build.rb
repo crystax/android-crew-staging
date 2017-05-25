@@ -34,7 +34,7 @@ module Crew
       host_deps.each do |d|
         f = formulary[d.fqn]
         options.platforms.each do |platform|
-          dep = { f.name => f.release_directory(f.highest_installed_release, platform) }
+          dep = { f.name => f.code_directory(f.highest_installed_release, platform) }
           host_dep_dirs[platform].update dep
         end
       end

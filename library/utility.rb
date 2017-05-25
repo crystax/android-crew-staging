@@ -17,6 +17,10 @@ class Utility < Tool
     Utils.reset_tar_prog if name == 'bsdtar'
   end
 
+  def code_directory(_release, platform_name)
+    Global.tools_dir(platform_name)
+  end
+
   private
 
   def wrapper_script_lines(_exe, _platform_name)

@@ -64,6 +64,12 @@ class Gcc < Tool
     release.installed = release.crystax_version
   end
 
+  # this method does not make much sense without ARCH name
+  # defined only for the sake of completeness
+  def code_directory(release, platform_name)
+    File.join(Global::NDK_DIR, ARCHIVE_TOP_DIR)
+  end
+
   def build(release, options, host_dep_dirs, _target_dep_dirs)
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"

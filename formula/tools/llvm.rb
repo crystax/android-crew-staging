@@ -41,9 +41,12 @@ class Llvm < Tool
     FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir
     prop = get_properties(rel_dir)
 
-    prebuilt_dir = File.join(Global::NDK_DIR, ARCHIVE_TOP_DIR, "llvm-#{release.version}", 'prebuilt')
-    FileUtils.rm_rf File.join(prebuilt_dir, platform_name)
-    FileUtils.rm_rf File.join(Global::NDK_DIR, ARCHIVE_TOP_DIR, "llvm-#{release.version}") if Dir["#{prebuilt_dir}/*"].empty?
+    # remove installed files
+    code_dir = code_directory(release, platform_name)
+    FileUtils.rm_rf code_dir
+    prebuilt_dir = File.dirname(code_dir)
+    FileUtils.rm_rf File.dirname(prebuilt_dir) if Dir["#{prebuilt_dir}/*"].empty?
+
     Utils.unpack archive, Global::NDK_DIR
 
     prop[:installed] = true
@@ -51,6 +54,10 @@ class Llvm < Tool
     save_properties prop, rel_dir
 
     release.installed = release.crystax_version
+  end
+
+  def code_directory(release, platform_name)
+    File.join(Global::NDK_DIR, ARCHIVE_TOP_DIR, "llvm-#{release.version}", 'prebuilt', platform_name)
   end
 
   def build(release, options, host_dep_dirs, _target_dep_dirs)
