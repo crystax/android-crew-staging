@@ -74,6 +74,8 @@ class Gcc < Tool
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"
 
+    self.num_jobs = options.num_jobs
+
     FileUtils.rm_rf build_base_dir
 
     platforms.each do |platform|
