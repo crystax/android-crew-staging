@@ -7,7 +7,7 @@ class HostBase < Formula
 
   namespace :host
 
-  LIST_FILE_EXT = 'list'
+  LIST_FILE = 'list'
 
   def initialize(path)
     super path
@@ -37,7 +37,7 @@ class HostBase < Formula
     FileUtils.mkdir_p rel_dir
 
     Utils.unpack archive, Global::NDK_DIR
-    FileUtils.mv File.join(Global::NDK_DIR, list_filename(platform_name)), rel_dir
+    FileUtils.mv File.join(Global::NDK_DIR, LIST_FILE), rel_dir
 
     prop = get_properties(rel_dir)
     prop[:installed] = true
@@ -132,7 +132,7 @@ class HostBase < Formula
   def write_file_list(package_dir, platform_name)
     FileUtils.cd(package_dir) do
       list = Dir.glob('**/*', File::FNM_DOTMATCH).delete_if { |e| e.end_with? ('.') }
-      File.open(list_filename(platform_name), 'w') { |f| list.each { |l| f.puts l } }
+      File.open(LIST_FILE, 'w') { |f| list.each { |l| f.puts l } }
     end
   end
 
@@ -140,7 +140,7 @@ class HostBase < Formula
     dirs = []
     FileUtils.cd(Global::NDK_DIR) do
       # remove normal files
-      File.read(File.join(rel_dir, list_filename(platform_name))).split("\n").each do |f|
+      File.read(File.join(rel_dir, LIST_FILE)).split("\n").each do |f|
         case
         when File.symlink?(f)
           FileUtils.rm f
@@ -160,9 +160,5 @@ class HostBase < Formula
   # todo: remove this hack
   rescue => e
     warning "failed to remove archive files: #{e}"
-  end
-
-  def list_filename(platform_name)
-    "#{platform_name}.#{LIST_FILE_EXT}"
   end
 end
