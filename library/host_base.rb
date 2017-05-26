@@ -18,7 +18,7 @@ class HostBase < Formula
   end
 
   def release_directory(release, platform_name)
-    File.join(Global::SERVICE_DIR, name, platform_name, release.version)
+    File.join(Global::SERVICE_DIR, file_name, platform_name, release.version)
   end
 
   def uninstall_archive(release, platform_name)
