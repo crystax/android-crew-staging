@@ -28,7 +28,7 @@ if not defined CREW_TOOLS_DIR (
 rem set CREW
 rem set GIT
 
-call %CREW_TOOLS_DIR%\bin\ruby.cmd -W0 %CREWFILEDIR%crew.rb %*
+call %CREW_TOOLS_DIR%\bin\ruby.exe -W0 %CREWFILEDIR%crew.rb %*
 
 endlocal
 
