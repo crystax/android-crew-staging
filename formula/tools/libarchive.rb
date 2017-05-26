@@ -44,7 +44,7 @@ class Libarchive < Utility
     FileUtils.cd(install_dir) do
       FileUtils.rm_rf ['include', 'lib', 'share']
       FileUtils.cd('bin') do
-        FileUtils.rm_f  ['bsdcpio', 'bsdcat']
+        FileUtils.rm_f  Dir['bsdcpio*'] + Dir['bsdcat*']
       end
     end
   end
