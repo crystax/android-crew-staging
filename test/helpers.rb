@@ -6,6 +6,7 @@ require 'digest'
 require 'find'
 require_relative '../library/release.rb'
 require_relative '../library/utility.rb'
+require_relative 'spec_consts.rb'
 
 module Spec
 
@@ -159,17 +160,13 @@ module Spec
     end
 
     def clean_utilities
-      orig_utilities_dir = File.join(Crew_test::NDK_COPY_DIR, 'prebuilt', Global::PLATFORM_NAME, Global::UTILITIES_BASE_DIR)
-      utilities_dir      = File.join(Crew_test::NDK_DIR,      'prebuilt', Global::PLATFORM_NAME, Global::UTILITIES_BASE_DIR)
+      orig_tools_dir = File.join(Crew_test::NDK_COPY_DIR, 'prebuilt', Global::PLATFORM_NAME)
+      tools_dir      = File.join(Crew_test::NDK_DIR,      'prebuilt', Global::PLATFORM_NAME)
+      FileUtils.rm_rf tools_dir
+      FileUtils.cp_r orig_tools_dir, File.dirname(tools_dir)
       Crew_test::UTILS.each do |util|
-        version = Utility.active_version(util, orig_utilities_dir)
-        File.open(Utility.active_path(util, utilities_dir), 'w') { |f| f.puts version }
-        FileUtils.cd("#{utilities_dir}/#{util}") do
-          dirs = Dir['*'].select { |d| File.directory?(d) }
-          d = dirs.pop
-          dirs.each { |d| FileUtils.rm_rf d }
-          FileUtils.mv(d, version) unless d == version
-        end
+        FileUtils.rm_rf File.join(Crew_test::NDK_DIR, '.crew', util)
+        FileUtils.cp_r File.join(Crew_test::NDK_COPY_DIR, '.crew', util), File.join(Crew_test::NDK_DIR, '.crew')
       end
     end
 
