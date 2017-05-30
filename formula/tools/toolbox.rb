@@ -21,7 +21,7 @@ class Toolbox < Utility
     end
 
     src_dir = File.join(Build::NDK_HOST_TOOLS_DIR, 'toolbox')
-    bin_dir = File.join(install_dir_for_platform(platform, release), 'bin')
+    bin_dir = File.join(install_dir_for_platform(platform.name, release), 'bin')
     FileUtils.mkdir_p bin_dir
 
     cc = platform.cc
