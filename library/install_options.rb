@@ -1,6 +1,4 @@
 require_relative 'global.rb'
-require_relative 'utils.rb'
-require_relative 'build.rb'
 require_relative 'command_options.rb'
 
 
