@@ -5,7 +5,7 @@ class Xz < BuildDependency
   url "http://tukaani.org/xz/xz-${version}.tar.xz"
 
   release version: '5.2.3', crystax_version: 1, sha256: { linux_x86_64:   '3ca8d84b5ae91aa073e335e15bbb14cfa453e2e098abdf595e19738a3e91b042',
-                                                          darwin_x86_64:  'c1e49d93603c672ae786853de896583a999f65264ea4bb8deecf288b7ad8b9bb',
+                                                          darwin_x86_64:  '62e6ccc376c8b25c1b3e77526bd01d806ab8a2114cc828f25184163ef35e110e',
                                                           windows_x86_64: 'f8041496bfd4c299c2962a0adcca64614f3a2b21fe1cbae926f9d184112ae3ac',
                                                           windows:        'e11adeeae2849183f876fabb71282ce4f16ab3276283efdd213f8d060bd74866'
                                                         }
