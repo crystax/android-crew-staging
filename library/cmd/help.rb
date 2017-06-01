@@ -4,6 +4,7 @@ require_relative '../build.rb'
 
 ENV_SYNTAX           = 'env [options]'.freeze
 LIST_SYNTAX          = 'list [options] [name1 name2 ...]'.freeze
+INFO_SYNTAX          = 'info [options] name1 [name2 ...]'.freeze
 INSTALL_SYNTAX       = 'install [options] name[:version] ...'.freeze
 SOURCE_SYNTAX        = 'source [options] name[:version] ...'.freeze
 BUILD_SYNTAX         = 'build [options] name[:version] ...'.freeze
@@ -47,9 +48,11 @@ COMMAND is one of the following:
                   if no command specified show this help message;
                   otherwise show addition info for the specified commands
   #{ENV_SYNTAX}   show crew's command working environment
-  #{LIST_SYNTAX}  list the specified formulas;
+  #{LIST_SYNTAX}
+                  list the specified formulas;
                   whithout any options and arguments list all formulas
-  info name ...   show information about the specified formula(s)
+  #{INFO_SYNTAX}
+                  show information about the specified formula(s)
   #{INSTALL_SYNTAX}
                   install the specified formula(s)
   remove name[:version] ...
@@ -99,6 +102,19 @@ Filters:
 
 --tools          list only tools, t.i. formulas with
                  'host' namespace
+EOS
+
+INFO_HELP = <<-EOS
+#{INFO_SYNTAX}
+
+The INFO command supports the following options:
+
+--versions-only  for every specified name list only avaliable
+                 versions
+--path-only      for every specified name list only formula
+                 path
+
+Options --versions-only and --filename-only are mutually exclusive.
 EOS
 
 INSTALL_HELP = <<-EOS
@@ -239,7 +255,7 @@ CMD_HELP = {
   'help'          => NO_HELP,
   'env'           => ENV_HELP,
   'list'          => LIST_HELP,
-  'info'          => NO_HELP,
+  'info'          => INFO_HELP,
   'install'       => INSTALL_HELP,
   'remove'        => NO_HELP,
   'source'        => SOURCE_HELP,
