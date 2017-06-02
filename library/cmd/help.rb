@@ -9,7 +9,6 @@ INSTALL_SYNTAX       = 'install [options] name[:version] ...'.freeze
 SOURCE_SYNTAX        = 'source [options] name[:version] ...'.freeze
 BUILD_SYNTAX         = 'build [options] name[:version] ...'.freeze
 SHASUM_SYNTAX        = 'shasum [options] [name1 name2 ...]'.freeze
-SHOW_OUTDATED_SYNTAX = 'show-outdated [options] [name1 name2 ...]'.freeze
 
 NAME_RULES = <<-EOS
 Name for a formula can specified in two ways. First, it can be specified
@@ -68,8 +67,6 @@ COMMAND is one of the following:
   cleanup [-n]    uninstall old versions and clean cache
   #{SHASUM_SYNTAX}
                   check or update SHA256 sums
-  #{SHOW_OUTDATED_SYNTAX}
-                  list packages that require rebuilding
 EOS
 
 
@@ -223,33 +220,6 @@ The SHASUM command supports the following options:
                  windows-x86_64, windows
 EOS
 
-SHOW_OUTDATED_HELP = <<-EOS
-#{SHOW_OUTDATED_SYNTAX}
-
-If no formulas names were specified then command will check all
-available formulas.
-
-The command works as follows:
-
-- check that required archive exists in the cache;
-- compares modification times of the archive and formula file;
-- compares SHA256 sum of the archive and the one in the formula.
-
-The SHOW-OUTDATED command supports the following options:
-
---version=WHICH  if 'WHICH' is 'last' then command whill check only
-                 last version described in a formula;
-                 if 'WHICH' is 'all' then command will check all versions
-                 described in a formula;
-                 by default command will check last version
-
-For example, to list crew utilities with obsolete or absent archive
-files for a last versions of the programs one could run the command from
-the NDK directory:
-
-./crew show-outdated --version=last bsdtar curl ruby
-EOS
-
 CMD_HELP = {
   'version'       => NO_HELP,
   'help'          => NO_HELP,
@@ -264,8 +234,7 @@ CMD_HELP = {
   'update'        => NO_HELP,
   'upgrade'       => NO_HELP,
   'cleanup'       => NO_HELP,
-  'shasum'        => SHASUM_HELP,
-  'show-outdated' => SHOW_OUTDATED_HELP
+  'shasum'        => SHASUM_HELP
 }
 
 module Crew
