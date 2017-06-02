@@ -58,7 +58,7 @@ class Gcc < Tool
 
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version
-    prop[:libunwind_installed] = Dir.exists? unwind_dir
+    prop[:libunwind_installed] = Toolchain::DEFAULT_GCC.version == release.version
     save_properties prop, rel_dir
 
     release.installed = release.crystax_version
