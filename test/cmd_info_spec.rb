@@ -126,6 +126,24 @@ describe "crew info" do
     end
   end
 
+  context "formula with two releases and one dependency, none installed, show only versions" do
+    it "outputs info about two releases" do
+      copy_formulas 'libone.rb', 'libtwo.rb'
+      crew 'info', '--versions-only', 'libtwo'
+      expect(result).to eq(:ok)
+      expect(out.strip).to eq('1.1.0_1 2.2.0_1')
+    end
+  end
+
+  context "formula with two releases and one dependency, none installed, show only path" do
+    it "outputs info about two releases" do
+      copy_formulas 'libone.rb', 'libtwo.rb'
+      crew 'info', '--path-only', 'libtwo'
+      expect(result).to eq(:ok)
+      expect(out.strip).to eq("#{Global::FORMULA_DIR}/#{Global::NS_DIR[:target]}/libtwo.rb")
+    end
+  end
+
   context "formula with three releases and two dependencies, none installed" do
     it "outputs info about three releases and two dependencies" do
       copy_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb'
