@@ -18,7 +18,9 @@ class Formula
 
   def initialize(path)
     @path = path
-    self.class.name File.basename(@path, '.rb') unless name
+    fname = File.basename(@path, '.rb')
+    raise "formula filename cannot contain symbol '-', use '_' instead: #{path}" if fname.include? '-'
+    self.class.name fname unless name
     # build releated stuff
     @num_jobs = 1
     @build_env = {}
