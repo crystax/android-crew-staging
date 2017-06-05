@@ -1,6 +1,7 @@
 class NdkStack < Utility
 
   desc "A ndk-stack utility"
+  name 'ndk-stack'
   homepage ""
 
   release version: '1', crystax_version: 1, sha256: { linux_x86_64:   '955ed00fa1b315c9550ab0fac7defce5af0ca994a6ccf3aa3c43c1c467792356',

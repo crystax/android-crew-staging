@@ -1,6 +1,7 @@
 class NdkBase < HostBase
 
   desc "Base NDK directory structure, sources, build tools and scripts"
+  name 'ndk-base'
   homepage "https://www.crystax.net"
   # todo: use commit? use master branch? something else?
   #       choose somehow between gitlab and github repos

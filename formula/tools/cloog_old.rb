@@ -1,6 +1,7 @@
 class CloogOld < BuildDependency
 
   desc "Generate code for scanning Z-polyhedra, old version for GCC 4.9"
+  name 'cloog-old'
   homepage "https://www.cloog.org/"
   url "https://www.bastoul.net/cloog/pages/download/cloog-${version}.tar.gz"
 

@@ -1,6 +1,7 @@
 class IslOld < BuildDependency
 
   desc "Integer Set Library for the polyhedral model, old version for GCC 4.9"
+  name 'isl-old'
   homepage "http://isl.gforge.inria.fr"
   url "http://isl.gforge.inria.fr/isl-${version}.tar.gz"
 

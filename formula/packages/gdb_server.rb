@@ -1,6 +1,7 @@
 class GdbServer < BasePackage
 
   desc "GDB server"
+  name 'gdb-server'
   # todo:
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
