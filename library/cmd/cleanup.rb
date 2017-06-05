@@ -1,38 +1,69 @@
 require 'fileutils'
+require_relative '../exceptions.rb'
+require_relative '../utils.rb'
 require_relative '../release.rb'
 require_relative '../formulary.rb'
+require_relative '../cleanup_options.rb'
 
 module Crew
 
+  RemoveData = Struct.new(:archive, :reason)
+
   def self.cleanup(args)
-    case args.length
-    when 0
-      dryrun = false
-    when 1
-      if args[0] == '-n'
-        dryrun = true
-      else
-        raise "this command accepts only one optional argument: -n"
-      end
+    options, args = CleanupOptions.parse_args(args)
+    raise CommandRequresNoArguments if args.count > 0
+
+    formulary = Formulary.new
+
+    if options.clean_pkg_cache?
+      clean_pkg_cache formulary, options.dry_run?
     else
-      raise "this command accepts only one optional argument: -n"
+      puts "Sorry, other functionality not implemented yet"
     end
 
-    incache = []
-    Formulary.utilities.each { |formula| incache += remove_old_utilities(formula, dryrun) }
-    Formulary.packages.each { |formula| incache += remove_old_libraries(formula, dryrun) }
+    # incache = []
+    # Formulary.utilities.each { |formula| incache += remove_old_utilities(formula, dryrun) }
+    # Formulary.packages.each { |formula| incache += remove_old_libraries(formula, dryrun) }
 
-    incache.each do |f|
-      if (dryrun)
-        puts "would remove: #{f}"
-      else
-        puts "removing: #{f}"
-        FileUtils.remove_file(f)
-      end
-    end
+    # incache.each do |f|
+    #   if (dryrun)
+    #     puts "would remove: #{f}"
+    #   else
+    #     puts "removing: #{f}"
+    #     FileUtils.remove_file(f)
+    #   end
+    # end
   end
 
   # private
+
+  def self.clean_pkg_cache(formulary, dry_run)
+    remove = []
+    split_formulary = { host: formulary.tools, target: formulary.packages }
+    [:host, :target].each do |ns|
+      Dir["#{Global::PKG_CACHE_DIR}/#{Global::NS_DIR[ns]}/*"].each do |archive|
+        filename, pkgver = File.basename(archive).split('-')
+        begin
+          version, crystax_version = Utils.split_package_version(pkgver)
+          formulas = split_formulary[ns].select { |f| f.file_name == filename }
+          raise FormulaUnavailableError.new(name) if formulas.empty?
+          formulas[0].find_release(Release.new(version, crystax_version))
+        #rescue FormulaUnavailableError, ReleaseNotFound, Exception => e
+        rescue Exception => e
+          remove << RemoveData.new(archive, e.to_s)
+        end
+      end
+    end
+
+    remove.each do |data|
+      if dry_run
+        puts "would remove: #{data.archive}; reason: #{data.reason}"
+      else
+        puts "removing: #{data.archive}; reason: #{data.reason}"
+        FileUtils.rm_rf data.archive
+      end
+    end
+  end
 
   def self.remove_old_utilities(formula, dryrun)
     active_ver = formula.active_version

@@ -8,6 +8,7 @@ INFO_SYNTAX          = 'info [options] name1 [name2 ...]'.freeze
 INSTALL_SYNTAX       = 'install [options] name[:version] ...'.freeze
 SOURCE_SYNTAX        = 'source [options] name[:version] ...'.freeze
 BUILD_SYNTAX         = 'build [options] name[:version] ...'.freeze
+CLEANUP_SYNTAX       = 'cleanup [options]'.freeze
 SHASUM_SYNTAX        = 'shasum [options] [name1 name2 ...]'.freeze
 
 NAME_RULES = <<-EOS
@@ -64,7 +65,8 @@ COMMAND is one of the following:
                   remove source code for the specified formulas
   update          update crew repository information
   upgrade         install most recent versions
-  cleanup [-n]    uninstall old versions and clean cache
+  #{CLEANUP_SYNTAX}
+                  uninstall old versions and clean cache
   #{SHASUM_SYNTAX}
                   check or update SHA256 sums
 EOS
@@ -79,10 +81,12 @@ ENV_HELP = <<-EOS
 
 The ENV command supports the following options:
 
---pkg-cache-dir  output path to the directory used as
+  --pkg-cache-dir
+                 output path to the directory used as
                  a cache for crew packages
 
---src-cache-dir  output path to the directory used as
+  --src-cache-dir
+                 output path to the directory used as
                  a cache for sources for the crew packages
 
 EOS
@@ -94,10 +98,10 @@ The LIST command supports the following options:
 
 Filters:
 
---packages       list only packages, t.i. formulas with
+  --packages     list only packages, t.i. formulas with
                  'target' namespace
 
---tools          list only tools, t.i. formulas with
+  --tools        list only tools, t.i. formulas with
                  'host' namespace
 EOS
 
@@ -106,9 +110,10 @@ INFO_HELP = <<-EOS
 
 The INFO command supports the following options:
 
---versions-only  for every specified name list only avaliable
+  --versions-only
+                 for every specified name list only avaliable
                  versions
---path-only      for every specified name list only formula
+  --path-only    for every specified name list only formula
                  path
 
 Options --versions-only and --filename-only are mutually exclusive.
@@ -121,22 +126,22 @@ INSTALL_HELP = <<-EOS
 
 The INSTALL command support the following options:
 
---platform=PLATFORM
+  --platform=PLATFORM
                  One of the supported platforms: darwin-x86_64;
                  linux-x86_64, windows-x86_64, windows;
                  by default the platforms on which the command
                  is run will be used
 
---no-check-shasum
+  --no-check-shasum
                  do not check SHA256 sum of the packages before
                  installing them
 
---cache-only     command will fail if required package was not
+  --cache-only   command will fail if required package was not
                  found in the cache
 
---force          install even if specified formula(s) installed
+  --force        install even if specified formula(s) installed
 
---all-versions   install all version of the specified formula(s)
+  --all-versions install all version of the specified formula(s)
 EOS
 
 SOURCE_HELP = <<-EOS
@@ -146,7 +151,7 @@ SOURCE_HELP = <<-EOS
 
 The SOURCE command support the following options:
 
---all-versions   install source code for all version of the specified
+  --all-versions install source code for all version of the specified
                  formula(s)
 EOS
 
@@ -159,27 +164,29 @@ The BUILD command supports the following options:
 
 Common options:
 
---build-only     do not create package in the cache dir and do not install
+  --build-only   do not create package in the cache dir and do not install
                  formula; implies --no-clean
 
---no-install     do not install built package
+  --no-install   do not install built package
 
---no-clean       do not remove build artifacts
+  --no-clean     do not remove build artifacts
 
---update-shasum  calculate SHA256 sum of the package and update formula
+  --update-shasum
+                 calculate SHA256 sum of the package and update formula
 
---num-jobs=N     set number of jobs for a make commad;
+  --num-jobs=N   set number of jobs for a make commad;
                  default value depends on the machine used
 
---all-versions   build all versions; by default, the command will build
+  --all-versions build all versions; by default, the command will build
                  only latest version
 
 Options for building utilities:
 
---source-only    just prepare sources for building and do nothing else;
+  --source-only  just prepare sources for building and do nothing else;
                  implies --no-clean
 
---platforms=LIST the list of platforms for which to build formulas;
+  --platforms=LIST
+                 the list of platforms for which to build formulas;
                  platforms must be separated with comma;
                  available platforms on darwin hosts are darwin-x86_64;
                  available platforms on linux hosts are linux-x86_64,
@@ -187,16 +194,28 @@ Options for building utilities:
                  by default all platforms available on the given host
                  will be built
 
---check          run tests if host OS and platform OS are the same;
+  --check        run tests if host OS and platform OS are the same;
                  by default tests will not be run
 
 Options for building target packages:
 
---abis=LIST      the list of ABIs for which to build formulas;
+  --abis=LIST    the list of ABIs for which to build formulas;
                  ABIs must be separated with comma;
                  available ABIs are armeabi, armeabi-v7a, armeabi-v7a-hard,
                  x86, mips, arm64-v8a, x86_64, mips64
                  by default the formula will be built for all ABIs
+EOS
+
+CLEANUP_HELP = <<-EOS
+#{CLEANUP_SYNTAX}
+
+The CLEANUP command supports the following options:
+
+  -n, --dry-run  don't actually remove files, just print them
+
+  --pkg-cache    cleanup package cache; the command will remove from
+                 package cache all archives that are not described in
+                 any formula
 EOS
 
 SHASUM_HELP = <<-EOS
@@ -204,16 +223,17 @@ SHASUM_HELP = <<-EOS
 
 The SHASUM command supports the following options:
 
---update={last|all}
+  --update={last|all}
                  for every specified formula check SHA256 sum for either 'last'
                  or 'all' versions; if check fails then command will calculate
                  sum and save it to the formula file;
                  if no formula name was specified then command will check
                  (and update) sums for all formulas
 
---check          check SHA256 sum for every release of every formula
+  --check        check SHA256 sum for every release of every formula
 
---platforms=LIST the list of platforms for which to apply the command;
+  --platforms=LIST
+                 the list of platforms for which to apply the command;
                  platforms must be separated with comma;
                  default platforms on darwin hosts are darwin-x86_64;
                  default platforms on linux hosts are linux-x86_64,
@@ -233,7 +253,7 @@ CMD_HELP = {
   'remove-source' => NO_HELP,
   'update'        => NO_HELP,
   'upgrade'       => NO_HELP,
-  'cleanup'       => NO_HELP,
+  'cleanup'       => CLEANUP_HELP,
   'shasum'        => SHASUM_HELP
 }
 

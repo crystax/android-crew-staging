@@ -25,11 +25,11 @@ class Formulary
   end
 
   def packages
-    @formulary.select { |_, value| value.namespace == :target }
+    @formulary.select { |_, value| value.namespace == :target }.values
   end
 
   def tools
-    @formulary.select { |_, value| value.namespace == :host }
+    @formulary.select { |_, value| value.namespace == :host }.values
   end
 
   def [](name)
