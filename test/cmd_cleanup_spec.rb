@@ -19,17 +19,81 @@ describe "crew cleanup" do
     it "outputs error message" do
       crew 'cleanup', 'bar'
       expect(exitstatus).to_not be_zero
-      expect(err.split("\n")[0]).to eq('error: this command accepts only one optional argument: -n')
+      expect(err.split("\n")[0]).to eq('error: this command requires no arguments')
     end
   end
 
-  context "when there are no formulas and nothing installed" do
-    it "outputs nothing" do
-      crew 'cleanup'
-      expect(result).to eq(:ok)
-      expect(out).to eq('')
+  context "with bad option" do
+    it "outputs error message" do
+      crew 'cleanup', '--pkg-cashe'
+      expect(exitstatus).to_not be_zero
+      expect(err.split("\n")[0]).to eq('error: unknow option: --pkg-cashe')
     end
   end
+
+  context 'with --dry-run option' do
+
+    # todo: all
+
+  end
+
+  context 'with --pkg-cache option' do
+
+    context 'when there are no formulas and nothing installed' do
+      it 'outputs nothing' do
+        crew 'cleanup', '--pkg-cache'
+        expect(result).to eq(:ok)
+        expect(out).to eq('')
+      end
+    end
+
+    context 'when there are no formulas and nothing installed and there are two unknown files in the package cache' do
+      it 'outputs info about removing files' do
+        tool_path = path_in_pkg_cache(:host, 'tool')
+        package_path = path_in_pkg_cache(:target, 'package')
+        FileUtils.touch [tool_path, package_path]
+        crew 'cleanup', '--pkg-cache'
+        expect(result).to eq(:ok)
+        expect(out.split("\n")).to eq(["removing: #{tool_path}; reason: undefined method `split' for nil:NilClass",
+                                       "removing: #{package_path}; reason: undefined method `split' for nil:NilClass"
+                                      ])
+      end
+    end
+
+    context 'when one release installed' do
+      it 'outputs nothing' do
+        copy_formulas 'libone.rb'
+        crew_checked 'install', 'libone'
+        crew 'cleanup', '--pkg-cache'
+        expect(result).to eq(:ok)
+        expect(out).to eq('')
+        expect(in_pkg_cache?(:target, 'libone', '1.0.0', 1)).to eq(true)
+      end
+    end
+
+    context 'when one release installed and there is one unknown release in the package cache' do
+      it 'outputs nothing' do
+        copy_formulas 'libone.rb'
+        crew_checked 'install', 'libone'
+        package_path = path_in_pkg_cache(:target, archive_name(:target, 'libone', '2.0.0', 1))
+        FileUtils.touch package_path
+        crew 'cleanup', '--pkg-cache'
+        expect(result).to eq(:ok)
+        expect(out.strip).to eq("removing: #{package_path}; reason: libone has no release 2.0.0:1")
+        expect(in_pkg_cache?(:target, 'libone', '1.0.0', 1)).to eq(true)
+        expect(in_pkg_cache?(:target, 'libone', '2.0.0', 1)).to eq(false)
+      end
+    end
+
+  end
+
+  # context "when there are no formulas and nothing installed" do
+  #   it "outputs nothing" do
+  #     crew 'cleanup'
+  #     expect(result).to eq(:ok)
+  #     expect(out).to eq('')
+  #   end
+  # end
 
   # context "when one release installed" do
   #   it "outputs nothing" do

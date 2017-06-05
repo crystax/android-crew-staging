@@ -135,6 +135,10 @@ module Spec
       "#{name}-#{version}_#{cxver}#{suffix}.#{Global::ARCH_EXT}"
     end
 
+    def path_in_pkg_cache(type, filename)
+      File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[type], filename)
+    end
+
     def in_pkg_cache?(type, name, version, cxver)
       File.exists?(File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[type], archive_name(type, name, version, cxver)))
     end
