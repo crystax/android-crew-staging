@@ -135,11 +135,11 @@ module Spec
       "#{name}-#{version}_#{cxver}#{suffix}.#{Global::ARCH_EXT}"
     end
 
-    def in_cache?(type, name, version, cxver)
+    def in_pkg_cache?(type, name, version, cxver)
       File.exists?(File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[type], archive_name(type, name, version, cxver)))
     end
 
-    def cache_empty?(type = nil)
+    def pkg_cache_empty?(type = nil)
       if type
         Dir[File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[type], '*')].empty?
       else
@@ -149,9 +149,19 @@ module Spec
       end
     end
 
-    def clean_cache
+    def clean_pkg_cache
       FileUtils.rm_rf   Global::PKG_CACHE_DIR
       FileUtils.mkdir_p Global::NS_DIR.values.map { |d| File.join(Global::PKG_CACHE_DIR, d) }
+    end
+
+    def clean_src_cache
+      FileUtils.rm_rf   Global::SRC_CACHE_DIR
+      FileUtils.mkdir_p Global::SRC_CACHE_DIR
+    end
+
+    def clean_cache
+      clean_pkg_cache
+      clean_src_cache
     end
 
     def clean_hold

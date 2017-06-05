@@ -89,7 +89,7 @@ describe "crew upgrade" do
                           "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/curl/#{file}\n" \
                           "checking integrity of the archive file #{file}\n"          \
                           "unpacking archive\n")
-        expect(in_cache?(:host, 'curl', ver, cxver)).to eq(true)
+        expect(in_pkg_cache?(:host, 'curl', ver, cxver)).to eq(true)
       end
     end
 
@@ -108,7 +108,7 @@ describe "crew upgrade" do
                           "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/curl/#{file}\n" \
                           "checking integrity of the archive file #{file}\n"              \
                           "unpacking archive\n")
-        expect(in_cache?(:host, 'curl', ver, cxver)).to eq(true)
+        expect(in_pkg_cache?(:host, 'curl', ver, cxver)).to eq(true)
       end
     end
 
@@ -141,9 +141,9 @@ describe "crew upgrade" do
                           "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/ruby/#{ruby_file}\n"             \
                           "checking integrity of the archive file #{ruby_file}\n"                          \
                           "unpacking archive\n")
-        expect(in_cache?(:host, 'libarchive', libarchive_new_rel.version,  libarchive_new_rel.crystax_version)).to eq(true)
-        expect(in_cache?(:host, 'curl',       curl_new_rel.version,        curl_new_rel.crystax_version)).to       eq(true)
-        expect(in_cache?(:host, 'ruby',       ruby_new_rel.version,        ruby_new_rel.crystax_version)).to       eq(true)
+        expect(in_pkg_cache?(:host, 'libarchive', libarchive_new_rel.version,  libarchive_new_rel.crystax_version)).to eq(true)
+        expect(in_pkg_cache?(:host, 'curl',       curl_new_rel.version,        curl_new_rel.crystax_version)).to       eq(true)
+        expect(in_pkg_cache?(:host, 'ruby',       ruby_new_rel.version,        ruby_new_rel.crystax_version)).to       eq(true)
       end
     end
   end
@@ -174,7 +174,7 @@ describe "crew upgrade" do
                                        "checking integrity of the archive file #{libtwo_file}",
                                        "unpacking archive"
                                       ])
-        expect(in_cache?(:host, 'curl', curl_new_rel.version, curl_new_rel.crystax_version)).to eq(true)
+        expect(in_pkg_cache?(:host, 'curl', curl_new_rel.version, curl_new_rel.crystax_version)).to eq(true)
       end
     end
 
@@ -221,9 +221,9 @@ describe "crew upgrade" do
                                        "checking integrity of the archive file #{ruby_file}",
                                        "unpacking archive"
                                       ])
-        expect(in_cache?(:host, 'libarchive', libarchive_new_rel.version,  libarchive_new_rel.crystax_version)).to eq(true)
-        expect(in_cache?(:host, 'curl',       curl_new_rel.version,        curl_new_rel.crystax_version)).to       eq(true)
-        expect(in_cache?(:host, 'ruby',       ruby_new_rel.version,        ruby_new_rel.crystax_version)).to       eq(true)
+        expect(in_pkg_cache?(:host, 'libarchive', libarchive_new_rel.version,  libarchive_new_rel.crystax_version)).to eq(true)
+        expect(in_pkg_cache?(:host, 'curl',       curl_new_rel.version,        curl_new_rel.crystax_version)).to       eq(true)
+        expect(in_pkg_cache?(:host, 'ruby',       ruby_new_rel.version,        ruby_new_rel.crystax_version)).to       eq(true)
       end
     end
   end
