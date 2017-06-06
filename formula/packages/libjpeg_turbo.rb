@@ -1,6 +1,7 @@
 class LibjpegTurbo < Package
 
   desc "JPEG image codec that aids compression and decompression"
+  name 'libjpeg-turbo'
   homepage "http://www.libjpeg-turbo.org/"
   url "https://downloads.sourceforge.net/project/libjpeg-turbo/${version}/libjpeg-turbo-${version}.tar.gz"
 
