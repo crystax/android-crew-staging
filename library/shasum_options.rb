@@ -8,29 +8,15 @@ class ShasumOptions
 
   extend CommandOptions
 
-  attr_reader :platforms
-
   def initialize(opts)
-    @update = nil
-    @check = nil
-    @all_versions = nil
-    @platforms = Platform.default_names_for_host_os
+    @update = false
 
     opts.each do |opt|
       case opt
-      when /^--update=/
-        u = opt.split('=')[1]
-        raise "bad update value: #{u}; must be 'all' or 'last'" if u != 'all' and u != 'last'
+      when /^--update$/
         @update = true
-        @check = false
-        @all_versions = (u == 'all')
-      when /^--platforms=/
-        @platforms = opt.split('=')[1].split(',')
-        @platforms.each { |p| raise "unsupported platform #{p}" unless Platform::NAMES.include? p }
       when /^--check$/
-        @check = true
         @update = false
-        @all_versions = true
       else
         raise "unknow option: #{opt}"
       end
@@ -38,14 +24,10 @@ class ShasumOptions
   end
 
   def update?
-    @update
+    @update == true
   end
 
   def check?
-    @check
-  end
-
-  def all_versions?
-    @all_versions
+    @update == false
   end
 end

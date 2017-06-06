@@ -223,21 +223,17 @@ SHASUM_HELP = <<-EOS
 
 The SHASUM command supports the following options:
 
-  --update={last|all}
-                 for every specified formula check SHA256 sum for either 'last'
-                 or 'all' versions; if check fails then command will calculate
-                 sum and save it to the formula file;
-                 if no formula name was specified then command will check
-                 (and update) sums for all formulas
+  --update       for every specified formula check SHA256 sum and if
+                 check fails then calculate sum and save it to the
+                 formula file
 
-  --check        check SHA256 sum for every release of every formula
+  --check        check SHA256 sum for every release of every specified
+                 formula
 
-  --platforms=LIST
-                 the list of platforms for which to apply the command;
-                 platforms must be separated with comma;
-                 default platforms on darwin hosts are darwin-x86_64;
-                 default platforms on linux hosts are linux-x86_64,
-                 windows-x86_64, windows
+If no formula name was specified then all formulas will be handled.
+
+If no option was specified then command will work as if '--check'
+option was specified.
 EOS
 
 CMD_HELP = {
