@@ -52,10 +52,10 @@ module Crew
 
   # private
 
-  def self.list_elements(hash)
+  def self.list_elements(elements)
     list = []
     max_name_len = max_ver_len = max_cxver_len = 0
-    hash.each_value do |f|
+    elements.each do |f|
       f.releases.each do |r|
         max_name_len = f.name.size if f.name.size > max_name_len
         ver = r.version
