@@ -69,7 +69,7 @@ class Boost < Package
     nil
   end
 
-  def build_for_abi(abi, _toolchain, release, _host_dep_dirs, _target_dep_dirs)
+  def build_for_abi(abi, _toolchain, release, _host_dep_dirs, _target_dep_dirs, _options)
     args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
               "--enable-shared",

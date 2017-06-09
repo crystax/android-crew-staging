@@ -11,8 +11,8 @@ class X264 < Package
 
   build_options sysroot_in_cflags:   false,
                 copy_installed_dirs: ['bin', 'lib', 'include']
-  
-  def build_for_abi(abi, toolchain, _release, _host_dep_dirs, _target_dep_dirs)
+
+  def build_for_abi(abi, toolchain, _release, _host_dep_dirs, _target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)
     args =  [ "--prefix=#{install_dir}",
               "--host=#{host_for_abi(abi)}",

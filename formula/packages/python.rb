@@ -61,7 +61,7 @@ class Python < Package
   attr_reader :support_dir
   attr_reader :major_ver, :python_abi
 
-  def build_for_abi(abi, toolchain, release, _host_dep_dirs, target_dep_dirs)
+  def build_for_abi(abi, toolchain, release, _host_dep_dirs, target_dep_dirs, _options)
     src_dir = build_dir_for_abi(abi)
     build_dir = "#{src_dir}/build"
 

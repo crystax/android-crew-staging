@@ -23,6 +23,8 @@ class BuildOptions
     @num_jobs = Utils.processor_count * 2
     @platforms = Platform.default_names_for_host_os
 
+    @num_jobs_default = true
+
     opts.each do |opt|
       case opt
       when '--source-only'
@@ -39,6 +41,7 @@ class BuildOptions
         @update_shasum = true
       when /^--num-jobs=/
         @num_jobs = opt.split('=')[1].to_i
+        @num_jobs_default = false
       when /^--platforms=/
         @platforms = opt.split('=')[1].split(',')
       when '--check'
@@ -83,5 +86,9 @@ class BuildOptions
 
   def all_versions?
     @all_versions
+  end
+
+  def num_jobs_default?
+    @num_jobs_default
   end
 end

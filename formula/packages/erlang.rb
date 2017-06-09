@@ -21,7 +21,7 @@ class Erlang < Package
 
   # todo: support interface with java?
 
-  def build_for_abi(abi, toolchain,  _release, _host_dep_dirs, target_dep_dirs)
+  def build_for_abi(abi, toolchain,  _release, _host_dep_dirs, target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)
     ncurses_dir = target_dep_dirs['ncurses']
     openssl_dir = target_dep_dirs['openssl']

@@ -11,7 +11,7 @@ class Libtiff < Package
   build_copy 'COPYRIGHT'
   build_options use_cxx: true
 
-  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs)
+  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)
     libjpeg_dir = target_dep_dirs['libjpeg']
     args = [ "--prefix=#{install_dir}",

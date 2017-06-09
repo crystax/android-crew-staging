@@ -10,7 +10,7 @@ class Openssl < Package
   build_copy 'LICENSE'
   build_libs 'libcrypto', 'libssl'
 
-  def build_for_abi(abi, toolchain, release, _host_dep_dirs, _target_dep_dirs)
+  def build_for_abi(abi, toolchain, release, _host_dep_dirs, _target_dep_dirs, options)
     install_dir = install_dir_for_abi(abi)
     build_env['CFLAGS'] << ' -DOPENSSL_NO_DEPRECATED'
 
@@ -23,7 +23,7 @@ class Openssl < Package
            ]
 
     # parallel build seems to be broken on darwin
-    num_jobs = 1 if Global::OS == 'darwin'
+    num_jobs = 1 if Global::OS == 'darwin' and options.num_jobs_default?
 
     system './Configure',  *args
     fix_ccgost_makefile build_dir_for_abi(abi), toolchain.ldflags(abi)

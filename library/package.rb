@@ -134,7 +134,7 @@ class Package < TargetBase
         build_dir = build_dir_for_abi(abi)
         FileUtils.cp_r "#{src_dir}/.", build_dir
         setup_build_env abi, toolchain if build_options[:setup_env]
-        FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, host_dep_dirs, target_dep_dirs }
+        FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, host_dep_dirs, target_dep_dirs, options }
         copy_installed_files abi
         FileUtils.rm_rf base_dir_for_abi(abi) unless options.no_clean?
       end

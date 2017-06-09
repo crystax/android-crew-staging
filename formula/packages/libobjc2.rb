@@ -9,7 +9,7 @@ class Libobjc2 < Package
 
   build_options setup_env: false
 
-  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs)
+  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)
 
     args = ["-DWITH_TESTS=NO",

@@ -10,7 +10,7 @@ class Qrencode < Package
 
   build_copy 'COPYING'
 
-  def build_for_abi(abi, _toolchain, release, _host_dep_dirs, _target_dep_dirs)
+  def build_for_abi(abi, _toolchain, release, _host_dep_dirs, _target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)
     args =  [ "--prefix=#{install_dir}",
               "--host=#{host_for_abi(abi)}",
