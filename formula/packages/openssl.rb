@@ -22,6 +22,9 @@ class Openssl < Package
             build_env['LDFLAGS'],
            ]
 
+    # parallel build seems to be broken on darwin
+    num_jobs = 1 if Global::OS == 'darwin'
+
     system './Configure',  *args
     fix_ccgost_makefile build_dir_for_abi(abi), toolchain.ldflags(abi)
     system 'make', 'depend'
