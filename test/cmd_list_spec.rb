@@ -146,7 +146,7 @@ describe "crew list" do
     end
   end
 
-  context "with utils argument" do
+  context "with --tools argument" do
 
     context "when there is one release of every utility" do
       it "outputs info about installed utilities" do
