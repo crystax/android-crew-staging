@@ -4,7 +4,7 @@ require_relative 'utils.rb'
 require_relative 'tool.rb'
 require_relative 'platform.rb'
 require_relative 'build.rb'
-require_relative 'build_options.rb'
+require_relative 'cmd/build_options.rb'
 
 
 class Utility < Tool

@@ -1,4 +1,4 @@
-require_relative 'command_options.rb'
+require_relative '../command_options.rb'
 
 
 class InfoOptions

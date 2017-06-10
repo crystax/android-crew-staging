@@ -1,5 +1,5 @@
-require_relative 'global.rb'
-require_relative 'command_options.rb'
+require_relative '../global.rb'
+require_relative '../command_options.rb'
 
 
 class InstallOptions

@@ -2,7 +2,7 @@ require_relative '../exceptions.rb'
 require_relative '../release.rb'
 require_relative '../formulary.rb'
 require_relative '../platform.rb'
-require_relative '../shasum_options.rb'
+require_relative 'shasum_options.rb'
 
 
 module Crew

@@ -1,7 +1,7 @@
 require_relative '../exceptions.rb'
 require_relative '../release.rb'
 require_relative '../formulary.rb'
-require_relative '../build_options.rb'
+require_relative 'build_options.rb'
 
 
 module Crew

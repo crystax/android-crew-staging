@@ -1,7 +1,7 @@
 require 'fileutils'
 require_relative 'release.rb'
 require_relative 'build.rb'
-require_relative 'build_options.rb'
+require_relative 'cmd/build_options.rb'
 require_relative 'target_base.rb'
 
 
