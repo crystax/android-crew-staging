@@ -43,6 +43,10 @@ class TargetBase < Formula
     FileUtils.touch archive
   end
 
+  def copy_to_standalone_toolchain(_arch, _install_dir)
+    warning "formula #{name} does not support copying to stanalone toolchain"
+  end
+
   private
 
   def build_base_dir

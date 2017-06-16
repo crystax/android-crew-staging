@@ -51,7 +51,7 @@ class Gcc < Tool
     unwind_dir = File.join(Global::NDK_DIR, UNWIND_SUB_DIR)
     FileUtils.rm_rf unwind_dir if prop[:libunwind_installed]
 
-    Build::ARCH_LIST.each do |arch|
+    Arch::LIST.values.each do |arch|
       FileUtils.rm_rf File.join(Global::NDK_DIR, ARCHIVE_TOP_DIR, "#{arch.toolchain}-#{release.version}", 'prebuilt', platform_name)
     end
     Utils.unpack archive, Global::NDK_DIR
@@ -80,8 +80,8 @@ class Gcc < Tool
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"
-      #[ARCH_ARM64].each do |arch|
-      Build::ARCH_LIST.each do |arch|
+      #[Arch::ARM64].each do |arch|
+      Arch::LIST.values.each do |arch|
         base_dir = base_dir(platform, arch)
         self.log_file = build_log_file(base_dir)
         printf  "  %-#{max_arch_name_len+1}s ", "#{arch.name}:"
@@ -100,8 +100,8 @@ class Gcc < Tool
 
       if not options.build_only?
         pkg_dir = File.join(build_base_dir, platform.name, ARCHIVE_TOP_DIR)
-        #[ARCH_ARM64].each do |arch|
-        Build::ARCH_LIST.each do |arch|
+        #[Arch::ARM64].each do |arch|
+        Arch::LIST.values.each do |arch|
           base_dir = base_dir(platform, arch)
           arch_pkg_dir = File.join(pkg_dir, "#{arch.toolchain}-#{release.version}", 'prebuilt', platform.name)
           FileUtils.mkdir_p arch_pkg_dir
@@ -575,7 +575,7 @@ class Gcc < Tool
 
   def max_arch_name_len()
     len = 0
-    Build::ARCH_LIST.each { |arch| len = arch.name.size if arch.name.size > len }
+    Arch::LIST.values.each { |arch| len = arch.name.size if arch.name.size > len }
     len
   end
 

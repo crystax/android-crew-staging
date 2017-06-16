@@ -134,7 +134,7 @@ class Llvm < Tool
         end
 
         Dir['lldb*'].select { |f| File.extname(f) == '' }.each { |f| gen_lldb_wrapper f }
-        Build::ABI_LIST.each { |abi| gen_analizer_wrappers abi, platform }
+        Arch::ABI_LIST.each { |abi| gen_analizer_wrappers abi, platform }
       end
 
       if not options.build_only?

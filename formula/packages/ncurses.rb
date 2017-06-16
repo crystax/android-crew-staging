@@ -44,7 +44,7 @@ class Ncurses < Package
     # it should point two levels up (not one), since libs are put in separate dirs per abi
     FileUtils.cd("#{package_dir}/libs") do
       terminfo = 'terminfo'
-      Build::ABI_LIST.each do |abi|
+      Arch::ABI_LIST.each do |abi|
         File.directory?(abi) and FileUtils.cd(abi) do
           if File.symlink? terminfo
             FileUtils.rm terminfo

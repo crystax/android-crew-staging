@@ -30,11 +30,8 @@ module Build
 
   CMAKE_TOOLCHAIN_FILE = File.join(Global::NDK_DIR, 'cmake', 'toolchain.cmake')
 
-  ARCH_LIST = [ARCH_ARM, ARCH_X86, ARCH_MIPS, ARCH_ARM64, ARCH_X86_64, ARCH_MIPS64]
-  ABI_LIST  = ARCH_LIST.map { |a| a.abis }.flatten
-
   DEFAULT_TOOLCHAIN = Toolchain::DEFAULT_GCC
-  TOOLCHAIN_LIST = [ Toolchain::GCC_4_9, Toolchain::GCC_5, Toolchain::GCC_6, Toolchain::LLVM_3_6, Toolchain::LLVM_3_7, Toolchain::LLVM_3_8 ]
+  TOOLCHAIN_LIST = Toolchain::SUPPORTED_GCC + Toolchain::SUPPORTED_LLVM
 
   BINUTILS_VER = '2.25'
   BUG_URL      = 'https://tracker.crystax.net/projects/ndk'
@@ -61,7 +58,7 @@ module Build
   end
 
   def self.abis_to_arch_list(abis)
-    arch_list = ARCH_LIST.map { |a| a.dup }
+    arch_list = ARCH::LIST.values.map { |a| a.dup }
     abis.each do |abi|
       arch = arch_for_abi(abi, arch_list)
       arch.abis_to_build << abi
@@ -69,7 +66,7 @@ module Build
     arch_list.select { |a| not a.abis_to_build.empty? }
   end
 
-  def self.arch_for_abi(abi, arch_list = ARCH_LIST)
+  def self.arch_for_abi(abi, arch_list = ARCH::LIST.values)
     arch_list.select { |arch| arch.abis.include? abi } [0]
   end
 

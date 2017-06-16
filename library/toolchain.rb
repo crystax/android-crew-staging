@@ -179,18 +179,12 @@ module Toolchain
       gcc_toolchain.find_so_needs lib, arch
     end
 
-      # private
-
     def tc_prefix(_arch)
       "#{Global::NDK_DIR}/toolchains/llvm-#{version}/prebuilt/#{File.basename(Global::TOOLS_DIR)}"
     end
 
-    private
-
     def target(abi)
       case abi
-      when 'armeabi'
-        'armv5te-none-linux-androideabi'
       when /^armeabi-v7a/
         'armv7-none-linux-androideabi'
       when 'arm64-v8a'
@@ -214,10 +208,12 @@ module Toolchain
   GCC_6   = GCC.new('6')
 
   DEFAULT_GCC = GCC_5
+  SUPPORTED_GCC = [GCC_4_9, GCC_5, GCC_6]
 
   LLVM_3_6 = LLVM.new('3.6', DEFAULT_GCC)
   LLVM_3_7 = LLVM.new('3.7', DEFAULT_GCC)
   LLVM_3_8 = LLVM.new('3.8', DEFAULT_GCC)
 
   DEFAULT_LLVM = LLVM_3_8
+  SUPPORTED_LLVM = [LLVM_3_6, LLVM_3_7, LLVM_3_8]
 end

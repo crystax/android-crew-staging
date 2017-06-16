@@ -8,6 +8,7 @@ require_relative 'package.rb'
 require_relative 'utility.rb'
 require_relative 'build_dependency.rb'
 require_relative 'toolchain.rb'
+require_relative 'arch.rb'
 
 class Formulary
 

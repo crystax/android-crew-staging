@@ -1,6 +1,10 @@
 class Arch
+
   attr_reader :name, :num_bits, :min_api_level, :default_lib_dir, :host, :toolchain, :abis, :abis_to_build
-  attr_accessor
+
+  def self.supported?(arch_name)
+    NAMES.values.include? arch_name
+  end
 
   def initialize(name, bits, min_api, default_lib_dir, host, toolchain, abis)
     @name = name
@@ -29,14 +33,19 @@ class Arch
   def to_s
     @name
   end
+
+  MIN_32_API_LEVEL = 9
+  MIN_64_API_LEVEL = 21
+
+  NAMES = { arm: 'arm', x86: 'x86', mips: 'mips', arm64: 'arm64', x86_64: 'x86_64', mips64: 'mips64' }
+
+  ARM    = Arch.new(NAMES[:arm],    32, MIN_32_API_LEVEL, 'lib',   'arm-linux-androideabi',  'arm-linux-androideabi',  ['armeabi-v7a', 'armeabi-v7a-hard']).freeze
+  X86    = Arch.new(NAMES[:x86],    32, MIN_32_API_LEVEL, 'lib',   'i686-linux-android',     'x86',                    ['x86']).freeze
+  MIPS   = Arch.new(NAMES[:mips],   32, MIN_32_API_LEVEL, 'lib',   'mipsel-linux-android',   'mipsel-linux-android',   ['mips']).freeze
+  ARM64  = Arch.new(NAMES[:arm64],  64, MIN_64_API_LEVEL, 'lib',   'aarch64-linux-android',  'aarch64-linux-android',  ['arm64-v8a']).freeze
+  X86_64 = Arch.new(NAMES[:x86_64], 64, MIN_64_API_LEVEL, 'lib64', 'x86_64-linux-android',   'x86_64',                 ['x86_64']).freeze
+  MIPS64 = Arch.new(NAMES[:mips64], 64, MIN_64_API_LEVEL, 'lib64', 'mips64el-linux-android', 'mips64el-linux-android', ['mips64']).freeze
+
+  LIST     = { arm: ARM, x86: X86, mips: MIPS, arm64: ARM64, x86_74: X86_64, mips64: MIPS64 }
+  ABI_LIST = LIST.values.map { |a| a.abis }.flatten
 end
-
-MIN_32_API_LEVEL = 9
-MIN_64_API_LEVEL = 21
-
-ARCH_ARM    = Arch.new('arm',    32, MIN_32_API_LEVEL, 'lib',   'arm-linux-androideabi',  'arm-linux-androideabi',  ['armeabi-v7a', 'armeabi-v7a-hard']).freeze
-ARCH_X86    = Arch.new('x86',    32, MIN_32_API_LEVEL, 'lib',   'i686-linux-android',     'x86',                    ['x86']).freeze
-ARCH_MIPS   = Arch.new('mips',   32, MIN_32_API_LEVEL, 'lib',   'mipsel-linux-android',   'mipsel-linux-android',   ['mips']).freeze
-ARCH_ARM64  = Arch.new('arm64',  64, MIN_64_API_LEVEL, 'lib',   'aarch64-linux-android',  'aarch64-linux-android',  ['arm64-v8a']).freeze
-ARCH_X86_64 = Arch.new('x86_64', 64, MIN_64_API_LEVEL, 'lib64', 'x86_64-linux-android',   'x86_64',                 ['x86_64']).freeze
-ARCH_MIPS64 = Arch.new('mips64', 64, MIN_64_API_LEVEL, 'lib64', 'mips64el-linux-android', 'mips64el-linux-android', ['mips64']).freeze

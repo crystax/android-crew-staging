@@ -2,9 +2,11 @@ require_relative 'build.rb'
 
 class Platform
 
-  DEF_LINUX_NAMES  = ['linux-x86_64', 'windows-x86_64', 'windows']
-  DEF_DARWIN_NAMES = ['darwin-x86_64']
-  NAMES = DEF_LINUX_NAMES + DEF_DARWIN_NAMES
+  SUPPORTED_ON = Hash.new { |h, k| h[k] = [] }
+  SUPPORTED_ON.update({ darwin: ['darwin-x86_64'],  linux: ['linux-x86_64', 'windows-x86_64', 'windows'] })
+
+  NAMES = SUPPORTED_ON.values.flatten
+
   MACOSX_VERSION_MIN = '10.6'
   TOOLCHAIN = { 'darwin/darwin' => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/darwin-x86/host/x86_64-apple-darwin-4.9.3/bin",
                                      tool_prefix:   '',
@@ -69,14 +71,7 @@ class Platform
               }
 
   def self.default_names_for_host_os
-    case Global::OS
-    when 'darwin'
-      DEF_DARWIN_NAMES
-    when 'linux'
-      DEF_LINUX_NAMES
-    else
-      []
-    end
+    SUPPORTED_ON[Global::OS.to_sym]
   end
 
   attr_reader :name, :host_os, :target_os, :target_cpu

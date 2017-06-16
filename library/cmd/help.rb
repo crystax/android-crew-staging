@@ -1,15 +1,18 @@
 require_relative '../exceptions.rb'
 require_relative '../build.rb'
+require_relative '../arch.rb'
+require_relative '../platform.rb'
 
 
-ENV_SYNTAX           = 'env [options]'.freeze
-LIST_SYNTAX          = 'list [options] [name1 name2 ...]'.freeze
-INFO_SYNTAX          = 'info [options] name1 [name2 ...]'.freeze
-INSTALL_SYNTAX       = 'install [options] name[:version] ...'.freeze
-SOURCE_SYNTAX        = 'source [options] name[:version] ...'.freeze
-BUILD_SYNTAX         = 'build [options] name[:version] ...'.freeze
-CLEANUP_SYNTAX       = 'cleanup [options]'.freeze
-SHASUM_SYNTAX        = 'shasum [options] [name1 name2 ...]'.freeze
+ENV_SYNTAX                       = 'env [options]'.freeze
+LIST_SYNTAX                      = 'list [options] [name1 name2 ...]'.freeze
+INFO_SYNTAX                      = 'info [options] name1 [name2 ...]'.freeze
+INSTALL_SYNTAX                   = 'install [options] name[:version] ...'.freeze
+SOURCE_SYNTAX                    = 'source [options] name[:version] ...'.freeze
+BUILD_SYNTAX                     = 'build [options] name[:version] ...'.freeze
+CLEANUP_SYNTAX                   = 'cleanup [options]'.freeze
+SHASUM_SYNTAX                    = 'shasum [options] [name1 name2 ...]'.freeze
+MAKE_STANDALONE_TOOLCHAIN_SYNTAX = 'make-standalone-toolchain [options]'.freeze
 
 NAME_RULES = <<-EOS
 Name for a formula can specified in two ways. First, it can be specified
@@ -69,6 +72,8 @@ COMMAND is one of the following:
                   uninstall old versions and clean cache
   #{SHASUM_SYNTAX}
                   check or update SHA256 sums
+  #{MAKE_STANDALONE_TOOLCHAIN_SYNTAX}
+                  create a standalone toolchain package for Android
 EOS
 
 
@@ -236,22 +241,71 @@ If no option was specified then command will work as if '--check'
 option was specified.
 EOS
 
+
+MAKE_STANDALONE_TOOLCHAIN_HELP = <<-EOS
+#{MAKE_STANDALONE_TOOLCHAIN_SYNTAX}
+
+Generate a customized Android toolchain installation that includes
+a working sysroot. The result is something that can more easily be
+used as a standalone cross-compiler, e.g. to run configure and
+make scripts.
+
+The MAKE-STANDALONE-TOOLCHAIN command supports the following options:
+
+  --install-dir=PATH
+                 install files to PATH; PATH must point to an empty or
+                 non-existent directory; required
+  --gcc-version=VER
+                 specify GCC version; possible values are #{Toolchain::SUPPORTED_GCC.map(&:version).join(', ')};
+                 default value is '#{Toolchain::DEFAULT_GCC.version}'
+
+  --llvm-version=VER
+                 specify LLVM version; possible values are #{Toolchain::SUPPORTED_LLVM.map(&:version).join(', ')};
+                 default value is '#{Toolchain::DEFAULT_LLVM.version}'
+
+  --stl=NAME     specify C++ STL; possible values are 'gnustl', 'libc++';
+                 default value is 'gnustl'
+
+  --arch=NAME    specify target architecture; possible values are
+
+  --platform=NAME
+                 specify host system; possible value on darwin host is
+                 darwin-x86_64, on linux host is linux-x86_64, on windows
+                 64-bit host is windows-x86_64 or windows, on windows
+                 32-bit host is windows
+
+  --api-level=LEVEL
+                 specify target Android API level; default value is #{Arch::MIN_32_API_LEVEL}
+                 for 32-bit architectures and #{Arch::MIN_64_API_LEVEL} for 64-bit architectures
+
+  --with-packages=LIST
+                 specify names of the packages that should be copied
+                 into toolchain installation tree; package names must
+                 be separated by comma and can include required version
+                 (i.e. boost:1.64.0); if version not specified then the
+                 latest version will be used; only one version of the
+                 given package can be installed
+EOS
+
+
 CMD_HELP = {
-  'version'       => NO_HELP,
-  'help'          => NO_HELP,
-  'env'           => ENV_HELP,
-  'list'          => LIST_HELP,
-  'info'          => INFO_HELP,
-  'install'       => INSTALL_HELP,
-  'remove'        => NO_HELP,
-  'source'        => SOURCE_HELP,
-  'build'         => BUILD_HELP,
-  'remove-source' => NO_HELP,
-  'update'        => NO_HELP,
-  'upgrade'       => NO_HELP,
-  'cleanup'       => CLEANUP_HELP,
-  'shasum'        => SHASUM_HELP
+  'version'                   => NO_HELP,
+  'help'                      => NO_HELP,
+  'env'                       => ENV_HELP,
+  'list'                      => LIST_HELP,
+  'info'                      => INFO_HELP,
+  'install'                   => INSTALL_HELP,
+  'remove'                    => NO_HELP,
+  'source'                    => SOURCE_HELP,
+  'build'                     => BUILD_HELP,
+  'remove-source'             => NO_HELP,
+  'update'                    => NO_HELP,
+  'upgrade'                   => NO_HELP,
+  'cleanup'                   => CLEANUP_HELP,
+  'shasum'                    => SHASUM_HELP,
+  'make-standalone-toolchain' => MAKE_STANDALONE_TOOLCHAIN_HELP
 }
+
 
 module Crew
   def self.help(args)

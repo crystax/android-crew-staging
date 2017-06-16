@@ -1,5 +1,6 @@
 require_relative '../global.rb'
 require_relative '../utils.rb'
+require_relative '../arch.rb'
 require_relative '../platform.rb'
 require_relative '../command_options.rb'
 
@@ -12,7 +13,7 @@ class BuildOptions
   attr_writer :source_only, :build_only, :no_install, :no_clean, :update_shasum, :check
 
   def initialize(opts)
-    @abis = Build::ABI_LIST
+    @abis = ARCH::ABI_LIST
     @source_only = false
     @build_only = false
     @install = true

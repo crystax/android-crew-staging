@@ -1,5 +1,6 @@
 require 'fileutils'
 require_relative 'library/extend/module.rb'
+require_relative 'library/extend/dir.rb'
 require_relative 'library/exceptions.rb'
 require_relative 'library/global.rb'
 require_relative 'library/utils.rb'

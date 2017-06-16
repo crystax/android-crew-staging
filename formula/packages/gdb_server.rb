@@ -12,7 +12,7 @@ class GdbServer < BasePackage
   #build_depends_on default_compiler
   depends_on 'platforms'
 
-  ARCHIVE_SUB_DIRS  = Build::ARCH_LIST.map { |arch| "android-#{arch}" }
+  ARCHIVE_SUB_DIRS  = Arch::LIST.values.map { |arch| "android-#{arch}" }
   API_LEVEL = 21
 
   def release_directory(_release = nil, _platform_name = nil)
