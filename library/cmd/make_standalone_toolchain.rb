@@ -81,8 +81,11 @@ module Crew
       # expect the sysroot files to be placed there!
       src_sysroot_inc = "platforms/android-#{options.api_level}/arch-#{options.arch.name}/usr/include"
       src_sysroot_lib = "platforms/android-#{options.api_level}/arch-#{options.arch.name}/usr/lib"
-      install_sysroot_usr_dir = File.join(install_dir, 'sysroot', 'usr')
+
+      install_sysroot_dir = File.join(install_dir, 'sysroot')
+      install_sysroot_usr_dir = File.join(install_sysroot_dir, 'usr')
       FileUtils.mkdir_p install_sysroot_usr_dir
+
       FileUtils.cp_r src_sysroot_inc, install_sysroot_usr_dir
       FileUtils.cp_r src_sysroot_lib, install_sysroot_usr_dir
       # x86_64 and mips* toolchain are built multilib.
@@ -101,6 +104,9 @@ module Crew
       end
       # remove this libstdc++ library to avoid possible clashes with real ones
       FileUtils.rm Dir['/tmp/crew-gcc/sysroot/usr/**/libstdc++*']
+      # copy runtime
+      FileUtils.cp Dir["platforms/#{options.platform.name}/arch-#{options.arch.name}/usr/lib/crt*"], "#{install_sysroot_usr_dir}/lib/"
+
       # todo: do we still need this?
       #if [ "$ARCH_INC" != "$ARCH" ]; then
       #  cp -a $NDK_DIR/$GCCUNWIND_SUBDIR/libs/$ABI/* $TMPDIR/sysroot/usr/lib
@@ -108,22 +114,20 @@ module Crew
       #    cp -a $NDK_DIR/$COMPILER_RT_SUBDIR/libs/$ABI/* $TMPDIR/sysroot/usr/lib
       #  fi
       #fi
-      FileUtils.cp Dir["platforms/#{options.platform.name}/arch-#{options.arch.name}/usr/lib/crt*"], "#{install_sysroot_usr_dir}/lib/"
 
       puts "= copying required packages:"
+      target_include_dir = File.join(install_sysroot_usr_dir, 'include')
+      target_lib_dir = File.join(install_dir, options.arch.host)
+      FileUtils.mkdir_p target_include_dir
+
       formulary = Formulary.new
       ['libcrystax', 'libobjc2'].each do |package_name|
         formula = formulary["target/#{package_name}"]
         puts "    #{formula.name}"
-        formula.copy_to_standalone_toolchain(options.arch, install_dir)
+        formula.copy_to_standalone_toolchain(formula.highest_installed_release, options.arch, target_include_dir, target_lib_dir)
       end
 
-
-      # target_lib_dir = File.join(install_dir, arch.host)
-      # make_target_lib_dirs target_lib_dir
-
-      # copy_crystax_libs arch, install_dir, target_dir
-
+      # todo: copy packages
     end
   end
 
@@ -180,52 +184,6 @@ module Crew
       f.puts "%~dp0\\#{clang}.exe %*"
       f.puts "if ERRORLEVEL 1 exit /b 1"
       f.puts ":done"
-    end
-  end
-
-  def self.make_target_lib_dirs(target_dir)
-    FileUtils.cd(target_dir) do
-      FileUtils.mkdir_p ["lib/armv7-a/",
-                         "lib/armv7-a/thumb/",
-                         "lib/armv7-a/hard/",
-                         "lib/armv7-a/thumb/hard/",
-                         "lib",
-                         "libr2",
-                         "libr6",
-                         "lib64/",
-                         "lib64r2/",
-                         "libx32/"
-                        ]
-    end
-  end
-
-  def self.copy_crystax_libs(arch, install_dir, target_dir)
-    puts "= copying crystax headers and libraries"
-
-    crystax_libs_dir = 'sources/crystax/libs'
-
-    case arch.name
-    when 'arm'
-      FileUitls.cp Dir["#{crystax_libs_dir}/armeabi-v7a/libcrystax.*"],            "#{target_dir}/lib/armv7-a/"
-      FileUitls.cp Dir["#{crystax_libs_dir}/armeabi-v7a/thumb/libcrystax.*"],      "#{target_dir}/lib/armv7-a/thumb/"
-      FileUitls.cp Dir["#{crystax_libs_dir}/armeabi-v7a-hard/libcrystax.*"],       "#{target_dir}/lib/armv7-a/hard/"
-      FileUitls.cp Dir["#{crystax_libs_dir}/armeabi-v7a-hard/thumb/libcrystax.*"], "#{target_dir}/lib/armv7-a/thumb/hard/"
-    when 'mips'
-      FileUitls.cp Dir["#{crystax_libs_dir}/mips/libcrystax.*"],    "#{target_dir}/lib"
-      FileUitls.cp Dir["#{crystax_libs_dir}/mips/r2/libcrystax.*"], "#{target_dir}/libr2"
-      FileUitls.cp Dir["#{crystax_libs_dir}/mips/r6/libcrystax.*"], "#{target_dir}/libr6"
-    when 'mips64'
-      FileUitls.cp Dir["#{crystax_libs_dir}/mips64/libcrystax.*"],         "#{target_dir}/lib64/"
-      FileUitls.cp Dir["#{crystax_libs_dir}/mips64/r2/libcrystax.*"],      "#{target_dir}/lib64r2/"
-      FileUitls.cp Dir["#{crystax_libs_dir}/mips64/lib32/libcrystax.*"],   "#{target_dir}/lib/"
-      FileUitls.cp Dir["#{crystax_libs_dir}/mips64/lib32r2/libcrystax.*"], "#{target_dir}/libr2/"
-      FileUitls.cp Dir["#{crystax_libs_dir}/mips64/lib32r6/libcrystax.*"], "#{target_dir}/libr6/"
-    when 'x86_64'
-      FileUitls.cp Dir["#{crystax_libs_dir}/x86_64/libcrystax.*"],     "#{target_dir}/lib64/"
-      FileUitls.cp Dir["#{crystax_libs_dir}/x86_64/32/libcrystax.*"],  "#{target_dir}/lib/"
-      FileUitls.cp Dir["#{crystax_libs_dir}/x86_64/x32/libcrystax.*"], "#{target_dir}/libx32/"
-    else
-      FileUtils.cp Dir["#{crystax_libs_dir}/#{arch.abis[0]}/libcrystax.*"], "#{target_dir}/lib/"
     end
   end
 end

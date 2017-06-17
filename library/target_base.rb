@@ -43,8 +43,25 @@ class TargetBase < Formula
     FileUtils.touch archive
   end
 
-  def copy_to_standalone_toolchain(_arch, _install_dir)
+  def copy_to_standalone_toolchain(_arch, _target_dir)
     warning "formula #{name} does not support copying to stanalone toolchain"
+  end
+
+  def make_target_lib_dirs(arch, target_dir)
+    dirs = case arch.name
+           when 'arm'
+             ["lib/armv7-a", "lib/armv7-a/thumb", "lib/armv7-a/hard", "lib/armv7-a/thumb/hard"]
+           when 'mips'
+             ["lib", "libr2", "libr6"]
+           when 'mips64'
+             ["lib", "libr2", "libr6", "lib64", "lib64r2"]
+           when 'x86_64'
+             ["lib", "lib64", "libx32"]
+           else
+             ["lib"]
+           end
+
+    FileUtils.cd(target_dir) { FileUtils.mkdir_p dirs }
   end
 
   private

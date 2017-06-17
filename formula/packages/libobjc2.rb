@@ -28,4 +28,30 @@ class Libobjc2 < Package
     FileUtils.mkdir_p internal_headers_dir
     FileUtils.cp ['class.h', 'visibility.h'], internal_headers_dir
   end
+
+  def copy_to_standalone_toolchain(release, arch, target_include_dir, target_lib_dir)
+    make_target_lib_dirs(arch, target_lib_dir)
+
+    release_dir = release_directory(release)
+    src_lib_dir = "#{release_dir}/libs"
+
+    lib = 'libobjc.so'
+
+    FileUtils.cp_r Dir["#{release_dir}/include/*"], target_include_dir
+
+    case arch.name
+    when 'arm'
+      FileUtils.cp "#{src_lib_dir}/armeabi-v7a/#{lib}",      "#{target_lib_dir}/lib/armv7-a/"
+      FileUtils.cp "#{src_lib_dir}/armeabi-v7a/#{lib}",      "#{target_lib_dir}/lib/armv7-a/thumb/"
+      FileUtils.cp "#{src_lib_dir}/armeabi-v7a-hard/#{lib}", "#{target_lib_dir}/lib/armv7-a/hard/"
+      FileUtils.cp "#{src_lib_dir}/armeabi-v7a-hard/#{lib}", "#{target_lib_dir}/lib/armv7-a/thumb/hard/"
+    when 'mips64'
+      FileUtils.cp "#{src_lib_dir}/#{arch.abis[0]}/#{lib}", "#{target_lib_dir}/lib64/"
+    when 'x86_64'
+      FileUtils.cp "#{src_lib_dir}/#{arch.abis[0]}/#{lib}", "#{target_lib_dir}/lib64/"
+    else
+      FileUtils.cp "#{src_lib_dir}/#{arch.abis[0]}/#{lib}", "#{target_lib_dir}/lib/"
+    end
+  end
+
 end

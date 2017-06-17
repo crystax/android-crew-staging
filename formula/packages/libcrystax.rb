@@ -103,6 +103,36 @@ class Libcrystax < BasePackage
     end
   end
 
+  def copy_to_standalone_toolchain(_release, arch, _target_include_dir, target_lib_dir)
+    make_target_lib_dirs(arch, target_lib_dir)
+
+    crystax_libs_dir = archive_sub_dir
+
+    case arch.name
+    when 'arm'
+      FileUitls.cp Dir["#{crystax_libs_dir}/armeabi-v7a/libcrystax.*"],            "#{target_lib_dir}/lib/armv7-a/"
+      FileUitls.cp Dir["#{crystax_libs_dir}/armeabi-v7a/thumb/libcrystax.*"],      "#{target_lib_dir}/lib/armv7-a/thumb/"
+      FileUitls.cp Dir["#{crystax_libs_dir}/armeabi-v7a-hard/libcrystax.*"],       "#{target_lib_dir}/lib/armv7-a/hard/"
+      FileUitls.cp Dir["#{crystax_libs_dir}/armeabi-v7a-hard/thumb/libcrystax.*"], "#{target_lib_dir}/lib/armv7-a/thumb/hard/"
+    when 'mips'
+      FileUitls.cp Dir["#{crystax_libs_dir}/mips/libcrystax.*"],    "#{target_lib_dir}/lib"
+      FileUitls.cp Dir["#{crystax_libs_dir}/mips/r2/libcrystax.*"], "#{target_lib_dir}/libr2"
+      FileUitls.cp Dir["#{crystax_libs_dir}/mips/r6/libcrystax.*"], "#{target_lib_dir}/libr6"
+    when 'mips64'
+      FileUitls.cp Dir["#{crystax_libs_dir}/mips64/libcrystax.*"],         "#{target_lib_dir}/lib64/"
+      FileUitls.cp Dir["#{crystax_libs_dir}/mips64/r2/libcrystax.*"],      "#{target_lib_dir}/lib64r2/"
+      FileUitls.cp Dir["#{crystax_libs_dir}/mips64/lib32/libcrystax.*"],   "#{target_lib_dir}/lib/"
+      FileUitls.cp Dir["#{crystax_libs_dir}/mips64/lib32r2/libcrystax.*"], "#{target_lib_dir}/libr2/"
+      FileUitls.cp Dir["#{crystax_libs_dir}/mips64/lib32r6/libcrystax.*"], "#{target_lib_dir}/libr6/"
+    when 'x86_64'
+      FileUitls.cp Dir["#{crystax_libs_dir}/x86_64/libcrystax.*"],     "#{target_lib_dir}/lib64/"
+      FileUitls.cp Dir["#{crystax_libs_dir}/x86_64/32/libcrystax.*"],  "#{target_lib_dir}/lib/"
+      FileUitls.cp Dir["#{crystax_libs_dir}/x86_64/x32/libcrystax.*"], "#{target_lib_dir}/libx32/"
+    else
+      FileUtils.cp Dir["#{crystax_libs_dir}/#{arch.abis[0]}/libcrystax.*"], "#{target_lib_dir}/lib/"
+    end
+  end
+
   def package_dir
     "#{build_base_dir}/package"
   end
