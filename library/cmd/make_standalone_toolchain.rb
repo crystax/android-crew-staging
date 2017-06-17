@@ -6,6 +6,7 @@ require_relative 'make_standalone_toolchain_options.rb'
 module Crew
 
   PYTHON_XX = 'python2.7'
+  PackageInfo = MakeStandaloneToolchainOptions::PackageInfo
 
   def self.make_standalone_toolchain(args)
 
@@ -120,11 +121,20 @@ module Crew
       target_lib_dir = File.join(install_dir, options.arch.host)
       FileUtils.mkdir_p target_include_dir
 
+      if options.stl == 'gnustl'
+        stl_name = 'libstdc++'
+        stl_rel = Release.new(options.gcc.version)
+      else
+        stl_name = 'libc++'
+        stl_rel = Release.new(options.llvm.version)
+      end
+
       formulary = Formulary.new
-      ['libcrystax', 'libobjc2'].each do |package_name|
-        formula = formulary["target/#{package_name}"]
-        puts "    #{formula.name}"
-        formula.copy_to_standalone_toolchain(formula.highest_installed_release, options.arch, target_include_dir, target_lib_dir)
+      [PackageInfo.new('libcrystax'), PackageInfo.new('libobjc2'), PackageInfo.new(stl_name, stl_rel)].each do |package|
+        formula = formulary["target/#{package.name}"]
+        release = package.release ? formula.find_release(package.release) : formula.highest_installed_release
+        puts "    #{formula.name}:#{release}"
+        formula.copy_to_standalone_toolchain(release, options.arch, target_include_dir, target_lib_dir)
       end
 
       # todo: copy packages

@@ -1,8 +1,9 @@
 require_relative '../toolchain.rb'
 require_relative '../command_options.rb'
 
-
 class MakeStandaloneToolchainOptions
+
+  PackageInfo = Struct.new(:name, :release)
 
   extend CommandOptions
 
