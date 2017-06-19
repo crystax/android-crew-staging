@@ -4,15 +4,15 @@ class Libstdcxx < BasePackage
   name 'libstdc++'
   # todo:
   #homepage ""
-  #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
+  #url ""
 
   release version: '4.9', crystax_version: 1, sha256: '940549c833eb18be1bafde75175262ff470bb4a3045111153d526479a46b533b'
   release version: '5',   crystax_version: 1, sha256: 'f68fabb5cdbae0e2484394149c0f6d0bbc34d68548808e1cdd97c17abd213e03'
   release version: '6',   crystax_version: 1, sha256: '93379fbe3155f619814cda3a7d581098a46542a7d16f950bdd1b7efbce50e426'
 
+  build_depends_on 'platforms'
+  build_depends_on 'libcrystax'
   # todo:
-  #build_depends_on 'platforms'
-  #build_depends_on 'libcrystax'
   #build_depends_on default_gcc_compiler
 
   # todo: move method to the BasePackage class?
@@ -81,6 +81,110 @@ class Libstdcxx < BasePackage
       puts "No cleanup, for build artifacts see #{base_dir}"
     else
       FileUtils.rm_rf base_dir
+    end
+  end
+
+  def copy_to_standalone_toolchain(release, arch, target_include_dir, target_lib_dir)
+    make_target_lib_dirs(arch, target_lib_dir)
+
+    release_dir = archive_sub_dir(release)
+
+    include_dir = "#{target_include_dir}/c++/#{release.version}"
+    arch_include_dir = "#{include_dir}/#{arch.host}"
+    FileUtils.mkdir_p arch_include_dir
+
+    # copy common headers
+    FileUtils.cp_r Dir["#{release_dir}/include/*"], include_dir
+
+    # copy arch/abi specific libs and headers
+    case arch.name
+    when 'arm'
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/libgnustl_shared.so",       "#{target_lib_dir}/lib/armv7-a/"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/libsupc++.a",               "#{target_lib_dir}/lib/armv7-a/"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/libgnustl_static.a",        "#{target_lib_dir}/lib/armv7-a/libstdc++.a"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/thumb/libgnustl_shared.so", "#{target_lib_dir}/lib/armv7-a/thumb/"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/thumb/libsupc++.a",         "#{target_lib_dir}/lib/armv7-a/thumb/"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/thumb/libgnustl_static.a",  "#{target_lib_dir}/lib/armv7-a/thumb/libstdc++.a"
+      #
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a-hard/libgnustl_shared.so",       "#{target_lib_dir}/lib/armv7-a/hard/"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a-hard/libsupc++.a",               "#{target_lib_dir}/lib/armv7-a/hard/"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a-hard/libgnustl_static.a",        "#{target_lib_dir}/lib/armv7-a/hard/libstdc++.a"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a-hard/thumb/libgnustl_shared.so", "#{target_lib_dir}/lib/armv7-a/thumb/hard/"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a-hard/thumb/libsupc++.a",         "#{target_lib_dir}/lib/armv7-a/thumb/hard/"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a-hard/thumb/libgnustl_static.a",  "#{target_lib_dir}/lib/armv7-a/thumb/hard/libstdc++.a"
+      #
+      FileUtils.mkdir_p ["#{arch_include_dir}/armv7-a/thumb", "#{arch_include_dir}/armv7-a/hard", "#{arch_include_dir}/armv7-a/thumb/hard"]
+      FileUtils.cp_r "#{release_dir}/libs/armeabi-v7a/include/bits",      "#{arch_include_dir}/armv7-a/"
+      FileUtils.cp_r "#{release_dir}/libs/armeabi-v7a/include/bits",      "#{arch_include_dir}/armv7-a/thumb/"
+      FileUtils.cp_r "#{release_dir}/libs/armeabi-v7a-hard/include/bits", "#{arch_include_dir}/armv7-a/hard"
+      FileUtils.cp_r "#{release_dir}/libs/armeabi-v7a-hard/include/bits", "#{arch_include_dir}/armv7-a/thumb/hard"
+    when 'mips'
+      FileUtils.cp "#{release_dir}/libs/mips/lib/libgnustl_shared.so", "#{target_lib_dir}/lib/"
+      FileUtils.cp "#{release_dir}/libs/mips/lib/libsupc++.a",         "#{target_lib_dir}/lib/"
+      FileUtils.cp "#{release_dir}/libs/mips/lib/libgnustl_static.a",  "#{target_lib_dir}/lib/libstdc++.a"
+      #
+      FileUtils.cp "#{release_dir}/libs/mips/libr2/libgnustl_shared.so", "#{target_lib_dir}/libr2/"
+      FileUtils.cp "#{release_dir}/libs/mips/libr2/libsupc++.a",         "#{target_lib_dir}/libr2/"
+      FileUtils.cp "#{release_dir}/libs/mips/libr2/libgnustl_static.a",  "#{target_lib_dir}/libr2/libstdc++.a"
+      #
+      FileUtils.cp "#{release_dir}/libs/mips/libr6/libgnustl_shared.so", "#{target_lib_dir}/libr6/"
+      FileUtils.cp "#{release_dir}/libs/mips/libr6/libsupc++.a",         "#{target_lib_dir}/libr6/"
+      FileUtils.cp "#{release_dir}/libs/mips/libr6/libgnustl_static.a",  "#{target_lib_dir}/libr6/libstdc++.a"
+      #
+      Fileutils.mkdir_p ["#{arch_include_dir}/mips-r2", "#{arch_include_dir}/mips-r6"]
+      FileUtils.cp_r "#{release_dir}/libs/mips/include/bits", "#{arch_include_dir}/"
+      FileUtils.cp_r "#{release_dir}/libs/mips/include/bits", "#{arch_include_dir}/mips-r2"
+      FileUtils.cp_r "#{release_dir}/libs/mips/include/bits", "#{arch_include_dir}/mips-r6"
+    when 'x86_64'
+      FileUtils.cp "#{release_dir}/libs/x86_64/lib/libgnustl_shared.so", "#{target_lib_dir}/lib/"
+      FileUtils.cp "#{release_dir}/libs/x86_64/lib/libsupc++.a",         "#{target_lib_dir}/lib/"
+      FileUtils.cp "#{release_dir}/libs/x86_64/lib/libgnustl_static.a",  "#{target_lib_dir}/lib/libstdc++.a"
+      #
+      FileUtils.cp "#{release_dir}/libs/x86_64/lib64/libgnustl_shared.so", "#{target_lib_dir}/lib64/"
+      FileUtils.cp "#{release_dir}/libs/x86_64/lib64/libsupc++.a",         "#{target_lib_dir}/lib64/"
+      FileUtils.cp "#{release_dir}/libs/x86_64/lib64/libgnustl_static.a",  "#{target_lib_dir}/lib64/libstdc++.a"
+      #
+      FileUtils.cp "#{release_dir}/libs/x86_64/libx32/libgnustl_shared.so", "#{target_lib_dir}/libx32/"
+      FileUtils.cp "#{release_dir}/libs/x86_64/libx32/libsupc++.a",         "#{target_lib_dir}/libx32/"
+      FileUtils.cp "#{release_dir}/libs/x86_64/libx32/libgnustl_static.a",  "#{target_lib_dir}/libx32/libstdc++.a"
+      #
+      FileUtils.mkdir_p ["#{arch_include_dir}/32", "#{arch_include_dir}/x32"]
+      FileUtils.cp_r "#{release_dir}/libs/x86_64/include/32/bits",  "#{arch_include_dir}/32/"
+      FileUtils.cp_r "#{release_dir}/libs/x86_64/include/bits",     "#{arch_include_dir}/"
+      FileUtils.cp_r "#{release_dir}/libs/x86_64/include/x32/bits", "#{arch_include_dir}/x32/"
+    when 'mips64'
+      FileUtils.cp "#{release_dir}/libs/mips64/lib/libgnustl_shared.so", "#{target_lib_dir}/lib/"
+      FileUtils.cp "#{release_dir}/libs/mips64/lib/libsupc++.a",         "#{target_lib_dir}/lib/"
+      FileUtils.cp "#{release_dir}/libs/mips64/lib/libgnustl_static.a",  "#{target_lib_dir}/lib/libstdc++.a"
+      #
+      FileUtils.cp "#{release_dir}/libs/mips64/libr2/libgnustl_shared.so", "#{target_lib_dir}/libr2/"
+      FileUtils.cp "#{release_dir}/libs/mips64/libr2/libsupc++.a",         "#{target_lib_dir}/libr2/"
+      FileUtils.cp "#{release_dir}/libs/mips64/libr2/libgnustl_static.a",  "#{target_lib_dir}/libr2/libstdc++.a"
+      #
+      FileUtils.cp "#{release_dir}/libs/mips64/libr6/libgnustl_shared.so", "#{target_lib_dir}/libr6/"
+      FileUtils.cp "#{release_dir}/libs/mips64/libr6/libsupc++.a",         "#{target_lib_dir}/libr6/"
+      FileUtils.cp "#{release_dir}/libs/mips64/libr6/libgnustl_static.a",  "#{target_lib_dir}/libr6/libstdc++.a"
+      #
+      FileUtils.cp "#{release_dir}/libs/mips64/libr64/libgnustl_shared.so", "#{target_lib_dir}/libr64/"
+      FileUtils.cp "#{release_dir}/libs/mips64/libr64/libsupc++.a",         "#{target_lib_dir}/libr64/"
+      FileUtils.cp "#{release_dir}/libs/mips64/libr64/libgnustl_static.a",  "#{target_lib_dir}/libr64/libstdc++.a"
+      #
+      FileUtils.cp "#{release_dir}/libs/mips64/libr64r2/libgnustl_shared.so", "#{target_lib_dir}/libr64r2/"
+      FileUtils.cp "#{release_dir}/libs/mips64/libr64r2/libsupc++.a",         "#{target_lib_dir}/libr64r2/"
+      FileUtils.cp "#{release_dir}/libs/mips64/libr64r2/libgnustl_static.a",  "#{target_lib_dir}/libr64r2/libstdc++.a"
+      #
+      FileUtils.mkdir_p ["#{arch_include_dir}/32/mips-r1/", "#{arch_include_dir}/32/mips-r2/", "#{arch_include_dir}/32/mips-r6/", "#{arch_include_dir}/mips64-r2/"]
+      FileUtils.cp_r "#{release_dir}/libs/mips64/include/32/mips-r1/bits",  "#{arch_include_dir}/32/mips-r1/"
+      FileUtils.cp_r "#{release_dir}/libs/mips64/include/32/mips-r2/bits",  "#{arch_include_dir}/32/mips-r2/"
+      FileUtils.cp_r "#{release_dir}/libs/mips64/include/32/mips-r6/bits",  "#{arch_include_dir}/32/mips-r6/"
+      FileUtils.cp_r "#{release_dir}/libs/mips64/include/bits",             "#{arch_include_dir}/"
+      FileUtils.cp_r "#{release_dir}/libs/mips64/include/mips64-r2/bits",   "#{arch_include_dir}/mips64-r2/"
+    else
+      FileUtils.cp "#{release_dir}/libs/#{arch.abis[0]}/lib/libgnustl_shared.so", "#{target_lib_dir}/lib/"
+      FileUtils.cp "#{release_dir}/libs/#{arch.abis[0]}/lib/libsupc++.a",         "#{target_lib_dir}/lib/"
+      FileUtils.cp "#{release_dir}/libs/#{arch.abis[0]}/lib/libgnustl_static.a",  "#{target_lib_dir}/lib/libstdc++.a"
+      #
+      FileUtils.cp_r "#{release_dir}/libs/#{arch.abis[0]}/include/bits", "#{arch_include_dir}/"
     end
   end
 
