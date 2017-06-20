@@ -1,9 +1,18 @@
 require_relative '../toolchain.rb'
+require_relative '../release.rb'
 require_relative '../command_options.rb'
 
 class MakeStandaloneToolchainOptions
 
-  PackageInfo = Struct.new(:name, :release)
+  PackageInfo = Struct.new(:name, :release, :formula) do
+    def initialize(name, release = nil)
+      super name, release, nil
+    end
+
+    def to_s
+      "#{name}:#{release}"
+    end
+  end
 
   extend CommandOptions
 
@@ -16,6 +25,7 @@ class MakeStandaloneToolchainOptions
     @stl = 'gnustl'
     @platform = Platform.new(Global::PLATFORM_NAME)
     @with_packages = []
+    package_names = []
 
     opts.each do |opt|
       case opt
@@ -55,6 +65,9 @@ class MakeStandaloneToolchainOptions
     @gcc = Toolchain::GCC.new(gcc_version)
     @llvm = Toolchain::LLVM.new(llvm_version, gcc)
 
-    # todo: check that specified packages are available
+    package_names.each do |package|
+      name, release = package.split(':')
+      with_packages << PackageInfo.new(name, Release.new(release))
+    end
   end
 end

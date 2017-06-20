@@ -13,6 +13,14 @@ module Crew
     options, args = MakeStandaloneToolchainOptions.parse_args(args)
     raise CommandRequresNoArguments if args.count > 0
 
+    # check that specified packages are available and set release if one was not specified
+    formulary = Formulary.new
+    options.with_packages.each do |package|
+      formula = formulary["target/#{package.name}"]
+      package.release = package.release ? formula.find_release(package.release) : formula.highest_installed_release
+      package.formula = formula
+    end
+
     puts "Create standalone toolchain in #{options.install_dir}"
     puts "  GCC version:         #{options.gcc.version}"
     puts "  LLVM version:        #{options.llvm.version}"
@@ -129,7 +137,6 @@ module Crew
         stl_rel = Release.new(options.llvm.version)
       end
 
-      formulary = Formulary.new
       [PackageInfo.new('libcrystax'), PackageInfo.new('libobjc2'), PackageInfo.new(stl_name, stl_rel)].each do |package|
         formula = formulary["target/#{package.name}"]
         release = package.release ? formula.find_release(package.release) : formula.highest_installed_release
@@ -139,7 +146,10 @@ module Crew
         formula.copy_to_standalone_toolchain(release, options.arch, target_include_dir, target_lib_dir, opts)
       end
 
-      # todo: copy packages
+      options.with_packages.each do |package|
+        puts "    #{package.name}:#{package.release}"
+        package.formula.copy_to_standalone_toolchain(package.release, options.arch, target_include_dir, target_lib_dir, {})
+      end
     end
   end
 
