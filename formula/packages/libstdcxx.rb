@@ -84,7 +84,7 @@ class Libstdcxx < BasePackage
     end
   end
 
-  def copy_to_standalone_toolchain(release, arch, target_include_dir, target_lib_dir)
+  def copy_to_standalone_toolchain(release, arch, target_include_dir, target_lib_dir, _options)
     make_target_lib_dirs(arch, target_lib_dir)
 
     release_dir = archive_sub_dir(release)

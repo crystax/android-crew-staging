@@ -103,7 +103,7 @@ class Libcrystax < BasePackage
     end
   end
 
-  def copy_to_standalone_toolchain(_release, arch, _target_include_dir, target_lib_dir)
+  def copy_to_standalone_toolchain(_release, arch, _target_include_dir, target_lib_dir, _options)
     make_target_lib_dirs(arch, target_lib_dir)
 
     crystax_libs_dir = archive_sub_dir

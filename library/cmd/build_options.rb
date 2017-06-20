@@ -13,7 +13,7 @@ class BuildOptions
   attr_writer :source_only, :build_only, :no_install, :no_clean, :update_shasum, :check
 
   def initialize(opts)
-    @abis = ARCH::ABI_LIST
+    @abis = Arch::ABI_LIST
     @source_only = false
     @build_only = false
     @install = true

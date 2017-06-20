@@ -134,7 +134,9 @@ module Crew
         formula = formulary["target/#{package.name}"]
         release = package.release ? formula.find_release(package.release) : formula.highest_installed_release
         puts "    #{formula.name}:#{release}"
-        formula.copy_to_standalone_toolchain(release, options.arch, target_include_dir, target_lib_dir)
+        opts = {}
+        opts[:gcc_version] = options.gcc.version if formula.name == 'libc++'
+        formula.copy_to_standalone_toolchain(release, options.arch, target_include_dir, target_lib_dir, opts)
       end
 
       # todo: copy packages

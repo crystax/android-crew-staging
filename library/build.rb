@@ -58,7 +58,7 @@ module Build
   end
 
   def self.abis_to_arch_list(abis)
-    arch_list = ARCH::LIST.values.map { |a| a.dup }
+    arch_list = Arch::LIST.values.map { |a| a.dup }
     abis.each do |abi|
       arch = arch_for_abi(abi, arch_list)
       arch.abis_to_build << abi
@@ -66,7 +66,7 @@ module Build
     arch_list.select { |a| not a.abis_to_build.empty? }
   end
 
-  def self.arch_for_abi(abi, arch_list = ARCH::LIST.values)
+  def self.arch_for_abi(abi, arch_list = Arch::LIST.values)
     arch_list.select { |arch| arch.abis.include? abi } [0]
   end
 

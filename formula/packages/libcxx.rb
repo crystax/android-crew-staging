@@ -4,15 +4,15 @@ class Libcxx < BasePackage
   name 'libc++'
   # todo:
   #homepage ""
-  #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
+  #url ""
 
   release version: '3.6', crystax_version: 1, sha256: 'df73411b7b2ce90d654ddbc51bdace45345d1311efd2e79f9ecd0fc520f3e764'
   release version: '3.7', crystax_version: 1, sha256: '99a42a001ebfc6ad405e2ac2d25ac4849e866ed1e54abeb7109019875c949557'
   release version: '3.8', crystax_version: 1, sha256: '4b7aab7ff379ac4f76b2d2df5748705aeb07abac740574a120c4bc2ce1932a25'
 
+  build_depends_on 'platforms'
+  build_depends_on 'libcrystax'
   # todo:
-  #build_depends_on 'platforms'
-  #build_depends_on 'libcrystax'
   #build_depends_on default_gcc_compiler
 
   # todo: move method to the BasePackage class?
@@ -22,7 +22,7 @@ class Libcxx < BasePackage
     prop = get_properties(prop_dir)
 
     # todo: do not remove historical symlink; or remove?
-    FileUtils.rm_rf "#{Global::NDK_DIR}/#{archive_sub_dir(release)}/libs"
+    FileUtils.rm_rf "#{Global::NDK_DIR}/#{archive_sub_dir(release)}"
     puts "Unpacking archive into #{Global::NDK_DIR}/#{archive_sub_dir(release)}"
     Utils.unpack archive, Global::NDK_DIR
 
@@ -60,11 +60,11 @@ class Libcxx < BasePackage
       FileUtils.rm_rf arch_build_dir unless options.no_clean?
       # copy sources
       llvm_dir = "#{Build::TOOLCHAIN_SRC_DIR}/llvm-#{release.version}"
-      cxx_src_out_dir = "#{package_dir}/#{archive_sub_dir(release)}/libcxx"
-      # todo: copy libcxxabi too?
-      # cxxabi_src_out_dir = "#{archive_sub_dir(release)}/libcxxabi"
-      FileUtils.mkdir_p cxx_src_out_dir
-      FileUtils.cp_r ['include', 'src', 'test'].map{ |d| "#{llvm_dir}/libcxx/#{d}" },  "#{cxx_src_out_dir}/"
+      cxx_src_out_dir    = "#{package_dir}/#{archive_sub_dir(release)}/libcxx"
+      cxxabi_src_out_dir = "#{package_dir}/#{archive_sub_dir(release)}/libcxxabi"
+      FileUtils.mkdir_p [cxx_src_out_dir, cxxabi_src_out_dir]
+      FileUtils.cp_r ['include', 'src', 'test'].map{ |d| "#{llvm_dir}/libcxx/#{d}" },    "#{cxx_src_out_dir}/"
+      FileUtils.cp_r ['include', 'src', 'test'].map{ |d| "#{llvm_dir}/libcxxabi/#{d}" }, "#{cxxabi_src_out_dir}/"
     end
 
     if options.build_only?
@@ -84,6 +84,46 @@ class Libcxx < BasePackage
       puts "No cleanup, for build artifacts see #{base_dir}"
     else
       FileUtils.rm_rf base_dir
+    end
+  end
+
+  def copy_to_standalone_toolchain(release, arch, target_include_dir, target_lib_dir, options)
+    make_target_lib_dirs(arch, target_lib_dir)
+
+    release_dir = archive_sub_dir(release)
+
+    cxx_include_dir = "#{target_include_dir}/c++/#{options[:gcc_version]}"
+    cxxabi_include_dir = "#{target_include_dir}/llvm-libc++abi"
+    FileUtils.mkdir_p [cxx_include_dir, cxxabi_include_dir]
+
+    # copy headers
+    FileUtils.cp_r Dir["#{release_dir}/libcxx/include/*"],    cxx_include_dir
+    FileUtils.cp_r Dir["#{release_dir}/libcxxabi/include/*"], cxx_include_dir
+    FileUtils.cp_r Dir["#{release_dir}/libcxxabi/include/*"], cxxabi_include_dir
+    # todo: these files are present only in cxxabi 3.6
+    #FileUtils.cp ['cxxabi.h', 'libunwind.h', 'unwind.h'].map { |f| "#{cxxabi_include_dir}/#{f}" }, cxx_include_dir
+
+    # copy libs
+    case arch.name
+    when 'arm'
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/libc++_shared.so",       "#{target_lib_dir}/lib/armv7-a/libc++_shared.so"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/libc++_static.a",        "#{target_lib_dir}/lib/armv7-a/libstdc++.a"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/thumb/libc++_shared.so", "#{target_lib_dir}/lib/armv7-a/thumb/libc++_shared.so"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/thumb/libc++_static.a",  "#{target_lib_dir}/lib/armv7-a/thumb/libstdc++.a"
+      #
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a-hard/libc++_shared.so",       "#{target_lib_dir}/lib/armv7-a/hard/libc++_shared.so"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a-hard/libc++_static.a",        "#{target_lib_dir}/lib/armv7-a/hard/libstdc++.a"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a-hard/thumb/libc++_shared.so", "#{target_lib_dir}/lib/armv7-a/thumb/hard/libc++_shared.so"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a-hard/thumb/libc++_static.a",  "#{target_lib_dir}/lib/armv7-a/thumb/hard/libstdc++.a"
+    when 'x86_64'
+      FileUtils.cp "#{release_dir}/libs/x86_64/libc++_shared.so", "#{target_lib_dir}/lib64/libc++_shared.so"
+      FileUtils.cp "#{release_dir}/libs/x86_64/libc++_static.a",  "#{target_lib_dir}/lib64/libstdc++.a"
+    when 'mips64'
+      FileUtils.cp "#{release_dir}/libs/mips64/libc++_shared.so", "#{target_lib_dir}/lib64/libc++_shared.so"
+      FileUtils.cp "#{release_dir}/libs/mips64/libc++_static.a",  "#{target_lib_dir}/lib64/libstdc++.a"
+    else
+      FileUtils.cp "#{release_dir}/libs/#{arch.abis[0]}/libc++_shared.so", "#{target_lib_dir}/lib/libc++_shared.so"
+      FileUtils.cp "#{release_dir}/libs/#{arch.abis[0]}/libc++_static.a",  "#{target_lib_dir}/lib/libstdc++.a"
     end
   end
 
