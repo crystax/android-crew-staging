@@ -13,6 +13,8 @@ module Crew
       puts "TOOLS_DIR:      #{Global::TOOLS_DIR}"
     when 1
       case args[0]
+      when '--base-dir'
+        puts Global::BASE_DIR
       when '--pkg-cache-dir'
         puts Global::PKG_CACHE_DIR
       when '--src-cache-dir'

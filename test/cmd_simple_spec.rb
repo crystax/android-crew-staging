@@ -56,11 +56,19 @@ describe "simple crew commands" do
     end
   end
 
+  context "crew env --base-dir" do
+    it "outputs crew's base directory" do
+      crew 'env --base-dir'
+      expect(result).to eq(:ok)
+      expect(out.strip).to eq(Global::BASE_DIR)
+    end
+  end
+
   context "crew env --pkg-cache-dir" do
     it "outputs crew's packages cache directory" do
       crew 'env --pkg-cache-dir'
       expect(result).to eq(:ok)
-      expect(out).to eq("#{Global::PKG_CACHE_DIR}\n")
+      expect(out.strip).to eq(Global::PKG_CACHE_DIR)
     end
   end
 
@@ -68,7 +76,7 @@ describe "simple crew commands" do
     it "outputs crew's packages cache directory" do
       crew 'env --src-cache-dir'
       expect(result).to eq(:ok)
-      expect(out).to eq("#{Global::SRC_CACHE_DIR}\n")
+      expect(out.strip).to eq(Global::SRC_CACHE_DIR)
     end
   end
 end

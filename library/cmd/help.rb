@@ -86,6 +86,8 @@ ENV_HELP = <<-EOS
 
 The ENV command supports the following options:
 
+  --base-dir     output path to crew's base directory
+
   --pkg-cache-dir
                  output path to the directory used as
                  a cache for crew packages
