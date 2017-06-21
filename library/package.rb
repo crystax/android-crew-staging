@@ -294,6 +294,31 @@ class Package < TargetBase
     self.class.build_libs
   end
 
+  def copy_to_standalone_toolchain(release, arch, target_include_dir, target_lib_dir, _options)
+    make_target_lib_dirs(arch, target_lib_dir)
+
+    release_dir = release_directory(release)
+    src_lib_dir = "#{release_dir}/libs"
+
+    FileUtils.cp_r Dir["#{release_dir}/include/*"], target_include_dir
+
+    case arch.name
+    when 'arm'
+      FileUtils.cp toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/armv7-a/"
+      FileUtils.cp toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/armv7-a/thumb/"
+      FileUtils.cp toolchain_libs(src_lib_dir, 'armeabi-v7a-hard'), "#{target_lib_dir}/lib/armv7-a/hard/"
+      FileUtils.cp toolchain_libs(src_lib_dir, 'armeabi-v7a-hard'), "#{target_lib_dir}/lib/armv7-a/thumb/hard/"
+    when 'mips64', 'x86_64'
+      FileUtils.cp toolchain_libs(src_lib_dir, arch.abis[0]), "#{target_lib_dir}/lib64/"
+    else
+      FileUtils.cp toolchain_libs(src_lib_dir, arch.abis[0]), "#{target_lib_dir}/lib/"
+    end
+  end
+
+  def toolchain_libs(dir, abi)
+    Dir["#{dir}/#{abi}/*"]
+  end
+
   private
 
   def binary_files(rel_dir)
