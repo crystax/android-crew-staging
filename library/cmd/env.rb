@@ -15,6 +15,8 @@ module Crew
       case args[0]
       when '--base-dir'
         puts Global::BASE_DIR
+      when '--tools-dir'
+        puts Global::TOOLS_DIR
       when '--pkg-cache-dir'
         puts Global::PKG_CACHE_DIR
       when '--src-cache-dir'

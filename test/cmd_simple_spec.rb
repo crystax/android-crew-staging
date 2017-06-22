@@ -64,6 +64,14 @@ describe "simple crew commands" do
     end
   end
 
+  context "crew env --tools-dir" do
+    it "outputs NDK tools directory" do
+      crew 'env --tools-dir'
+      expect(result).to eq(:ok)
+      expect(out.strip).to eq(Global::TOOLS_DIR)
+    end
+  end
+
   context "crew env --pkg-cache-dir" do
     it "outputs crew's packages cache directory" do
       crew 'env --pkg-cache-dir'
