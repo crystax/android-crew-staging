@@ -97,6 +97,8 @@ The ENV command supports the following options:
   --src-cache-dir
                  output path to the directory used as
                  a cache for sources for the crew packages
+  --base-build-dir
+                 output path to the base build directory
 
 EOS
 
@@ -256,8 +258,13 @@ make scripts.
 
 The MAKE-STANDALONE-TOOLCHAIN command supports the following options:
 
+  --clean-install-dir
+                 clean install directory before installing toolchain
+                 files
+
   --install-dir=PATH
-                 install files to PATH; PATH must point to an empty or
+                 install files to PATH; if --clean-install-dir was not
+                 specified then PATH must point to an empty or
                  non-existent directory; required
   --gcc-version=VER
                  specify GCC version; possible values are #{Toolchain::SUPPORTED_GCC.map(&:version).join(', ')};

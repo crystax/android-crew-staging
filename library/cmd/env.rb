@@ -1,4 +1,5 @@
 require_relative '../exceptions.rb'
+require_relative '../build.rb'
 
 module Crew
 
@@ -11,6 +12,7 @@ module Crew
       puts "BASE_DIR:       #{Global::BASE_DIR}"
       puts "NDK_DIR:        #{Global::NDK_DIR}"
       puts "TOOLS_DIR:      #{Global::TOOLS_DIR}"
+      puts "BASE_BUILD_DIR: #{Build::BASE_BUILD_DIR}"
     when 1
       case args[0]
       when '--base-dir'
@@ -21,6 +23,8 @@ module Crew
         puts Global::PKG_CACHE_DIR
       when '--src-cache-dir'
         puts Global::SRC_CACHE_DIR
+      when '--base-build-dir'
+        puts Build::BASE_BUILD_DIR
       else
         raise "bad argument: #{args[0]}"
       end

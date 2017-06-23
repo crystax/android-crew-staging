@@ -47,12 +47,14 @@ describe "simple crew commands" do
     it "outputs crew's working qenvironment" do
       crew 'env'
       expect(result).to eq(:ok)
-      expect(out).to eq("DOWNLOAD_BASE:  #{Global::DOWNLOAD_BASE}\n"  \
-                        "PKG_CACHE_BASE: #{Global::PKG_CACHE_BASE}\n" \
-                        "SRC_CACHE_BASE: #{Global::SRC_CACHE_BASE}\n" \
-                        "BASE_DIR:       #{Global::BASE_DIR}\n"       \
-                        "NDK_DIR:        #{Global::NDK_DIR}\n"        \
-                        "TOOLS_DIR:      #{Global::TOOLS_DIR}\n")
+      expect(out.split("\n")).to eq(["DOWNLOAD_BASE:  #{Global::DOWNLOAD_BASE}",
+                                     "PKG_CACHE_BASE: #{Global::PKG_CACHE_BASE}",
+                                     "SRC_CACHE_BASE: #{Global::SRC_CACHE_BASE}",
+                                     "BASE_DIR:       #{Global::BASE_DIR}",
+                                     "NDK_DIR:        #{Global::NDK_DIR}",
+                                     "TOOLS_DIR:      #{Global::TOOLS_DIR}",
+                                     "BASE_BUILD_DIR: #{Build::BASE_BUILD_DIR}"
+                                    ])
     end
   end
 
@@ -82,6 +84,14 @@ describe "simple crew commands" do
 
   context "crew env --src-cache-dir" do
     it "outputs crew's packages cache directory" do
+      crew 'env --src-cache-dir'
+      expect(result).to eq(:ok)
+      expect(out.strip).to eq(Global::SRC_CACHE_DIR)
+    end
+  end
+
+  context "crew env --base-build-dir" do
+    it "outputs crew's base build directory" do
       crew 'env --src-cache-dir'
       expect(result).to eq(:ok)
       expect(out.strip).to eq(Global::SRC_CACHE_DIR)
