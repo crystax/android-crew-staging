@@ -106,10 +106,10 @@ module Crew
         FileUtils.cp_r "#{src_sysroot_lib}/../libr2", install_sysroot_usr_dir
         FileUtils.cp_r "#{src_sysroot_lib}/../libr6", install_sysroot_usr_dir
       when 'mips64'
-        FileUtils.cp_r "#{src_sysroot_lib}/../libr2",    install_sysroot_usr_dir
-        FileUtils.cp_r "#{src_sysroot_lib}/../libr6",    install_sysroot_usr_dir
-        FileUtils.cp_r "#{src_sysroot_lib}/../libr64",   install_sysroot_usr_dir
-        FileUtils.cp_r "#{src_sysroot_lib}/../libr64r2", install_sysroot_usr_dir
+        FileUtils.cp_r "#{src_sysroot_lib}/../libr2",   install_sysroot_usr_dir
+        FileUtils.cp_r "#{src_sysroot_lib}/../libr6",   install_sysroot_usr_dir
+        FileUtils.cp_r "#{src_sysroot_lib}/../lib64",   install_sysroot_usr_dir
+        FileUtils.cp_r "#{src_sysroot_lib}/../lib64r2", install_sysroot_usr_dir
       end
       # remove this libstdc++ library to avoid possible clashes with real ones
       FileUtils.rm Dir['/tmp/crew-gcc/sysroot/usr/**/libstdc++*']
@@ -186,7 +186,7 @@ module Crew
     File.open(file, 'w') do |f|
       f.puts "#!/bin/bash"
       f.puts "if [ \"$1\" != \"-cc1\" ]; then"
-      f.puts "    `dirname $0\`#{clang} #{flags} \"$@\""
+      f.puts "    `dirname $0\`/#{clang} #{flags} \"$@\""
       f.puts "else"
       f.puts "    # target/triple already spelled out."
       f.puts "    `dirname $0`/#{clang} \"$@\""
