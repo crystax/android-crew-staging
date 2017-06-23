@@ -131,7 +131,7 @@ class Libstdcxx < BasePackage
       FileUtils.cp "#{release_dir}/libs/mips/libr6/libsupc++.a",         "#{target_lib_dir}/libr6/"
       FileUtils.cp "#{release_dir}/libs/mips/libr6/libgnustl_static.a",  "#{target_lib_dir}/libr6/libstdc++.a"
       #
-      Fileutils.mkdir_p ["#{arch_include_dir}/mips-r2", "#{arch_include_dir}/mips-r6"]
+      FileUtils.mkdir_p ["#{arch_include_dir}/mips-r2", "#{arch_include_dir}/mips-r6"]
       FileUtils.cp_r "#{release_dir}/libs/mips/include/bits", "#{arch_include_dir}/"
       FileUtils.cp_r "#{release_dir}/libs/mips/include/bits", "#{arch_include_dir}/mips-r2"
       FileUtils.cp_r "#{release_dir}/libs/mips/include/bits", "#{arch_include_dir}/mips-r6"
@@ -165,13 +165,13 @@ class Libstdcxx < BasePackage
       FileUtils.cp "#{release_dir}/libs/mips64/libr6/libsupc++.a",         "#{target_lib_dir}/libr6/"
       FileUtils.cp "#{release_dir}/libs/mips64/libr6/libgnustl_static.a",  "#{target_lib_dir}/libr6/libstdc++.a"
       #
-      FileUtils.cp "#{release_dir}/libs/mips64/libr64/libgnustl_shared.so", "#{target_lib_dir}/libr64/"
-      FileUtils.cp "#{release_dir}/libs/mips64/libr64/libsupc++.a",         "#{target_lib_dir}/libr64/"
-      FileUtils.cp "#{release_dir}/libs/mips64/libr64/libgnustl_static.a",  "#{target_lib_dir}/libr64/libstdc++.a"
+      FileUtils.cp "#{release_dir}/libs/mips64/lib64/libgnustl_shared.so", "#{target_lib_dir}/lib64/"
+      FileUtils.cp "#{release_dir}/libs/mips64/lib64/libsupc++.a",         "#{target_lib_dir}/lib64/"
+      FileUtils.cp "#{release_dir}/libs/mips64/lib64/libgnustl_static.a",  "#{target_lib_dir}/lib64/libstdc++.a"
       #
-      FileUtils.cp "#{release_dir}/libs/mips64/libr64r2/libgnustl_shared.so", "#{target_lib_dir}/libr64r2/"
-      FileUtils.cp "#{release_dir}/libs/mips64/libr64r2/libsupc++.a",         "#{target_lib_dir}/libr64r2/"
-      FileUtils.cp "#{release_dir}/libs/mips64/libr64r2/libgnustl_static.a",  "#{target_lib_dir}/libr64r2/libstdc++.a"
+      FileUtils.cp "#{release_dir}/libs/mips64/lib64r2/libgnustl_shared.so", "#{target_lib_dir}/lib64r2/"
+      FileUtils.cp "#{release_dir}/libs/mips64/lib64r2/libsupc++.a",         "#{target_lib_dir}/lib64r2/"
+      FileUtils.cp "#{release_dir}/libs/mips64/lib64r2/libgnustl_static.a",  "#{target_lib_dir}/lib64r2/libstdc++.a"
       #
       FileUtils.mkdir_p ["#{arch_include_dir}/32/mips-r1/", "#{arch_include_dir}/32/mips-r2/", "#{arch_include_dir}/32/mips-r6/", "#{arch_include_dir}/mips64-r2/"]
       FileUtils.cp_r "#{release_dir}/libs/mips64/include/32/mips-r1/bits",  "#{arch_include_dir}/32/mips-r1/"
@@ -180,9 +180,9 @@ class Libstdcxx < BasePackage
       FileUtils.cp_r "#{release_dir}/libs/mips64/include/bits",             "#{arch_include_dir}/"
       FileUtils.cp_r "#{release_dir}/libs/mips64/include/mips64-r2/bits",   "#{arch_include_dir}/mips64-r2/"
     else
-      FileUtils.cp "#{release_dir}/libs/#{arch.abis[0]}/lib/libgnustl_shared.so", "#{target_lib_dir}/lib/"
-      FileUtils.cp "#{release_dir}/libs/#{arch.abis[0]}/lib/libsupc++.a",         "#{target_lib_dir}/lib/"
-      FileUtils.cp "#{release_dir}/libs/#{arch.abis[0]}/lib/libgnustl_static.a",  "#{target_lib_dir}/lib/libstdc++.a"
+      FileUtils.cp "#{release_dir}/libs/#{arch.abis[0]}/libgnustl_shared.so", "#{target_lib_dir}/lib/"
+      FileUtils.cp "#{release_dir}/libs/#{arch.abis[0]}/libsupc++.a",         "#{target_lib_dir}/lib/"
+      FileUtils.cp "#{release_dir}/libs/#{arch.abis[0]}/libgnustl_static.a",  "#{target_lib_dir}/lib/libstdc++.a"
       #
       FileUtils.cp_r "#{release_dir}/libs/#{arch.abis[0]}/include/bits", "#{arch_include_dir}/"
     end
