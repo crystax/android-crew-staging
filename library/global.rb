@@ -103,7 +103,7 @@ module Global
   SRC_CACHE_DIR          = create_required_dir(SRC_CACHE_BASE ? "#{SRC_CACHE_BASE}/crew-src-cache-#{ENV['USER']}" : File.join(BASE_DIR, 'cache')).realpath.to_s
   PKG_CACHE_DIR          = "#{PKG_CACHE_BASE}/crew-pkg-cache-#{ENV['USER']}"
 
-  EXE_EXT  = RUBY_PLATFORM =~ /mingw/ ? '.exe' : ''
+  EXE_EXT  = RbConfig::CONFIG['EXEEXT']
   ARCH_EXT = 'tar.xz'
 
   # private
