@@ -72,7 +72,8 @@ class Gcc < Tool
 
   def build(release, options, host_dep_dirs, _target_dep_dirs)
     platforms = options.platforms.map { |name| Platform.new(name) }
-    puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"
+    arch_list = Build.abis_to_arch_list(options.abis)
+    puts "Building #{name} #{release} for platforms: #{platforms.map(&:name).join(', ')}; for architectures: #{arch_list.map(&:name).join(', ')}"
 
     self.num_jobs = options.num_jobs
 
@@ -80,11 +81,10 @@ class Gcc < Tool
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"
-      #[Arch::ARM64].each do |arch|
-      Arch::LIST.values.each do |arch|
+      arch_list.each do |arch|
         base_dir = base_dir(platform, arch)
         self.log_file = build_log_file(base_dir)
-        printf  "  %-#{max_arch_name_len+1}s ", "#{arch.name}:"
+        printf  "  %-#{max_arch_name_len(arch_list)+1}s ", "#{arch.name}:"
         # todo:
         if canadian_build? platform
           # when building widows based toolchain (or darwin based on linux) we must at first build toolchain
@@ -100,12 +100,13 @@ class Gcc < Tool
 
       if not options.build_only?
         pkg_dir = File.join(build_base_dir, platform.name, ARCHIVE_TOP_DIR)
-        #[Arch::ARM64].each do |arch|
-        Arch::LIST.values.each do |arch|
+        arch_list.each do |arch|
           base_dir = base_dir(platform, arch)
           arch_pkg_dir = File.join(pkg_dir, "#{arch.toolchain}-#{release.version}", 'prebuilt', platform.name)
           FileUtils.mkdir_p arch_pkg_dir
           FileUtils.cd(install_dir(base_dir)) do
+            FileUtils.rm_rf ['share/info', 'share/man']
+            FileUtils.rm_r Dir['**/*.la']
             FileUtils.cp  Dir[File.join(Global::NDK_DIR, LICENSES_SUB_DIR, 'COPYING*')], arch_pkg_dir
             FileUtils.cp_r [arch.host, 'bin', 'include', 'lib', 'libexec', 'share'], arch_pkg_dir
           end
@@ -573,9 +574,9 @@ class Gcc < Tool
     File.join base_dir, 'build.log'
   end
 
-  def max_arch_name_len()
+  def max_arch_name_len(arch_list)
     len = 0
-    Arch::LIST.values.each { |arch| len = arch.name.size if arch.name.size > len }
+    arch_list.each { |e| len = e.name.length if e.name.length > len }
     len
   end
 
