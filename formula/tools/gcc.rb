@@ -105,8 +105,12 @@ class Gcc < Tool
           arch_pkg_dir = File.join(pkg_dir, "#{arch.toolchain}-#{release.version}", 'prebuilt', platform.name)
           FileUtils.mkdir_p arch_pkg_dir
           FileUtils.cd(install_dir(base_dir)) do
+            # remove unneeded files
+            FileUtils.rm_f  Dir['bin/*-run*']
             FileUtils.rm_rf ['share/info', 'share/man']
-            FileUtils.rm_r Dir['**/*.la']
+            FileUtils.rm_rf Dir["lib/gcc/#{arch.host}/*/install-tools"] + Dir['libexec/**/install-tools'] + Dir["lib/gcc/#{arch.host}/*/plugin"]
+            FileUtils.rm_f  Dir['**/*.la']
+            # copy to package dir
             FileUtils.cp  Dir[File.join(Global::NDK_DIR, LICENSES_SUB_DIR, 'COPYING*')], arch_pkg_dir
             FileUtils.cp_r [arch.host, 'bin', 'include', 'lib', 'libexec', 'share'], arch_pkg_dir
           end
@@ -292,10 +296,20 @@ class Gcc < Tool
 
     install_dir = install_dir(base_dir)
     if canadian_build? platform
+      host_libgcc_dir = File.join(base_dir, 'host', 'install', 'lib', 'gcc')
       libgcc_dir = File.join(install_dir, 'lib', 'gcc')
       FileUtils.mkdir_p libgcc_dir
-      host_libgcc_dir = File.join(base_dir, 'host', 'install', 'lib', 'gcc')
       system 'rsync', '-a', "#{host_libgcc_dir}/", "#{libgcc_dir}/"
+      #
+      host_arch_lib_dir = File.join(base_dir, 'host', 'install', arch.host, 'lib')
+      arch_lib_dir = File.join(install_dir, arch.host, 'lib')
+      system 'rsync', '-a', "#{host_arch_lib_dir}/", "#{arch_lib_dir}/"
+      #
+      host_arch_lib64_dir = File.join(base_dir, 'host', 'install', arch.host, 'lib64')
+      if Dir.exist? host_arch_lib64_dir
+        arch_lib64_dir = File.join(install_dir, arch.host, 'lib64')
+        system 'rsync', '-a', "#{host_arch_lib64_dir}/", "#{arch_lib64_dir}/"
+      end
     end
 
     # remove unneeded files
