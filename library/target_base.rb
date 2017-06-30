@@ -1,3 +1,4 @@
+require_relative 'shasum.rb'
 require_relative 'release.rb'
 require_relative 'properties.rb'
 require_relative 'formula.rb'
@@ -26,21 +27,13 @@ class TargetBase < Formula
     File.join(Global.pkg_cache_dir(self), archive_filename(release))
   end
 
-  def sha256_sum(release, _ = nil)
-    release.shasum(:android)
+  def read_shasum(release, _ = nil)
+    Shasum.read fqn, release, 'android'
   end
 
-  def update_shasum(release)
+  def update_shasum(release, _ = nil)
     archive = cache_file(release)
-    release.shasum = Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
-
-    regexp = /(release\s+version:\s+'#{release.version}',\s+crystax_version:\s+#{release.crystax_version},\s+sha256:\s+')(\h+)('.*)/
-    s = File.read(path).sub(regexp, '\1' +  release.shasum + '\3')
-    File.open(path, 'w') { |f| f.puts s }
-
-    # we want archive modification time to be after formula file modification time
-    # otherwise we'll be constantly rebuilding formulas for nothing
-    FileUtils.touch archive
+    Shasum.update fqn, release, 'android', Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
   end
 
   def copy_to_standalone_toolchain(_release, _arch, _target_include_dir, _target_lib_dir, _options)

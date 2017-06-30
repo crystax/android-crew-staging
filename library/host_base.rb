@@ -1,3 +1,4 @@
+require_relative 'shasum.rb'
 require_relative 'platform.rb'
 require_relative 'formula.rb'
 
@@ -79,54 +80,13 @@ class HostBase < Formula
     File.join base_dir_for_platform(platform_name), 'build.log'
   end
 
-  def sha256_sum(release, platform_name = Global::PLATFORM_NAME)
-    release.shasum(Platform.new(platform_name).to_sym)
+  def read_shasum(release, platform_name = Global::PLATFORM_NAME)
+    Shasum.read fqn, release, platform_name
   end
 
-  def update_shasum(release, platform)
-    archive = cache_file(release, platform.name)
-    release.shasum = { platform.to_sym => Digest::SHA256.hexdigest(File.read(archive, mode: "rb")) }
-
-    ver = release.version
-    cxver = release.crystax_version
-    sum = release.shasum(platform.to_sym)
-    release_regexp = /^[[:space:]]*release[[:space:]]+version:[[:space:]]+'#{ver}',[[:space:]]+crystax_version:[[:space:]]+#{cxver}/
-    platform_regexp = /(.*#{platform.to_sym}:\s+')(\h+)('.*)/
-    lines = []
-    state = :copy
-    File.foreach(path) do |l|
-      case state
-      when :updated
-        lines << l
-      when :copy
-        if  l !~ release_regexp
-          lines << l
-        else
-          if l !~ platform_regexp
-            state = :updating
-            lines << l
-          else
-            state = :updated
-            lines << l.sub(platform_regexp, '\1' + sum + '\3')
-          end
-        end
-      when :updating
-        if l !~ platform_regexp
-          lines << l
-        else
-          state = :updated
-          lines << l.sub(platform_regexp, '\1' + sum + '\3')
-        end
-      else
-        raise "in formula #{File.basename(file_name)} bad state #{state} on line: #{l}"
-      end
-    end
-
-    File.open(path, 'w') { |f| f.puts lines }
-
-    # we want archive modification time to be after formula file modification time
-    # otherwise we'll be constantly rebuilding formulas for nothing
-    FileUtils.touch archive
+  def update_shasum(release, platform_name)
+    archive = cache_file(release, platform_name)
+    Shasum.update fqn, release, platform_name, Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
   end
 
   def write_file_list(package_dir, platform_name)

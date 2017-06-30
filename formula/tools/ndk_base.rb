@@ -8,11 +8,7 @@ class NdkBase < HostBase
   url 'git@git.crystax.net:android/platform-ndk.git|git_commit:d5f63e6b8decfeae49c8022a006f56b461efcf35'
   url 'https://git.crystax.net/android/platform-ndk.git|git_commit:d5f63e6b8decfeae49c8022a006f56b461efcf35'
 
-  release version: '11', crystax_version: 1, sha256: { linux_x86_64:   '0',
-                                                       darwin_x86_64:  '0',
-                                                       windows_x86_64: '0',
-                                                       windows:        '0'
-                                                     }
+  release version: '11', crystax_version: 1
 
   # todo: fix files list
   TOP_FILES_AND_DIRS = ['Android.mk',
@@ -99,7 +95,7 @@ class NdkBase < HostBase
       archive = cache_file(release, platform.name)
       Utils.pack archive, install_dir
 
-      update_shasum release, platform                 if options.update_shasum?
+      update_shasum release, platform.name            if options.update_shasum?
       install_archive release, archive, platform.name if options.install?
       FileUtils.rm_rf base_dir                        if options.clean?
     end

@@ -51,7 +51,7 @@ class Tool < HostBase
       archive = cache_file(release, platform.name)
       Utils.pack archive, package_dir
       #
-      update_shasum release, platform                 if options.update_shasum?
+      update_shasum release, platform.name            if options.update_shasum?
       install_archive release, archive, platform.name if options.install?
       FileUtils.rm_rf base_dir                        if options.clean?
     end

@@ -5,7 +5,7 @@ class Libobjc2 < Package
   # todo: use commit? tag? something else?
   url 'https://github.com/crystax/android-vendor-libobjc2.git|git_commit:36d73233f25183d7f371176e0417ca1c94c43c6f'
 
-  release version: '1.8.1', crystax_version: 1, sha256: '5098f1a67d0169412e6c69d8b82cb0b649c49519a2724579c26cb39998d4963a'
+  release version: '1.8.1', crystax_version: 1
 
   build_options setup_env: false
 

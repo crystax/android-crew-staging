@@ -5,7 +5,7 @@ class Platforms < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '24', crystax_version: 1, sha256: '60f2ef6e33907f19f2fd0addcdfd88df169f093e2538605ac35a06ce0784d436'
+  release version: '24', crystax_version: 1
 
   # todo:
   #build_depends_on default_compiler

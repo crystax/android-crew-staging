@@ -6,9 +6,9 @@ class Libcxx < BasePackage
   #homepage ""
   #url ""
 
-  release version: '3.6', crystax_version: 1, sha256: 'df73411b7b2ce90d654ddbc51bdace45345d1311efd2e79f9ecd0fc520f3e764'
-  release version: '3.7', crystax_version: 1, sha256: '99a42a001ebfc6ad405e2ac2d25ac4849e866ed1e54abeb7109019875c949557'
-  release version: '3.8', crystax_version: 1, sha256: '4b7aab7ff379ac4f76b2d2df5748705aeb07abac740574a120c4bc2ce1932a25'
+  release version: '3.6', crystax_version: 1
+  release version: '3.7', crystax_version: 1
+  release version: '3.8', crystax_version: 1
 
   build_depends_on 'platforms'
   build_depends_on 'libcrystax'

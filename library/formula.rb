@@ -86,7 +86,7 @@ class Formula
     release = find_release(r)
     platform_name = options[:platform]
 
-    cachepath = download_archive(release, platform_name, options[:check_shasum] ? sha256_sum(release, platform_name) : nil, options[:cache_only])
+    cachepath = download_archive(release, platform_name, options[:check_shasum] ? read_shasum(release, platform_name) : nil, options[:cache_only])
 
     puts "unpacking archive"
     install_archive release, cachepath, options[:platform]
@@ -175,10 +175,9 @@ class Formula
     def release(r)
       raise ":version key not present in the release"         unless r.has_key?(:version)
       raise ":crystax_version key not present in the release" unless r.has_key?(:crystax_version)
-      raise ":sha256 key not present in the release"          unless r.has_key?(:sha256)
       @releases = [] if !@releases
       raise "more than one version #{r[:version]}" if @releases.any? { |rel| rel.version == r[:version] }
-      @releases << Release.new(r[:version], r[:crystax_version], r[:sha256])
+      @releases << Release.new(r[:version], r[:crystax_version])
     end
 
     def depends_on(name, options = {})

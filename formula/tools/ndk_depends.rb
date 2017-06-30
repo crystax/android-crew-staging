@@ -4,11 +4,7 @@ class NdkDepends < Utility
   name 'ndk-depends'
   homepage ""
 
-  release version: '1', crystax_version: 1, sha256: { linux_x86_64:   '28f6ac284c0ed03852c6ca26d266d96e676b61c02ff66b362f0d2ec7baee2eb9',
-                                                      darwin_x86_64:  'c2e7235574479016ed4c8e4c64ef8e001b1408bcb101a7f3c46f3a60ad3e3fa8',
-                                                      windows_x86_64: 'b34e9f7d627f3c81d5db4f5d1fba358a052eec80ec2646efa041094cae1d4344',
-                                                      windows:        'b3364122343f548a3482fa46432e1428c44c4b13493eb7faa4b3ce46bb386460'
-                                                    }
+  release version: '1', crystax_version: 1
 
   def prepare_source_code(release, dir, src_name, log_prefix)
   end

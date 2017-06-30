@@ -4,7 +4,7 @@ class Libjpeg < Package
   homepage "http://www.ijg.org"
   url "http://www.ijg.org/files/jpegsrc.v${version}.tar.gz"
 
-  release version: '9b', crystax_version: 1, sha256: 'a00e3c69d62287ca8cf617dcbebb650783cb0d2c004429ffb6a7c2b0d0802acf'
+  release version: '9b', crystax_version: 1
 
   build_copy 'README'
 

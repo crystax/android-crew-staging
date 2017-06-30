@@ -4,11 +4,7 @@ class Toolbox < Utility
   homepage ''
   url ''
 
-  release version: '1', crystax_version: 1, sha256: { linux_x86_64:   '0',
-                                                      darwin_x86_64:  '0',
-                                                      windows_x86_64: 'bf2bf0e60ecb8b88e3ec8486b35f10493f67ee0982a0d533da9236160043af9f',
-                                                      windows:        'a565d14f6347efec23ff72e315298cc67f2b625708439c924fcf8aa348acc882'
-                                                    }
+  release version: '1', crystax_version: 1
 
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in source/host-tools/ directory

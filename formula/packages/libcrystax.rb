@@ -6,7 +6,7 @@ class Libcrystax < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '1', crystax_version: 1, sha256: '10ba75046e62753a91b7d5df112a2882b40d67aaaf22c9f5462c88e14bfed4c9'
+  release version: '1', crystax_version: 1
 
   # todo:
   build_depends_on 'platforms'

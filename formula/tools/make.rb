@@ -4,11 +4,7 @@ class Make < Utility
   homepage "https://www.gnu.org/software/make/"
   #url "https://ftpmirror.gnu.org/make/make-${version}.tar.bz2"
 
-  release version: '3.81', crystax_version: 1, sha256: { linux_x86_64:   '0bc17909588d6c909960ad3814be244ca5b5b044e4128fd981098710ba8f41e7',
-                                                         darwin_x86_64:  '2ba0cda0313b6474a6017b96c9fa3889d07763102096bbaf585f65e64fcb093a',
-                                                         windows_x86_64: 'ad3f8902baf777bc0a512a6c77228d0d375df1d3c3381edd0bda6d68eca279fb',
-                                                         windows:        '0fd4bf8f9be5c0abe4402ae407f84cbe99f61c8e812ae675407f3a84e2bd1332'
-                                                       }
+  release version: '3.81', crystax_version: 1
 
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in sources/host-tools/ directory

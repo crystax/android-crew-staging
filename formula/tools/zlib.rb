@@ -5,11 +5,7 @@ class Zlib < BuildDependency
   url 'http://zlib.net/zlib-${version}.tar.xz'
   url 'https://github.com/madler/zlib/archive/v${version}.tar.gz'
 
-  release version: '1.2.11', crystax_version: 1, sha256: { linux_x86_64:   '539c09342078900c4e99a98f0eb2ddcb667295b19eb18fb4b121f260d7ed2d0c',
-                                                           darwin_x86_64:  '7b12de1304d607b3320939c72f871463f84155b6e55208eb4b89c0816edfef77',
-                                                           windows_x86_64: '81aedbf637367b6e044a1ea2248596fa173e86ab4e9449f8a1fbc3ffbef2b21f',
-                                                           windows:        'ba5e83cb0fc1646cb0be6add96ab762bf02c77545980a5a7093ceb11786b23b2'
-                                                         }
+  release version: '1.2.11', crystax_version: 1
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)

@@ -11,15 +11,7 @@ class TestRelease < MiniTest::Test
     assert_equal(nil,   r.installed_crystax_version)
     assert_equal(nil,   r.installed?)
     assert_equal(nil,   r.source_installed?)
-    #
-    assert_equal(nil, r.shasum)
-    assert_equal(nil, r.shasum(:android))
-    assert_equal(nil, r.shasum(:linux_x86_64))
-    assert_equal(nil, r.shasum(:linux_x86))
-    assert_equal(nil, r.shasum(:darwin_x86_64))
-    assert_equal(nil, r.shasum(:darwin_x86))
-    assert_equal(nil, r.shasum(:windows_x86_64))
-    assert_equal(nil, r.shasum(:windows))
+
     # one argument
     r = Release.new('1.2.3')
     assert_equal('1.2.3', r.version)
@@ -27,15 +19,7 @@ class TestRelease < MiniTest::Test
     assert_equal(nil,     r.installed_crystax_version)
     assert_equal(nil,     r.installed?)
     assert_equal(nil,     r.source_installed?)
-    #
-    assert_equal(nil, r.shasum)
-    assert_equal(nil, r.shasum(:android))
-    assert_equal(nil, r.shasum(:linux_x86_64))
-    assert_equal(nil, r.shasum(:linux_x86))
-    assert_equal(nil, r.shasum(:darwin_x86_64))
-    assert_equal(nil, r.shasum(:darwin_x86))
-    assert_equal(nil, r.shasum(:windows_x86_64))
-    assert_equal(nil, r.shasum(:windows))
+
     # two arguments
     r = Release.new('4.5.0', 7)
     assert_equal('4.5.0', r.version)
@@ -43,64 +27,6 @@ class TestRelease < MiniTest::Test
     assert_equal(nil,     r.installed_crystax_version)
     assert_equal(nil,     r.installed?)
     assert_equal(nil,     r.source_installed?)
-    #
-    assert_equal(nil, r.shasum)
-    assert_equal(nil, r.shasum(:android))
-    assert_equal(nil, r.shasum(:linux_x86_64))
-    assert_equal(nil, r.shasum(:linux_x86))
-    assert_equal(nil, r.shasum(:darwin_x86_64))
-    assert_equal(nil, r.shasum(:darwin_x86))
-    assert_equal(nil, r.shasum(:windows_x86_64))
-    assert_equal(nil, r.shasum(:windows))
-    # three arguments
-    r = Release.new('21.1.8', 3, 'c684')
-    assert_equal('21.1.8', r.version)
-    assert_equal(3,        r.crystax_version)
-    assert_equal(nil,      r.installed_crystax_version)
-    assert_equal(nil,      r.installed?)
-    assert_equal(nil,      r.source_installed?)
-    #
-    assert_equal('c684', r.shasum)
-    assert_equal('c684', r.shasum(:android))
-    assert_equal(nil,    r.shasum(:linux_x86_64))
-    assert_equal(nil,    r.shasum(:linux_x86))
-    assert_equal(nil,    r.shasum(:darwin_x86_64))
-    assert_equal(nil,    r.shasum(:darwin_x86))
-    assert_equal(nil,    r.shasum(:windows_x86_64))
-    assert_equal(nil,    r.shasum(:windows))
-    # three arguments and sum is a hash, not complete
-    r = Release.new('7.8.9', 4, android: '0', linux_x86_64: '1', linux_x86: '2', windows: '3')
-    assert_equal('7.8.9', r.version)
-    assert_equal(4,       r.crystax_version, 4)
-    assert_equal(nil,     r.installed_crystax_version)
-    assert_equal(nil,     r.installed?)
-    assert_equal(nil,     r.source_installed?)
-    #
-    assert_equal('0', r.shasum)
-    assert_equal('0', r.shasum(:android))
-    assert_equal('1', r.shasum(:linux_x86_64))
-    assert_equal('2', r.shasum(:linux_x86))
-    assert_equal(nil, r.shasum(:darwin_x86_64))
-    assert_equal(nil, r.shasum(:darwin_x86))
-    assert_equal(nil, r.shasum(:windows_x86_64))
-    assert_equal('3', r.shasum(:windows))
-    # three arguments and sum is a complete hash
-    h = { android: '0', linux_x86_64: '1', linux_x86: '2', darwin_x86_64: '3', darwin_x86: '4', windows_x86_64: '5', windows: '6'}
-    r = Release.new('9.8.7', 5, h)
-    assert_equal('9.8.7', r.version)
-    assert_equal(5,       r.crystax_version)
-    assert_equal(nil,     r.installed_crystax_version)
-    assert_equal(nil,     r.installed?)
-    assert_equal(nil,     r.source_installed?)
-    #
-    assert_equal('0', r.shasum)
-    assert_equal('0', r.shasum(:android))
-    assert_equal('1', r.shasum(:linux_x86_64))
-    assert_equal('2', r.shasum(:linux_x86))
-    assert_equal('3', r.shasum(:darwin_x86_64))
-    assert_equal('4', r.shasum(:darwin_x86))
-    assert_equal('5', r.shasum(:windows_x86_64))
-    assert_equal('6', r.shasum(:windows))
   end
 
   def test_installed_set
@@ -144,41 +70,6 @@ class TestRelease < MiniTest::Test
     #
     assert_raises(RuntimeError) { r.installed = true }
     assert_raises(RuntimeError) { r.source_installed = true }
-  end
-
-  def test_shasum_set
-    r = Release.new
-    #
-    r.shasum = '123'
-    assert_equal('123', r.shasum)
-    assert_equal('123', r.shasum(:android))
-    assert_equal(nil,   r.shasum(:linux_x86_64))
-    assert_equal(nil,   r.shasum(:linux_x86))
-    assert_equal(nil,   r.shasum(:darwin_x86_64))
-    assert_equal(nil,   r.shasum(:darwin_x86))
-    assert_equal(nil,   r.shasum(:windows_x86_64))
-    assert_equal(nil,   r.shasum(:windows))
-    #
-    r.shasum = { android: '0', linux_x86_64: '1', linux_x86: '2', windows_x86_64: '3' }
-    assert_equal('0', r.shasum)
-    assert_equal('0', r.shasum(:android))
-    assert_equal('1', r.shasum(:linux_x86_64))
-    assert_equal('2', r.shasum(:linux_x86))
-    assert_equal(nil, r.shasum(:darwin_x86_64))
-    assert_equal(nil, r.shasum(:darwin_x86))
-    assert_equal('3', r.shasum(:windows_x86_64))
-    assert_equal(nil, r.shasum(:windows))
-    #
-    h = { android: '9', linux_x86_64: '8', linux_x86: '7', darwin_x86_64: '6', darwin_x86: '5', windows_x86_64: '4', windows: '3'}
-    r.shasum = h
-    assert_equal('9', r.shasum)
-    assert_equal('9', r.shasum(:android))
-    assert_equal('8', r.shasum(:linux_x86_64))
-    assert_equal('7', r.shasum(:linux_x86))
-    assert_equal('6', r.shasum(:darwin_x86_64))
-    assert_equal('5', r.shasum(:darwin_x86))
-    assert_equal('4', r.shasum(:windows_x86_64))
-    assert_equal('3', r.shasum(:windows))
   end
 
   def test_update

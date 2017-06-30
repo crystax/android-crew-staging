@@ -4,11 +4,7 @@ class Nawk < Utility
   homepage "https://www.cs.princeton.edu/~bwk/btl.mirror/"
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '20071023', crystax_version: 1, sha256: { linux_x86_64:   'c21c911dc00d21435a6430afd546ab4061b8961a233270994a9d4a70247786de',
-                                                             darwin_x86_64:  '970141e24e1a1bddb4c0e1f6537f7493b0bf09f106ebe3ccb841aefe5a19d3ef',
-                                                             windows_x86_64: '6eb77d48a7119900cc6483dc810965833049227f6b8cca656b3480621a2655d8',
-                                                             windows:        '3bb79262ec1d92bc61d228fd9624fd85edb8ba26f955da6707b6e463185e2574'
-                                                           }
+  release version: '20071023', crystax_version: 1
 
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in source/host-tools/ directory

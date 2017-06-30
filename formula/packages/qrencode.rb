@@ -4,7 +4,7 @@ class Qrencode < Package
   homepage "https://fukuchi.org/works/qrencode/index.html.en"
   url "https://fukuchi.org/works/qrencode/qrencode-${version}.tar.gz"
 
-  release version: '3.4.4', crystax_version: 1, sha256: '0'
+  release version: '3.4.4', crystax_version: 1
 
   #depends_on 'libjpeg'
 

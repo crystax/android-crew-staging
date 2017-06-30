@@ -6,9 +6,9 @@ class Libstdcxx < BasePackage
   #homepage ""
   #url ""
 
-  release version: '4.9', crystax_version: 1, sha256: '940549c833eb18be1bafde75175262ff470bb4a3045111153d526479a46b533b'
-  release version: '5',   crystax_version: 1, sha256: 'f68fabb5cdbae0e2484394149c0f6d0bbc34d68548808e1cdd97c17abd213e03'
-  release version: '6',   crystax_version: 1, sha256: '93379fbe3155f619814cda3a7d581098a46542a7d16f950bdd1b7efbce50e426'
+  release version: '4.9', crystax_version: 1
+  release version: '5',   crystax_version: 1
+  release version: '6',   crystax_version: 1
 
   build_depends_on 'platforms'
   build_depends_on 'libcrystax'
