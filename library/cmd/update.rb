@@ -32,7 +32,7 @@ module Crew
 
     def initialize
       @repository = Rugged::Repository.new('.')
-      @repository_path = Global::REPOSITORY_DIR
+      @repository_path = Global::BASE_DIR
     end
 
     def pull!
