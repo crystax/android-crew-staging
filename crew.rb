@@ -35,13 +35,7 @@ if __FILE__ == $0
     goptions, cmd, args = split_arguments(ARGV)
     Global.set_options(goptions)
 
-    FileUtils.mkdir_p Global::NS_DIR.values.map { |d| File.join(Global::PKG_CACHE_DIR, d) }
-
-    # todo:
-    #Global.check_program(Utils.curl_prog)
-    #Global.check_program(Utils.bsdtar_prog)
-
-    FileUtils.cd(Global::REPOSITORY_DIR) do
+    FileUtils.cd(Global::BASE_DIR) do
       require_command(cmd)
       Crew.send(cmd, args)
     end
@@ -49,8 +43,6 @@ if __FILE__ == $0
     exception(e)
     exit 1
   else
-    #exit 1 if Crew.failed?
-    # todo: 0 or 1 here?
     exit 0
   end
 end

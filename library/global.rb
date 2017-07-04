@@ -97,11 +97,14 @@ module Global
   HOLD_DIR               = create_required_dir(NDK_DIR, 'packages').realpath
   SERVICE_DIR            = create_required_dir(NDK_DIR, '.crew').realpath
   BUILD_DEPENDENCIES_DIR = create_required_dir(build_dependencies_dir(PLATFORM_NAME)).realpath
-  REPOSITORY_DIR         = Pathname.new(BASE_DIR).realpath
   PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
   FORMULA_DIR            = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
   SRC_CACHE_DIR          = create_required_dir(SRC_CACHE_BASE ? "#{SRC_CACHE_BASE}/crew-src-cache-#{ENV['USER']}" : File.join(BASE_DIR, 'cache')).realpath.to_s
   PKG_CACHE_DIR          = "#{PKG_CACHE_BASE}/crew-pkg-cache-#{ENV['USER']}"
+
+  _ = create_required_dir(File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[:host]))
+  _ = create_required_dir(File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[:target]))
+
 
   EXE_EXT  = RbConfig::CONFIG['EXEEXT']
   ARCH_EXT = 'tar.xz'
