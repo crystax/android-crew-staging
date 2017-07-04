@@ -100,7 +100,7 @@ class Formula
       puts "using cached file #{archive}"
     else
       raise "#{archive} not found in the packages cache #{Global.pkg_cache_dir(self)}" if cache_only
-      url = "#{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[namespace]}/#{file_name}/#{archive}"
+      url = "#{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[namespace]}/#{archive}"
       puts "downloading #{url}"
       Utils.download(url, cachepath)
     end
