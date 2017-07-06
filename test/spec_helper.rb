@@ -6,30 +6,30 @@ require 'pathname'
 require_relative 'spec_consts.rb'
 
 
-log_dir = File.join(Crew_test::WWW_DIR, 'log')
+log_dir = File.join(Crew::Test::WWW_DIR, 'log')
 base_dir = 'crew'
 
 FileUtils.mkdir(log_dir) unless Dir.exist?(log_dir)
 
-server = WEBrick::HTTPServer.new :Port => Crew_test::PORT,
-                                 :DocumentRoot => Crew_test::DOCROOT_DIR,
+server = WEBrick::HTTPServer.new :Port => Crew::Test::PORT,
+                                 :DocumentRoot => Crew::Test::DOCROOT_DIR,
                                  :Logger => WEBrick::Log.new(File.join(log_dir, 'webrick.log')),
                                  :AccessLog => [[File.open(File.join(log_dir, 'access.log'),'w'),
                                                  WEBrick::AccessLog::COMBINED_LOG_FORMAT]]
 
 Thread.start { server.start }
 
-FileUtils.rm_rf Crew_test::CREW_DIR
+FileUtils.rm_rf Crew::Test::CREW_DIR
 
-FileUtils.mkdir_p File.join(Crew_test::NDK_DIR, 'sources')
-FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'formula', 'utilities')
-FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'cache')
-FileUtils.mkdir_p File.join(Crew_test::CREW_DIR, 'patches')
+FileUtils.mkdir_p File.join(Crew::Test::NDK_DIR, 'sources')
+FileUtils.mkdir_p File.join(Crew::Test::CREW_DIR, 'formula', 'utilities')
+FileUtils.mkdir_p File.join(Crew::Test::CREW_DIR, 'cache')
+FileUtils.mkdir_p File.join(Crew::Test::CREW_DIR, 'patches')
 
-ENV['CREW_DOWNLOAD_BASE'] = Crew_test::DOWNLOAD_BASE
-ENV['CREW_BASE_DIR'] = Crew_test::CREW_DIR
-ENV['CREW_NDK_DIR'] = Crew_test::NDK_DIR
-ENV['CREW_PKG_CACHE_BASE'] = Crew_test::PKG_CACHE_BASE
+ENV['CREW_DOWNLOAD_BASE'] = Crew::Test::DOWNLOAD_BASE
+ENV['CREW_BASE_DIR'] = Crew::Test::CREW_DIR
+ENV['CREW_NDK_DIR'] = Crew::Test::NDK_DIR
+ENV['CREW_PKG_CACHE_BASE'] = Crew::Test::PKG_CACHE_BASE
 
 # global.rb requires evn vars to be set so we put it here
 require_relative '../library/global.rb'

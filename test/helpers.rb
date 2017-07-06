@@ -93,6 +93,22 @@ module Spec
       raise CrewFailed.new(command, exitstatus, err) if exitstatus != 0 or err != ''
     end
 
+    def crew_update_shasum(options, *names)
+      formulas = names.map { |n| File.basename(n, '.rb') }
+      old_pkg = ENV['CREW_PKG_CACHE_BASE']
+      ENV['CREW_PKG_CACHE_BASE'] = Crew::Test::DOCROOT_DIR
+      if not options[:base_dir]
+        crew 'shasum', '--update', *formulas
+      else
+        old_base = ENV['CREW_BASE_DIR']
+        ENV['CREW_BASE_DIR'] = options[:base_dir]
+        crew 'shasum', '--update', *formulas
+        ENV['CREW_BASE_DIR'] = old_base
+      end
+      ENV['CREW_PKG_CACHE_BASE'] = old_pkg
+      raise CrewFailed.new(command, exitstatus, err) if exitstatus != 0 or err != ''
+    end
+
     def run_command(cmd)
       @command = cmd
       @out = ''
@@ -174,13 +190,13 @@ module Spec
     end
 
     def clean_utilities
-      orig_tools_dir = File.join(Crew_test::NDK_COPY_DIR, 'prebuilt', Global::PLATFORM_NAME)
-      tools_dir      = File.join(Crew_test::NDK_DIR,      'prebuilt', Global::PLATFORM_NAME)
+      orig_tools_dir = File.join(Crew::Test::NDK_COPY_DIR, 'prebuilt', Global::PLATFORM_NAME)
+      tools_dir      = File.join(Crew::Test::NDK_DIR,      'prebuilt', Global::PLATFORM_NAME)
       FileUtils.rm_rf tools_dir
       FileUtils.cp_r orig_tools_dir, File.dirname(tools_dir)
-      Crew_test::UTILS.each do |util|
-        FileUtils.rm_rf File.join(Crew_test::NDK_DIR, '.crew', util)
-        FileUtils.cp_r File.join(Crew_test::NDK_COPY_DIR, '.crew', util), File.join(Crew_test::NDK_DIR, '.crew')
+      Crew::Test::UTILS_FILES.each do |util|
+        FileUtils.rm_rf File.join(Crew::Test::NDK_DIR, '.crew', util)
+        FileUtils.cp_r File.join(Crew::Test::NDK_COPY_DIR, '.crew', util), File.join(Crew::Test::NDK_DIR, '.crew')
       end
     end
 
@@ -188,11 +204,12 @@ module Spec
       names.each do |n|
         FileUtils.cp File.join('data', n), File.join(Global::FORMULA_DIR, Global::NS_DIR[:target])
       end
+      crew_update_shasum Hash.new, *names
     end
 
     def ndk_init
-      FileUtils.rm_rf Crew_test::NDK_DIR
-      FileUtils.cp_r Crew_test::NDK_COPY_DIR, Crew_test::NDK_DIR
+      FileUtils.rm_rf Crew::Test::NDK_DIR
+      FileUtils.cp_r Crew::Test::NDK_COPY_DIR, Crew::Test::NDK_DIR
     end
 
     def repository_init
@@ -248,6 +265,9 @@ module Spec
         FileUtils.cp File.join('data', src), File.join(origin_dir, file)
         repo.add file
       end
+      options = { base_dir: origin_dir }
+      crew_update_shasum options, *names
+      repo.add 'etc/shasums.txt'
       repo.commit "add_#{names.join('_')}"
     end
 
@@ -279,10 +299,10 @@ module Spec
       target_dir = File.join('formula', Global::NS_DIR[:target])
       utils_dir = File.join(dir, host_dir)
       FileUtils.mkdir_p [File.join(dir, 'cache'), File.join(dir, 'patches'), utils_dir, File.join(dir, 'formula', Global::NS_DIR[:target])]
-      # copy original formulas for all tools
-      FileUtils.cp Dir["../formula/#{Global::NS_DIR[:host]}/*.rb"], utils_dir
-      # overwrite crew utils formulas
-      Crew_test::UTILS.each { |u| FileUtils.cp File.join('data', "#{u}-1.rb"), File.join(utils_dir,  "#{u}.rb") }
+      # copy original formulas for tools
+      Crew::Test::TOOLS.each { |t| FileUtils.cp "../formula/#{Global::NS_DIR[:host]}/#{t}.rb", utils_dir }
+      # copy crew utils formulas
+      Crew::Test::UTILS_FILES.each { |u| FileUtils.cp File.join('data', "#{u}-1.rb"), File.join(utils_dir,  "#{u}.rb") }
       FileUtils.cd(dir) do
         [File.join('cache', '.placeholder'), File.join(target_dir, '.placeholder'), File.join('patches', '.placeholder')].each do |file|
           FileUtils.touch file
