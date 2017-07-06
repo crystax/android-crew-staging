@@ -181,8 +181,8 @@ describe "crew cleanup" do
   #     crew_checked 'update'
   #     crew_checked 'upgrade'
   #     crew '-b', 'cleanup'
-  #     curl_new_rel = Crew_test::UTILS_RELEASES['curl'][1]
-  #     curl_old_rel = Crew_test::UTILS_RELEASES['curl'][0]
+  #     curl_new_rel = Crew::Test::UTILS_RELEASES['curl'][1]
+  #     curl_old_rel = Crew::Test::UTILS_RELEASES['curl'][0]
   #     expect(result).to eq(:ok)
   #     expect(out).to eq("removing: #{Global::UTILITIES_DIR}/curl/#{curl_old_rel}\n")
   #     expect(in_pkg_cache?(:host, 'curl', curl_new_rel.version, curl_new_rel.crystax_version)).to eq(true)
@@ -195,8 +195,8 @@ describe "crew cleanup" do
   #     crew_checked 'update'
   #     crew_checked 'upgrade'
   #     crew '-b', 'cleanup'
-  #     curl_new_rel = Crew_test::UTILS_RELEASES['curl'][2]
-  #     curl_old_rel = Crew_test::UTILS_RELEASES['curl'][0]
+  #     curl_new_rel = Crew::Test::UTILS_RELEASES['curl'][2]
+  #     curl_old_rel = Crew::Test::UTILS_RELEASES['curl'][0]
   #     expect(result).to eq(:ok)
   #     expect(out).to eq("removing: #{Global::UTILITIES_DIR}/curl/#{curl_old_rel}\n")
   #     expect(in_pkg_cache?(:host, 'curl', curl_new_rel.version, curl_new_rel.crystax_version)).to eq(true)
@@ -209,10 +209,10 @@ describe "crew cleanup" do
   #     crew_checked 'update'
   #     crew_checked 'upgrade'
   #     crew '-b', 'cleanup'
-  #     curl_new_rel = Crew_test::UTILS_RELEASES['curl'][2]
-  #     curl_old_rel = Crew_test::UTILS_RELEASES['curl'][0]
-  #     ruby_new_rel = Crew_test::UTILS_RELEASES['ruby'][1]
-  #     ruby_old_rel = Crew_test::UTILS_RELEASES['ruby'][0]
+  #     curl_new_rel = Crew::Test::UTILS_RELEASES['curl'][2]
+  #     curl_old_rel = Crew::Test::UTILS_RELEASES['curl'][0]
+  #     ruby_new_rel = Crew::Test::UTILS_RELEASES['ruby'][1]
+  #     ruby_old_rel = Crew::Test::UTILS_RELEASES['ruby'][0]
   #     expect(result).to eq(:ok)
   #     expect(out).to eq("removing: #{Global::UTILITIES_DIR}/curl/#{curl_old_rel}\n" \
   #                       "removing: #{Global::UTILITIES_DIR}/ruby/#{ruby_old_rel}\n")
@@ -230,9 +230,9 @@ describe "crew cleanup" do
   #     crew_checked 'update'
   #     crew_checked 'upgrade'
   #     crew '-b', 'cleanup'
-  #     curl_2_rel = Crew_test::UTILS_RELEASES['curl'][2]
-  #     curl_1_rel = Crew_test::UTILS_RELEASES['curl'][1]
-  #     curl_0_rel = Crew_test::UTILS_RELEASES['curl'][0]
+  #     curl_2_rel = Crew::Test::UTILS_RELEASES['curl'][2]
+  #     curl_1_rel = Crew::Test::UTILS_RELEASES['curl'][1]
+  #     curl_0_rel = Crew::Test::UTILS_RELEASES['curl'][0]
   #     expect(result).to eq(:ok)
   #     expect(out).to eq("removing: #{Global::UTILITIES_DIR}/curl/#{curl_0_rel}\n" \
   #                       "removing: #{Global::UTILITIES_DIR}/curl/#{curl_1_rel}\n" \
@@ -251,13 +251,13 @@ describe "crew cleanup" do
   #     crew_checked 'update'
   #     crew_checked 'upgrade'
   #     crew 'cleanup'
-  #     bsdtar_1_rel = Crew_test::UTILS_RELEASES['libarchive'][1]
-  #     bsdtar_0_rel = Crew_test::UTILS_RELEASES['libarchive'][0]
-  #     curl_2_rel = Crew_test::UTILS_RELEASES['curl'][2]
-  #     curl_1_rel = Crew_test::UTILS_RELEASES['curl'][1]
-  #     curl_0_rel = Crew_test::UTILS_RELEASES['curl'][0]
-  #     ruby_1_rel = Crew_test::UTILS_RELEASES['ruby'][1]
-  #     ruby_0_rel = Crew_test::UTILS_RELEASES['ruby'][0]
+  #     bsdtar_1_rel = Crew::Test::UTILS_RELEASES['libarchive'][1]
+  #     bsdtar_0_rel = Crew::Test::UTILS_RELEASES['libarchive'][0]
+  #     curl_2_rel = Crew::Test::UTILS_RELEASES['curl'][2]
+  #     curl_1_rel = Crew::Test::UTILS_RELEASES['curl'][1]
+  #     curl_0_rel = Crew::Test::UTILS_RELEASES['curl'][0]
+  #     ruby_1_rel = Crew::Test::UTILS_RELEASES['ruby'][1]
+  #     ruby_0_rel = Crew::Test::UTILS_RELEASES['ruby'][0]
   #     expect(result).to eq(:ok)
   #     expect(out).to eq("removing: #{Global::UTILITIES_DIR}/curl/#{curl_0_rel}\n"         \
   #                       "removing: #{Global::UTILITIES_DIR}/curl/#{curl_1_rel}\n"         \
@@ -280,8 +280,8 @@ describe "crew cleanup" do
   #     crew_checked 'update'
   #     crew_checked 'upgrade'
   #     crew '-b', 'cleanup'
-  #     curl_2_rel = Crew_test::UTILS_RELEASES['curl'][2]
-  #     curl_0_rel = Crew_test::UTILS_RELEASES['curl'][0]
+  #     curl_2_rel = Crew::Test::UTILS_RELEASES['curl'][2]
+  #     curl_0_rel = Crew::Test::UTILS_RELEASES['curl'][0]
   #     expect(result).to eq(:ok)
   #     expect(out.split("\n")).to eq(["removing: #{Global::UTILITIES_DIR}/curl/#{curl_0_rel}",
   #                                    "removing: #{Global::HOLD_DIR}/libtwo/1.1.0",
@@ -311,13 +311,13 @@ describe "crew cleanup" do
   #     crew_checked 'install', 'libthree:2.2.2'
   #     crew_checked 'install', 'libthree:3.3.3'
   #     crew 'cleanup'
-  #     bsdtar_1_rel = Crew_test::UTILS_RELEASES['libarchive'][1]
-  #     bsdtar_0_rel = Crew_test::UTILS_RELEASES['libarchive'][0]
-  #     curl_2_rel = Crew_test::UTILS_RELEASES['curl'][2]
-  #     curl_1_rel = Crew_test::UTILS_RELEASES['curl'][1]
-  #     curl_0_rel = Crew_test::UTILS_RELEASES['curl'][0]
-  #     ruby_1_rel = Crew_test::UTILS_RELEASES['ruby'][1]
-  #     ruby_0_rel = Crew_test::UTILS_RELEASES['ruby'][0]
+  #     bsdtar_1_rel = Crew::Test::UTILS_RELEASES['libarchive'][1]
+  #     bsdtar_0_rel = Crew::Test::UTILS_RELEASES['libarchive'][0]
+  #     curl_2_rel = Crew::Test::UTILS_RELEASES['curl'][2]
+  #     curl_1_rel = Crew::Test::UTILS_RELEASES['curl'][1]
+  #     curl_0_rel = Crew::Test::UTILS_RELEASES['curl'][0]
+  #     ruby_1_rel = Crew::Test::UTILS_RELEASES['ruby'][1]
+  #     ruby_0_rel = Crew::Test::UTILS_RELEASES['ruby'][0]
   #     expect(result).to eq(:ok)
   #     expect(out.split("\n")).to eq(["removing: #{Global::UTILITIES_DIR}/curl/#{curl_0_rel}",
   #                                    "removing: #{Global::UTILITIES_DIR}/curl/#{curl_1_rel}",

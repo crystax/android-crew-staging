@@ -81,8 +81,8 @@ describe "crew upgrade" do
         repository_add_formula :host, 'curl-2.rb:curl.rb'
         crew_checked 'update'
         crew '-b', 'upgrade'
-        ver = Crew_test::UTILS_RELEASES['curl'][1].version
-        cxver = Crew_test::UTILS_RELEASES['curl'][1].crystax_version
+        ver = Crew::Test::UTILS_RELEASES['curl'][1].version
+        cxver = Crew::Test::UTILS_RELEASES['curl'][1].crystax_version
         file = "curl-#{ver}_#{cxver}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         expect(result).to eq(:ok)
         expect(out).to eq("Will install: curl:#{ver}:#{cxver}\n"                      \
@@ -99,9 +99,9 @@ describe "crew upgrade" do
         repository_add_formula :host, 'curl-3.rb:curl.rb'
         crew_checked 'update'
         crew '-b', 'upgrade'
-        old_rel = Crew_test::UTILS_RELEASES['curl'][0].to_s
-        ver = Crew_test::UTILS_RELEASES['curl'][2].version
-        cxver = Crew_test::UTILS_RELEASES['curl'][2].crystax_version
+        old_rel = Crew::Test::UTILS_RELEASES['curl'][0].to_s
+        ver = Crew::Test::UTILS_RELEASES['curl'][2].version
+        cxver = Crew::Test::UTILS_RELEASES['curl'][2].crystax_version
         file = "curl-#{ver}_#{cxver}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         expect(result).to eq(:ok)
         expect(out).to eq("Will install: curl:#{ver}:#{cxver}\n"                          \
@@ -118,16 +118,16 @@ describe "crew upgrade" do
         repository_add_formula :host, 'libarchive-2.rb:libarchive.rb', 'curl-3.rb:curl.rb', 'ruby-2.rb:ruby.rb'
         crew_checked 'update'
         crew '-b', 'upgrade'
-        libarchive_new_rel = Crew_test::UTILS_RELEASES['libarchive'][1]
-        libarchive_old_rel = Crew_test::UTILS_RELEASES['libarchive'][0]
+        libarchive_new_rel = Crew::Test::UTILS_RELEASES['libarchive'][1]
+        libarchive_old_rel = Crew::Test::UTILS_RELEASES['libarchive'][0]
         libarchive_file = "libarchive-#{libarchive_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         libarchive_ver = "#{libarchive_new_rel.version}:#{libarchive_new_rel.crystax_version}"
-        curl_new_rel = Crew_test::UTILS_RELEASES['curl'][2]
-        curl_old_rel = Crew_test::UTILS_RELEASES['curl'][0]
+        curl_new_rel = Crew::Test::UTILS_RELEASES['curl'][2]
+        curl_old_rel = Crew::Test::UTILS_RELEASES['curl'][0]
         curl_file = "curl-#{curl_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         curl_ver = "#{curl_new_rel.version}:#{curl_new_rel.crystax_version}"
-        ruby_new_rel = Crew_test::UTILS_RELEASES['ruby'][1]
-        ruby_old_rel = Crew_test::UTILS_RELEASES['ruby'][0]
+        ruby_new_rel = Crew::Test::UTILS_RELEASES['ruby'][1]
+        ruby_old_rel = Crew::Test::UTILS_RELEASES['ruby'][0]
         ruby_file = "ruby-#{ruby_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         ruby_ver = "#{ruby_new_rel.version}:#{ruby_new_rel.crystax_version}"
         expect(result).to eq(:ok)
@@ -160,8 +160,8 @@ describe "crew upgrade" do
         repository_add_formula :host, 'curl-2.rb:curl.rb'
         crew_checked 'update'
         crew 'upgrade'
-        curl_new_rel = Crew_test::UTILS_RELEASES['curl'][1]
-        curl_old_rel = Crew_test::UTILS_RELEASES['curl'][0]
+        curl_new_rel = Crew::Test::UTILS_RELEASES['curl'][1]
+        curl_old_rel = Crew::Test::UTILS_RELEASES['curl'][0]
         curl_ver = "#{curl_new_rel.version}:#{curl_new_rel.crystax_version}"
         curl_file = "curl-#{curl_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         libtwo_file = "libtwo-2.2.0_1.#{Global::ARCH_EXT}"
@@ -191,16 +191,16 @@ describe "crew upgrade" do
         crew 'upgrade'
         lib3file = "libthree-3.3.3_1.#{Global::ARCH_EXT}"
         lib2file = "libtwo-2.2.0_1.#{Global::ARCH_EXT}"
-        libarchive_new_rel = Crew_test::UTILS_RELEASES['libarchive'][1]
-        libarchive_old_rel = Crew_test::UTILS_RELEASES['libarchive'][0]
+        libarchive_new_rel = Crew::Test::UTILS_RELEASES['libarchive'][1]
+        libarchive_old_rel = Crew::Test::UTILS_RELEASES['libarchive'][0]
         libarchive_file = "libarchive-#{libarchive_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         libarchive_ver = "#{libarchive_new_rel.version}:#{libarchive_new_rel.crystax_version}"
-        curl_new_rel = Crew_test::UTILS_RELEASES['curl'][2]
-        curl_old_rel = Crew_test::UTILS_RELEASES['curl'][0]
+        curl_new_rel = Crew::Test::UTILS_RELEASES['curl'][2]
+        curl_old_rel = Crew::Test::UTILS_RELEASES['curl'][0]
         curl_file = "curl-#{curl_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         curl_ver = "#{curl_new_rel.version}:#{curl_new_rel.crystax_version}"
-        ruby_new_rel = Crew_test::UTILS_RELEASES['ruby'][1]
-        ruby_old_rel = Crew_test::UTILS_RELEASES['ruby'][0]
+        ruby_new_rel = Crew::Test::UTILS_RELEASES['ruby'][1]
+        ruby_old_rel = Crew::Test::UTILS_RELEASES['ruby'][0]
         ruby_file = "ruby-#{ruby_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         ruby_ver = "#{ruby_new_rel.version}:#{ruby_new_rel.crystax_version}"
         expect(result).to eq(:ok)

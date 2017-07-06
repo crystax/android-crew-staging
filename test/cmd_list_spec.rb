@@ -153,10 +153,10 @@ describe "crew list" do
         crew 'list', '--tools'
         expect(result).to eq(:ok)
         got = out.split("\n")
-        exp = [/ \* bsdtar\s+#{Crew_test::UTILS_RELEASES['libarchive'][0].version}\s+#{Crew_test::UTILS_RELEASES['libarchive'][0].crystax_version}/,
+        exp = [/ \* bsdtar\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].version}\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].crystax_version}/,
                /   cloog\s+\d+\.\d+\.\d+\s+\d+/,
                /   cloog-old\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* curl  \s+#{Crew_test::UTILS_RELEASES['curl'][0].version}\s+#{Crew_test::UTILS_RELEASES['curl'][0].crystax_version}/,
+               / \* curl  \s+#{Crew::Test::UTILS_RELEASES['curl'][0].version}\s+#{Crew::Test::UTILS_RELEASES['curl'][0].crystax_version}/,
                /   expat\s+\d+\.\d+\.\d+\s+\d+/,
                / \* gcc\s+\d+\.\d+\s+\d+/,
                / \* gcc\s+\d+\s+\d+/,
@@ -180,7 +180,7 @@ describe "crew list" do
                /   openssl\s+\d+\.\d+\.\d+[a-z]\s+\d+/,
                /   ppl\s+\d+\.\d+\s+\d+/,
                / \* python\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* ruby  \s+#{Crew_test::UTILS_RELEASES['ruby'][0].version}\s+#{Crew_test::UTILS_RELEASES['ruby'][0].crystax_version}/,
+               / \* ruby  \s+#{Crew::Test::UTILS_RELEASES['ruby'][0].version}\s+#{Crew::Test::UTILS_RELEASES['ruby'][0].crystax_version}/,
                / .+ toolbox\s+\d+\s+\d+/,
                /   xz\s+\d+\.\d+\.\d+\s+\d+/,
                / \* yasm\s+\d+\.\d+\.\d+\s+\d+/,
@@ -206,10 +206,10 @@ describe "crew list" do
         expect(result).to eq(:ok)
         got = out.split("\n")
         exp = ["Tools:",
-               / \* bsdtar\s+#{Crew_test::UTILS_RELEASES['libarchive'][0].version}\s+#{Crew_test::UTILS_RELEASES['libarchive'][0].crystax_version}/,
+               / \* bsdtar\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].version}\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].crystax_version}/,
                /   cloog\s+\d+\.\d+\.\d+\s+\d+/,
                /   cloog-old\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* curl  \s+#{Crew_test::UTILS_RELEASES['curl'][0].version}\s+#{Crew_test::UTILS_RELEASES['curl'][0].crystax_version}/,
+               / \* curl  \s+#{Crew::Test::UTILS_RELEASES['curl'][0].version}\s+#{Crew::Test::UTILS_RELEASES['curl'][0].crystax_version}/,
                /   expat\s+\d+\.\d+\.\d+\s+\d+/,
                / \* gcc\s+\d+\.\d+\s+\d+/,
                / \* gcc\s+\d+\s+\d+/,
@@ -233,7 +233,7 @@ describe "crew list" do
                /   openssl\s+\d+\.\d+\.\d+[a-z]\s+\d+/,
                /   ppl\s+\d+\.\d+\s+\d+/,
                / \* python\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* ruby  \s+#{Crew_test::UTILS_RELEASES['ruby'][0].version}\s+#{Crew_test::UTILS_RELEASES['ruby'][0].crystax_version}/,
+               / \* ruby  \s+#{Crew::Test::UTILS_RELEASES['ruby'][0].version}\s+#{Crew::Test::UTILS_RELEASES['ruby'][0].crystax_version}/,
                / .+ toolbox\s+\d+\s+\d+/,
                /   xz\s+\d+\.\d+\.\d+\s+\d+/,
                / \* yasm\s+\d+\.\d+\.\d+\s+\d+/,

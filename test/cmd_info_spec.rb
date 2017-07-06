@@ -32,7 +32,7 @@ describe "crew info" do
   context "about ruby, all utilities with one release each" do
     it "outputs info about ruby" do
       crew 'info', 'ruby'
-      ruby_rel = Crew_test::UTILS_RELEASES['ruby'][0]
+      ruby_rel = Crew::Test::UTILS_RELEASES['ruby'][0]
       expect(result).to eq(:ok)
       expect(out.split("\n")).to eq(["Name:               ruby",
                                      "Namespace:          host",
@@ -51,9 +51,9 @@ describe "crew info" do
     it "outputs info about crew utilities" do
       crew 'info', 'curl', 'bsdtar','ruby'
       #crew 'info', 'bsdtar'
-      curl_rel = Crew_test::UTILS_RELEASES['curl'][0]
-      bsdtar_rel = Crew_test::UTILS_RELEASES['libarchive'][0]
-      ruby_rel = Crew_test::UTILS_RELEASES['ruby'][0]
+      curl_rel = Crew::Test::UTILS_RELEASES['curl'][0]
+      bsdtar_rel = Crew::Test::UTILS_RELEASES['libarchive'][0]
+      ruby_rel = Crew::Test::UTILS_RELEASES['ruby'][0]
       expect(result).to eq(:ok)
       expect(out.split("\n")).to eq(["Name:               curl",
                                      "Namespace:          host",

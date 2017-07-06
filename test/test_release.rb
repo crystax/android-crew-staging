@@ -97,11 +97,11 @@ class TestRelease < MiniTest::Test
     r1 = Release.new('1.1.0')
     r2 = Release.new('1.1.0', 2)
     r3 = Release.new('1.1.0', 3)
-    r4 = Release.new('1.1.0', 4, '4')
+    r4 = Release.new('1.1.0', 4)
     r5 = Release.new('4.1.2')
     r6 = Release.new('4.1.2', 1)
     r7 = Release.new('4.1.2', 2)
-    r8 = Release.new('4.1.2', 2, '5')
+    r8 = Release.new('4.1.2', 2)
 
     assert_equal(true,  r0.match?(r0))
     assert_equal(true,  r0.match?(r1))
@@ -204,7 +204,7 @@ class TestRelease < MiniTest::Test
     r = Release.new('3.3.0', 3)
     assert_equal(r.to_s, '3.3.0_3')
     # three arguments
-    r = Release.new('24.5.1', 4, '1812')
+    r = Release.new('24.5.1', 4)
     assert_equal(r.to_s, '24.5.1_4')
   end
 end

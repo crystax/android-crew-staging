@@ -6,25 +6,33 @@ require_relative 'spec_consts.rb'
 
 
 
-if File.exists? Crew_test::DATA_READY_FILE
+if File.exists? Crew::Test::DATA_READY_FILE
   puts "Test data already prepared"
   puts "If you think this's an error, run make clean or make clean-test-data and rerun make"
   exit 0
 end
 
-tools_dir          = ENV['CREW_TOOLS_DIR']
-PLATFORM           = File.basename(tools_dir)
-PLATFORM_SYM       = PLATFORM.gsub(/-/, '_').to_sym
-utils_download_dir = File.join(Crew_test::DOCROOT_DIR, 'tools')
-orig_ndk_dir       = ENV['ORIG_NDK_DIR']
-orig_tools_dir     = File.join(orig_ndk_dir, 'prebuilt', PLATFORM)
+ORIG_TOOLS_DIR   = Pathname.new(ENV['ORIG_TOOLS_DIR']).realpath.to_s
+ORIG_NDK_DIR     = Pathname.new("#{ORIG_TOOLS_DIR}/../..").realpath.to_s
+ORIG_FORMULA_DIR = Pathname.new('../formula/tools').realpath.to_s
+PLATFORM         = File.basename(ORIG_TOOLS_DIR)
+PLATFORM_SYM     = PLATFORM.gsub(/-/, '_').to_sym
+
+tools_dir = "#{Crew::Test::NDK_DIR}/prebuilt/#{PLATFORM}"
+utils_download_dir = "#{Crew::Test::DOCROOT_DIR}/tools"
+FileUtils.mkdir_p [tools_dir, utils_download_dir]
+
+DATA_DIR           = Pathname.new(Crew::Test::DATA_DIR).realpath.to_s
+NDK_DIR            = Pathname.new(Crew::Test::NDK_DIR).realpath.to_s
+TOOLS_DIR          = Pathname.new(tools_dir).realpath.to_s
+UTILS_DOWNLOAD_DIR = Pathname.new(utils_download_dir).realpath.to_s
+
 
 # copy utils from NDK dir to tests directory structure
-FileUtils.mkdir_p [tools_dir, utils_download_dir]
-FileUtils.cp_r Dir["#{orig_tools_dir}/*"], tools_dir
-FileUtils.cp_r "#{orig_ndk_dir}/.crew", Crew_test::NDK_DIR
-FileUtils.rm_rf "#{tools_dir}/build_dependencies"
-FileUtils.cp_r Crew_test::NDK_DIR, Crew_test::NDK_COPY_DIR
+FileUtils.cp_r Dir["#{ORIG_TOOLS_DIR}/*"], TOOLS_DIR
+FileUtils.cp_r "#{ORIG_NDK_DIR}/.crew", Crew::Test::NDK_DIR
+FileUtils.rm_rf "#{TOOLS_DIR}/build_dependencies"
+FileUtils.cp_r Crew::Test::NDK_DIR, Crew::Test::NDK_COPY_DIR
 
 require_relative '../library/release.rb'
 require_relative '../library/utils.rb'
@@ -34,51 +42,27 @@ require_relative '../library/properties.rb'
 include Properties
 
 
-ORIG_NDK_DIR       = Pathname.new(orig_ndk_dir).realpath.to_s
-ORIG_TOOLS_DIR     = Pathname.new(orig_tools_dir).realpath.to_s
-ORIG_FORMULA_DIR   = Pathname.new(File.join('..', 'formula', 'tools')).realpath.to_s
-TOOLS_DIR          = Pathname.new(tools_dir).realpath.to_s
-UTILS_DOWNLOAD_DIR = Pathname.new(utils_download_dir).realpath.to_s
-DATA_DIR           = Pathname.new(Crew_test::DATA_DIR).realpath.to_s
-NDK_DIR            = Pathname.new(Crew_test::NDK_DIR).realpath.to_s
-
 RELEASE_REGEXP = /^[[:space:]]*release[[:space:]]+version/
-RELEASE_END_REGEXP = /^[[:space:]]+}[[:space:]]*$/
 END_REGEXP = /^end/
 
 def replace_releases(formula, releases)
   lines = []
-  state = :copy
   File.foreach(formula) do |l|
     fname = File.basename(formula)
     case l
     when RELEASE_REGEXP
-      case state
-      when :copy
-        state = :skip
-      else
-        raise "error in #{fname}: in state '#{state}' unexpected line: #{l}"
-      end
-    when RELEASE_END_REGEXP
-      case state
-      when :skip
-        state = :copy
-      else
-        raise "error in #{fname}: in state '#{state}' unexpected line: #{l}"
-      end
+      # skip old release lines
+      nil
     when END_REGEXP
-      case state
-      when :copy
-        releases.each do |r|
-          lines << "  release version: '#{r.version}', crystax_version: #{r.crystax_version}, sha256: { #{PLATFORM_SYM}: '#{r.shasum(PLATFORM_SYM)}' }"
-        end
-        lines << ''
-        lines << l
-      else
-        raise "error in #{fname}: in state #{state} unexpected line: #{l}"
+      # output new release lines before line with 'end'
+      releases.each do |r|
+        lines << "  release version: '#{r.version}', crystax_version: #{r.crystax_version}"
       end
+      lines << ''
+      lines << l
     else
-        lines << l if state == :copy
+      # copy lines
+      lines << l
     end
   end
 
@@ -119,7 +103,7 @@ def create_archive(orig_release, release, util)
   end
 
   # make archive
-  archive_path = File.join(UTILS_DOWNLOAD_DIR, util, "#{util}-#{release}-#{PLATFORM}.#{Global::ARCH_EXT}")
+  archive_path = File.join(UTILS_DOWNLOAD_DIR, "#{util}-#{release}-#{PLATFORM}.#{Global::ARCH_EXT}")
   FileUtils.mkdir_p File.dirname(archive_path)
   FileUtils.cd(package_dir) do
     args = ['-Jcf', archive_path, '.']
@@ -128,9 +112,6 @@ def create_archive(orig_release, release, util)
 
   # cleanup
   FileUtils.rm_rf package_dir
-
-  # calculate and return sha256 sum
-  Digest::SHA256.hexdigest(File.read(archive_path, mode: "rb"))
 end
 
 #
@@ -138,13 +119,12 @@ end
 #
 
 orig_releases = {}
-Crew_test::UTILS.each { |u| orig_releases[u] = installed_release(u) }
+Crew::Test::UTILS_FILES.each { |u| orig_releases[u] = installed_release(u) }
 
 # create archives and formulas for curl
 base = orig_releases['curl']
-curl_releases = [base, Release.new(base.version, base.crystax_version + 2), Release.new(base.version + 'a', 1)].map do |r|
-  r.shasum = { PLATFORM_SYM => create_archive(base, r, 'curl') }
-  r
+curl_releases = [base, Release.new(base.version, base.crystax_version + 2), Release.new(base.version + 'a', 1)].each do |r|
+  create_archive(base, r, 'curl')
 end
 curl_formula = File.join(ORIG_FORMULA_DIR, 'curl.rb')
 File.open(File.join(DATA_DIR, 'curl-1.rb'), 'w') { |f| f.puts replace_releases(curl_formula, curl_releases.slice(0, 1)) }
@@ -153,9 +133,8 @@ File.open(File.join(DATA_DIR, 'curl-3.rb'), 'w') { |f| f.puts replace_releases(c
 
 # create archives and formulas for libarchive
 base = orig_releases['libarchive']
-libarchive_releases = [base, Release.new(base.version + 'a', 1)].map do |r|
-  r.shasum = { PLATFORM_SYM => create_archive(base, r, 'libarchive') }
-  r
+libarchive_releases = [base, Release.new(base.version + 'a', 1)].each do |r|
+  create_archive(base, r, 'libarchive')
 end
 libarchive_formula = File.join(ORIG_FORMULA_DIR, 'libarchive.rb')
 File.open(File.join(DATA_DIR, 'libarchive-1.rb'), 'w') { |f| f.puts replace_releases(libarchive_formula, libarchive_releases.slice(0, 1)) }
@@ -163,9 +142,8 @@ File.open(File.join(DATA_DIR, 'libarchive-2.rb'), 'w') { |f| f.puts replace_rele
 
 # create archives and formulas for ruby
 base = orig_releases['ruby']
-ruby_releases = [base, Release.new(base.version + 'a', 1)].map do |r|
-  r.shasum = { PLATFORM_SYM => create_archive(base, r, 'ruby') }
-  r
+ruby_releases = [base, Release.new(base.version + 'a', 1)].each do |r|
+  create_archive(base, r, 'ruby')
 end
 ruby_formula = File.join(ORIG_FORMULA_DIR, 'ruby.rb')
 File.open(File.join(DATA_DIR, 'ruby-1.rb'), 'w') { |f| f.puts replace_releases(ruby_formula, ruby_releases.slice(0, 1)) }
@@ -190,6 +168,6 @@ end
 
 EOS
 
-File.open(Crew_test::UTILS_RELEASES_FILE, 'w') { |f| f.write(RELEASES_DATA) }
+File.open(Crew::Test::UTILS_RELEASES_FILE, 'w') { |f| f.write(RELEASES_DATA) }
 
-FileUtils.touch Crew_test::DATA_READY_FILE
+FileUtils.touch Crew::Test::DATA_READY_FILE
