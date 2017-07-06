@@ -7,7 +7,7 @@ module Crew
     UTILS_FILES         = ['curl', 'libarchive', 'ruby']
     UTILS_NAMES         = ['curl', 'bsdtar',     'ruby']
     TOOLS_FILES         = ['make', 'nawk', 'ndk_depends', 'ndk_stack', 'python', 'yasm']
-    TOOLS_NAME          = TOOLS_FILES.map { |t| t.gsub('_', '-') }
+    TOOLS_NAMES         = TOOLS_FILES.map { |t| t.gsub('_', '-') }
     PORT                = 9999
     DOWNLOAD_BASE       = "http://localhost:#{PORT}"
     PKG_CACHE_BASE      = (Pathname.new(__FILE__).realpath.dirname + 'pkg.cache').to_s

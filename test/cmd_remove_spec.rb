@@ -1,3 +1,4 @@
+# must be first file included
 require_relative 'spec_helper.rb'
 
 describe "crew remove" do

@@ -1,4 +1,6 @@
+# must be first file included
 require_relative 'spec_helper.rb'
+
 require_relative '../library/global.rb'
 require_relative '../library/cmd/help.rb'
 

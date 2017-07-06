@@ -1,4 +1,6 @@
+# must be first file included
 require_relative 'spec_helper.rb'
+
 require_relative '../library/global.rb'
 
 describe "Test how Crew works over HTTPS" do

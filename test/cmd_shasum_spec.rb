@@ -1,12 +1,13 @@
-require_relative '../library/platform.rb'
+# must be first file included
 require_relative 'spec_helper.rb'
+
+require_relative '../library/platform.rb'
 
 
 describe "crew install" do
-  # todo: uncomment
-  # before(:all) do
-  #   ndk_init
-  # end
+  before(:all) do
+    ndk_init
+  end
 
   before(:each) do
     clean_hold
@@ -19,10 +20,14 @@ describe "crew install" do
     it "says that all archives are not found" do
       names = (Crew::Test::TOOLS_NAMES + Crew::Test::UTILS_NAMES).sort.map { |e| "host/#{e}" }
       lines = names.map { |e| Platform::NAMES.map { |p| "#{e} .* #{p}:.*#{Global::PKG_CACHE_DIR}/tools/#{e}.*" } }.flatten
+      File.open('/tmp/crew.log', 'a') do |f|
+        f.puts "DEBUG: names: #{names}"
+        f.puts "DEBUG: lines: #{names}"
+      end
       crew 'shasum'
       got = out.split("\n")
-      expect(result).to eq(:ok)
-      expect(got.size).to eq(exp.size)
+      expect(:ok).to eq(result)
+      expect(lines.size).to eq(got.size)
       got.each_with_index { |g, i| expect(g).to match(lines[i]) }
     end
   end

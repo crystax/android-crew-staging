@@ -12,6 +12,7 @@ if File.exists? Crew::Test::DATA_READY_FILE
   exit 0
 end
 
+
 ORIG_TOOLS_DIR   = Pathname.new(ENV['ORIG_TOOLS_DIR']).realpath.to_s
 ORIG_NDK_DIR     = Pathname.new("#{ORIG_TOOLS_DIR}/../..").realpath.to_s
 ORIG_FORMULA_DIR = Pathname.new('../formula/tools').realpath.to_s
@@ -32,7 +33,6 @@ UTILS_DOWNLOAD_DIR = Pathname.new(utils_download_dir).realpath.to_s
 FileUtils.cp_r Dir["#{ORIG_TOOLS_DIR}/*"], TOOLS_DIR
 FileUtils.cp_r "#{ORIG_NDK_DIR}/.crew", Crew::Test::NDK_DIR
 FileUtils.rm_rf "#{TOOLS_DIR}/build_dependencies"
-FileUtils.cp_r Crew::Test::NDK_DIR, Crew::Test::NDK_COPY_DIR
 
 require_relative '../library/release.rb'
 require_relative '../library/utils.rb'
@@ -169,5 +169,7 @@ end
 EOS
 
 File.open(Crew::Test::UTILS_RELEASES_FILE, 'w') { |f| f.write(RELEASES_DATA) }
+
+FileUtils.mv Crew::Test::NDK_DIR, Crew::Test::NDK_COPY_DIR
 
 FileUtils.touch Crew::Test::DATA_READY_FILE

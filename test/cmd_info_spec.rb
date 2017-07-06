@@ -1,4 +1,6 @@
+# must be first file included
 require_relative 'spec_helper.rb'
+
 require_relative 'data/releases_info.rb'
 
 describe "crew info" do

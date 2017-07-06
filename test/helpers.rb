@@ -170,11 +170,13 @@ module Spec
     end
 
     def clean_pkg_cache
+      #File.open('/tmp/crew.log', 'a') { |f| f.puts "DEBUG: clean_pkg_cache: #{Global::PKG_CACHE_DIR}" }
       FileUtils.rm_rf   Global::PKG_CACHE_DIR
       FileUtils.mkdir_p Global::NS_DIR.values.map { |d| File.join(Global::PKG_CACHE_DIR, d) }
     end
 
     def clean_src_cache
+      #File.open('/tmp/crew.log', 'a') { |f| f.puts "DEBUG: clean_src_cache: #{Global::SRC_CACHE_DIR}" }
       FileUtils.rm_rf   Global::SRC_CACHE_DIR
       FileUtils.mkdir_p Global::SRC_CACHE_DIR
     end
@@ -185,6 +187,7 @@ module Spec
     end
 
     def clean_hold
+      #File.open('/tmp/crew.log', 'a') { |f| f.puts "DEBUG: clean_hold: #{Global::HOLD_DIR}" }
       FileUtils.rm_rf   Global::HOLD_DIR
       FileUtils.mkdir_p Global::HOLD_DIR
     end
@@ -213,6 +216,7 @@ module Spec
     end
 
     def repository_init
+      #File.open('/tmp/crew.log', 'a') { |f| f.puts "DEBUG: repository_init at: #{origin_dir}" }
       FileUtils.rm_rf origin_dir
       repo = Repository.init_at origin_dir
       repository_add_initial_files origin_dir, repo
@@ -220,6 +224,7 @@ module Spec
     end
 
     def repository_clone
+      #File.open('/tmp/crew.log', 'a') { |f| f.puts "DEBUG: repository_clone at: #{Global::BASE_DIR}" }
       FileUtils.rm_rf Global::BASE_DIR
       Repository.clone_at(origin_dir, Global::BASE_DIR).close
     end
@@ -295,16 +300,17 @@ module Spec
     end
 
     def repository_add_initial_files(dir, repo)
-      host_dir = File.join('formula', Global::NS_DIR[:host])
-      target_dir = File.join('formula', Global::NS_DIR[:target])
-      utils_dir = File.join(dir, host_dir)
-      FileUtils.mkdir_p [File.join(dir, 'cache'), File.join(dir, 'patches'), utils_dir, File.join(dir, 'formula', Global::NS_DIR[:target])]
-      # copy original formulas for tools
-      Crew::Test::TOOLS.each { |t| FileUtils.cp "../formula/#{Global::NS_DIR[:host]}/#{t}.rb", utils_dir }
-      # copy crew utils formulas
-      Crew::Test::UTILS_FILES.each { |u| FileUtils.cp File.join('data', "#{u}-1.rb"), File.join(utils_dir,  "#{u}.rb") }
+      host_dir = "formula/#{Global::NS_DIR[:host]}"
+      target_dir = "formula/#{Global::NS_DIR[:target]}"
+      orig_host_dir = Pathname.new("../formula/#{Global::NS_DIR[:host]}").realpath.to_s
+      data_dir = Pathname.new(Crew::Test::DATA_DIR).realpath.to_s
       FileUtils.cd(dir) do
-        [File.join('cache', '.placeholder'), File.join(target_dir, '.placeholder'), File.join('patches', '.placeholder')].each do |file|
+        FileUtils.mkdir_p ['cache', 'patches', host_dir, target_dir]
+        # copy original formulas for tools
+        Crew::Test::TOOLS_FILES.each { |t| FileUtils.cp "#{orig_host_dir}/#{t}.rb", host_dir }
+        # copy crew utils formulas
+        Crew::Test::UTILS_FILES.each { |u| FileUtils.cp "#{data_dir}/#{u}-1.rb", "#{host_dir}/#{u}.rb" }
+        ['cache/.placeholder', "#{target_dir}/.placeholder", 'patches/.placeholder'].each do |file|
           FileUtils.touch file
           repo.add file
         end
