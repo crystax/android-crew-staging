@@ -4,13 +4,29 @@ module Crew
 
   module Test
 
+    FormulaData = Struct.new(:filename, :name) do
+      def initialize(filename, name = nil)
+        name ||= filename.gsub('_', '-')
+        super filename, name
+      end
+    end
+
     UTILS_FILES         = ['curl', 'libarchive', 'ruby']
-    UTILS_NAMES         = ['curl', 'bsdtar',     'ruby']
     TOOLS_FILES         = ['make', 'nawk', 'ndk_depends', 'ndk_stack', 'python', 'yasm']
-    TOOLS_NAMES         = TOOLS_FILES.map { |t| t.gsub('_', '-') }
+    # here tools must be sorted by their filenames
+    ALL_TOOLS           = [FormulaData.new('curl'),
+                           FormulaData.new('libarchive', 'bsdtar'),
+                           FormulaData.new('make'),
+                           FormulaData.new('nawk'),
+                           FormulaData.new('ndk_depends'),
+                           FormulaData.new('ndk_stack'),
+                           FormulaData.new('python'),
+                           FormulaData.new('ruby'),
+                           FormulaData.new('yasm')
+                          ]
     PORT                = 9999
     DOWNLOAD_BASE       = "http://localhost:#{PORT}"
-    PKG_CACHE_BASE      = (Pathname.new(__FILE__).realpath.dirname + 'pkg.cache').to_s
+    PKG_CACHE_BASE      = 'pkg.cache'
     DATA_DIR            = 'data'
     CREW_DIR            = 'crew'
     NDK_DIR             = 'ndk'

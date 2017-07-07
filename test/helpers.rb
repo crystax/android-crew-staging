@@ -211,6 +211,7 @@ module Spec
     end
 
     def ndk_init
+      #File.open('/tmp/crew.log', 'a') { |f| f.puts "DEBUG: ndk_init: NDK_DIR: #{Crew::Test::NDK_DIR}" }
       FileUtils.rm_rf Crew::Test::NDK_DIR
       FileUtils.cp_r Crew::Test::NDK_COPY_DIR, Crew::Test::NDK_DIR
     end

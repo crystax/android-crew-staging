@@ -4,7 +4,7 @@ require_relative 'spec_helper.rb'
 require_relative '../library/platform.rb'
 
 
-describe "crew install" do
+describe "crew shasum" do
   before(:all) do
     ndk_init
   end
@@ -16,15 +16,12 @@ describe "crew install" do
     repository_clone
   end
 
-  context "without argument" do
+  context "without argument and with empty package cache" do
     it "says that all archives are not found" do
-      names = (Crew::Test::TOOLS_NAMES + Crew::Test::UTILS_NAMES).sort.map { |e| "host/#{e}" }
-      lines = names.map { |e| Platform::NAMES.map { |p| "#{e} .* #{p}:.*#{Global::PKG_CACHE_DIR}/tools/#{e}.*" } }.flatten
-      File.open('/tmp/crew.log', 'a') do |f|
-        f.puts "DEBUG: names: #{names}"
-        f.puts "DEBUG: lines: #{names}"
-      end
+      lines = Crew::Test::ALL_TOOLS.map { |e| Platform::NAMES.map { |p| "host/#{e.name} .* #{p}:.*#{Global::PKG_CACHE_DIR}/tools/#{e.filename}.*" } }.flatten
+      File.open('/tmp/crew.log', 'a') { |f| f.puts "DEBUG: lines: #{lines}" }
       crew 'shasum'
+      # expect(out).to eq('')
       got = out.split("\n")
       expect(:ok).to eq(result)
       expect(lines.size).to eq(got.size)
