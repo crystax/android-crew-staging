@@ -38,7 +38,7 @@ describe "crew install" do
       crew 'install', 'libbad'
       expect(exitstatus).to_not be_zero
       expect(err.split("\n")[0]).to eq("error: bad SHA256 sum of the file #{file}")
-      expect(in_pkg_cache?(:target, 'libbad', '1.0.0', 1)).to eq(true)
+      expect(pkg_cache_in?(:target, 'libbad', '1.0.0', 1)).to eq(true)
     end
   end
 
@@ -54,7 +54,7 @@ describe "crew install" do
   #                       "downloading #{url}\n"                             \
   #                       "checking integrity of the archive file #{file}\n" \
   #                       "unpacking archive\n")
-  #     expect(in_pkg_cache?(:target, 'libone', '1.0.0', 1)).to eq(true)
+  #     expect(pkg_cache_in?(:target, 'libone', '1.0.0', 1)).to eq(true)
   #   end
   # end
 
@@ -70,7 +70,7 @@ describe "crew install" do
   #                       "downloading #{url}\n"                             \
   #                       "checking integrity of the archive file #{file}\n" \
   #                       "unpacking archive\n")
-  #     expect(in_pkg_cache?(:target, 'libone', '1.0.0', 1)).to eq(true)
+  #     expect(pkg_cache_in?(:target, 'libone', '1.0.0', 1)).to eq(true)
   #   end
   # end
 
@@ -86,7 +86,7 @@ describe "crew install" do
   #                       "downloading #{url}\n"                             \
   #                       "checking integrity of the archive file #{file}\n" \
   #                       "unpacking archive\n")
-  #     expect(in_pkg_cache?(:target, 'libone', '1.0.0', 1)).to eq(true)
+  #     expect(pkg_cache_in?(:target, 'libone', '1.0.0', 1)).to eq(true)
   #   end
   # end
 
@@ -118,8 +118,8 @@ describe "crew install" do
   #                       "downloading #{resurl}\n"                             \
   #                       "checking integrity of the archive file #{resfile}\n" \
   #                       "unpacking archive\n")
-  #     expect(in_pkg_cache?(:target, 'libone', '1.0.0', 1)).to eq(true)
-  #     expect(in_pkg_cache?(:target, 'libtwo', '2.2.0', 1)).to eq(true)
+  #     expect(pkg_cache_in?(:target, 'libone', '1.0.0', 1)).to eq(true)
+  #     expect(pkg_cache_in?(:target, 'libtwo', '2.2.0', 1)).to eq(true)
   #   end
   # end
 
@@ -147,9 +147,9 @@ describe "crew install" do
   #                       "downloading #{resurl}\n"                              \
   #                       "checking integrity of the archive file #{resfile}\n"  \
   #                       "unpacking archive\n")
-  #     expect(in_pkg_cache?(:target, 'libone', '1.0.0', 1)).to eq(true)
-  #     expect(in_pkg_cache?(:target, 'libtwo', '2.2.0', 1)).to eq(true)
-  #     expect(in_pkg_cache?(:target, 'libthree', '2.2.2', 1)).to eq(true)
+  #     expect(pkg_cache_in?(:target, 'libone', '1.0.0', 1)).to eq(true)
+  #     expect(pkg_cache_in?(:target, 'libtwo', '2.2.0', 1)).to eq(true)
+  #     expect(pkg_cache_in?(:target, 'libthree', '2.2.2', 1)).to eq(true)
   #   end
   # end
 
@@ -166,7 +166,7 @@ describe "crew install" do
   #                       "using cached file #{file}\n"                      \
   #                       "checking integrity of the archive file #{file}\n" \
   #                       "unpacking archive\n")
-  #     expect(in_pkg_cache?(:target, 'libone', '1.0.0', 1)).to eq(true)
+  #     expect(pkg_cache_in?(:target, 'libone', '1.0.0', 1)).to eq(true)
   #   end
   # end
 
@@ -182,7 +182,7 @@ describe "crew install" do
   #                       "downloading #{url}\n"                             \
   #                       "checking integrity of the archive file #{file}\n" \
   #                       "unpacking archive\n")
-  #     expect(in_pkg_cache?(:target, 'libfour', '4.4.4', 4)).to eq(true)
+  #     expect(pkg_cache_in?(:target, 'libfour', '4.4.4', 4)).to eq(true)
   #   end
   # end
 
@@ -198,7 +198,7 @@ describe "crew install" do
   #                       "downloading #{url}\n"                             \
   #                       "checking integrity of the archive file #{file}\n" \
   #                       "unpacking archive\n")
-  #     expect(in_pkg_cache?(:target, 'libfour', '3.3.3', 3)).to eq(true)
+  #     expect(pkg_cache_in?(:target, 'libfour', '3.3.3', 3)).to eq(true)
   #   end
   # end
 end

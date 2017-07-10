@@ -37,8 +37,8 @@ describe "crew remove" do
       crew 'remove', 'libone'
       expect(exitstatus).to_not be_zero
       expect(err.split("\n")[0]).to eq('error: libone has installed dependants: target/libtwo')
-      expect(in_pkg_cache?(:target, 'libone', '1.0.0', 1)).to eq(true)
-      expect(in_pkg_cache?(:target, 'libtwo', '1.1.0', 1)).to eq(true)
+      expect(pkg_cache_in?(:target, 'libone', '1.0.0', 1)).to eq(true)
+      expect(pkg_cache_in?(:target, 'libtwo', '1.1.0', 1)).to eq(true)
     end
   end
 
@@ -51,9 +51,9 @@ describe "crew remove" do
       crew 'remove', 'libtwo:1.1.0'
       expect(result).to eq(:ok)
       expect(out.chomp).to eq('removing libtwo:1.1.0')
-      expect(in_pkg_cache?(:target, 'libone',   '1.0.0', 1)).to eq(true)
-      expect(in_pkg_cache?(:target, 'libtwo',   '2.2.0', 1)).to eq(true)
-      expect(in_pkg_cache?(:target, 'libthree', '2.2.2', 1)).to eq(true)
+      expect(pkg_cache_in?(:target, 'libone',   '1.0.0', 1)).to eq(true)
+      expect(pkg_cache_in?(:target, 'libtwo',   '2.2.0', 1)).to eq(true)
+      expect(pkg_cache_in?(:target, 'libthree', '2.2.2', 1)).to eq(true)
     end
   end
 
@@ -64,7 +64,7 @@ describe "crew remove" do
       crew 'remove', 'libone'
       expect(result).to eq(:ok)
       expect(out).to eq("removing libone:1.0.0\n")
-      expect(in_pkg_cache?(:target, 'libone', '1.0.0', 1)).to eq(true)
+      expect(pkg_cache_in?(:target, 'libone', '1.0.0', 1)).to eq(true)
     end
   end
 
@@ -78,9 +78,9 @@ describe "crew remove" do
       expect(result).to eq(:ok)
       expect(out.split("\n")).to eq(["removing libtwo:1.1.0",
                                      "removing libtwo:2.2.0"])
-      expect(in_pkg_cache?(:target, 'libone', '1.0.0', 1)).to eq(true)
-      expect(in_pkg_cache?(:target, 'libtwo', '1.1.0', 1)).to eq(true)
-      expect(in_pkg_cache?(:target, 'libtwo', '2.2.0', 1)).to eq(true)
+      expect(pkg_cache_in?(:target, 'libone', '1.0.0', 1)).to eq(true)
+      expect(pkg_cache_in?(:target, 'libtwo', '1.1.0', 1)).to eq(true)
+      expect(pkg_cache_in?(:target, 'libtwo', '2.2.0', 1)).to eq(true)
     end
   end
 
@@ -94,10 +94,10 @@ describe "crew remove" do
       crew 'remove', 'libtwo'
       expect(exitstatus).to_not be_zero
       expect(err.split("\n")[0]).to eq('error: libtwo has installed dependants: target/libthree')
-      expect(in_pkg_cache?(:target, 'libone',   '1.0.0', 1)).to eq(true)
-      expect(in_pkg_cache?(:target, 'libtwo',   '1.1.0', 1)).to eq(true)
-      expect(in_pkg_cache?(:target, 'libtwo',   '2.2.0', 1)).to eq(true)
-      expect(in_pkg_cache?(:target, 'libthree', '3.3.3', 1)).to eq(true)
+      expect(pkg_cache_in?(:target, 'libone',   '1.0.0', 1)).to eq(true)
+      expect(pkg_cache_in?(:target, 'libtwo',   '1.1.0', 1)).to eq(true)
+      expect(pkg_cache_in?(:target, 'libtwo',   '2.2.0', 1)).to eq(true)
+      expect(pkg_cache_in?(:target, 'libthree', '3.3.3', 1)).to eq(true)
     end
   end
 

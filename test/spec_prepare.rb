@@ -149,6 +149,13 @@ ruby_formula = File.join(ORIG_FORMULA_DIR, 'ruby.rb')
 File.open(File.join(DATA_DIR, 'ruby-1.rb'), 'w') { |f| f.puts replace_releases(ruby_formula, ruby_releases.slice(0, 1)) }
 File.open(File.join(DATA_DIR, 'ruby-2.rb'), 'w') { |f| f.puts replace_releases(ruby_formula, ruby_releases.slice(0, 2)) }
 
+# create mock archives for all other tools, like make, yasm , etc
+Crew::Test::ALL_TOOLS.select { |t| not Crew::Test::UTILS_FILES.include?(t.filename) }.map do |t|
+  rel = installed_release(t.filename)
+  create_archive(rel, rel, t.filename)
+  File.open("#{DATA_DIR}/#{t.filename}-1.rb", 'w') { |f| f.puts replace_releases("#{ORIG_FORMULA_DIR}/#{t.filename}.rb", [rel]) }
+end
+
 # generate ruby source file with releases info
 curl_releases_str       = curl_releases.map       { |r| "Release.new(\'#{r.version}\', #{r.crystax_version})" }.join(', ')
 libarchive_releases_str = libarchive_releases.map { |r| "Release.new(\'#{r.version}\', #{r.crystax_version})" }.join(', ')
@@ -157,15 +164,17 @@ ruby_releases_str       = ruby_releases.map       { |r| "Release.new(\'#{r.versi
 RELEASES_DATA = <<-EOS
 # Automatocally generated! Do not edit.
 
-module Crew_test
+module Crew
 
-  UTILS_RELEASES = {
-    'curl'       => [ #{curl_releases_str} ],
-    'libarchive' => [ #{libarchive_releases_str} ],
-    'ruby'       => [ #{ruby_releases_str} ]
-  }
+  module Test
+
+    UTILS_RELEASES = {
+      'curl'       => [ #{curl_releases_str} ],
+      'libarchive' => [ #{libarchive_releases_str} ],
+      'ruby'       => [ #{ruby_releases_str} ]
+    }
+  end
 end
-
 EOS
 
 File.open(Crew::Test::UTILS_RELEASES_FILE, 'w') { |f| f.write(RELEASES_DATA) }

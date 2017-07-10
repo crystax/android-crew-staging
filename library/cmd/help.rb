@@ -241,6 +241,13 @@ The SHASUM command supports the following options:
   --check        check SHA256 sum for every release of every specified
                  formula
 
+  --platforms=LIST
+                 the list of platforms for which command will check or
+                 update SHA256 sums of NDK's tools; platforms must be
+                 separated with comma; available platforms are
+                 darwin-x86_64; linux-x86_64, windows-x86_64, windows;
+                 default value is #{Global::PLATFORM_NAME}
+
 If no formula name was specified then all formulas will be handled.
 
 If no option was specified then command will work as if '--check'

@@ -12,14 +12,15 @@ module Crew
 
     Formulary.new.select(args).each do |formula|
       formula.releases.each do |release|
-        platforms = (formula.namespace == :target) ? ['android'] : Platform::NAMES
-        Platform::NAMES.each do |platform_name|
+        platforms = (formula.namespace == :target) ? ['android'] : options.platforms
+        platforms.each do |platform_name|
           # an ugly special case for windows toolbox
           # it seems that everything related to windows is ugly
           next if formula.name == 'toolbox' and not platform_name.start_with?('windows')
           #
           archive = formula.cache_file(release, platform_name)
-          print "#{formula.fqn} #{release} #{platform_name}: "
+          print "#{formula.fqn} #{release}"
+          print (formula.namespace == :target) ? ': ' : " #{platform_name}: "
           if not File.exist? archive
             puts "archive not found: #{archive}"
           else

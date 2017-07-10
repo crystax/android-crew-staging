@@ -7,6 +7,7 @@ require 'find'
 require_relative '../library/release.rb'
 require_relative '../library/utility.rb'
 require_relative 'spec_consts.rb'
+require_relative Crew::Test::UTILS_RELEASES_FILE
 
 module Spec
 
@@ -139,23 +140,23 @@ module Spec
       (exitstatus == 0 and err == '') ? :ok : [exitstatus, err]
     end
 
-    def archive_name(type, name, version, cxver)
+    def archive_name(type, name, version, cxver, platform_name = Global::PLATFORM_NAME)
       suffix = case type
                when :target
                  ''
                when :host
-                 "-#{Global::PLATFORM_NAME}"
+                 "-#{platform_name}"
                else
                  raise "bad archive type #{type}"
                end
       "#{name}-#{version}_#{cxver}#{suffix}.#{Global::ARCH_EXT}"
     end
 
-    def path_in_pkg_cache(type, filename)
+    def pkg_cache_path_in(type, filename)
       File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[type], filename)
     end
 
-    def in_pkg_cache?(type, name, version, cxver)
+    def pkg_cache_in?(type, name, version, cxver)
       File.exists?(File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[type], archive_name(type, name, version, cxver)))
     end
 
@@ -169,21 +170,30 @@ module Spec
       end
     end
 
-    def clean_pkg_cache
-      #File.open('/tmp/crew.log', 'a') { |f| f.puts "DEBUG: clean_pkg_cache: #{Global::PKG_CACHE_DIR}" }
+    def pkg_cache_add_file_in(type, filename, rel)
+      archive = File.join(Crew::Test::DOCROOT_DIR, Global::NS_DIR[type], archive_name(type, filename, rel.version, rel.crystax_version))
+      FileUtils.cp archive, File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[type])
+    end
+
+    def pkg_cache_add_all_tools_in
+      FileUtils.cp Dir["#{Crew::Test::DOCROOT_DIR}/#{Global::NS_DIR[:host]}/*"], "#{Global::PKG_CACHE_DIR}/#{Global::NS_DIR[:host]}"
+    end
+
+    def pkg_cache_clean
+      #File.open('/tmp/crew.log', 'a') { |f| f.puts "DEBUG: pkg_cache_clean: #{Global::PKG_CACHE_DIR}" }
       FileUtils.rm_rf   Global::PKG_CACHE_DIR
       FileUtils.mkdir_p Global::NS_DIR.values.map { |d| File.join(Global::PKG_CACHE_DIR, d) }
     end
 
-    def clean_src_cache
-      #File.open('/tmp/crew.log', 'a') { |f| f.puts "DEBUG: clean_src_cache: #{Global::SRC_CACHE_DIR}" }
+    def src_cache_clean
+      #File.open('/tmp/crew.log', 'a') { |f| f.puts "DEBUG: src_cache_clean: #{Global::SRC_CACHE_DIR}" }
       FileUtils.rm_rf   Global::SRC_CACHE_DIR
       FileUtils.mkdir_p Global::SRC_CACHE_DIR
     end
 
     def clean_cache
-      clean_pkg_cache
-      clean_src_cache
+      pkg_cache_clean
+      src_cache_clean
     end
 
     def clean_hold
@@ -207,7 +217,6 @@ module Spec
       names.each do |n|
         FileUtils.cp File.join('data', n), File.join(Global::FORMULA_DIR, Global::NS_DIR[:target])
       end
-      crew_update_shasum Hash.new, *names
     end
 
     def ndk_init
@@ -306,12 +315,10 @@ module Spec
       orig_host_dir = Pathname.new("../formula/#{Global::NS_DIR[:host]}").realpath.to_s
       data_dir = Pathname.new(Crew::Test::DATA_DIR).realpath.to_s
       FileUtils.cd(dir) do
-        FileUtils.mkdir_p ['cache', 'patches', host_dir, target_dir]
-        # copy original formulas for tools
-        Crew::Test::TOOLS_FILES.each { |t| FileUtils.cp "#{orig_host_dir}/#{t}.rb", host_dir }
-        # copy crew utils formulas
-        Crew::Test::UTILS_FILES.each { |u| FileUtils.cp "#{data_dir}/#{u}-1.rb", "#{host_dir}/#{u}.rb" }
-        ['cache/.placeholder', "#{target_dir}/.placeholder", 'patches/.placeholder'].each do |file|
+        FileUtils.mkdir_p ['etc', 'cache', 'patches', host_dir, target_dir]
+        # copy crew tools formulas
+        Crew::Test::ALL_TOOLS.each { |t| FileUtils.cp "#{data_dir}/#{t.filename}-1.rb", "#{host_dir}/#{t.filename}.rb" }
+        ['etc/.placeholder', 'cache/.placeholder', "#{target_dir}/.placeholder", 'patches/.placeholder'].each do |file|
           FileUtils.touch file
           repo.add file
         end
