@@ -48,7 +48,6 @@ END_REGEXP = /^end/
 def replace_releases(formula, releases)
   lines = []
   File.foreach(formula) do |l|
-    fname = File.basename(formula)
     case l
     when RELEASE_REGEXP
       # skip old release lines

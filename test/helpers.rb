@@ -14,6 +14,7 @@ module Spec
   module Helpers
 
     class CrewFailed < RuntimeError
+
       def initialize(cmd, exitcode, err)
         @cmd = cmd
         @exitcode = exitcode
@@ -28,6 +29,7 @@ module Spec
     end
 
     class Repository
+
       def self.init_at(dir)
         repo = Rugged::Repository.init_at dir
         repo.config['user.email'] = 'crew-test@crystax.net'
@@ -170,9 +172,33 @@ module Spec
       end
     end
 
-    def pkg_cache_add_file_in(type, filename, rel)
+    def pkg_cache_add_file(type, filename, rel)
       archive = File.join(Crew::Test::DOCROOT_DIR, Global::NS_DIR[type], archive_name(type, filename, rel.version, rel.crystax_version))
       FileUtils.cp archive, File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[type])
+    end
+
+    def pkg_cache_corrupt_file(type, filename, rel)
+      archive = pkg_cache_path_in(type, archive_name(type, filename, rel.version, rel.crystax_version))
+      file_size = File.size(archive)
+      pos = Random.rand(file_size)
+      block = Random::DEFAULT.bytes([1, Random.rand(file_size - pos - 1)].max)
+      File.open(archive, 'r+') do |f|
+        f.seek pos
+        f.write block
+      end
+    end
+
+    def pkg_cache_add_tool(filename, rel = nil)
+      rel ||= Crew::Test::UTILS_RELEASES[filename][0]
+      pkg_cache_add_file :host, filename, rel
+      rel
+    end
+
+    def pkg_cache_add_package_with_formula(filename, rel = nil)
+      rel ||= package_most_recent_release(filename)
+      copy_formulas "#{filename}.rb"
+      pkg_cache_add_file :target, filename, rel
+      rel
     end
 
     def pkg_cache_add_all_tools_in
@@ -293,7 +319,18 @@ module Spec
       repo.commit "del_#{names.join('_')}"
     end
 
-    private
+
+    def package_most_recent_release(filename)
+      lines = []
+      path = "#{Crew::Test::DATA_DIR}/#{filename}.rb"
+      File.foreach(path) { |l| lines << l if l =~ /^[[:space:]]*release[[:space:]]+version/ }
+      raise "bad formulas syntax #{filename}: no release lines" if lines.empty?
+      _, _, ver, _, cxver = lines.last.gsub(':', ' ').gsub('\'', '').gsub(',', '').split(' ')
+
+      Release.new(ver, cxver.to_i)
+    end
+
+  private
 
     def origin_dir
       Global::BASE_DIR + '.git'
