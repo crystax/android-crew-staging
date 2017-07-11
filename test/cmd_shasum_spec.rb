@@ -6,8 +6,7 @@ require_relative '../library/platform.rb'
 
 describe "crew shasum" do
   before(:all) do
-    # todo: uncomment
-    #ndk_init
+    ndk_init
   end
 
   before(:each) do
