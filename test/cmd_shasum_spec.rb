@@ -49,7 +49,7 @@ describe "crew shasum" do
 
         context 'with util name' do
           it 'says that sum is BAD' do
-            rel = pkg_cache_add_tool 'curl'
+            rel = pkg_cache_add_tool('curl', update: false)
             crew 'shasum', '--check', 'curl'
             expect(out.strip).to eq("host/curl #{rel} #{Global::PLATFORM_NAME}: BAD")
           end
@@ -57,7 +57,7 @@ describe "crew shasum" do
 
         context 'with package name' do
           it 'says that sum is BAD' do
-            rel = pkg_cache_add_package_with_formula 'libone'
+            rel = pkg_cache_add_package_with_formula('libone', update: false)
             crew 'shasum', '--check', 'libone'
             expect(out.strip).to eq("target/libone #{rel}: BAD")
           end
@@ -65,8 +65,8 @@ describe "crew shasum" do
 
         context 'without names' do
           it 'says that sum is BAD for all archives in the cache' do
-            pkg_cache_add_all_tools_in
-            rel = pkg_cache_add_package_with_formula 'libone'
+            pkg_cache_add_all_tools_in(update: false)
+            rel = pkg_cache_add_package_with_formula('libone', update: false)
             crew 'shasum', '--check'
             lines = Crew::Test::ALL_TOOLS.map { |e| "host/#{e.name} .* #{Global::PLATFORM_NAME}: BAD" } + ["target/libone #{rel}: BAD"]
             got = out.split("\n")
@@ -81,8 +81,7 @@ describe "crew shasum" do
 
         context 'with util name' do
           it 'says that sum is OK' do
-            rel = pkg_cache_add_tool 'curl'
-            crew_checked 'shasum', '--update'
+            rel = pkg_cache_add_tool('curl')
             crew 'shasum', '--check', 'curl'
             expect(out.strip).to eq("host/curl #{rel} #{Global::PLATFORM_NAME}: OK")
           end
@@ -90,8 +89,7 @@ describe "crew shasum" do
 
         context 'with package name' do
           it 'says that sum is OK' do
-            rel = pkg_cache_add_package_with_formula 'libone'
-            crew_checked 'shasum', '--update'
+            rel = pkg_cache_add_package_with_formula('libone')
             crew 'shasum', '--check', 'libone'
             expect(out.strip).to eq("target/libone #{rel}: OK")
           end
@@ -100,8 +98,7 @@ describe "crew shasum" do
         context 'without names' do
           it 'says that sum is OK for all archives for the current platform' do
             pkg_cache_add_all_tools_in
-            rel = pkg_cache_add_package_with_formula 'libone'
-            crew_checked 'shasum', '--update'
+            rel = pkg_cache_add_package_with_formula('libone')
             crew 'shasum', '--check'
             lines = Crew::Test::ALL_TOOLS.map { |e| "host/#{e.name} .* #{Global::PLATFORM_NAME}: OK" } + ["target/libone #{rel}: OK"]
             got = out.split("\n")
@@ -116,8 +113,7 @@ describe "crew shasum" do
 
         context 'with util name' do
           it 'says that sum is BAD' do
-            rel = pkg_cache_add_tool 'curl'
-            crew_checked 'shasum', '--update'
+            rel = pkg_cache_add_tool('curl')
             pkg_cache_corrupt_file :host, 'curl', rel
             crew 'shasum', '--check', 'curl'
             expect(out.strip).to eq("host/curl #{rel} #{Global::PLATFORM_NAME}: BAD")
@@ -126,8 +122,7 @@ describe "crew shasum" do
 
         context 'with package name' do
           it 'says that sum is BAD' do
-            rel = pkg_cache_add_package_with_formula 'libone'
-            crew_checked 'shasum', '--update'
+            rel = pkg_cache_add_package_with_formula('libone')
             pkg_cache_corrupt_file :target, 'libone', rel
             crew 'shasum', '--check', 'libone'
             expect(out.strip).to eq("target/libone #{rel}: BAD")
@@ -137,8 +132,7 @@ describe "crew shasum" do
         context 'without names' do
           it 'says that sum is BAD for all bad archives in the cache' do
             pkg_cache_add_all_tools_in
-            rel = pkg_cache_add_package_with_formula 'libone'
-            crew_checked 'shasum', '--update'
+            rel = pkg_cache_add_package_with_formula('libone')
             pkg_cache_corrupt_file :host, 'curl', Crew::Test::UTILS_RELEASES['curl'][0]
             pkg_cache_corrupt_file :target, 'libone', rel
             crew 'shasum', '--check'
@@ -198,7 +192,7 @@ describe "crew shasum" do
 
         context 'with tool name' do
           it 'says that sum is updated' do
-            rel = pkg_cache_add_tool 'curl'
+            rel = pkg_cache_add_tool('curl', update: false)
             crew 'shasum', '--update', 'curl'
             expect(out.strip).to eq("host/curl #{rel} #{Global::PLATFORM_NAME}: updated")
           end
@@ -206,7 +200,7 @@ describe "crew shasum" do
 
         context 'with package name' do
           it 'says that sum is updated' do
-            rel = pkg_cache_add_package_with_formula 'libone'
+            rel = pkg_cache_add_package_with_formula('libone', update: false)
             crew 'shasum', '--update', 'libone'
             expect(out.strip).to eq("target/libone #{rel}: updated")
           end
@@ -214,8 +208,8 @@ describe "crew shasum" do
 
         context 'with no names' do
           it 'says that sum is updated' do
-            pkg_cache_add_all_tools_in
-            rel = pkg_cache_add_package_with_formula 'libone'
+            pkg_cache_add_all_tools_in(update: false)
+            rel = pkg_cache_add_package_with_formula('libone', update: false)
             crew 'shasum', '--update'
             lines = Crew::Test::ALL_TOOLS.map { |e| "host/#{e.name} .* #{Global::PLATFORM_NAME}: updated" } + ["target/libone #{rel}: updated"]
             got = out.split("\n")
@@ -230,8 +224,7 @@ describe "crew shasum" do
 
         context 'with tool name' do
           it 'says that sum is OK' do
-            rel = pkg_cache_add_tool 'curl'
-            crew_checked 'shasum', '--update', 'curl'
+            rel = pkg_cache_add_tool('curl')
             crew 'shasum', '--update', 'curl'
             expect(out.strip).to eq("host/curl #{rel} #{Global::PLATFORM_NAME}: OK")
           end
@@ -239,8 +232,7 @@ describe "crew shasum" do
 
         context 'with package name' do
           it 'says that sum is OK' do
-            rel = pkg_cache_add_package_with_formula 'libone'
-            crew_checked 'shasum', '--update', 'libone'
+            rel = pkg_cache_add_package_with_formula('libone')
             crew 'shasum', '--update', 'libone'
             expect(out.strip).to eq("target/libone #{rel}: OK")
           end
@@ -250,7 +242,6 @@ describe "crew shasum" do
           it 'says that sums are OK for all archives' do
             pkg_cache_add_all_tools_in
             rel = pkg_cache_add_package_with_formula 'libone'
-            crew_checked 'shasum', '--update'
             crew 'shasum', '--update'
             lines = Crew::Test::ALL_TOOLS.map { |e| "host/#{e.name} .* #{Global::PLATFORM_NAME}: OK" } + ["target/libone #{rel}: OK"]
             got = out.split("\n")
@@ -265,8 +256,7 @@ describe "crew shasum" do
 
         context 'with tool name' do
           it 'says that sum is updated' do
-            rel = pkg_cache_add_tool 'curl'
-            crew_checked 'shasum', '--update', 'curl'
+            rel = pkg_cache_add_tool('curl')
             pkg_cache_corrupt_file :host, 'curl', rel
             crew 'shasum', '--update', 'curl'
             expect(out.strip).to eq("host/curl #{rel} #{Global::PLATFORM_NAME}: updated")
@@ -275,8 +265,7 @@ describe "crew shasum" do
 
         context 'with package name' do
           it 'says that sum is updated' do
-            rel = pkg_cache_add_package_with_formula 'libone'
-            crew_checked 'shasum', '--update', 'libone'
+            rel = pkg_cache_add_package_with_formula('libone')
             pkg_cache_corrupt_file :target, 'libone', rel
             crew 'shasum', '--update', 'libone'
             expect(out.strip).to eq("target/libone #{rel}: updated")
@@ -286,8 +275,7 @@ describe "crew shasum" do
         context 'with no names' do
           it 'says that sums are updated for all archives with incorrect sums' do
             pkg_cache_add_all_tools_in
-            rel = pkg_cache_add_package_with_formula 'libone'
-            crew_checked 'shasum', '--update'
+            rel = pkg_cache_add_package_with_formula('libone')
             pkg_cache_corrupt_file :host, 'curl', Crew::Test::UTILS_RELEASES['curl'][0]
             pkg_cache_corrupt_file :target, 'libone', rel
             crew 'shasum', '--update'
@@ -310,9 +298,8 @@ describe "crew shasum" do
 
     context 'with updated sum files, full cache and util and package name' do
       it 'works like --check option was specified' do
-        curl_rel = pkg_cache_add_tool 'curl'
-        libone_rel = pkg_cache_add_package_with_formula 'libone'
-        crew_checked 'shasum', '--update'
+        curl_rel = pkg_cache_add_tool('curl')
+        libone_rel = pkg_cache_add_package_with_formula('libone')
         crew 'shasum', 'curl', 'libone'
         expect(out.split("\n")).to eq(["host/curl #{curl_rel} #{Global::PLATFORM_NAME}: OK",
                                        "target/libone #{libone_rel}: OK"
@@ -323,8 +310,7 @@ describe "crew shasum" do
     context 'with updated sum files, full cache and no names' do
       it 'works like --check option was specified' do
         pkg_cache_add_all_tools_in
-        rel = pkg_cache_add_package_with_formula 'libone'
-        crew_checked 'shasum', '--update'
+        rel = pkg_cache_add_package_with_formula('libone')
         crew 'shasum'
         lines = Crew::Test::ALL_TOOLS.map { |e| "host/#{e.name} .* #{Global::PLATFORM_NAME}: OK" } + ["target/libone #{rel}: OK"]
         got = out.split("\n")

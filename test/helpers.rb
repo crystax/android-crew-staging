@@ -142,6 +142,10 @@ module Spec
       (exitstatus == 0 and err == '') ? :ok : [exitstatus, err]
     end
 
+    def package_archive_name(name, release)
+      archive_name(:target, name, release.version, release.crystax_version)
+    end
+
     def archive_name(type, name, version, cxver, platform_name = Global::PLATFORM_NAME)
       suffix = case type
                when :target
@@ -156,6 +160,10 @@ module Spec
 
     def pkg_cache_path_in(type, filename)
       File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[type], filename)
+    end
+
+    def pkg_cache_has_package?(name, release)
+      pkg_cache_in? :target, name, release.version, release.crystax_version
     end
 
     def pkg_cache_in?(type, name, version, cxver)
@@ -177,6 +185,10 @@ module Spec
       FileUtils.cp archive, File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[type])
     end
 
+    def pkg_cache_del_file(type, filename, rel)
+      FileUtils.rm File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[type], archive_name(type, filename, rel.version, rel.crystax_version))
+    end
+
     def pkg_cache_corrupt_file(type, filename, rel)
       archive = pkg_cache_path_in(type, archive_name(type, filename, rel.version, rel.crystax_version))
       file_size = File.size(archive)
@@ -188,21 +200,24 @@ module Spec
       end
     end
 
-    def pkg_cache_add_tool(filename, rel = nil)
-      rel ||= Crew::Test::UTILS_RELEASES[filename][0]
-      pkg_cache_add_file :host, filename, rel
-      rel
+    def pkg_cache_add_tool(filename, options = { release: nil, update: true })
+      options[:release] ||= Crew::Test::UTILS_RELEASES[filename][0]
+      pkg_cache_add_file :host, filename, options[:release]
+      crew_checked 'shasum', '--update', filename if options[:update]
+      options[:release]
     end
 
-    def pkg_cache_add_package_with_formula(filename, rel = nil)
-      rel ||= package_most_recent_release(filename)
+    def pkg_cache_add_package_with_formula(filename, options = { release: nil, update: true })
+      options[:release] ||= package_most_recent_release(filename)
       copy_formulas "#{filename}.rb"
-      pkg_cache_add_file :target, filename, rel
-      rel
+      pkg_cache_add_file :target, filename, options[:release]
+      crew_checked 'shasum', '--update', filename if options[:update]
+      options[:release]
     end
 
-    def pkg_cache_add_all_tools_in
+    def pkg_cache_add_all_tools_in(options = { update: true })
       FileUtils.cp Dir["#{Crew::Test::DOCROOT_DIR}/#{Global::NS_DIR[:host]}/*"], "#{Global::PKG_CACHE_DIR}/#{Global::NS_DIR[:host]}"
+      crew_checked 'shasum', '--update' if options[:update]
     end
 
     def pkg_cache_clean
