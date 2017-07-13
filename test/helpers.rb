@@ -207,11 +207,12 @@ module Spec
       options[:release]
     end
 
-    def pkg_cache_add_package_with_formula(filename, options = { release: nil, update: true })
+    def pkg_cache_add_package_with_formula(filename, options = { release: nil, update: true, delete: false })
       options[:release] ||= package_most_recent_release(filename)
       copy_formulas "#{filename}.rb"
       pkg_cache_add_file :target, filename, options[:release]
-      crew_checked 'shasum', '--update', filename if options[:update]
+      crew_checked 'shasum', '--update', filename             if options[:update]
+      pkg_cache_del_file :target, filename, options[:release] if options[:delete]
       options[:release]
     end
 
