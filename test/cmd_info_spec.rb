@@ -51,7 +51,6 @@ describe "crew info" do
   context "about all crew utilities, all utilities with one release each" do
     it "outputs info about crew utilities" do
       crew 'info', 'curl', 'bsdtar','ruby'
-      #crew 'info', 'bsdtar'
       curl_rel = Crew::Test::UTILS_RELEASES['curl'][0]
       bsdtar_rel = Crew::Test::UTILS_RELEASES['libarchive'][0]
       ruby_rel = Crew::Test::UTILS_RELEASES['ruby'][0]
@@ -167,7 +166,9 @@ describe "crew info" do
 
   context "formula with three releases and two dependencies, both dependencies installed" do
     it "outputs info about two releases and one dependency" do
-      copy_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb'
+      pkg_cache_add_package_with_formula 'libone'
+      pkg_cache_add_package_with_formula 'libtwo'
+      pkg_cache_add_package_with_formula 'libthree'
       crew_checked 'install', 'libtwo'
       crew 'info', 'libthree'
       expect(result).to eq(:ok)
