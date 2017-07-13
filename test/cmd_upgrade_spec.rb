@@ -47,7 +47,7 @@ describe "crew upgrade" do
         crew 'upgrade'
         expect(result).to eq(:ok)
         expect(out).to eq("Will install: libtwo:2.2.0:1\n"                                                            \
-                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libtwo/libtwo-2.2.0_1.#{Global::ARCH_EXT}\n" \
+                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libtwo-2.2.0_1.#{Global::ARCH_EXT}\n" \
                           "checking integrity of the archive file libtwo-2.2.0_1.#{Global::ARCH_EXT}\n"               \
                           "unpacking archive\n")
       end
@@ -65,10 +65,10 @@ describe "crew upgrade" do
         crew 'upgrade'
         expect(result).to eq(:ok)
         expect(out).to eq("Will install: libthree:3.3.3:1, libtwo:2.2.0:1\n"                             \
-                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libthree/libthree-3.3.3_1.#{Global::ARCH_EXT}\n" \
+                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libthree-3.3.3_1.#{Global::ARCH_EXT}\n" \
                           "checking integrity of the archive file libthree-3.3.3_1.#{Global::ARCH_EXT}\n"                 \
                           "unpacking archive\n"                                                          \
-                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libtwo/libtwo-2.2.0_1.#{Global::ARCH_EXT}\n"     \
+                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libtwo-2.2.0_1.#{Global::ARCH_EXT}\n"     \
                           "checking integrity of the archive file libtwo-2.2.0_1.#{Global::ARCH_EXT}\n"                   \
                           "unpacking archive\n")
       end
@@ -88,7 +88,7 @@ describe "crew upgrade" do
         file = "curl-#{ver}_#{cxver}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         expect(result).to eq(:ok)
         expect(out).to eq("Will install: curl:#{ver}:#{cxver}\n"                      \
-                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/curl/#{file}\n" \
+                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{file}\n" \
                           "checking integrity of the archive file #{file}\n"          \
                           "unpacking archive\n")
         expect(pkg_cache_in?(:host, 'curl', ver, cxver)).to eq(true)
@@ -107,7 +107,7 @@ describe "crew upgrade" do
         file = "curl-#{ver}_#{cxver}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         expect(result).to eq(:ok)
         expect(out).to eq("Will install: curl:#{ver}:#{cxver}\n"                          \
-                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/curl/#{file}\n" \
+                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{file}\n" \
                           "checking integrity of the archive file #{file}\n"              \
                           "unpacking archive\n")
         expect(pkg_cache_in?(:host, 'curl', ver, cxver)).to eq(true)
@@ -134,13 +134,13 @@ describe "crew upgrade" do
         ruby_ver = "#{ruby_new_rel.version}:#{ruby_new_rel.crystax_version}"
         expect(result).to eq(:ok)
         expect(out).to eq("Will install: bsdtar:#{libarchive_ver}, curl:#{curl_ver}, ruby:#{ruby_ver}\n"   \
-                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/libarchive/#{libarchive_file}\n" \
+                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{libarchive_file}\n" \
                           "checking integrity of the archive file #{libarchive_file}\n"                    \
                           "unpacking archive\n"                                                            \
-                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/curl/#{curl_file}\n"             \
+                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{curl_file}\n"             \
                           "checking integrity of the archive file #{curl_file}\n"                          \
                           "unpacking archive\n"                                                            \
-                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/ruby/#{ruby_file}\n"             \
+                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{ruby_file}\n"             \
                           "checking integrity of the archive file #{ruby_file}\n"                          \
                           "unpacking archive\n")
         expect(pkg_cache_in?(:host, 'libarchive', libarchive_new_rel.version,  libarchive_new_rel.crystax_version)).to eq(true)
@@ -169,10 +169,10 @@ describe "crew upgrade" do
         libtwo_file = "libtwo-2.2.0_1.#{Global::ARCH_EXT}"
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["Will install: curl:#{curl_ver}, libtwo:2.2.0:1",
-                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/curl/#{curl_file}",
+                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{curl_file}",
                                        "checking integrity of the archive file #{curl_file}",
                                        "unpacking archive",
-                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libtwo/#{libtwo_file}",
+                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/#{libtwo_file}",
                                        "checking integrity of the archive file #{libtwo_file}",
                                        "unpacking archive"
                                       ])
@@ -207,19 +207,19 @@ describe "crew upgrade" do
         ruby_ver = "#{ruby_new_rel.version}:#{ruby_new_rel.crystax_version}"
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["Will install: bsdtar:#{libarchive_ver}, curl:#{curl_ver}, libthree:3.3.3:1, libtwo:2.2.0:1, ruby:#{ruby_ver}",
-                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/libarchive/#{libarchive_file}",
+                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{libarchive_file}",
                                        "checking integrity of the archive file #{libarchive_file}",
                                        "unpacking archive",
-                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/curl/#{curl_file}",
+                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{curl_file}",
                                        "checking integrity of the archive file #{curl_file}",
                                        "unpacking archive",
-                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libthree/#{lib3file}",
+                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/#{lib3file}",
                                        "checking integrity of the archive file #{lib3file}",
                                        "unpacking archive",
-                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libtwo/#{lib2file}",
+                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/#{lib2file}",
                                        "checking integrity of the archive file #{lib2file}",
                                        "unpacking archive",
-                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/ruby/#{ruby_file}",
+                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{ruby_file}",
                                        "checking integrity of the archive file #{ruby_file}",
                                        "unpacking archive"
                                       ])
