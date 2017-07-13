@@ -96,19 +96,18 @@ module Spec
       raise CrewFailed.new(command, exitstatus, err) if exitstatus != 0 or err != ''
     end
 
-    def crew_update_shasum(options, *names)
-      formulas = names.map { |n| File.basename(n, '.rb') }
-      old_pkg = ENV['CREW_PKG_CACHE_BASE']
-      ENV['CREW_PKG_CACHE_BASE'] = Crew::Test::DOCROOT_DIR
-      if not options[:base_dir]
-        crew 'shasum', '--update', *formulas
-      else
-        old_base = ENV['CREW_BASE_DIR']
-        ENV['CREW_BASE_DIR'] = options[:base_dir]
-        crew 'shasum', '--update', *formulas
-        ENV['CREW_BASE_DIR'] = old_base
-      end
+    def crew_update_shasum(base_dir)
+      old_base = ENV['CREW_BASE_DIR']
+      old_pkg  = ENV['CREW_PKG_CACHE_BASE']
+
+      ENV['CREW_BASE_DIR']       = base_dir
+      ENV['CREW_PKG_CACHE_BASE'] = Pathname.new(Crew::Test::WWW_DIR).realpath.to_s
+
+      crew 'shasum', '--update'
+
+      ENV['CREW_BASE_DIR']       = old_base
       ENV['CREW_PKG_CACHE_BASE'] = old_pkg
+
       raise CrewFailed.new(command, exitstatus, err) if exitstatus != 0 or err != ''
     end
 
@@ -322,8 +321,7 @@ module Spec
         FileUtils.cp File.join('data', src), File.join(origin_dir, file)
         repo.add file
       end
-      options = { base_dir: origin_dir }
-      crew_update_shasum options, *names
+      crew_update_shasum origin_dir
       repo.add 'etc/shasums.txt'
       repo.commit "add_#{names.join('_')}"
     end

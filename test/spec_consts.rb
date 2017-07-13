@@ -32,9 +32,8 @@ module Crew
     NDK_DIR             = 'ndk'
     NDK_COPY_DIR        = 'ndk.copy'
     WWW_DIR             = 'www'
-    DOCROOT_DIR         = File.join(WWW_DIR, 'docroot')
+    DOCROOT_DIR         = "#{WWW_DIR}/crew-pkg-cache-#{ENV['USER']}"
     DATA_READY_FILE     = '.testdataprepared'
     UTILS_RELEASES_FILE = 'data/releases_info.rb'
-
   end
 end

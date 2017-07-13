@@ -21,7 +21,8 @@ PLATFORM_SYM     = PLATFORM.gsub(/-/, '_').to_sym
 
 tools_dir = "#{Crew::Test::NDK_DIR}/prebuilt/#{PLATFORM}"
 utils_download_dir = "#{Crew::Test::DOCROOT_DIR}/tools"
-FileUtils.mkdir_p [tools_dir, utils_download_dir]
+packages_download_dir = "#{Crew::Test::DOCROOT_DIR}/packages"
+FileUtils.mkdir_p [tools_dir, utils_download_dir, packages_download_dir]
 
 DATA_DIR           = Pathname.new(Crew::Test::DATA_DIR).realpath.to_s
 NDK_DIR            = Pathname.new(Crew::Test::NDK_DIR).realpath.to_s
@@ -32,6 +33,7 @@ UTILS_DOWNLOAD_DIR = Pathname.new(utils_download_dir).realpath.to_s
 # copy utils from NDK dir to tests directory structure
 FileUtils.cp_r Dir["#{ORIG_TOOLS_DIR}/*"], TOOLS_DIR
 FileUtils.cp_r "#{ORIG_NDK_DIR}/.crew", Crew::Test::NDK_DIR
+FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/*.tar.xz"], packages_download_dir
 FileUtils.rm_rf "#{TOOLS_DIR}/build_dependencies"
 
 require_relative '../library/release.rb'
