@@ -31,73 +31,74 @@ describe "crew remove" do
 
   context "one installed release with dependants" do
     it "outputs error message" do
-      copy_formulas 'libone.rb', 'libtwo.rb'
-      crew_checked 'install', 'libone:1.0.0'
-      crew_checked 'install', 'libtwo:1.1.0'
+      libone_rel = pkg_cache_add_package_with_formula('libone')
+      libtwo_rel = pkg_cache_add_package_with_formula('libtwo', update: true, release: Release.new('1.1.0', 1))
+      crew_checked 'install', 'libone:1.0.0', 'libtwo:1.1.0'
       crew 'remove', 'libone'
       expect(exitstatus).to_not be_zero
       expect(err.split("\n")[0]).to eq('error: libone has installed dependants: target/libtwo')
-      expect(pkg_cache_in?(:target, 'libone', '1.0.0', 1)).to eq(true)
-      expect(pkg_cache_in?(:target, 'libtwo', '1.1.0', 1)).to eq(true)
+      expect(pkg_cache_has_package?('libone', libone_rel)).to eq(true)
+      expect(pkg_cache_has_package?('libtwo', libtwo_rel)).to eq(true)
     end
   end
 
   context "one of two installed releases with dependants" do
     it "outputs info about uninstalling the specified release" do
-      copy_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb'
-      crew_checked 'install', 'libtwo:1.1.0'
-      crew_checked 'install', 'libtwo:2.2.0'
-      crew_checked 'install', 'libthree:2.2.2'
+      libone_rel   = pkg_cache_add_package_with_formula('libone')
+      libtwo_rel_1 = pkg_cache_add_package_with_formula('libtwo',   update: true, release: Release.new('1.1.0', 1))
+      libtwo_rel_2 = pkg_cache_add_package_with_formula('libtwo',   update: true, release: Release.new('2.2.0', 1))
+      libthree_rel = pkg_cache_add_package_with_formula('libthree', update: true, release: Release.new('2.2.2', 1))
+      crew_checked 'install', 'libtwo:1.1.0', 'libtwo:2.2.0', 'libthree:2.2.2'
       crew 'remove', 'libtwo:1.1.0'
       expect(result).to eq(:ok)
-      expect(out.chomp).to eq('removing libtwo:1.1.0')
-      expect(pkg_cache_in?(:target, 'libone',   '1.0.0', 1)).to eq(true)
-      expect(pkg_cache_in?(:target, 'libtwo',   '2.2.0', 1)).to eq(true)
-      expect(pkg_cache_in?(:target, 'libthree', '2.2.2', 1)).to eq(true)
+      expect(out.chomp).to eq("removing libtwo:#{libtwo_rel_1.version}")
+      expect(pkg_cache_has_package?('libone',   libone_rel)).to   eq(true)
+      expect(pkg_cache_has_package?('libtwo',   libtwo_rel_2)).to eq(true)
+      expect(pkg_cache_has_package?('libthree', libthree_rel)).to eq(true)
     end
   end
 
   context "one installed release without dependants" do
     it "outputs info about uninstalling release" do
-      copy_formulas 'libone.rb'
-      crew_checked 'install', 'libone:1.0.0'
+      rel = pkg_cache_add_package_with_formula('libone')
+      crew_checked 'install', 'libone'
       crew 'remove', 'libone'
       expect(result).to eq(:ok)
-      expect(out).to eq("removing libone:1.0.0\n")
-      expect(pkg_cache_in?(:target, 'libone', '1.0.0', 1)).to eq(true)
+      expect(out).to eq("removing libone:#{rel.version}\n")
+      expect(pkg_cache_has_package?('libone', rel)).to eq(true)
     end
   end
 
   context "all of the two installed releases without dependants" do
     it "outputs info about uninstalling releases" do
-      copy_formulas 'libone.rb', 'libtwo.rb'
-      crew_checked 'install', 'libone:1.0.0'
-      crew_checked 'install', 'libtwo:1.1.0'
-      crew_checked 'install', 'libtwo:2.2.0'
+      libone_rel   = pkg_cache_add_package_with_formula('libone')
+      libtwo_rel_1 = pkg_cache_add_package_with_formula('libtwo', update: true, release: Release.new('1.1.0', 1))
+      libtwo_rel_2 = pkg_cache_add_package_with_formula('libtwo', update: true, release: Release.new('2.2.0', 1))
+      crew_checked 'install', 'libone', 'libtwo:1.1.0', 'libtwo:2.2.0'
       crew 'remove', 'libtwo'
       expect(result).to eq(:ok)
-      expect(out.split("\n")).to eq(["removing libtwo:1.1.0",
-                                     "removing libtwo:2.2.0"])
-      expect(pkg_cache_in?(:target, 'libone', '1.0.0', 1)).to eq(true)
-      expect(pkg_cache_in?(:target, 'libtwo', '1.1.0', 1)).to eq(true)
-      expect(pkg_cache_in?(:target, 'libtwo', '2.2.0', 1)).to eq(true)
+      expect(out.split("\n")).to eq(["removing libtwo:#{libtwo_rel_1.version}",
+                                     "removing libtwo:#{libtwo_rel_2.version}"])
+      expect(pkg_cache_has_package?('libone', libone_rel)).to   eq(true)
+      expect(pkg_cache_has_package?('libtwo', libtwo_rel_1)).to eq(true)
+      expect(pkg_cache_has_package?('libtwo', libtwo_rel_2)).to eq(true)
     end
   end
 
   context "all installed releases with dependants" do
     it "outputs error message" do
-      copy_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb'
-      crew_checked 'install', 'libone:1.0.0'
-      crew_checked 'install', 'libtwo:1.1.0'
-      crew_checked 'install', 'libtwo:2.2.0'
-      crew_checked 'install', 'libthree:3.3.3'
+      libone_rel   = pkg_cache_add_package_with_formula('libone')
+      libtwo_rel_1 = pkg_cache_add_package_with_formula('libtwo', update: true, release: Release.new('1.1.0', 1))
+      libtwo_rel_2 = pkg_cache_add_package_with_formula('libtwo', update: true, release: Release.new('2.2.0', 1))
+      libthree_rel = pkg_cache_add_package_with_formula('libthree')
+      crew_checked 'install', 'libone', 'libtwo:1.1.0', 'libtwo:2.2.0', 'libthree'
       crew 'remove', 'libtwo'
       expect(exitstatus).to_not be_zero
       expect(err.split("\n")[0]).to eq('error: libtwo has installed dependants: target/libthree')
-      expect(pkg_cache_in?(:target, 'libone',   '1.0.0', 1)).to eq(true)
-      expect(pkg_cache_in?(:target, 'libtwo',   '1.1.0', 1)).to eq(true)
-      expect(pkg_cache_in?(:target, 'libtwo',   '2.2.0', 1)).to eq(true)
-      expect(pkg_cache_in?(:target, 'libthree', '3.3.3', 1)).to eq(true)
+      expect(pkg_cache_has_package?('libone',   libone_rel)).to   eq(true)
+      expect(pkg_cache_has_package?('libtwo',   libtwo_rel_1)).to eq(true)
+      expect(pkg_cache_has_package?('libtwo',   libtwo_rel_2)).to eq(true)
+      expect(pkg_cache_has_package?('libthree', libthree_rel)).to eq(true)
     end
   end
 
