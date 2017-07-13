@@ -91,7 +91,7 @@ describe "crew list" do
 
     context "one formula with one release installed" do
       it "outputs info about one existing release and marks it as installed" do
-        copy_formulas 'libone.rb'
+        pkg_cache_add_package_with_formula 'libone'
         crew_checked 'install', 'libone'
         crew 'list', '--packages'
         expect(result).to eq(:ok)
@@ -101,7 +101,7 @@ describe "crew list" do
 
     context "one formula with 4 releases and one release installed" do
       it "outputs info about 4 releases and marks one as installed" do
-        copy_formulas 'libfour.rb'
+        pkg_cache_add_package_with_formula 'libfour'
         crew_checked 'install', 'libfour:4.4.4'
         crew 'list', '--packages'
         expect(result).to eq(:ok)
@@ -114,7 +114,9 @@ describe "crew list" do
 
     context "three formulas with one, two and three releases, one of each releases installed" do
       it "outputs info about six releases and marks three as installed" do
-        copy_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb'
+        pkg_cache_add_package_with_formula 'libone'
+        pkg_cache_add_package_with_formula 'libtwo',   update: true, release: Release.new('1.1.0', 1)
+        pkg_cache_add_package_with_formula 'libthree', update: true, release: Release.new('1.1.1', 1)
         crew_checked 'install', 'libone', 'libtwo:1.1.0', 'libthree:1.1.1'
         crew 'list', '--packages'
         expect(result).to eq(:ok)
@@ -129,7 +131,10 @@ describe "crew list" do
 
     context "four formulas with many releases, latest release of each formula installed" do
       it "outputs info about existing and installed releases" do
-        copy_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb', 'libfour.rb'
+        pkg_cache_add_package_with_formula 'libone'
+        pkg_cache_add_package_with_formula 'libtwo'
+        pkg_cache_add_package_with_formula 'libthree'
+        pkg_cache_add_package_with_formula 'libfour'
         crew_checked 'install', 'libone', 'libtwo', 'libthree', 'libfour'
         crew 'list', '--packages'
         expect(result).to eq(:ok)
@@ -155,37 +160,14 @@ describe "crew list" do
         expect(result).to eq(:ok)
         got = out.split("\n")
         exp = [/ \* bsdtar\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].version}\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].crystax_version}/,
-               /   cloog\s+\d+\.\d+\.\d+\s+\d+/,
-               /   cloog-old\s+\d+\.\d+\.\d+\s+\d+/,
                / \* curl  \s+#{Crew::Test::UTILS_RELEASES['curl'][0].version}\s+#{Crew::Test::UTILS_RELEASES['curl'][0].crystax_version}/,
-               /   expat\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* gcc\s+\d+\.\d+\s+\d+/,
-               / \* gcc\s+\d+\s+\d+/,
-               / \* gcc\s+\d+\s+\d+/,
-               /   gmp\s+\d+\.\d+\.\d+\s+\d+/,
-               /   isl\s+\d+\.\d+\s+\d+/,
-               /   isl-old\s+\d+\.\d+\.\d+\s+\d+/,
-               /   libedit\s+\d+-\d+\.\d+\s+\d+/,
-               /   libgit2\s+\d+\.\d+\.\d+\s+\d+/,
-               /   libssh2\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* llvm\s+\d+\.\d+\s+\d+/,
-               / \* llvm\s+\d+\.\d+\s+\d+/,
-               / \* llvm\s+\d+\.\d+\s+\d+/,
                / \* make\s+\d+\.\d+\s+\d+/,
-               /   mpc\s+\d+\.\d+\.\d+\s+\d+/,
-               /   mpfr\s+\d+\.\d+\.\d+\s+\d+/,
                / \* nawk\s+\d+\s+\d+/,
-               / \* ndk-base\s+\d+\s+\d+/,
                / \* ndk-depends\s+\d+\s+\d+/,
                / \* ndk-stack\s+\d+\s+\d+/,
-               /   openssl\s+\d+\.\d+\.\d+[a-z]\s+\d+/,
-               /   ppl\s+\d+\.\d+\s+\d+/,
                / \* python\s+\d+\.\d+\.\d+\s+\d+/,
                / \* ruby  \s+#{Crew::Test::UTILS_RELEASES['ruby'][0].version}\s+#{Crew::Test::UTILS_RELEASES['ruby'][0].crystax_version}/,
-               / .+ toolbox\s+\d+\s+\d+/,
-               /   xz\s+\d+\.\d+\.\d+\s+\d+/,
                / \* yasm\s+\d+\.\d+\.\d+\s+\d+/,
-               /   zlib\s+\d+\.\d+\.\d+\s+\d+/
               ]
         expect(got.size).to eq(exp.size)
         got.each_with_index { |g, i| expect(g).to match(exp[i]) }
@@ -201,44 +183,24 @@ describe "crew list" do
 
     context "when some formulas are with many releases, and there is one release of every utility" do
       it "outputs info about existing and installed releases" do
-        copy_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb', 'libfour.rb'
+        pkg_cache_add_package_with_formula 'libone'
+        pkg_cache_add_package_with_formula 'libtwo'
+        pkg_cache_add_package_with_formula 'libthree'
+        pkg_cache_add_package_with_formula 'libfour'
         crew_checked 'install', 'libone', 'libtwo', 'libthree', 'libfour'
         crew 'list'
         expect(result).to eq(:ok)
         got = out.split("\n")
         exp = ["Tools:",
                / \* bsdtar\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].version}\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].crystax_version}/,
-               /   cloog\s+\d+\.\d+\.\d+\s+\d+/,
-               /   cloog-old\s+\d+\.\d+\.\d+\s+\d+/,
                / \* curl  \s+#{Crew::Test::UTILS_RELEASES['curl'][0].version}\s+#{Crew::Test::UTILS_RELEASES['curl'][0].crystax_version}/,
-               /   expat\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* gcc\s+\d+\.\d+\s+\d+/,
-               / \* gcc\s+\d+\s+\d+/,
-               / \* gcc\s+\d+\s+\d+/,
-               /   gmp\s+\d+\.\d+\.\d+\s+\d+/,
-               /   isl\s+\d+\.\d+\s+\d+/,
-               /   isl-old\s+\d+\.\d+\.\d+\s+\d+/,
-               /   libedit\s+\d+-\d+\.\d+\s+\d+/,
-               /   libgit2\s+\d+\.\d+\.\d+\s+\d+/,
-               /   libssh2\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* llvm\s+\d+\.\d+\s+\d+/,
-               / \* llvm\s+\d+\.\d+\s+\d+/,
-               / \* llvm\s+\d+\.\d+\s+\d+/,
                / \* make\s+\d+\.\d+\s+\d+/,
-               /   mpc\s+\d+\.\d+\.\d+\s+\d+/,
-               /   mpfr\s+\d+\.\d+\.\d+\s+\d+/,
                / \* nawk\s+\d+\s+\d+/,
-               / \* ndk-base\s+\d+\s+\d+/,
                / \* ndk-depends\s+\d+\s+\d+/,
                / \* ndk-stack\s+\d+\s+\d+/,
-               /   openssl\s+\d+\.\d+\.\d+[a-z]\s+\d+/,
-               /   ppl\s+\d+\.\d+\s+\d+/,
                / \* python\s+\d+\.\d+\.\d+\s+\d+/,
                / \* ruby  \s+#{Crew::Test::UTILS_RELEASES['ruby'][0].version}\s+#{Crew::Test::UTILS_RELEASES['ruby'][0].crystax_version}/,
-               / .+ toolbox\s+\d+\s+\d+/,
-               /   xz\s+\d+\.\d+\.\d+\s+\d+/,
                / \* yasm\s+\d+\.\d+\.\d+\s+\d+/,
-               /   zlib\s+\d+\.\d+\.\d+\s+\d+/,
                "Packages:",
                "   libfour   1.1.1  1",
                "   libfour   2.2.2  2",
