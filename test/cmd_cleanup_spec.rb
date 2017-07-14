@@ -63,26 +63,27 @@ describe "crew cleanup" do
 
     context 'when one release installed' do
       it 'outputs nothing' do
-        copy_formulas 'libone.rb'
+        rel = pkg_cache_add_package_with_formula('libone')
         crew_checked 'install', 'libone'
         crew 'cleanup', '--pkg-cache'
         expect(result).to eq(:ok)
         expect(out).to eq('')
-        expect(pkg_cache_in?(:target, 'libone', '1.0.0', 1)).to eq(true)
+        expect(pkg_cache_has_package?('libone', rel)).to eq(true)
       end
     end
 
     context 'when one release installed and there is one unknown release in the package cache' do
       it 'outputs nothing' do
-        copy_formulas 'libone.rb'
+        rel_1 = pkg_cache_add_package_with_formula 'libone'
         crew_checked 'install', 'libone'
-        package_path = pkg_cache_path_in(:target, archive_name(:target, 'libone', '2.0.0', 1))
+        rel_2 = Release.new('2.0.0', 1)
+        package_path = pkg_cache_path_in(:target, package_archive_name('libone', rel_2))
         FileUtils.touch package_path
         crew 'cleanup', '--pkg-cache'
         expect(result).to eq(:ok)
         expect(out.strip).to eq("removing: #{package_path}; reason: libone has no release 2.0.0:1")
-        expect(pkg_cache_in?(:target, 'libone', '1.0.0', 1)).to eq(true)
-        expect(pkg_cache_in?(:target, 'libone', '2.0.0', 1)).to eq(false)
+        expect(pkg_cache_has_package?('libone', rel_1)).to eq(true)
+        expect(pkg_cache_has_package?('libone', rel_2)).to eq(false)
       end
     end
 
