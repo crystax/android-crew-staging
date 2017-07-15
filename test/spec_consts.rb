@@ -4,26 +4,43 @@ module Crew
 
   module Test
 
-    FormulaData = Struct.new(:filename, :name) do
-      def initialize(filename, name = nil)
+    FormulaData = Struct.new(:type, :filename, :name) do
+      def initialize(type, filename, name = nil)
         name ||= filename.gsub('_', '-')
-        super filename, name
+        super type, filename, name
       end
     end
 
-    UTILS_FILES         = ['curl', 'libarchive', 'ruby']
-    TOOLS_FILES         = ['make', 'nawk', 'ndk_depends', 'ndk_stack', 'python', 'yasm']
-    # here tools must be sorted by their filenames
-    ALL_TOOLS           = [FormulaData.new('curl'),
-                           FormulaData.new('libarchive', 'bsdtar'),
-                           FormulaData.new('make'),
-                           FormulaData.new('nawk'),
-                           FormulaData.new('ndk_depends'),
-                           FormulaData.new('ndk_stack'),
-                           FormulaData.new('python'),
-                           FormulaData.new('ruby'),
-                           FormulaData.new('yasm')
+    # here utilities must be sorted by their filenames
+    ALL_TOOLS           = [FormulaData.new(:build_dependency, 'cloog'),
+                           FormulaData.new(:build_dependency, 'cloog_old'),
+                           FormulaData.new(:tool,             'curl'),
+                           FormulaData.new(:build_dependency, 'expat'),
+                           FormulaData.new(:tool,             'gcc'),
+                           FormulaData.new(:build_dependency, 'gmp'),
+                           FormulaData.new(:build_dependency, 'isl'),
+                           FormulaData.new(:build_dependency, 'isl_old'),
+                           FormulaData.new(:tool,             'libarchive', 'bsdtar'),
+                           FormulaData.new(:build_dependency, 'libedit'),
+                           FormulaData.new(:build_dependency, 'libgit2'),
+                           FormulaData.new(:build_dependency, 'libssh2'),
+                           FormulaData.new(:tool,             'llvm'),
+                           FormulaData.new(:tool,             'make'),
+                           FormulaData.new(:build_dependency, 'mpc'),
+                           FormulaData.new(:build_dependency, 'mpfr'),
+                           FormulaData.new(:tool,             'nawk'),
+                           FormulaData.new(:tool,             'ndk_base'),
+                           FormulaData.new(:tool,             'ndk_depends'),
+                           FormulaData.new(:tool,             'ndk_stack'),
+                           FormulaData.new(:build_dependency, 'openssl'),
+                           FormulaData.new(:build_dependency, 'ppl'),
+                           FormulaData.new(:tool,             'python'),
+                           FormulaData.new(:tool,             'ruby'),
+                           FormulaData.new(:build_dependency, 'xz'),
+                           FormulaData.new(:tool,             'yasm'),
+                           FormulaData.new(:build_dependency, 'zlib')
                           ]
+    UTILS_FILES         = ['curl', 'libarchive', 'ruby']
     PORT                = 9999
     DOWNLOAD_BASE       = "http://localhost:#{PORT}"
     PKG_CACHE_BASE      = 'pkg.cache'

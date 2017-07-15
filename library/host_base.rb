@@ -49,7 +49,7 @@ class HostBase < Formula
   end
 
   def archive_filename(release, platform_name = Global::PLATFORM_NAME)
-    "#{file_name}-#{release}-#{platform_name}.tar.xz"
+    "#{file_name}-#{release}-#{platform_name}.#{Global::ARCH_EXT}"
   end
 
   def cache_file(release, plaform_name)

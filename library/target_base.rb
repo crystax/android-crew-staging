@@ -20,7 +20,7 @@ class TargetBase < Formula
   end
 
   def archive_filename(release, _ = nil)
-    "#{file_name}-#{release}.tar.xz"
+    "#{file_name}-#{release}.#{Global::ARCH_EXT}"
   end
 
   def cache_file(release, _ = nil)

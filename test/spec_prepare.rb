@@ -40,6 +40,7 @@ require_relative '../library/release.rb'
 require_relative '../library/utils.rb'
 require_relative '../library/utility.rb'
 require_relative '../library/properties.rb'
+require_relative '../library/formulary.rb'
 
 include Properties
 
@@ -115,6 +116,27 @@ def create_archive(orig_release, release, util)
   FileUtils.rm_rf package_dir
 end
 
+def copy_universal_archive(filename)
+  package_dir = File.join('tmp', 'package')
+  FileUtils.rm_rf package_dir
+  FileUtils.mkdir_p package_dir
+  package_dir = Pathname.new(package_dir).realpath.to_s
+
+  # create some content
+  File.open("#{package_dir}/file.txt", 'w') { |f| f.puts filename }
+
+  # make archive
+  archive_path = "#{UTILS_DOWNLOAD_DIR}/#{filename}"
+  FileUtils.mkdir_p File.dirname(archive_path)
+  FileUtils.cd(package_dir) do
+    args = ['-Jcf', archive_path, '.']
+    Utils.run_command(File.join(ORIG_TOOLS_DIR, 'bin', 'bsdtar'), *args)
+  end
+
+  # cleanup
+  FileUtils.rm_rf package_dir
+end
+
 #
 # create test data for utilities
 #
@@ -151,9 +173,16 @@ File.open(File.join(DATA_DIR, 'ruby-1.rb'), 'w') { |f| f.puts replace_releases(r
 File.open(File.join(DATA_DIR, 'ruby-2.rb'), 'w') { |f| f.puts replace_releases(ruby_formula, ruby_releases.slice(0, 2)) }
 
 # create mock archives for all other tools, like make, yasm , etc
+formulary = Formulary.new
 Crew::Test::ALL_TOOLS.select { |t| not Crew::Test::UTILS_FILES.include?(t.filename) }.map do |t|
-  rel = installed_release(t.filename)
-  create_archive(rel, rel, t.filename)
+  if t.type == :utility
+    rel = installed_release(t.filename)
+    create_archive(rel, rel, t.filename)
+  else
+    formula = formulary["host/#{t.name}"]
+    rel = formula.releases.last
+    copy_universal_archive(formula.archive_filename(rel))
+  end
   File.open("#{DATA_DIR}/#{t.filename}-1.rb", 'w') { |f| f.puts replace_releases("#{ORIG_FORMULA_DIR}/#{t.filename}.rb", [rel]) }
 end
 
