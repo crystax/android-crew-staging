@@ -115,7 +115,7 @@ class Platforms < BasePackage
         # gingerbread except for bug fixing, and the new ones in android-$FIRST_API64_LEVEL
         # with 64-bit support.  Before the old bionic headers are deprecated/removed, we need
         # to remove stale old headers when createing platform = $FIRST_API64_LEVEL
-        if api_level == MIN_64_API_LEVEL
+        if api_level == Arch::MIN_64_API_LEVEL
           nonbionic_files = %w{ android EGL GLES GLES2 GLES3 KHR media OMXAL SLES jni.h thread_db.h zconf.h zlib.h }
           dir = "#{install_dir}/#{sysroot_dst}/include"
           if File.directory? dir
