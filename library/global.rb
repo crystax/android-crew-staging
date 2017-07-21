@@ -1,4 +1,6 @@
 require 'pathname'
+require 'rugged'
+require_relative 'github.rb'
 
 module Global
 
@@ -31,6 +33,18 @@ module Global
       dir32 = "#{ndkdir}/prebuilt/windows"
       Dir.exists?(dir64) ? dir64 : dir32
     end
+  end
+
+  def self.default_download_base(base_dir)
+    origin = Rugged::Repository.new(base_dir).remotes['origin']
+
+    if origin.url =~ /^(git@github.com:)|(https:\/\/).*android-crew-staging.git$/
+      url = GitHub::STAGING_DONWLOAD_BASE
+    else
+      url = 'https://crew.crystax.net:9876'
+    end
+
+    url
   end
 
   # public
@@ -83,11 +97,11 @@ module Global
   VERSION = "0.3.0"
   OS = operating_system
 
-  DOWNLOAD_BASE  = [nil, ''].include?(ENV['CREW_DOWNLOAD_BASE'])  ? "https://crew.crystax.net:9876"                      : ENV['CREW_DOWNLOAD_BASE']
   PKG_CACHE_BASE = [nil, ''].include?(ENV['CREW_PKG_CACHE_BASE']) ? "/var/tmp"                                           : ENV['CREW_PKG_CACHE_BASE']
   SRC_CACHE_BASE = [nil, ''].include?(ENV['CREW_SRC_CACHE_BASE']) ? nil                                                  : ENV['CREW_SRC_CACHE_BASE']
   BASE_DIR       = [nil, ''].include?(ENV['CREW_BASE_DIR'])       ? Pathname.new(__FILE__).realpath.dirname.dirname.to_s : Pathname.new(ENV['CREW_BASE_DIR']).realpath.to_s
   NDK_DIR        = [nil, ''].include?(ENV['CREW_NDK_DIR'])        ? Pathname.new(BASE_DIR).realpath.dirname.to_s         : Pathname.new(ENV['CREW_NDK_DIR']).realpath.to_s
+  DOWNLOAD_BASE  = [nil, ''].include?(ENV['CREW_DOWNLOAD_BASE'])  ? default_download_base(BASE_DIR)                      : ENV['CREW_DOWNLOAD_BASE']
   TOOLS_DIR      = def_tools_dir(NDK_DIR, OS)
 
   PLATFORM_NAME = File.basename(TOOLS_DIR)

@@ -141,6 +141,18 @@ module Spec
       (exitstatus == 0 and err == '') ? :ok : [exitstatus, err]
     end
 
+    def environment_init
+      ENV['CREW_DOWNLOAD_BASE']  = Crew::Test::DOWNLOAD_BASE
+      ENV['CREW_BASE_DIR']       = "#{Dir.pwd}/#{Crew::Test::CREW_DIR}"
+      ENV['CREW_NDK_DIR']        = "#{Dir.pwd}/#{Crew::Test::NDK_DIR}"
+      ENV['CREW_PKG_CACHE_BASE'] = "#{Dir.pwd}/#{Crew::Test::PKG_CACHE_BASE}"
+    end
+
+    def set_origin_url(url)
+      config = Rugged::Config.new('./crew/.git/config')
+      config['remote.origin.url'] = url
+    end
+
     def package_archive_name(name, release)
       archive_name(:target, name, release.version, release.crystax_version)
     end
