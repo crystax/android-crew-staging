@@ -15,6 +15,8 @@ module Crew
       puts "BASE_BUILD_DIR: #{Build::BASE_BUILD_DIR}"
     when 1
       case args[0]
+      when '--download-base'
+        puts Global::DOWNLOAD_BASE
       when '--base-dir'
         puts Global::BASE_DIR
       when '--tools-dir'

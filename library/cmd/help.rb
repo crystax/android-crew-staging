@@ -86,6 +86,9 @@ ENV_HELP = <<-EOS
 
 The ENV command supports the following options:
 
+  --download-base
+                 output string used to build download URLs
+
   --base-dir     output path to crew's base directory
 
   --tools-dir    output path to crew's base directory
@@ -97,6 +100,7 @@ The ENV command supports the following options:
   --src-cache-dir
                  output path to the directory used as
                  a cache for sources for the crew packages
+
   --base-build-dir
                  output path to the base build directory
 
