@@ -20,20 +20,21 @@ PLATFORM         = File.basename(ORIG_TOOLS_DIR)
 PLATFORM_SYM     = PLATFORM.gsub(/-/, '_').to_sym
 
 tools_dir = "#{Crew::Test::NDK_DIR}/prebuilt/#{PLATFORM}"
-utils_download_dir = "#{Crew::Test::DOCROOT_DIR}/tools"
+tools_download_dir = "#{Crew::Test::DOCROOT_DIR}/tools"
 packages_download_dir = "#{Crew::Test::DOCROOT_DIR}/packages"
-FileUtils.mkdir_p [tools_dir, utils_download_dir, packages_download_dir]
+FileUtils.mkdir_p [tools_dir, tools_download_dir, packages_download_dir]
 
 DATA_DIR           = Pathname.new(Crew::Test::DATA_DIR).realpath.to_s
 NDK_DIR            = Pathname.new(Crew::Test::NDK_DIR).realpath.to_s
 TOOLS_DIR          = Pathname.new(tools_dir).realpath.to_s
-UTILS_DOWNLOAD_DIR = Pathname.new(utils_download_dir).realpath.to_s
+TOOLS_DOWNLOAD_DIR = Pathname.new(tools_download_dir).realpath.to_s
 
 
 # copy utils from NDK dir to tests directory structure
 FileUtils.cp_r Dir["#{ORIG_TOOLS_DIR}/*"], TOOLS_DIR
 FileUtils.cp_r "#{ORIG_NDK_DIR}/.crew", Crew::Test::NDK_DIR
-FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/*.tar.xz"], packages_download_dir
+FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/*.tar.xz"] - Dir["#{Crew::Test::DATA_DIR}/test_tool-1.0.0_1-*.tar.xz"], packages_download_dir
+FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/test_tool-1.0.0_1-*.tar.xz"], tools_download_dir
 FileUtils.rm_rf "#{TOOLS_DIR}/build_dependencies"
 
 require_relative '../library/release.rb'
@@ -105,7 +106,7 @@ def create_archive(orig_release, release, util)
   end
 
   # make archive
-  archive_path = File.join(UTILS_DOWNLOAD_DIR, "#{util}-#{release}-#{PLATFORM}.#{Global::ARCH_EXT}")
+  archive_path = File.join(TOOLS_DOWNLOAD_DIR, "#{util}-#{release}-#{PLATFORM}.#{Global::ARCH_EXT}")
   FileUtils.mkdir_p File.dirname(archive_path)
   FileUtils.cd(package_dir) do
     args = ['-Jcf', archive_path, '.']
@@ -126,7 +127,7 @@ def copy_universal_archive(filename)
   File.open("#{package_dir}/file.txt", 'w') { |f| f.puts filename }
 
   # make archive
-  archive_path = "#{UTILS_DOWNLOAD_DIR}/#{filename}"
+  archive_path = "#{TOOLS_DOWNLOAD_DIR}/#{filename}"
   FileUtils.mkdir_p File.dirname(archive_path)
   FileUtils.cd(package_dir) do
     args = ['-Jcf', archive_path, '.']

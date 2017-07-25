@@ -65,7 +65,7 @@ describe "crew shasum" do
 
         context 'without names' do
           it 'says that sum is BAD for all archives in the cache' do
-            pkg_cache_add_all_tools_in(update: false)
+            pkg_cache_add_all_tools(update: false)
             rel = pkg_cache_add_package_with_formula('libone', update: false)
             crew 'shasum', '--check'
             lines = Crew::Test::ALL_TOOLS.map { |e| "host/#{e.name} .* #{Global::PLATFORM_NAME}: BAD" } + ["target/libone #{rel}: BAD"]
@@ -97,7 +97,7 @@ describe "crew shasum" do
 
         context 'without names' do
           it 'says that sum is OK for all archives for the current platform' do
-            pkg_cache_add_all_tools_in
+            pkg_cache_add_all_tools
             rel = pkg_cache_add_package_with_formula('libone')
             crew 'shasum', '--check'
             lines = Crew::Test::ALL_TOOLS.map { |e| "host/#{e.name} .* #{Global::PLATFORM_NAME}: OK" } + ["target/libone #{rel}: OK"]
@@ -131,7 +131,7 @@ describe "crew shasum" do
 
         context 'without names' do
           it 'says that sum is BAD for all bad archives in the cache' do
-            pkg_cache_add_all_tools_in
+            pkg_cache_add_all_tools
             rel = pkg_cache_add_package_with_formula('libone')
             pkg_cache_corrupt_file :host, 'curl', Crew::Test::UTILS_RELEASES['curl'][0]
             pkg_cache_corrupt_file :target, 'libone', rel
@@ -165,7 +165,7 @@ describe "crew shasum" do
 
       context 'with package name' do
         it 'says that archive not found' do
-          copy_formulas 'libone.rb'
+          copy_packages_formulas 'libone.rb'
           rel = Release.new('1.0.0', 1)
           crew 'shasum', '--update', 'libone'
           expect(out.strip).to match("target/libone #{rel}: archive not found: #{Global::PKG_CACHE_DIR}/packages/libone-#{rel}.*")
@@ -174,7 +174,7 @@ describe "crew shasum" do
 
       context 'with no names' do
         it 'says that all archives for all installed formulas are not found' do
-          copy_formulas 'libone.rb'
+          copy_packages_formulas 'libone.rb'
           crew 'shasum', '--update'
           lines = Crew::Test::ALL_TOOLS.map { |e| "host/#{e.name} .* #{Global::PLATFORM_NAME}: archive not found: #{Global::PKG_CACHE_DIR}/tools/#{e.filename}-.*" }
           lines << "target/libone .*: archive not found: #{Global::PKG_CACHE_DIR}/packages/libone-.*"
@@ -208,7 +208,7 @@ describe "crew shasum" do
 
         context 'with no names' do
           it 'says that sum is updated' do
-            pkg_cache_add_all_tools_in(update: false)
+            pkg_cache_add_all_tools(update: false)
             rel = pkg_cache_add_package_with_formula('libone', update: false)
             crew 'shasum', '--update'
             lines = Crew::Test::ALL_TOOLS.map { |e| "host/#{e.name} .* #{Global::PLATFORM_NAME}: updated" } + ["target/libone #{rel}: updated"]
@@ -240,7 +240,7 @@ describe "crew shasum" do
 
         context 'with no names' do
           it 'says that sums are OK for all archives' do
-            pkg_cache_add_all_tools_in
+            pkg_cache_add_all_tools
             rel = pkg_cache_add_package_with_formula 'libone'
             crew 'shasum', '--update'
             lines = Crew::Test::ALL_TOOLS.map { |e| "host/#{e.name} .* #{Global::PLATFORM_NAME}: OK" } + ["target/libone #{rel}: OK"]
@@ -274,7 +274,7 @@ describe "crew shasum" do
 
         context 'with no names' do
           it 'says that sums are updated for all archives with incorrect sums' do
-            pkg_cache_add_all_tools_in
+            pkg_cache_add_all_tools
             rel = pkg_cache_add_package_with_formula('libone')
             pkg_cache_corrupt_file :host, 'curl', Crew::Test::UTILS_RELEASES['curl'][0]
             pkg_cache_corrupt_file :target, 'libone', rel
@@ -309,7 +309,7 @@ describe "crew shasum" do
 
     context 'with updated sum files, full cache and no names' do
       it 'works like --check option was specified' do
-        pkg_cache_add_all_tools_in
+        pkg_cache_add_all_tools
         rel = pkg_cache_add_package_with_formula('libone')
         crew 'shasum'
         lines = Crew::Test::ALL_TOOLS.map { |e| "host/#{e.name} .* #{Global::PLATFORM_NAME}: OK" } + ["target/libone #{rel}: OK"]

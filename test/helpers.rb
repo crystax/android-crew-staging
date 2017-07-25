@@ -157,6 +157,10 @@ module Spec
       archive_name(:target, name, release.version, release.crystax_version)
     end
 
+    def tool_archive_name(name, release)
+      archive_name(:host, name, release.version, release.crystax_version)
+    end
+
     def archive_name(type, name, version, cxver, platform_name = Global::PLATFORM_NAME)
       suffix = case type
                when :target
@@ -175,6 +179,10 @@ module Spec
 
     def pkg_cache_has_package?(name, release)
       pkg_cache_in? :target, name, release.version, release.crystax_version
+    end
+
+    def pkg_cache_has_tool?(name, release)
+      pkg_cache_in? :host, name, release.version, release.crystax_version
     end
 
     def pkg_cache_in?(type, name, version, cxver)
@@ -218,16 +226,24 @@ module Spec
       options[:release]
     end
 
-    def pkg_cache_add_package_with_formula(filename, options = { release: nil, update: true, delete: false })
-      options[:release] ||= package_most_recent_release(filename)
-      copy_formulas "#{filename}.rb"
-      pkg_cache_add_file :target, filename, options[:release]
+    def pkg_cache_add_with_formula(type, filename, options)
+      options[:release] ||= formula_most_recent_release(filename)
+      copy_formulas type, "#{filename}.rb"
+      pkg_cache_add_file type, filename, options[:release]
       crew_checked 'shasum', '--update', filename             if options[:update]
-      pkg_cache_del_file :target, filename, options[:release] if options[:delete]
+      pkg_cache_del_file type, filename, options[:release] if options[:delete]
       options[:release]
     end
 
-    def pkg_cache_add_all_tools_in(options = { update: true })
+    def pkg_cache_add_package_with_formula(filename, options = { release: nil, update: true, delete: false })
+      pkg_cache_add_with_formula :target, filename, options
+    end
+
+    def pkg_cache_add_tool_with_formula(filename, options = { release: nil, update: true, delete: false })
+      pkg_cache_add_with_formula :host, filename, options
+    end
+
+    def pkg_cache_add_all_tools(options = { update: true })
       FileUtils.cp Dir["#{Crew::Test::DOCROOT_DIR}/#{Global::NS_DIR[:host]}/*"], "#{Global::PKG_CACHE_DIR}/#{Global::NS_DIR[:host]}"
       crew_checked 'shasum', '--update' if options[:update]
     end
@@ -266,10 +282,14 @@ module Spec
       end
     end
 
-    def copy_formulas(*names)
+    def copy_formulas(type, *names)
       names.each do |n|
-        FileUtils.cp File.join('data', n), File.join(Global::FORMULA_DIR, Global::NS_DIR[:target])
+        FileUtils.cp File.join('data', n), File.join(Global::FORMULA_DIR, Global::NS_DIR[type])
       end
+    end
+
+    def copy_packages_formulas(*names)
+      copy_formulas :target, *names
     end
 
     def ndk_init
@@ -346,7 +366,7 @@ module Spec
     end
 
 
-    def package_most_recent_release(filename)
+    def formula_most_recent_release(filename)
       lines = []
       path = "#{Crew::Test::DATA_DIR}/#{filename}.rb"
       File.foreach(path) { |l| lines << l if l =~ /^[[:space:]]*release[[:space:]]+version/ }

@@ -99,7 +99,7 @@ describe "crew cleanup" do
 
   # context "when one release installed" do
   #   it "outputs nothing" do
-  #     copy_formulas 'libone.rb'
+  #     copy_packages_formulas 'libone.rb'
   #     crew_checked 'install', 'libone'
   #     crew 'cleanup'
   #     expect(result).to eq(:ok)
@@ -110,7 +110,7 @@ describe "crew cleanup" do
 
   # context "when one release installed and -n specified" do
   #   it "outputs nothing" do
-  #     copy_formulas 'libone.rb'
+  #     copy_packages_formulas 'libone.rb'
   #     crew_checked 'install', 'libone'
   #     crew 'cleanup', '-n'
   #     expect(result).to eq(:ok)
@@ -121,7 +121,7 @@ describe "crew cleanup" do
 
   # context "when two releases installed" do
   #   it "outputs about removing libtwo 1.1.0" do
-  #     copy_formulas 'libone.rb', 'libtwo.rb'
+  #     copy_packages_formulas 'libone.rb', 'libtwo.rb'
   #     crew_checked 'install', 'libone:1.0.0'
   #     crew_checked 'install', 'libtwo:1.1.0'
   #     crew_checked 'install', 'libtwo:2.2.0'
@@ -137,7 +137,7 @@ describe "crew cleanup" do
 
   # context "when two releases installed and -n specified" do
   #   it "outputs that would remove libtwo 1.1.0" do
-  #     copy_formulas 'libone.rb', 'libtwo.rb'
+  #     copy_packages_formulas 'libone.rb', 'libtwo.rb'
   #     crew_checked 'install', 'libone:1.0.0'
   #     crew_checked 'install', 'libtwo:1.1.0'
   #     crew_checked 'install', 'libtwo:2.2.0'
@@ -153,7 +153,7 @@ describe "crew cleanup" do
 
   # context "when three formulas has one release, two releases and three releases installed" do
   #   it "outputs about removing libtwo 1.1.0, libthree 1.1.1 and 2.2.2" do
-  #     copy_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb'
+  #     copy_packages_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb'
   #     crew_checked 'install', 'libone:1.0.0'
   #     crew_checked 'install', 'libtwo:1.1.0'
   #     crew_checked 'install', 'libtwo:2.2.0'
@@ -274,7 +274,7 @@ describe "crew cleanup" do
 
   # context "when two releases of one library installed and two releases of the curl utility are installed" do
   #   it "outputs about removing libtwo 1.1.0 and removing old curl release" do
-  #     copy_formulas 'libone.rb', 'libtwo.rb'
+  #     copy_packages_formulas 'libone.rb', 'libtwo.rb'
   #     crew_checked 'install', 'libone:1.0.0'
   #     crew_checked 'install', 'libtwo:1.1.0'
   #     crew_checked 'install', 'libtwo:2.2.0'
@@ -305,7 +305,7 @@ describe "crew cleanup" do
   #     repository_add_formula :host, 'curl-3.rb:curl.rb'
   #     crew_checked 'update'
   #     crew_checked 'upgrade'
-  #     copy_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb'
+  #     copy_packages_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb'
   #     crew_checked 'install', 'libone:1.0.0'
   #     crew_checked 'install', 'libtwo:1.1.0'
   #     crew_checked 'install', 'libtwo:2.2.0'

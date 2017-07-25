@@ -90,7 +90,7 @@ describe "crew info" do
 
   context "formula with one release and no dependencies, not installed" do
     it "outputs info about one not installed release with no dependencies" do
-      copy_formulas 'libone.rb'
+      copy_packages_formulas 'libone.rb'
       crew 'info', 'libone'
       expect(result).to eq(:ok)
       expect(out.split("\n")).to eq(["Name:               libone",
@@ -108,7 +108,7 @@ describe "crew info" do
 
   context "formula with two releases and one dependency, none installed" do
     it "outputs info about two releases and one dependency" do
-      copy_formulas 'libone.rb', 'libtwo.rb'
+      copy_packages_formulas 'libone.rb', 'libtwo.rb'
       crew 'info', 'libtwo'
       expect(result).to eq(:ok)
       exp = ["Name:               libtwo",
@@ -128,7 +128,7 @@ describe "crew info" do
 
   context "formula with two releases and one dependency, none installed, show only versions" do
     it "outputs info about two releases" do
-      copy_formulas 'libone.rb', 'libtwo.rb'
+      copy_packages_formulas 'libone.rb', 'libtwo.rb'
       crew 'info', '--versions-only', 'libtwo'
       expect(result).to eq(:ok)
       expect(out.strip).to eq('1.1.0_1 2.2.0_1')
@@ -137,7 +137,7 @@ describe "crew info" do
 
   context "formula with two releases and one dependency, none installed, show only path" do
     it "outputs info about two releases" do
-      copy_formulas 'libone.rb', 'libtwo.rb'
+      copy_packages_formulas 'libone.rb', 'libtwo.rb'
       crew 'info', '--path-only', 'libtwo'
       expect(result).to eq(:ok)
       expect(out.strip).to eq("#{Global::FORMULA_DIR}/#{Global::NS_DIR[:target]}/libtwo.rb")
@@ -146,7 +146,7 @@ describe "crew info" do
 
   context "formula with three releases and two dependencies, none installed" do
     it "outputs info about three releases and two dependencies" do
-      copy_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb'
+      copy_packages_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb'
       crew 'info', 'libthree'
       expect(result).to eq(:ok)
       exp = ["Name:               libthree",

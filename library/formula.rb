@@ -100,9 +100,15 @@ class Formula
       puts "using cached file #{archive}"
     else
       raise "#{archive} not found in the packages cache #{Global.pkg_cache_dir(self)}" if cache_only
-      url = "#{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[namespace]}/#{archive}"
+      # GitHub release assets feature does not support sub-folders
+      # that is a packages/libjpeg-9b_1.tag.xz will be stored as packages.libjpef-libjpeg-9b_1.tag.xz
+      sep = (Global::DOWNLOAD_BASE == GitHub::STAGING_DONWLOAD_BASE) ? '.' : '/'
+      url = "#{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[namespace]}#{sep}#{archive}"
       puts "downloading #{url}"
       Utils.download(url, cachepath)
+      if Global::DOWNLOAD_BASE == GitHub::STAGING_DONWLOAD_BASE
+        FileUtils.cd(File.dirname(cachepath)) { FileUtils.mv "#{Global::NS_DIR[namespace]}#{sep}#{archive}", archive }
+      end
     end
 
     if not shasum

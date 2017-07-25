@@ -1,6 +1,9 @@
 # must be first file included
 require_relative 'spec_helper.rb'
 
+require_relative '../library/github.rb'
+
+
 describe "crew install" do
   before(:all) do
     ndk_init
@@ -95,7 +98,7 @@ describe "crew install" do
 
   context "existing formula with one release, no dependencies, specifing non existing version" do
     it "outputs info about installing existing release" do
-      copy_formulas 'libone.rb'
+      copy_packages_formulas 'libone.rb'
       crew 'install', 'libone:2.0.0'
       expect(exitstatus).to_not be_zero
       expect(err.split("\n")[0]).to eq('error: libone has no release with version 2.0.0')
@@ -161,7 +164,7 @@ describe "crew install" do
 
   context "existing formula with one release from the cache" do
     it "outputs info about using cached file" do
-      rel   = pkg_cache_add_package_with_formula('libone')
+      rel = pkg_cache_add_package_with_formula('libone')
       file = package_archive_name('libone', rel)
       crew 'install', 'libone'
       expect(result).to eq(:ok)
@@ -203,6 +206,43 @@ describe "crew install" do
                         "checking integrity of the archive file #{file}\n" \
                         "unpacking archive\n")
       expect(pkg_cache_has_package?('libfour', rel)).to eq(true)
+    end
+  end
+
+  context 'origin points to crew-staging repository on GitHub' do
+
+    context 'test package from release assets' do
+      it 'outputs info about installing test_package 1.0.0:1' do
+        rel = pkg_cache_add_package_with_formula('test_package', update: true, delete: true)
+        file = package_archive_name('test_package', rel)
+        url = "#{Global::DOWNLOAD_BASE}/packages/#{file}"
+        set_origin_url GitHub::STAGING_HTTPS_URL
+        crew 'install', 'test_package'
+        expect(result).to eq(:ok)
+        expect(out).to eq("calculating dependencies for test_package: \n"    \
+                          "  dependencies to install: \n"                    \
+                          "downloading #{url}\n"                             \
+                          "checking integrity of the archive file #{file}\n" \
+                          "unpacking archive\n")
+        expect(pkg_cache_has_package?('test_package', rel)).to eq(true)
+      end
+    end
+
+    context 'test tool from release assets' do
+      it 'outputs info about installing test_tool 1.0.0:1' do
+        rel = pkg_cache_add_tool_with_formula('test_tool', update: true, delete: true)
+        file = tool_archive_name('test_tool', rel)
+        url = "#{Global::DOWNLOAD_BASE}/tools/#{file}"
+        set_origin_url GitHub::STAGING_HTTPS_URL
+        crew 'install', 'test_tool'
+        expect(result).to eq(:ok)
+        expect(out).to eq("calculating dependencies for test_tool: \n"    \
+                          "  dependencies to install: \n"                    \
+                          "downloading #{url}\n"                             \
+                          "checking integrity of the archive file #{file}\n" \
+                          "unpacking archive\n")
+        expect(pkg_cache_has_tool?('test_tool', rel)).to eq(true)
+      end
     end
   end
 end
