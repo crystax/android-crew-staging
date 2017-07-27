@@ -1,6 +1,7 @@
 require 'json'
 
 module Properties
+
   PROPERTIES_FILE = 'properties.json'
 
   def get_properties(dir)
