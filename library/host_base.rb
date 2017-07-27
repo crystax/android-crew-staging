@@ -81,12 +81,12 @@ class HostBase < Formula
   end
 
   def read_shasum(release, platform_name = Global::PLATFORM_NAME)
-    Shasum.read fqn, release, platform_name
+    Shasum.read qfn, release, platform_name
   end
 
   def update_shasum(release, platform_name)
     archive = cache_file(release, platform_name)
-    Shasum.update fqn, release, platform_name, Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
+    Shasum.update qfn, release, platform_name, Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
   end
 
   def write_file_list(package_dir, platform_name)

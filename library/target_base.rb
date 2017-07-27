@@ -28,12 +28,12 @@ class TargetBase < Formula
   end
 
   def read_shasum(release, _ = nil)
-    Shasum.read fqn, release, 'android'
+    Shasum.read qfn, release, 'android'
   end
 
   def update_shasum(release, _ = nil)
     archive = cache_file(release)
-    Shasum.update fqn, release, 'android', Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
+    Shasum.update qfn, release, 'android', Digest::SHA256.hexdigest(File.read(archive, mode: "rb"))
   end
 
   def copy_to_standalone_toolchain(_release, _arch, _target_include_dir, _target_lib_dir, _options)

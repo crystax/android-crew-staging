@@ -5,31 +5,31 @@ module Shasum
 
   FILE = "#{Global::BASE_DIR}/etc/shasums.txt"
 
-  def self.read(fqn, release, platform_name)
+  def self.read(qfn, release, platform_name)
     sums = read_file
-    key = key(fqn, release, platform_name)
+    key = key(qfn, release, platform_name)
     sums[key]
   end
 
-  def self.update(fqn, release, platform_name, shasum)
+  def self.update(qfn, release, platform_name, shasum)
     sums = read_file
-    key = key(fqn, release, platform_name)
+    key = key(qfn, release, platform_name)
     sums[key] = shasum
     write_file sums
   end
 
   # implementaion details
 
-  def self.key(fqn, release, platform_name)
-    "#{fqn} #{release} #{platform_name}"
+  def self.key(qfn, release, platform_name)
+    "#{qfn} #{release} #{platform_name}"
   end
 
   def self.read_file
     sums = Hash.new('')
     File.exist?(FILE) and File.open(FILE) do |f|
       f.each_line do |line|
-        fqn, release, platform_name, sum = line.split(' ')
-        key = key(fqn, release, platform_name)
+        qfn, release, platform_name, sum = line.split(' ')
+        key = key(qfn, release, platform_name)
         sums[key] = sum
       end
     end
