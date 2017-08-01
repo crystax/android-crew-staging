@@ -2,9 +2,9 @@ class Libsodium < Package
 
   desc "NaCl networking and cryptography library"
   homepage "https://github.com/jedisct1/libsodium/"
-  url "https://github.com/jedisct1/libsodium/releases/download/1.0.10/libsodium-${version}.tar.gz"
+  url "https://github.com/jedisct1/libsodium/releases/download/${version}/libsodium-${version}.tar.gz"
 
-  release version: '1.0.10', crystax_version: 1
+  release version: '1.0.13', crystax_version: 1
 
   build_copy 'LICENSE'
 
