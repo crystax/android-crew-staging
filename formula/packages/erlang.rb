@@ -4,7 +4,7 @@ class Erlang < Package
   homepage "https://www.erlang.org/"
   url "https://github.com/erlang/otp/archive/OTP-${version}.tar.gz"
 
-  release version: '19.3.1', crystax_version: 1
+  release version: '20.0.2', crystax_version: 1
 
   depends_on 'ncurses'
   depends_on 'openssl'

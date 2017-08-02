@@ -1,0 +1,31 @@
+diff -Naurw a/erts/etc/unix/run_erl.c b/erts/etc/unix/run_erl.c
+--- a/erts/etc/unix/run_erl.c	2017-02-07 11:46:32.000000000 +0300
++++ b/erts/etc/unix/run_erl.c	2017-03-02 14:25:56.000000000 +0300
+@@ -1100,6 +1100,12 @@
+   return sfd;
+ }
+ 
++#if defined(__ANDROID__)
++#define SHELL "/system/bin/sh"
++#else
++#define SHELL "/bin/sh"
++#endif /* __ANDROID__ */
++
+ /* exec_shell()
+  * Executes the named command (in argv format) in a /bin/sh. IO redirection
+  * should already have been taken care of, and this process should be the
+@@ -1110,7 +1116,7 @@
+   char *sh, **vp;
+   int i;
+ 
+-  sh = "/bin/sh";
++  sh = SHELL;
+   if ((argv[0] = strrchr(sh, '/')) != NULL)
+     argv[0]++;
+   else
+@@ -1440,5 +1446,3 @@
+ }
+ 
+ #endif /* DEBUG */
+-
+-
