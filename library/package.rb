@@ -106,33 +106,38 @@ class Package < TargetBase
   end
 
   def build(release, options, host_dep_dirs, target_dep_dirs)
+    @log_file = build_log_file
+
     arch_list = Build.abis_to_arch_list(options.abis)
     puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
 
     base_dir = build_base_dir
     FileUtils.rm_rf base_dir
     src_dir = "#{release_directory(release)}/#{SRC_DIR_BASENAME}"
-    @log_file = build_log_file
     @num_jobs = options.num_jobs
 
     build_env.clear
 
     if self.respond_to? :pre_build
-      print "= executing pre build step: "
+      build_log_print "= executing pre build step: "
       @pre_build_result = pre_build(src_dir, release)
-      puts @pre_build_result ? @pre_build_result : 'OK'
+      build_log_puts @pre_build_result ? @pre_build_result : 'OK'
     end
 
     toolchain = Build::DEFAULT_TOOLCHAIN
 
     FileUtils.mkdir_p package_dir
     arch_list.each do |arch|
-      puts "= building for architecture: #{arch.name}"
+      build_log_puts "= building for architecture: #{arch.name}"
       arch.abis_to_build.each do |abi|
-        puts "  building for abi: #{abi}"
+        build_log_puts "  building for abi: #{abi}"
         FileUtils.mkdir_p base_dir_for_abi(abi)
         build_dir = build_dir_for_abi(abi)
+        #
         FileUtils.cp_r "#{src_dir}/.", build_dir
+        timestamp = Time.new.localtime.strftime('%Y%m%d%H%M.%S')
+        Dir["#{build_dir}/**/*"].each { |f| Utils::run_command('touch', '-t', timestamp, f) }
+        #
         setup_build_env abi, toolchain if build_options[:setup_env]
         FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, host_dep_dirs, target_dep_dirs, options }
         copy_installed_files abi
@@ -143,20 +148,20 @@ class Package < TargetBase
     Build.gen_android_mk "#{package_dir}/Android.mk", build_libs, build_options if build_options[:gen_android_mk]
 
     if self.respond_to? :post_build
-      print "= executing post build step: "
+      build_log_print "= executing post build step: "
       @post_build_result = post_build(package_dir, release)
-      puts @post_build_result ? @post_build_result : 'OK'
+      build_log_puts @post_build_result ? @post_build_result : 'OK'
     end
 
     build_copy.each { |f| FileUtils.cp "#{src_dir}/#{f}", package_dir }
     copy_tests
 
     if options.build_only?
-      puts "Build only, no packaging and installing"
+      build_log_puts "Build only, no packaging and installing"
     else
       # pack archive and copy into cache dir
       archive = cache_file(release)
-      puts "Creating archive file #{archive}"
+      build_log_puts "Creating archive file #{archive}"
       Utils.pack(archive, package_dir)
 
       update_shasum release if options.update_shasum?
@@ -165,13 +170,13 @@ class Package < TargetBase
       # we do not use Formula's install method here to bypass SHA256 sum checks,
       # build command is intended for a developers
       if options.install?
-        puts "Unpacking archive into #{release_directory(release)}"
+        build_log_puts "Unpacking archive into #{release_directory(release)}"
         install_archive release, archive
       end
     end
 
     if options.no_clean?
-      puts "No cleanup, for build artifacts see #{base_dir}"
+      build_log_puts "No cleanup, for build artifacts see #{base_dir}"
     else
       FileUtils.rm_rf base_dir
     end
