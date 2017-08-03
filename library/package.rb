@@ -106,13 +106,14 @@ class Package < TargetBase
   end
 
   def build(release, options, host_dep_dirs, target_dep_dirs)
+    base_dir = build_base_dir
+    FileUtils.rm_rf base_dir
+    FileUtils.mkdir_p base_dir
     @log_file = build_log_file
 
     arch_list = Build.abis_to_arch_list(options.abis)
-    puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
+    build_log_puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
 
-    base_dir = build_base_dir
-    FileUtils.rm_rf base_dir
     src_dir = "#{release_directory(release)}/#{SRC_DIR_BASENAME}"
     @num_jobs = options.num_jobs
 
