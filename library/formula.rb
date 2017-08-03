@@ -333,6 +333,16 @@ class Formula
     [url, commit]
   end
 
+  def build_log_print(msg)
+    File.open(@log_file, "a") { |log| log.print msg }
+    print msg
+  end
+
+  def build_log_puts(msg)
+    File.open(@log_file, "a") { |log| log.puts msg }
+    puts msg
+  end
+
   def system(*args)
     cmd = args.join(' ')
     File.open(@log_file, "a") do |log|
