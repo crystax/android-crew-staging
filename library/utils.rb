@@ -15,6 +15,35 @@ module Utils
   @@patch_prog = '/usr/bin/patch'
   @@unzip_prog = '/usr/bin/unzip'
 
+  # returns [file_name, release_str, platform_name]
+  # for target archives platform will be 'android'
+  def self.split_archive_path(path)
+    raise "unssupported archive type: #{path}" unless path.end_with? Global::ARCH_EXT
+
+    type_dir = File.basename(File.dirname(path))
+    filename = File.basename(path, ".#{Global::ARCH_EXT}")
+
+    case type_dir
+    when Global::NS_DIR[:target]
+      platform_name = 'android'
+      arr = filename.split('-')
+      raise "bad package filename #{filename}" if arr.size < 2
+      name = arr[0]
+      release_str = arr.drop(1).join('-')
+    when Global::NS_DIR[:host]
+      arr = filename.split('-')
+      raise "bad tool filename #{filename}" if arr.size < 3
+      name = arr[0]
+      arr = arr.drop(1)
+      platform_name = arr.pop
+      platform_name = "#{arr.pop}-#{platform_name}" if platform_name == 'x86_64'
+      release_str = arr.join('-')
+    else
+      raise "bad package cache archive type: #{type_dir}"
+    end
+
+    [name, release_str, platform_name]
+  end
 
   def self.split_package_version(pkgver)
     r = pkgver.split('_')

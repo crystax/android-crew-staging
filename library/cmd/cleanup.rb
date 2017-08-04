@@ -42,13 +42,12 @@ module Crew
     split_formulary = { host: formulary.tools, target: formulary.packages }
     [:host, :target].each do |ns|
       Dir["#{Global::PKG_CACHE_DIR}/#{Global::NS_DIR[ns]}/*"].each do |archive|
-        filename, pkgver = File.basename(archive).split('-')
+        filename, pkgver, _ = Utils.split_archive_path(archive)
         begin
           version, crystax_version = Utils.split_package_version(pkgver)
           formulas = split_formulary[ns].select { |f| f.file_name == filename }
           raise FormulaUnavailableError.new(name) if formulas.empty?
           formulas[0].find_release(Release.new(version, crystax_version))
-        #rescue FormulaUnavailableError, ReleaseNotFound, Exception => e
         rescue Exception => e
           remove << RemoveData.new(archive, e.to_s)
         end
