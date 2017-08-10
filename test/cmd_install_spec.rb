@@ -12,6 +12,7 @@ describe "crew install" do
   before(:each) do
     clean_hold
     clean_cache
+    environment_init
     repository_init
     repository_clone
   end
@@ -215,8 +216,10 @@ describe "crew install" do
       it 'outputs info about installing test_package 1.0.0:1' do
         rel = pkg_cache_add_package_with_formula('test_package', update: true, delete: true)
         file = package_archive_name('test_package', rel)
-        url = "#{Global::DOWNLOAD_BASE}/packages/#{file}"
+        ENV['CREW_DOWNLOAD_BASE'] = nil
         set_origin_url GitHub::STAGING_HTTPS_URL
+        crew_checked 'env',  '--download-base'
+        url = "#{out.strip}/packages.#{file}"
         crew 'install', 'test_package'
         expect(result).to eq(:ok)
         expect(out).to eq("calculating dependencies for test_package: \n"    \
@@ -232,15 +235,18 @@ describe "crew install" do
       it 'outputs info about installing test_tool 1.0.0:1' do
         rel = pkg_cache_add_tool_with_formula('test_tool', update: true, delete: true)
         file = tool_archive_name('test_tool', rel)
-        url = "#{Global::DOWNLOAD_BASE}/tools/#{file}"
+        ENV['CREW_DOWNLOAD_BASE'] = nil
         set_origin_url GitHub::STAGING_HTTPS_URL
+        crew_checked 'env',  '--download-base'
+        url = "#{out.strip}/tools.#{file}"
         crew 'install', 'test_tool'
         expect(result).to eq(:ok)
-        expect(out).to eq("calculating dependencies for test_tool: \n"    \
-                          "  dependencies to install: \n"                    \
-                          "downloading #{url}\n"                             \
-                          "checking integrity of the archive file #{file}\n" \
-                          "unpacking archive\n")
+        expect(out.split("\n")).to eq(["calculating dependencies for test_tool: ",
+                                       "  dependencies to install: ",
+                                       "downloading #{url}",
+                                       "checking integrity of the archive file #{file}",
+                                       "unpacking archive"
+                                      ])
         expect(pkg_cache_has_tool?('test_tool', rel)).to eq(true)
       end
     end

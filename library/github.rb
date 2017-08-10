@@ -7,6 +7,5 @@ module GitHub
 
   STAGING_SSH_URL       = "git@github.com:#{OWNER}/#{STAGING_REPO_NAME}.git"
   STAGING_HTTPS_URL     = "https://github.com/#{OWNER}/#{STAGING_REPO_NAME}.git"
-  STAGING_DONWLOAD_BASE = "https://api.github.com/repos/#{OWNER}/#{STAGING_REPO_NAME}/releases/#{STAGING_RELEASE_ID}/assets"
-
+  STAGING_DONWLOAD_BASE = "https://github.com/#{OWNER}/#{STAGING_REPO_NAME}/releases/download/staging"
 end
