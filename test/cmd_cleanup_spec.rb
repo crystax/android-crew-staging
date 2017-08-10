@@ -48,16 +48,25 @@ describe "crew cleanup" do
       end
     end
 
-    context 'when there are no formulas and nothing installed and there are two unknown files in the package cache' do
+    context 'when there are no formulas and nothing installed and there is unknown file in the tools package cache' do
       it 'outputs info about removing files' do
-        tool_path = pkg_cache_path_in(:host, 'tool')
-        package_path = pkg_cache_path_in(:target, 'package')
-        FileUtils.touch [tool_path, package_path]
+        filename = 'tool'
+        tool_path = pkg_cache_path_in(:host, filename)
+        FileUtils.touch tool_path
         crew 'cleanup', '--pkg-cache'
-        expect(result).to eq(:ok)
-        expect(out.split("\n")).to eq(["removing: #{tool_path}; reason: undefined method `split' for nil:NilClass",
-                                       "removing: #{package_path}; reason: undefined method `split' for nil:NilClass"
-                                      ])
+        expect(exitstatus).to_not be_zero
+        expect(err.split("\n")[0]).to eq("error: unsupported archive type: #{Global::PKG_CACHE_DIR}/#{Global::NS_DIR[:host]}/#{filename}")
+      end
+    end
+
+    context 'when there are no formulas and nothing installed and there is unknown file in the packages package cache' do
+      it 'outputs info about removing files' do
+        filename = 'package'
+        package_path = pkg_cache_path_in(:target, filename)
+        FileUtils.touch package_path
+        crew 'cleanup', '--pkg-cache'
+        expect(exitstatus).to_not be_zero
+        expect(err.split("\n")[0]).to eq("error: unsupported archive type: #{Global::PKG_CACHE_DIR}/#{Global::NS_DIR[:target]}/#{filename}")
       end
     end
 
