@@ -18,7 +18,7 @@ module Utils
   # returns [file_name, release_str, platform_name]
   # for target archives platform will be 'android'
   def self.split_archive_path(path)
-    raise "unssupported archive type: #{path}" unless path.end_with? Global::ARCH_EXT
+    raise "unsupported archive type: #{path}" unless path.end_with? Global::ARCH_EXT
 
     type_dir = File.basename(File.dirname(path))
     filename = File.basename(path, ".#{Global::ARCH_EXT}")
