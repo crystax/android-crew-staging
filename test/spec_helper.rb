@@ -23,13 +23,13 @@ FileUtils.rm_rf Crew::Test::CREW_DIR
 
 FileUtils.mkdir_p File.join(Crew::Test::NDK_DIR, 'sources')
 FileUtils.mkdir_p File.join(Crew::Test::CREW_DIR, 'formula')
-FileUtils.mkdir_p File.join(Crew::Test::CREW_DIR, 'cache')
 FileUtils.mkdir_p File.join(Crew::Test::CREW_DIR, 'patches')
 
-ENV['CREW_DOWNLOAD_BASE']  = Crew::Test::DOWNLOAD_BASE
-ENV['CREW_BASE_DIR']       = "#{Dir.pwd}/#{Crew::Test::CREW_DIR}"
-ENV['CREW_NDK_DIR']        = "#{Dir.pwd}/#{Crew::Test::NDK_DIR}"
-ENV['CREW_PKG_CACHE_BASE'] = "#{Dir.pwd}/#{Crew::Test::PKG_CACHE_BASE}"
+ENV['CREW_DOWNLOAD_BASE'] = Crew::Test::DOWNLOAD_BASE
+ENV['CREW_BASE_DIR']      = "#{Dir.pwd}/#{Crew::Test::CREW_DIR}"
+ENV['CREW_NDK_DIR']       = "#{Dir.pwd}/#{Crew::Test::NDK_DIR}"
+ENV['CREW_PKG_CACHE_DIR'] = "#{Dir.pwd}/#{Crew::Test::PKG_CACHE_DIR}"
+ENV['CREW_SRC_CACHE_DIR'] = "#{Dir.pwd}/#{Crew::Test::SRC_CACHE_DIR}"
 
 # global.rb requires evn vars to be set so we put it here
 require_relative '../library/global.rb'

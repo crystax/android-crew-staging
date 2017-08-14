@@ -235,9 +235,9 @@ otherwise the specified version will be used.
 
 ``build`` command works only with library formulas.
 
-The resulting packages will be copied into a cache dir (usually,
-``/var/tmp/ndk-cache-$USER``) and unpacked into NDK's ``packages``
-directory exactly as ``install`` command would do.
+The resulting packages will be copied into a package cache dir (default
+depends on the host OS) and unpacked into NDK's ``packages`` directory
+exactly as ``install`` command would do.
 
 Example:
 
@@ -339,7 +339,17 @@ Example:
     Removing: boost 1.57.0
 
 
-3. Class Hierarchy
+3. Environment variables
+--------------------------------
+
+* ```CREW_PKG_CACHE_DIR```
+* ```CREW_SRC_CACHE_DIR```
+* ```CREW_BASE_DIR```
+* ```CREW_NDK_DIR```
+* ```CREW_DOWNLOAD_BASE```
+
+
+4. Class Hierarchy
 --------------------------------
 
 ```

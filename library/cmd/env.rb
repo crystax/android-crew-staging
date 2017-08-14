@@ -7,8 +7,8 @@ module Crew
     case args.length
     when 0
       puts "DOWNLOAD_BASE:  #{Global::DOWNLOAD_BASE}"
-      puts "PKG_CACHE_BASE: #{Global::PKG_CACHE_BASE}"
-      puts "SRC_CACHE_BASE: #{Global::SRC_CACHE_BASE}"
+      puts "PKG_CACHE_DIR:  #{Global::PKG_CACHE_DIR}"
+      puts "SRC_CACHE_DIR:  #{Global::SRC_CACHE_DIR}"
       puts "BASE_DIR:       #{Global::BASE_DIR}"
       puts "NDK_DIR:        #{Global::NDK_DIR}"
       puts "TOOLS_DIR:      #{Global::TOOLS_DIR}"

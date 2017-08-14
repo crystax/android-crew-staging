@@ -59,8 +59,8 @@ describe "simple crew commands" do
           crew 'env'
           expect(result).to eq(:ok)
           expect(out.split("\n")).to eq(["DOWNLOAD_BASE:  #{Global::DOWNLOAD_BASE}",
-                                         "PKG_CACHE_BASE: #{Global::PKG_CACHE_BASE}",
-                                         "SRC_CACHE_BASE: #{Global::SRC_CACHE_BASE}",
+                                         "PKG_CACHE_DIR:  #{Global::PKG_CACHE_DIR}",
+                                         "SRC_CACHE_DIR:  #{Global::SRC_CACHE_DIR}",
                                          "BASE_DIR:       #{Global::BASE_DIR}",
                                          "NDK_DIR:        #{Global::NDK_DIR}",
                                          "TOOLS_DIR:      #{Global::TOOLS_DIR}",

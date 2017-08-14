@@ -1,5 +1,6 @@
 require 'pathname'
 require 'rugged'
+require_relative 'exceptions.rb'
 require_relative 'github.rb'
 
 module Global
@@ -90,6 +91,32 @@ module Global
     dir
   end
 
+  def self.default_src_cache_dir(os)
+    case os
+    when 'darwin'
+      "#{ENV['HOME']}/Library/Caches/Crew/sources"
+    when 'linux'
+      "#{ENV['HOME']}/.caches/crew/sources"
+    when 'windows'
+      "#{BASE_DIR}/cache/sources"
+    else
+      raise UnsupportedOS.new(OS)
+    end
+  end
+
+  def self.default_pkg_cache_dir(os)
+    case os
+    when 'darwin'
+      "#{ENV['HOME']}/Library/Caches/crew"
+    when 'linux'
+      "#{ENV['HOME']}/.caches/crew"
+    when 'windows'
+      "#{BASE_DIR}/cache"
+    else
+      raise UnsupportedOS.new(OS)
+    end
+  end
+
   def self.pkg_cache_dir(formula)
     File.join(PKG_CACHE_DIR, NS_DIR[formula.namespace])
   end
@@ -97,12 +124,12 @@ module Global
   VERSION = "0.3.0"
   OS = operating_system
 
-  PKG_CACHE_BASE = [nil, ''].include?(ENV['CREW_PKG_CACHE_BASE']) ? "/var/tmp"                                           : ENV['CREW_PKG_CACHE_BASE']
-  SRC_CACHE_BASE = [nil, ''].include?(ENV['CREW_SRC_CACHE_BASE']) ? nil                                                  : ENV['CREW_SRC_CACHE_BASE']
-  BASE_DIR       = [nil, ''].include?(ENV['CREW_BASE_DIR'])       ? Pathname.new(__FILE__).realpath.dirname.dirname.to_s : Pathname.new(ENV['CREW_BASE_DIR']).realpath.to_s
-  NDK_DIR        = [nil, ''].include?(ENV['CREW_NDK_DIR'])        ? Pathname.new(BASE_DIR).realpath.dirname.to_s         : Pathname.new(ENV['CREW_NDK_DIR']).realpath.to_s
-  DOWNLOAD_BASE  = [nil, ''].include?(ENV['CREW_DOWNLOAD_BASE'])  ? default_download_base(BASE_DIR)                      : ENV['CREW_DOWNLOAD_BASE']
-  TOOLS_DIR      = def_tools_dir(NDK_DIR, OS)
+  BASE_DIR      = [nil, ''].include?(ENV['CREW_BASE_DIR'])      ? Pathname.new(__FILE__).realpath.dirname.dirname.to_s : Pathname.new(ENV['CREW_BASE_DIR']).realpath.to_s
+  NDK_DIR       = [nil, ''].include?(ENV['CREW_NDK_DIR'])       ? Pathname.new(BASE_DIR).realpath.dirname.to_s         : Pathname.new(ENV['CREW_NDK_DIR']).realpath.to_s
+  DOWNLOAD_BASE = [nil, ''].include?(ENV['CREW_DOWNLOAD_BASE']) ? default_download_base(BASE_DIR)                      : ENV['CREW_DOWNLOAD_BASE']
+  SRC_CACHE_DIR = [nil, ''].include?(ENV['CREW_SRC_CACHE_DIR']) ? default_src_cache_dir(OS)                            : ENV['CREW_SRC_CACHE_DIR']
+  PKG_CACHE_DIR = [nil, ''].include?(ENV['CREW_PKG_CACHE_DIR']) ? default_pkg_cache_dir(OS)                            : ENV['CREW_PKG_CACHE_DIR']
+  TOOLS_DIR     = def_tools_dir(NDK_DIR, OS)
 
   PLATFORM_NAME = File.basename(TOOLS_DIR)
 
@@ -113,11 +140,10 @@ module Global
   BUILD_DEPENDENCIES_DIR = create_required_dir(build_dependencies_dir(PLATFORM_NAME)).realpath
   PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
   FORMULA_DIR            = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
-  SRC_CACHE_DIR          = create_required_dir(SRC_CACHE_BASE ? "#{SRC_CACHE_BASE}/crew-src-cache-#{ENV['USER']}" : File.join(BASE_DIR, 'cache')).realpath.to_s
-  PKG_CACHE_DIR          = "#{PKG_CACHE_BASE}/crew-pkg-cache-#{ENV['USER']}"
 
-  _ = create_required_dir(File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[:host]))
-  _ = create_required_dir(File.join(Global::PKG_CACHE_DIR, Global::NS_DIR[:target]))
+  _ = create_required_dir(SRC_CACHE_DIR)
+  _ = create_required_dir(File.join(PKG_CACHE_DIR, NS_DIR[:host]))
+  _ = create_required_dir(File.join(PKG_CACHE_DIR, NS_DIR[:target]))
 
 
   EXE_EXT  = RbConfig::CONFIG['EXEEXT']

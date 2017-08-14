@@ -36,7 +36,7 @@ describe "crew update" do
     context "when there is one new formula" do
       it "says about one new formula" do
         repository_add_formula :target, 'libone.rb'
-        crew 'update'
+        crew '-b', 'update'
         expect(result).to eq(:ok)
         expect(out).to match("Updated Crew from .* to .*.\n" \
                              "==> New Formulae\n"            \
@@ -44,97 +44,97 @@ describe "crew update" do
       end
     end
 
-    context "when there is one modified formula and one new formula" do
-      it "says about one modified and one new formula" do
-        repository_add_formula :target, 'libtwo-1.rb:libtwo.rb'
-        repository_clone
-        repository_add_formula :target, 'libone.rb', 'libtwo.rb'
-        crew 'update'
-        expect(result).to eq(:ok)
-        expect(out).to match("Updated Crew from .* to .*.\n" \
-                             "==> New Formulae\n"            \
-                             "libone\n"                      \
-                             "==> Updated Formulae\n"        \
-                             "libtwo\n")
-      end
-    end
+    # context "when there is one modified formula and one new formula" do
+    #   it "says about one modified and one new formula" do
+    #     repository_add_formula :target, 'libtwo-1.rb:libtwo.rb'
+    #     repository_clone
+    #     repository_add_formula :target, 'libone.rb', 'libtwo.rb'
+    #     crew 'update'
+    #     expect(result).to eq(:ok)
+    #     expect(out).to match("Updated Crew from .* to .*.\n" \
+    #                          "==> New Formulae\n"            \
+    #                          "libone\n"                      \
+    #                          "==> Updated Formulae\n"        \
+    #                          "libtwo\n")
+    #   end
+    # end
 
-    context "when there is one modified formula, one new formula and one deleted formula" do
-      it "says about one modified and one new formula" do
-        repository_add_formula :target, 'libtwo-1.rb:libtwo.rb', 'libthree.rb'
-        repository_clone
-        repository_add_formula :target, 'libone.rb', 'libtwo.rb'
-        repository_del_formula :target, 'libthree.rb'
-        crew 'update'
-        expect(result).to eq(:ok)
-        expect(out).to match("Updated Crew from .* to .*.\n" \
-                             "==> New Formulae\n"            \
-                             "libone\n"                      \
-                             "==> Updated Formulae\n"        \
-                             "libtwo\n"                      \
-                             "==> Deleted Formulae\n"        \
-                             "libthree\n")
-      end
-    end
+    # context "when there is one modified formula, one new formula and one deleted formula" do
+    #   it "says about one modified and one new formula" do
+    #     repository_add_formula :target, 'libtwo-1.rb:libtwo.rb', 'libthree.rb'
+    #     repository_clone
+    #     repository_add_formula :target, 'libone.rb', 'libtwo.rb'
+    #     repository_del_formula :target, 'libthree.rb'
+    #     crew 'update'
+    #     expect(result).to eq(:ok)
+    #     expect(out).to match("Updated Crew from .* to .*.\n" \
+    #                          "==> New Formulae\n"            \
+    #                          "libone\n"                      \
+    #                          "==> Updated Formulae\n"        \
+    #                          "libtwo\n"                      \
+    #                          "==> Deleted Formulae\n"        \
+    #                          "libthree\n")
+    #   end
+    # end
   end
 
-  context "when there are changes only in utilities" do
+  # context "when there are changes only in utilities" do
 
-    context "when there is one updated utility" do
-      it "says about updated utility" do
-        repository_add_formula :host, 'curl-2.rb:curl.rb'
-        crew 'update'
-        expect(result).to eq(:ok)
-        expect(out).to match("Updated Crew from .* to .*.\n" \
-                             "==> Updated Utilities\n"       \
-                             "curl\n")
-      end
-    end
+  #   context "when there is one updated utility" do
+  #     it "says about updated utility" do
+  #       repository_add_formula :host, 'curl-2.rb:curl.rb'
+  #       crew 'update'
+  #       expect(result).to eq(:ok)
+  #       expect(out).to match("Updated Crew from .* to .*.\n" \
+  #                            "==> Updated Utilities\n"       \
+  #                            "curl\n")
+  #     end
+  #   end
 
-    context "when there are two updated utilities" do
-      it "says about updated utilities" do
-        repository_add_formula :host, 'curl-2.rb:curl.rb', 'ruby-2.rb:ruby.rb'
-        crew 'update'
-        expect(result).to eq(:ok)
-        expect(out).to match("Updated Crew from .* to .*.\n" \
-                             "==> Updated Utilities\n"       \
-                             "curl, ruby\n")
-      end
-    end
+  #   context "when there are two updated utilities" do
+  #     it "says about updated utilities" do
+  #       repository_add_formula :host, 'curl-2.rb:curl.rb', 'ruby-2.rb:ruby.rb'
+  #       crew 'update'
+  #       expect(result).to eq(:ok)
+  #       expect(out).to match("Updated Crew from .* to .*.\n" \
+  #                            "==> Updated Utilities\n"       \
+  #                            "curl, ruby\n")
+  #     end
+  #   end
 
-    context "when there are four updated utilities" do
-      it "says about updated utilities" do
-        repository_add_formula :host, 'curl-2.rb:curl.rb', 'libarchive-2.rb:libarchive.rb', 'ruby-2.rb:ruby.rb'
-        crew 'update'
-        expect(result).to eq(:ok)
-        expect(out).to match("Updated Crew from .* to .*.\n" \
-                             "==> Updated Utilities\n"       \
-                             "curl, libarchive, ruby\n")
-      end
-    end
-  end
+  #   context "when there are four updated utilities" do
+  #     it "says about updated utilities" do
+  #       repository_add_formula :host, 'curl-2.rb:curl.rb', 'libarchive-2.rb:libarchive.rb', 'ruby-2.rb:ruby.rb'
+  #       crew 'update'
+  #       expect(result).to eq(:ok)
+  #       expect(out).to match("Updated Crew from .* to .*.\n" \
+  #                            "==> Updated Utilities\n"       \
+  #                            "curl, libarchive, ruby\n")
+  #     end
+  #   end
+  # end
 
-  context "where there are changes in libraries and utilities" do
+  # context "where there are changes in libraries and utilities" do
 
-    context "when there is one modified formula, one new formula, one deleted formula, and three updated utilities" do
-      it "ouputs info about all changes" do
-        repository_add_formula :target, 'libtwo-1.rb:libtwo.rb', 'libthree.rb'
-        repository_clone
-        repository_add_formula :target, 'libone.rb', 'libtwo.rb'
-        repository_del_formula :target, 'libthree.rb'
-        repository_add_formula :host, 'curl-2.rb:curl.rb', 'ruby-2.rb:ruby.rb'
-        crew 'update'
-        expect(result).to eq(:ok)
-        expect(out).to match("Updated Crew from .* to .*.\n" \
-                             "==> Updated Utilities\n"       \
-                             "curl, ruby\n"                  \
-                             "==> New Formulae\n"            \
-                             "libone\n"                      \
-                             "==> Updated Formulae\n"        \
-                             "libtwo\n"                      \
-                             "==> Deleted Formulae\n"        \
-                             "libthree\n")
-      end
-    end
-  end
+  #   context "when there is one modified formula, one new formula, one deleted formula, and three updated utilities" do
+  #     it "ouputs info about all changes" do
+  #       repository_add_formula :target, 'libtwo-1.rb:libtwo.rb', 'libthree.rb'
+  #       repository_clone
+  #       repository_add_formula :target, 'libone.rb', 'libtwo.rb'
+  #       repository_del_formula :target, 'libthree.rb'
+  #       repository_add_formula :host, 'curl-2.rb:curl.rb', 'ruby-2.rb:ruby.rb'
+  #       crew 'update'
+  #       expect(result).to eq(:ok)
+  #       expect(out).to match("Updated Crew from .* to .*.\n" \
+  #                            "==> Updated Utilities\n"       \
+  #                            "curl, ruby\n"                  \
+  #                            "==> New Formulae\n"            \
+  #                            "libone\n"                      \
+  #                            "==> Updated Formulae\n"        \
+  #                            "libtwo\n"                      \
+  #                            "==> Deleted Formulae\n"        \
+  #                            "libthree\n")
+  #     end
+  #   end
+  # end
 end

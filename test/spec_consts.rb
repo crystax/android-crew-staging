@@ -43,13 +43,14 @@ module Crew
     UTILS_FILES         = ['curl', 'libarchive', 'ruby']
     PORT                = 9999
     DOWNLOAD_BASE       = "http://localhost:#{PORT}"
-    PKG_CACHE_BASE      = 'pkg.cache'
+    SRC_CACHE_DIR       = 'src.cache'
+    PKG_CACHE_DIR       = 'pkg.cache'
     DATA_DIR            = 'data'
     CREW_DIR            = 'crew'
     NDK_DIR             = 'ndk'
     NDK_COPY_DIR        = 'ndk.copy'
     WWW_DIR             = 'www'
-    DOCROOT_DIR         = "#{WWW_DIR}/crew-pkg-cache-#{ENV['USER']}"
+    DOCROOT_DIR         = WWW_DIR
     DATA_READY_FILE     = '.testdataprepared'
     UTILS_RELEASES_FILE = 'data/releases_info.rb'
   end

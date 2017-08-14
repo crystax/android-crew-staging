@@ -98,15 +98,15 @@ module Spec
 
     def crew_update_shasum(base_dir)
       old_base = ENV['CREW_BASE_DIR']
-      old_pkg  = ENV['CREW_PKG_CACHE_BASE']
+      old_pkg  = ENV['CREW_PKG_CACHE_DIR']
 
-      ENV['CREW_BASE_DIR']       = base_dir
-      ENV['CREW_PKG_CACHE_BASE'] = Pathname.new(Crew::Test::WWW_DIR).realpath.to_s
+      ENV['CREW_BASE_DIR']      = base_dir
+      ENV['CREW_PKG_CACHE_DIR'] = Pathname.new(Crew::Test::WWW_DIR).realpath.to_s
 
       crew 'shasum', '--update'
 
-      ENV['CREW_BASE_DIR']       = old_base
-      ENV['CREW_PKG_CACHE_BASE'] = old_pkg
+      ENV['CREW_BASE_DIR']      = old_base
+      ENV['CREW_PKG_CACHE_DIR'] = old_pkg
 
       raise CrewFailed.new(command, exitstatus, err) if exitstatus != 0 or err != ''
     end
@@ -142,10 +142,10 @@ module Spec
     end
 
     def environment_init
-      ENV['CREW_DOWNLOAD_BASE']  = Crew::Test::DOWNLOAD_BASE
-      ENV['CREW_BASE_DIR']       = "#{Dir.pwd}/#{Crew::Test::CREW_DIR}"
-      ENV['CREW_NDK_DIR']        = "#{Dir.pwd}/#{Crew::Test::NDK_DIR}"
-      ENV['CREW_PKG_CACHE_BASE'] = "#{Dir.pwd}/#{Crew::Test::PKG_CACHE_BASE}"
+      ENV['CREW_DOWNLOAD_BASE'] = Crew::Test::DOWNLOAD_BASE
+      ENV['CREW_BASE_DIR']      = "#{Dir.pwd}/#{Crew::Test::CREW_DIR}"
+      ENV['CREW_NDK_DIR']       = "#{Dir.pwd}/#{Crew::Test::NDK_DIR}"
+      ENV['CREW_PKG_CACHE_DIR'] = "#{Dir.pwd}/#{Crew::Test::PKG_CACHE_DIR}"
     end
 
     def set_origin_url(url)
@@ -319,7 +319,7 @@ module Spec
       # clone network repository, clean it and push back
       FileUtils.rm_rf net_origin_dir
       repo = Repository.clone_at(TEST_REPO_GIT_URL, net_origin_dir, credentials: ssl_key)
-      Find.find("#{net_origin_dir}/cache", "#{net_origin_dir}/formula") do |f|
+      Find.find("#{net_origin_dir}/formula") do |f|
         if File.file?(f)
           File.unlink f
           repo.remove(f.gsub("#{net_origin_dir}/", ''))
@@ -398,10 +398,10 @@ module Spec
       orig_host_dir = Pathname.new("../formula/#{Global::NS_DIR[:host]}").realpath.to_s
       data_dir = Pathname.new(Crew::Test::DATA_DIR).realpath.to_s
       FileUtils.cd(dir) do
-        FileUtils.mkdir_p ['etc', 'cache', 'patches', host_dir, target_dir]
+        FileUtils.mkdir_p ['etc', 'patches', host_dir, target_dir]
         # copy crew tools formulas
         Crew::Test::ALL_TOOLS.each { |t| FileUtils.cp "#{data_dir}/#{t.filename}-1.rb", "#{host_dir}/#{t.filename}.rb" }
-        ['etc/.placeholder', 'cache/.placeholder', "#{target_dir}/.placeholder", 'patches/.placeholder'].each do |file|
+        ['etc/.placeholder', "#{target_dir}/.placeholder", 'patches/.placeholder'].each do |file|
           FileUtils.touch file
           repo.add file
         end

@@ -74,12 +74,18 @@ end
 
 class UnknownAbi < RuntimeError
   def initialize(abi)
-    super "unknown abi #{abi}"
+    super "unknown abi: #{abi}"
   end
 end
 
 class UnsupportedArch < RuntimeError
   def initialize(arch)
-    super "unsupported architecture #{arch}"
+    super "unsupported architecture: #{arch}"
+  end
+end
+
+class UnsupportedOS < RuntimeError
+  def initialize(os)
+    super "unsupported OS: #{os}"
   end
 end
