@@ -5,6 +5,7 @@ require_relative '../library/global.rb'
 
 describe "Test how Crew works over HTTPS" do
   before(:all) do
+    environment_init
     ndk_init
   end
 

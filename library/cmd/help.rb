@@ -104,6 +104,9 @@ The ENV command supports the following options:
   --base-build-dir
                  output path to the base build directory
 
+  --git-origin
+                 output origin url
+
 EOS
 
 LIST_HELP = <<-EOS

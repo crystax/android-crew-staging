@@ -6,6 +6,7 @@ require_relative '../library/cmd/help.rb'
 
 describe "simple crew commands" do
   before(:all) do
+    environment_init
     ndk_init
   end
 
@@ -64,7 +65,26 @@ describe "simple crew commands" do
                                          "BASE_DIR:       #{Global::BASE_DIR}",
                                          "NDK_DIR:        #{Global::NDK_DIR}",
                                          "TOOLS_DIR:      #{Global::TOOLS_DIR}",
-                                         "BASE_BUILD_DIR: #{Build::BASE_BUILD_DIR}"
+                                         "BASE_BUILD_DIR: #{Build::BASE_BUILD_DIR}",
+                                         "GIT origin:     #{origin_url}"
+                                        ])
+        end
+      end
+
+      context 'without arguments and origin set to ssh github url' do
+        it "outputs crew's default working environment" do
+          ENV['CREW_DOWNLOAD_BASE'] = nil
+          set_origin_url GitHub::STAGING_SSH_URL
+          crew 'env'
+          expect(result).to eq(:ok)
+          expect(out.split("\n")).to eq(["DOWNLOAD_BASE:  #{GitHub::STAGING_DONWLOAD_BASE}",
+                                         "PKG_CACHE_DIR:  #{Global::PKG_CACHE_DIR}",
+                                         "SRC_CACHE_DIR:  #{Global::SRC_CACHE_DIR}",
+                                         "BASE_DIR:       #{Global::BASE_DIR}",
+                                         "NDK_DIR:        #{Global::NDK_DIR}",
+                                         "TOOLS_DIR:      #{Global::TOOLS_DIR}",
+                                         "BASE_BUILD_DIR: #{Build::BASE_BUILD_DIR}",
+                                         "GIT origin:     #{GitHub::STAGING_SSH_URL}"
                                         ])
         end
       end
@@ -134,6 +154,34 @@ describe "simple crew commands" do
           crew 'env --src-cache-dir'
           expect(result).to eq(:ok)
           expect(out.strip).to eq(Global::SRC_CACHE_DIR)
+        end
+      end
+
+      context "with --git-origin option" do
+        it "outputs crew's origin url string" do
+          crew 'env --git-origin'
+          expect(result).to eq(:ok)
+          expect(out.strip).to eq(origin_url)
+        end
+      end
+
+      context "with --git-origin option and origin set to ssh github url" do
+        it "outputs crew's origin url string" do
+          ENV['CREW_DOWNLOAD_BASE'] = nil
+          set_origin_url GitHub::STAGING_SSH_URL
+          crew 'env --git-origin'
+          expect(result).to eq(:ok)
+          expect(out.strip).to eq(GitHub::STAGING_SSH_URL)
+        end
+      end
+
+      context "with --git-origin option and origin set to https github url" do
+        it "outputs crew's origin url string" do
+          ENV['CREW_DOWNLOAD_BASE'] = nil
+          set_origin_url GitHub::STAGING_HTTPS_URL
+          crew 'env --git-origin'
+          expect(result).to eq(:ok)
+          expect(out.strip).to eq(GitHub::STAGING_HTTPS_URL)
         end
       end
     end

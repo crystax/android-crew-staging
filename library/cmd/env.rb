@@ -1,9 +1,12 @@
+require 'rugged'
 require_relative '../exceptions.rb'
 require_relative '../build.rb'
 
 module Crew
 
   def self.env(args)
+    origin = Rugged::Repository.new(Global::BASE_DIR).remotes['origin'].url
+
     case args.length
     when 0
       puts "DOWNLOAD_BASE:  #{Global::DOWNLOAD_BASE}"
@@ -13,6 +16,7 @@ module Crew
       puts "NDK_DIR:        #{Global::NDK_DIR}"
       puts "TOOLS_DIR:      #{Global::TOOLS_DIR}"
       puts "BASE_BUILD_DIR: #{Build::BASE_BUILD_DIR}"
+      puts "GIT origin:     #{origin}"
     when 1
       case args[0]
       when '--download-base'
@@ -27,6 +31,8 @@ module Crew
         puts Global::SRC_CACHE_DIR
       when '--base-build-dir'
         puts Build::BASE_BUILD_DIR
+      when '--git-origin'
+        puts origin
       else
         raise "bad argument: #{args[0]}"
       end

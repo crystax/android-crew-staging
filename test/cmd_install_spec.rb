@@ -6,6 +6,7 @@ require_relative '../library/github.rb'
 
 describe "crew install" do
   before(:all) do
+    environment_init
     ndk_init
   end
 

@@ -3,6 +3,7 @@ require_relative 'spec_helper.rb'
 
 describe "crew remove" do
   before(:all) do
+    environment_init
     ndk_init
   end
 

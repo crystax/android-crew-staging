@@ -6,6 +6,7 @@ require_relative '../library/global.rb'
 
 describe "crew upgrade" do
   before(:all) do
+    environment_init
     ndk_init
   end
 

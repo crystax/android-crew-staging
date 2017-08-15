@@ -5,6 +5,7 @@ require_relative 'spec_helper.rb'
 
 describe "crew list" do
   before(:all) do
+    environment_init
     ndk_init
   end
 
