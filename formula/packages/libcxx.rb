@@ -33,6 +33,20 @@ class Libcxx < BasePackage
     release.installed = release.crystax_version
   end
 
+  def uninstall(release)
+    puts "removing #{name}:#{release.version}"
+
+    FileUtils.rm_rf "#{Global::NDK_DIR}/#{archive_sub_dir(release)}"
+
+    prop_dir = properties_directory(release)
+    prop = get_properties(prop_dir)
+    prop[:installed] = false
+    prop.delete :installed_crystax_version
+    save_properties prop, prop_dir
+
+    release.installed = false
+  end
+
   def build(release, options, _host_dep_dirs, _target_dep_dirs)
     arch_list = Build.abis_to_arch_list(options.abis)
     puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"

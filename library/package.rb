@@ -28,6 +28,10 @@ class Package < TargetBase
 
   attr_reader :pre_build_result, :post_build_result
 
+  def has_home_directory?
+    true
+  end
+
   def home_directory
     File.join(Global::HOLD_DIR, file_name)
   end

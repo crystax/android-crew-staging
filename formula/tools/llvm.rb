@@ -18,21 +18,23 @@ class Llvm < Tool
                                 llvm-config llvm-config-host llvm-cov llvm-diff llvm-dsymutil llvm-dwarfdump llvm-extract llvm-ld
                                 llvm-mc llvm-nm llvm-mcmarkup llvm-objdump llvm-prof llvm-ranlib llvm-readobj llvm-rtdyld
                                 llvm-size llvm-stress llvm-stub llvm-symbolizer llvm-tblgen llvm-vtabledump macho-dump cloog
-                                llvm-vtabledump lli-child-target not count FileCheck llvm-profdata obj2yaml yaml2obj verify-uselistorder"
+                                llvm-vtabledump lli-child-target not count FileCheck llvm-profdata obj2yaml yaml2obj verify-uselistorder
                               }
 
+
+  def remove_installed_files(release, platform_name)
+    code_dir = code_directory(release, platform_name)
+    FileUtils.rm_rf code_dir
+    prebuilt_dir = File.dirname(code_dir)
+    FileUtils.rm_rf File.dirname(prebuilt_dir) if Dir["#{prebuilt_dir}/*"].empty?
+  end
 
   def install_archive(release, archive, platform_name)
     rel_dir = release_directory(release, platform_name)
     FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir
     prop = get_properties(rel_dir)
 
-    # remove installed files
-    code_dir = code_directory(release, platform_name)
-    FileUtils.rm_rf code_dir
-    prebuilt_dir = File.dirname(code_dir)
-    FileUtils.rm_rf File.dirname(prebuilt_dir) if Dir["#{prebuilt_dir}/*"].empty?
-
+    remove_installed_files release, platform_name
     Utils.unpack archive, Global::NDK_DIR
 
     prop[:installed] = true
@@ -40,6 +42,20 @@ class Llvm < Tool
     save_properties prop, rel_dir
 
     release.installed = release.crystax_version
+  end
+
+  def uninstall(release, platform_name = Global::PLATFORM_NAME)
+    puts "removing #{name}:#{release.version} #{platform_name}"
+    rel_dir = release_directory(release, platform_name)
+    prop = get_properties(rel_dir)
+
+    remove_installed_files release, platform_name
+
+    prop[:installed] = false
+    prop.delete :installed_crystax_version
+    save_properties prop, rel_dir
+
+    release.installed = false
   end
 
   def code_directory(release, platform_name)

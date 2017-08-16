@@ -29,17 +29,23 @@ class Gcc < Tool
 
   Lib = Struct.new(:name, :version, :url, :args, :templates)
 
+  def remove_installed_files(release, platform_name, clean_lib_unwind)
+    unwind_dir = File.join(Global::NDK_DIR, UNWIND_SUB_DIR)
+    FileUtils.rm_rf unwind_dir if clean_lib_unwind
+
+    Arch::LIST.values.each do |arch|
+      toolchain_dir = File.join(Global::NDK_DIR, ARCHIVE_TOP_DIR, "#{arch.toolchain}-#{release.version}")
+      FileUtils.rm_rf File.join(toolchain_dir, 'prebuilt', platform_name)
+      FileUtils.rm_rf toolchain_dir if Dir["#{toolchain_dir}/prebuilt/*"].empty?
+    end
+  end
+
   def install_archive(release, archive, platform_name)
     rel_dir = release_directory(release, platform_name)
     FileUtils.mkdir_p rel_dir unless Dir.exists? rel_dir
     prop = get_properties(rel_dir)
 
-    unwind_dir = File.join(Global::NDK_DIR, UNWIND_SUB_DIR)
-    FileUtils.rm_rf unwind_dir if prop[:libunwind_installed]
-
-    Arch::LIST.values.each do |arch|
-      FileUtils.rm_rf File.join(Global::NDK_DIR, ARCHIVE_TOP_DIR, "#{arch.toolchain}-#{release.version}", 'prebuilt', platform_name)
-    end
+    remove_installed_files release, platform_name, prop[:libunwind_installed]
     Utils.unpack archive, Global::NDK_DIR
 
     prop[:installed] = true
@@ -48,6 +54,22 @@ class Gcc < Tool
     save_properties prop, rel_dir
 
     release.installed = release.crystax_version
+  end
+
+  def uninstall(release, platform_name = Global::PLATFORM_NAME)
+    puts "removing #{name}:#{release.version} #{platform_name}"
+
+    rel_dir = release_directory(release, platform_name)
+    prop = get_properties(rel_dir)
+
+    remove_installed_files release, platform_name, prop[:libunwind_installed]
+
+    prop[:installed] = false
+    prop.delete :installed_crystax_version
+    prop.delete :libunwind_installed
+    save_properties prop, rel_dir
+
+    release.installed = false
   end
 
   # this method does not make much sense without ARCH name

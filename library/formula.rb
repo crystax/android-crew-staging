@@ -78,6 +78,10 @@ class Formula
     self.class.build_dependencies ? self.class.build_dependencies : []
   end
 
+  def has_home_directory?
+    false
+  end
+
   # derived classes must define two methods in order to use install method:
   #   cache_file
   #   install_archive

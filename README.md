@@ -353,7 +353,7 @@ Example:
 --------------------------------
 
 ```
-Formula
+Formula (no home directory)
     HostBase
         NdkBase (single platform, single version) (f)
         
@@ -403,5 +403,5 @@ Formula
             Libcxx     (f) (multi version)
             Libstdcxx  (f) (multi version)
             
-        Package (multi version)
+        Package (has home directory, multi version)
 ```

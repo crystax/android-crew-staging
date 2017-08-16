@@ -33,7 +33,9 @@ module Crew
 
       formula.releases.each { |r| formula.uninstall(r) if r.installed? and r.match?(release) }
 
-      Dir.rmdir formula.home_directory if Dir[File.join(formula.home_directory, '*')].empty?
+      if formula.has_home_directory? and Dir[File.join(formula.home_directory, '*')].empty?
+        Dir.rmdir formula.home_directory
+      end
     end
   end
 end
