@@ -45,7 +45,9 @@ class Libcrystax < BasePackage
     dst_dir = "#{package_dir}/#{File.dirname(archive_sub_dir)}"
     FileUtils.mkdir_p dst_dir
 
-      arch_list.each do |arch|
+    recreate_symlinks_to_vendor_and_test_dirs
+
+    arch_list.each do |arch|
       puts "= building for architecture: #{arch.name}"
       arch_build_dir = File.join(build_base_dir, arch.name)
       arch.abis_to_build.each do |abi|
@@ -139,5 +141,31 @@ class Libcrystax < BasePackage
 
   def archive_sub_dir
     "sources/crystax/libs"
+  end
+
+  def recreate_symlinks_to_vendor_and_test_dirs
+    crystax_dir = File.dirname(release_directory)
+    vendor_dir = "#{crystax_dir}/vendor"
+    if not Dir.exist? vendor_dir
+      FileUtils.mkdir_p vendor_dir
+      FileUtils.cd(vendor_dir) do
+        FileUtils.symlink '../../../../../toolchain/llvm-3.6/compiler-rt', 'compiler-rt'
+        FileUtils.symlink '../../../../../vendor/freebsd',                 'freebsd'
+        FileUtils.symlink '../../../../../vendor/libkqueue',               'libkqueue'
+        FileUtils.symlink '../../../../../vendor/libpwq',                  'libpwq'
+        FileUtils.symlink '../../../../../vendor/musl',                    'musl'
+      end
+    end
+
+    tests_dir = "#{crystax_dir}/tests"
+    if not Dir.exist? tests_dir
+      FileUtils.mkdir_p tests_dir
+      FileUtils.cd(tests_dir) do
+        FileUtils.symlink '../../../../bionic/tests',             'bionic'
+        FileUtils.symlink '../../../../../vendor/libkqueue/test', 'libkqueue'
+        FileUtils.symlink '../../../../../vendor/libpwq/testing', 'libpwq'
+        FileUtils.symlink '../../../../../vendor/openpts',        'openpts'
+      end
+    end
   end
 end
