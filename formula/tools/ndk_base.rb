@@ -35,14 +35,9 @@ class NdkBase < HostBase
   UNIX_FILES = ['crew', 'ndk-build', 'ndk-gdb']
   WIN_FILES = UNIX_FILES.map { |f| "#{f}.cmd" }
 
-  # why to copy compiler-rt from llvm-3.6?
-  # compiler-rt -> ../../../../../toolchain/llvm-3.6/compiler-rt
-  # todo: decide with compiler-rt
-  CRYSTAX_VENDORS = ['freebsd', 'libkqueue', 'libpwq', 'musl'].map { |d| File.join(Build::VENDOR_SRC_DIR, d) }
-
   def install_archive(release, archive, platform_name)
     # disable warnings since ndk-base archive contains symlinks
-    Global::set_options(['-W'])
+    #Global::set_options(['-W'])
     super release, archive, platform_name
   end
 
@@ -64,18 +59,6 @@ class NdkBase < HostBase
       puts "Only sources were requested, find them in #{src_dir}"
       return
     end
-
-    FileUtils.cd(src_dir) do
-      crystax_vendors = 'sources/crystax/vendor'
-      crystax_tests   = 'sources/crystax/tests'
-      FileUtils.mkdir [crystax_vendors, crystax_tests]
-      FileUtils.cp_r CRYSTAX_VENDORS, crystax_vendors
-      FileUtils.cp_r File.join(Build::PLATFORM_DIR,   'bionic/tests'),   File.join(crystax_tests, 'bionic')
-      FileUtils.cp_r File.join(Build::VENDOR_SRC_DIR, 'libkqueue/test'), File.join(crystax_tests, 'libkqueue')
-      FileUtils.cp_r File.join(Build::VENDOR_SRC_DIR, 'libpwq/testing'), File.join(crystax_tests, 'libpwq')
-      FileUtils.cp_r File.join(Build::VENDOR_SRC_DIR, 'openpts'),        File.join(crystax_tests, 'openpts')
-    end
-    FileUtils.rm Dir.glob("#{src_dir}/**/.git")
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"
