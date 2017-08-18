@@ -3,7 +3,7 @@
 setlocal
 
 set testdir=%~dp0
-set toolsbasedir=%testdir%..\..\..\prebuilt
+set toolsbasedir=%testdir%..\..\prebuilt
 if exist %toolsbasedir%\windows-x86_64 (
    set cpu=-x86_64
 ) else (
