@@ -176,14 +176,9 @@ File.open(File.join(DATA_DIR, 'ruby-2.rb'), 'w') { |f| f.puts replace_releases(r
 # create mock archives for all other tools, like make, yasm , etc
 formulary = Formulary.new
 Crew::Test::ALL_TOOLS.select { |t| not Crew::Test::UTILS_FILES.include?(t.filename) }.map do |t|
-  if t.type == :utility
-    rel = installed_release(t.filename)
-    create_archive(rel, rel, t.filename)
-  else
-    formula = formulary["host/#{t.name}"]
-    rel = formula.releases.last
-    copy_universal_archive(formula.archive_filename(rel))
-  end
+  formula = formulary["host/#{t.name}"]
+  rel = formula.releases.last
+  copy_universal_archive(formula.archive_filename(rel))
   File.open("#{DATA_DIR}/#{t.filename}-1.rb", 'w') { |f| f.puts replace_releases("#{ORIG_FORMULA_DIR}/#{t.filename}.rb", [rel]) }
 end
 
