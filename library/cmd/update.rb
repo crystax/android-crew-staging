@@ -36,7 +36,7 @@ module Crew
     end
 
     def pull!
-      repository.checkout 'master'
+      repository.checkout 'refs/remotes/origin/master'
       @initial_revision = read_current_revision
 
       begin
