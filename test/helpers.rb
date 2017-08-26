@@ -39,6 +39,7 @@ module Spec
       end
 
       def self.clone_at(url, local_path, options = {})
+        local_path = local_path.gsub('/', '\\') if Global::OS == 'windows'
         repo = Rugged::Repository.clone_at(url, local_path, options)
         repo.close
         Repository.new local_path
