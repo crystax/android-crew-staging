@@ -123,16 +123,15 @@ module Utils
   # private
 
   def self.curl_prog
-    @@curl_prog = Pathname.new(Utility.active_dir('curl')).realpath  + "curl#{Global::EXE_EXT}" unless @@curl_prog
-    @@curl_prog
+    cp = "#{Global::TOOLS_DIR}/bin/curl#{Global::EXE_EXT}"
+    @@curl_prog ||= Pathname.new(cp).realpath
   rescue
-    # todo: output warning?
+    warning "not found 'curl' program at the expected path: #{cp}"
     @@curl_prog = 'curl'
   end
 
   def self.tar_prog
-    @@tar_prog = File.exist?(@@crew_tar_prog) ? @@crew_tar_prog : 'tar' unless @@tar_prog
-    @@tar_prog
+    @@tar_prog ||= File.exist?(@@crew_tar_prog) ? @@crew_tar_prog : 'tar'
   end
 
   def self.use_copy_tar_prog
