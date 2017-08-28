@@ -4,7 +4,7 @@ class Ruby < Utility
   homepage 'https://www.ruby-lang.org/'
   url 'https://cache.ruby-lang.org/pub/ruby/${block}/ruby-${version}.tar.gz' do |r| r.version.split('.').slice(0, 2).join('.') end
 
-  release version: '2.2.2', crystax_version: 1
+  release version: '2.2.2', crystax_version: 2
 
   build_depends_on 'zlib'
   build_depends_on 'openssl'
@@ -96,6 +96,7 @@ class Ruby < Utility
             "--without-gdbm",
             "--enable-bundled-libyaml"
            ]
+    args << "--with-baseruby=#{Global::tools_dir('linux-x86_64')}/bin/ruby" if platform.target_os == 'windows'
 
     system "#{src_dir}/configure", *args
     fix_winres_params if platform.name == 'windows'
