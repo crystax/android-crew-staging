@@ -218,7 +218,7 @@ module Spec
       archive = pkg_cache_path_in(type, archive_name(type, filename, rel.version, rel.crystax_version))
       file_size = File.size(archive)
       pos = Random.rand(file_size)
-      block = Random::DEFAULT.bytes([1, Random.rand(file_size - pos - 1)].max)
+      block = Random::DEFAULT.bytes([1, Random.rand(file_size - pos)].max)
       File.open(archive, 'r+') do |f|
         f.seek pos
         f.write block
