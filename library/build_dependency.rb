@@ -47,7 +47,6 @@ class BuildDependency < Tool
     release.installed = release.crystax_version
   end
 
-
   def install_dir_for_platform(platform_name, release)
     File.join package_dir_for_platform(platform_name), 'prebuilt', platform_name, Global::BUILD_DEPENDENCIES_BASE_DIR, file_name, release.to_s
   end
