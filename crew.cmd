@@ -28,7 +28,14 @@ if not defined CREW_TOOLS_DIR (
 rem set CREW
 rem set GIT
 
-call %CREW_TOOLS_DIR%\bin\ruby.exe -W0 %CREWFILEDIR%crew.rb %*
+%CREW_TOOLS_DIR%\bin\ruby.exe -W0 %CREWFILEDIR%crew.rb %*
+
+if exist %CREW_NDK_DIR%\postpone (
+    echo Start postponed upgrade process
+    call %CREW_NDK_DIR%\postpone\upgrade.cmd
+    echo = Cleaning up
+    rd /q/s %CREW_NDK_DIR%\postpone
+)
 
 endlocal
 

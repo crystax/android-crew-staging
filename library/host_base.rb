@@ -22,9 +22,25 @@ class HostBase < Formula
     File.join(Global::SERVICE_DIR, file_name, platform_name, release.version)
   end
 
+  def upgrading_ruby_on_windows?
+    name == 'ruby' and Global::OS == 'windows'
+  end
+
+  def postpone_dir
+    "#{Global::NDK_DIR}/postpone"
+  end
+
+  def ruby_upgrade_script
+    "#{postpone_dir}/upgrade.cmd"
+  end
+
   def uninstall_archive(release, platform_name)
     rel_dir = release_directory(release, platform_name)
-    remove_archive_files rel_dir, platform_name
+    if upgrading_ruby_on_windows?
+      gen_ruby_upgrade_cmd_script rel_dir
+    else
+      remove_archive_files rel_dir, platform_name
+    end
     FileUtils.rm_rf rel_dir
   end
 
@@ -37,8 +53,9 @@ class HostBase < Formula
     rel_dir = release_directory(release, platform_name)
     FileUtils.mkdir_p rel_dir
 
-    Utils.unpack archive, Global::NDK_DIR
-    FileUtils.mv File.join(Global::NDK_DIR, LIST_FILE), rel_dir
+    target_dir = (upgrading_ruby_on_windows? == true) ? postpone_dir : Global::NDK_DIR
+    Utils.unpack archive, target_dir
+    FileUtils.mv File.join(target_dir, LIST_FILE), rel_dir
 
     prop = get_properties(rel_dir)
     prop[:installed] = true
@@ -111,14 +128,61 @@ class HostBase < Formula
         when !File.exist?(f)
           warning "#{name}, #{platform_name}: file not exists: #{f}"
         else
-          raise ""#{name}, #{platform_name}: strange file in file list: #{f}"
+          raise "#{name}, #{platform_name}: strange file in file list: #{f}"
         end
       end
       # remove dirs
-      dirs.sort.reverse_each { |d| FileUtils.rmdir d if Dir['d/*'].empty? }
+      dirs.sort.uniq.reverse_each { |d| FileUtils.rmdir d if Dir['d/*'].empty? }
     end
   # todo: remove this hack
   rescue => e
     warning "failed to remove archive files: #{e}"
+  end
+
+  def gen_ruby_upgrade_cmd_script rel_dir
+    dirs = []
+    files = []
+    FileUtils.cd(Global::NDK_DIR) do
+      File.read(File.join(rel_dir, LIST_FILE)).split("\n").each do |f|
+        case
+        when File.directory?(f)
+          dirs << f
+        when File.file?(f)
+          files << f
+        when !File.exist?(f)
+          warning "file not exists: #{f}"
+        else
+          warning "strange file in file list: #{f}"
+        end
+      end
+    end
+    FileUtils.mkdir_p postpone_dir
+    File.open(ruby_upgrade_script, 'w') do |f|
+      f.puts '%echo off'
+      f.puts 'rem This script is automatically generated to finish upgrade proccess of ruby on windows platforms'
+      f.puts
+      f.puts 'echo Finishing RUBY upgrade process'
+      f.puts 'echo = Removing old binary files'
+      f.puts
+      files.sort.uniq.reverse_each do |e|
+        dir = File.dirname(e)
+        if (dir.end_with?('/bin') and not dir.include?('/lib/')) or (dir.end_with?('/lib') and e.end_with?('.a'))
+          path = "#{Global::NDK_DIR}/#{e}".gsub('/', '\\')
+          f.puts "del /f/q #{path}"
+        end
+      end
+      f.puts
+      inc_dir = dirs.select { |d| d =~ /\/include\/ruby-\d+\.\d+\.0$/ }[0]
+      inc_dir = "#{Global::NDK_DIR}/#{inc_dir}".gsub('/', '\\')
+      lib_dir = "#{Global::TOOLS_DIR}/lib/ruby".gsub('/', '\\')
+      f.puts "echo = Removing old directories"
+      f.puts "rd /q/s #{lib_dir}"
+      f.puts "rd /q/s #{inc_dir}"
+      f.puts
+      src_dir = "#{postpone_dir}/prebuilt".gsub('/', '\\')
+      dst_dir = "#{Global::NDK_DIR}/prebuilt".gsub('/', '\\')
+      f.puts "echo = Coping new files"
+      f.puts "xcopy #{src_dir} #{dst_dir} /e/q"
+    end
   end
 end
