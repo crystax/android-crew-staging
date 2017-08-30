@@ -137,7 +137,6 @@ module Global
 
   HOLD_DIR               = create_required_dir(NDK_DIR, 'packages').realpath
   SERVICE_DIR            = create_required_dir(NDK_DIR, '.crew').realpath
-  BUILD_DEPENDENCIES_DIR = create_required_dir(build_dependencies_dir(PLATFORM_NAME)).realpath
   PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
   FORMULA_DIR            = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
 
