@@ -91,7 +91,7 @@ describe "crew cleanup" do
         FileUtils.touch package_path
         crew 'cleanup', '--pkg-cache'
         expect(result).to eq(:ok)
-        expect(out.strip).to eq("removing: #{package_path}; reason: libone has no release 2.0.0:1")
+        expect(out.strip).to eq("removing: #{package_path}; reason: libone has no release 2.0.0_1")
         expect(pkg_cache_has_package?('libone', rel_1)).to eq(true)
         expect(pkg_cache_has_package?('libone', rel_2)).to eq(false)
       end
