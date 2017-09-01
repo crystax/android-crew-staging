@@ -4,7 +4,7 @@ class Openssl < BuildDependency
   homepage "https://openssl.org/"
   url 'https://www.openssl.org/source/openssl-${version}.tar.gz'
 
-  release version: '1.0.2k', crystax_version: 1
+  release version: '1.0.2l', crystax_version: 1
   # todo: add possibility to depend_on special version before uncommenting this
   # release version: '1.1.0b', crystax_version: 1
 
@@ -16,28 +16,30 @@ class Openssl < BuildDependency
 
     FileUtils.cp_r File.join(src_dir, '.'), '.'
 
+    zlib = (platform.target_os == 'windows') ? 'z.dll' : 'z'
+
     args = ["--prefix=#{install_dir}",
             "no-idea",
             "no-mdc2",
             "no-rc5",
-            "no-shared",
+            "shared",
             "zlib",
             openssl_platform(platform),
             platform.cflags,
             "-I#{zlib_dir}/include",
             "-L#{zlib_dir}/lib",
-            "-lz"
+            "-l#{zlib}"
            ]
 
     # parallel build seems to be broken not only on darwin
     # it seems that parallel build is broken for all host systems now
-    num_jobs = 1 # if ['darwin', 'windows'].include? platform.target_os
-
     system './Configure',  *args
     system 'make', 'depend'
-    system 'make', '-j', num_jobs
+    system 'make'
     system 'make', 'test' if options.check? platform
     system "make install"
+
+    FileUtils.cp ['libeay32.dll', 'ssleay32.dll'], File.join(install_dir, 'lib') if platform.target_os == 'windows'
 
     # remove unneeded files
     FileUtils.rm_rf File.join(install_dir, 'lib', 'pkgconfig')
