@@ -39,8 +39,6 @@ class Openssl < BuildDependency
     system 'make', 'test' if options.check? platform
     system "make install"
 
-    FileUtils.cp ['libeay32.dll', 'ssleay32.dll'], File.join(install_dir, 'lib') if platform.target_os == 'windows'
-
     # remove unneeded files
     FileUtils.rm_rf File.join(install_dir, 'lib', 'pkgconfig')
     FileUtils.rm_rf File.join(install_dir, 'lib', 'engines')
