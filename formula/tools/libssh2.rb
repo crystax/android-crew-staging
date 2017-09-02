@@ -4,7 +4,7 @@ class Libssh2 < BuildDependency
   homepage 'http://www.libssh2.org/'
   url 'http://www.libssh2.org/download/libssh2-${version}.tar.gz'
 
-  release version: '1.8.0', crystax_version: 1
+  release version: '1.8.0', crystax_version: 2
 
   depends_on 'zlib'
   # todo: depends on openssl 1.0.*
@@ -22,7 +22,6 @@ class Libssh2 < BuildDependency
 
     args = platform.configure_args +
            ["--prefix=#{install_dir}",
-            "--disable-shared",
             "--disable-examples-build",
             "--with-libssl-prefix=#{openssl_dir}",
             "--with-libz=#{zlib_dir}"
@@ -34,7 +33,8 @@ class Libssh2 < BuildDependency
     system 'make', 'install'
 
     # remove unneeded files
-    FileUtils.rm_rf File.join(install_dir, 'lib', 'pkgconfig')
-    FileUtils.rm_rf File.join(install_dir, 'share')
+    FileUtils.rm_rf "#{install_dir}/lib/pkgconfig"
+    FileUtils.rm_rf "#{install_dir}/share"
+    FileUtils.rm_rf Dir["#{install_dir}/lib/*.la"]
   end
 end
