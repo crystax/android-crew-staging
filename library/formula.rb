@@ -86,7 +86,10 @@ class Formula
   #   cache_file
   #   install_archive
   #
-  def install(r = releases.last, options = { platform: Global::PLATFORM_NAME, check_shasum: true, cache_only: false })
+  def install(r = releases.last, opts = {})
+    options = { platform: Global::PLATFORM_NAME, check_shasum: true, cache_only: false }
+    options.merge(opts)
+
     release = find_release(r)
     platform_name = options[:platform]
 

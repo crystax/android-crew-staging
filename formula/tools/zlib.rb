@@ -46,4 +46,8 @@ class Zlib < BuildDependency
       FileUtils.rm_rf ["#{install_dir}/share", "#{install_dir}/lib/pkgconfig"]
     end
   end
+
+  def split_file_list(list)
+    [list, []]
+  end
 end

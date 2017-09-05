@@ -8,7 +8,8 @@ class HostBase < Formula
 
   namespace :host
 
-  LIST_FILE = 'list'
+  BIN_LIST_FILE = 'list'
+  DEV_LIST_FILE = 'list-dev'
 
   def initialize(path)
     super path
@@ -34,6 +35,18 @@ class HostBase < Formula
     "#{postpone_dir}/upgrade.cmd"
   end
 
+  def install(release = releases.last, options = {})
+    super release, options
+
+    platform_name = options[:platform]
+    dev_file_list = File.join(release_directory(release, platform_name), DEV_FILE_LIST)
+
+    unless options[:with_dev_files]
+      remove_files_from_list dev_file_list, platform_name
+      FileUtils.rm dev_file_list
+    end
+  end
+
   def uninstall_archive(release, platform_name)
     rel_dir = release_directory(release, platform_name)
     if upgrading_ruby_on_windows?
@@ -55,7 +68,10 @@ class HostBase < Formula
 
     target_dir = (upgrading_ruby_on_windows? == true) ? postpone_dir : Global::NDK_DIR
     Utils.unpack archive, target_dir
-    FileUtils.mv File.join(target_dir, LIST_FILE), rel_dir
+    bin_list_file = File.join(target_dir, BIN_LIST_FILE)
+    dev_list_file = File.join(target_dir, DEV_LIST_FILE)
+    FileUtils.mv bin_list_file, rel_dir
+    FileUtils.mv dev_list_file, rel_dir if File.exist?
 
     prop = get_properties(rel_dir)
     prop[:installed] = true
@@ -109,52 +125,32 @@ class HostBase < Formula
   def write_file_list(package_dir, platform_name)
     FileUtils.cd(package_dir) do
       list = Dir.glob('**/*', File::FNM_DOTMATCH).delete_if { |e| e.end_with? ('.') }
-      File.open(LIST_FILE, 'w') { |f| list.each { |l| f.puts l } }
+      bin_list, dev_list = split_file_list(list)
+      File.open(BIN_LIST_FILE, 'w') { |f| bin_list.each { |l| f.puts l } }
+      File.open(DEV_LIST_FILE, 'w') { |f| dev_list.each { |l| f.puts l } } unless dev_list.empty?
     end
   end
 
+  # default implementation
+  def split_file_list(list)
+    [list, []]
+  end
+
   def remove_archive_files(rel_dir, platform_name)
-    dirs = []
-    FileUtils.cd(Global::NDK_DIR) do
-      # remove normal files
-      File.read(File.join(rel_dir, LIST_FILE)).split("\n").each do |f|
-        case
-        when File.symlink?(f)
-          FileUtils.rm f
-        when File.directory?(f)
-          dirs << f
-        when File.file?(f)
-          FileUtils.rm f
-        when !File.exist?(f)
-          warning "#{name}, #{platform_name}: file not exists: #{f}"
-        else
-          raise "#{name}, #{platform_name}: strange file in file list: #{f}"
-        end
-      end
-      # remove dirs
-      dirs.sort.uniq.reverse_each { |d| FileUtils.rmdir d if Dir['d/*'].empty? }
-    end
-  # todo: remove this hack
-  rescue => e
-    warning "failed to remove archive files: #{e}"
+    bin_list_file = File.join(rel_dir, BIN_LIST_FILE)
+    dev_list_file = File.join(rel_dir, DEV_LIST_FILE)
+    remove_files_from_list(bin_list_file, platform_name)
+    remove_files_from_list(dev_list_file, platform_name) if File.exist? dev_list_file
   end
 
   def gen_ruby_upgrade_cmd_script rel_dir
     dirs = []
     files = []
     FileUtils.cd(Global::NDK_DIR) do
-      File.read(File.join(rel_dir, LIST_FILE)).split("\n").each do |f|
-        case
-        when File.directory?(f)
-          dirs << f
-        when File.file?(f)
-          files << f
-        when !File.exist?(f)
-          warning "file not exists: #{f}"
-        else
-          warning "strange file in file list: #{f}"
-        end
-      end
+      bin_dirs, bin_files = read_files_from_list(File.join(rel_dir, BIN_LIST_FILE))
+      dev_dirs, dev_files = read_files_from_list(File.join(rel_dir, DEV_LIST_FILE))
+      dirs  = bin_dirs + dev_dirs
+      files = bin_files + dev_files
     end
     FileUtils.mkdir_p postpone_dir
     File.open(ruby_upgrade_script, 'w') do |f|
@@ -184,5 +180,47 @@ class HostBase < Formula
       f.puts "echo = Coping new files"
       f.puts "xcopy #{src_dir} #{dst_dir} /e/q"
     end
+  end
+
+  def remove_files_from_list(file_list, platform_name)
+    FileUtils.cd(Global::NDK_DIR) do
+      files = []
+      dirs = []
+      File.read(bin_list_file).split("\n").each do |f|
+        case
+        when File.symlink?(f)
+          files << f
+        when File.directory?(f)
+          dirs << f
+        when File.file?(f)
+          files << f
+        when !File.exist?(f)
+          warning "#{name}, #{platform_name}: file not exists: #{f}"
+        else
+          raise "#{name}, #{platform_name}: strange file in file list: #{f}"
+        end
+      end
+      files.sort.uniq.each { |f| FileUtils.rm_f f }
+      dirs.sort.uniq.reverse_each { |d| FileUtils.rmdir d if Dir['d/*'].empty? }
+    end
+  end
+
+  def read_files_from_list(file_list)
+    dirs = []
+    files = []
+    File.read(file_list).split("\n").each do |f|
+      case
+      when File.directory?(f)
+        dirs << f
+      when File.file?(f)
+        files << f
+      when !File.exist?(f)
+        warning "file not exists: #{f}"
+      else
+        warning "strange file in file list: #{f}"
+      end
+    end
+
+    [dirs, files]
   end
 end
