@@ -7,9 +7,6 @@ require_relative 'platform.rb'
 
 class BuildDependency < Tool
 
-  # tool trait
-  INSTALL_DIR_NAME =
-
   def initialize(path)
     super path
 
