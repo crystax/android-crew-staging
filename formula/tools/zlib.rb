@@ -1,4 +1,4 @@
-class Zlib < BuildDependency
+class Zlib < Utility
 
   desc 'A Massively Spiffy Yet Delicately Unobtrusive Compression Library'
   homepage 'http://zlib.net/'
@@ -29,9 +29,14 @@ class Zlib < BuildDependency
       targets = ['libz.a', 'zlib1.dll', 'libz.dll.a']
       system 'make', '-j', num_jobs, loc, '-f', 'win32/Makefile.gcc', *targets
 
-      FileUtils.mkdir_p ["#{install_dir}/lib", "#{install_dir}/include"]
-      FileUtils.cp targets, "#{install_dir}/lib/"
-      FileUtils.cp ['zlib.h', 'zconf.h'], "#{install_dir}/include/"
+      bin_dir = "#{install_dir}/bin"
+      lib_dir = "#{install_dir}/lib"
+      inc_dir = "#{install_dir}/include"
+
+      FileUtils.mkdir_p [bin_dir, lib_dir, inc_dir]
+      FileUtils.cp ['zlib1.dll'],            bin_dir
+      FileUtils.cp ['libz.a', 'libz.dll.a'], lib_dir
+      FileUtils.cp ['zlib.h', 'zconf.h'],    inc_dir
     else
       # args = ["--prefix=#{install_dir}",
       #         "--static"
@@ -47,7 +52,7 @@ class Zlib < BuildDependency
     end
   end
 
-  def split_file_list(list)
-    [list, []]
+  def split_file_list(list, platform_name)
+    split_file_list_by_shared_libs(list, platform_name)
   end
 end
