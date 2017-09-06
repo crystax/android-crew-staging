@@ -1,0 +1,28 @@
+diff -Naur a/src/openssl.h b/src/openssl.h
+--- a/src/openssl.h	2016-02-18 00:59:57.000000000 +0300
++++ b/src/openssl.h	2017-09-06 22:02:54.910554492 +0300
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 2009, 2010 Simon Josefsson
++/* Copyright (C) 2009, 2010, 2017 Simon Josefsson
+  * Copyright (C) 2006, 2007 The Written Word, Inc.  All rights reserved.
+  *
+  * Author: Simon Josefsson
+@@ -226,10 +226,9 @@
+ #define libssh2_hmac_cleanup(ctx) HMAC_cleanup(ctx)
+ #endif
+ 
+-#define libssh2_crypto_init() \
+-  OpenSSL_add_all_algorithms(); \
+-  ENGINE_load_builtin_engines(); \
+-  ENGINE_register_all_complete()
++/* zuav: we build openssl with engines linked into shared libraires */
++#define libssh2_crypto_init()   \
++  OpenSSL_add_all_algorithms()
+ 
+ #define libssh2_crypto_exit()
+ 
+@@ -290,4 +289,3 @@
+ const EVP_CIPHER *_libssh2_EVP_aes_128_ctr(void);
+ const EVP_CIPHER *_libssh2_EVP_aes_192_ctr(void);
+ const EVP_CIPHER *_libssh2_EVP_aes_256_ctr(void);
+-
