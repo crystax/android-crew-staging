@@ -39,7 +39,7 @@ class HostBase < Formula
     super release, options
 
     platform_name = options[:platform]
-    dev_file_list = File.join(release_directory(release, platform_name), DEV_FILE_LIST)
+    dev_file_list = File.join(release_directory(release, platform_name), DEV_LIST_FILE)
 
     unless options[:with_dev_files]
       remove_files_from_list dev_file_list, platform_name
@@ -49,12 +49,14 @@ class HostBase < Formula
 
   def uninstall_archive(release, platform_name)
     rel_dir = release_directory(release, platform_name)
-    if upgrading_ruby_on_windows?
-      gen_ruby_upgrade_cmd_script rel_dir
-    else
-      remove_archive_files rel_dir, platform_name
+    if Dir.exist? rel_dir
+      if upgrading_ruby_on_windows?
+        gen_ruby_upgrade_cmd_script rel_dir
+      else
+        remove_archive_files rel_dir, platform_name
+      end
+      FileUtils.rm_rf rel_dir
     end
-    FileUtils.rm_rf rel_dir
   end
 
   def install_archive(release, archive, platform_name)
@@ -71,7 +73,7 @@ class HostBase < Formula
     bin_list_file = File.join(target_dir, BIN_LIST_FILE)
     dev_list_file = File.join(target_dir, DEV_LIST_FILE)
     FileUtils.mv bin_list_file, rel_dir
-    FileUtils.mv dev_list_file, rel_dir if File.exist?
+    FileUtils.mv dev_list_file, rel_dir if File.exist? dev_list_file
 
     prop = get_properties(rel_dir)
     prop[:installed] = true
@@ -125,14 +127,14 @@ class HostBase < Formula
   def write_file_list(package_dir, platform_name)
     FileUtils.cd(package_dir) do
       list = Dir.glob('**/*', File::FNM_DOTMATCH).delete_if { |e| e.end_with? ('.') }
-      bin_list, dev_list = split_file_list(list)
+      bin_list, dev_list = split_file_list(list, platform_name)
       File.open(BIN_LIST_FILE, 'w') { |f| bin_list.each { |l| f.puts l } }
       File.open(DEV_LIST_FILE, 'w') { |f| dev_list.each { |l| f.puts l } } unless dev_list.empty?
     end
   end
 
   # default implementation
-  def split_file_list(list)
+  def split_file_list(list, _platform_name)
     [list, []]
   end
 
@@ -186,7 +188,7 @@ class HostBase < Formula
     FileUtils.cd(Global::NDK_DIR) do
       files = []
       dirs = []
-      File.read(bin_list_file).split("\n").each do |f|
+      File.read(file_list).split("\n").each do |f|
         case
         when File.symlink?(f)
           files << f
@@ -222,5 +224,24 @@ class HostBase < Formula
     end
 
     [dirs, files]
+  end
+
+  # generic implementation to be used by utilities that are libraries like zlib, openssl
+  def split_file_list_by_shared_libs(list, platform_name)
+    # put binary files to bin list
+    if platform_name.start_with? 'windows'
+      bin_list, dev_list = list.partition { |e| e =~ /bin\/.+\.dll/ }
+    else
+      bin_list, dev_list = list.partition { |e| e =~ /lib\/.*\.(so|so\..+)/ }
+    end
+    # add directories to bin list
+    dirs = []
+    bin_list.each do |f|
+      ds = File.dirname(f).split('/')
+      dirs += (1..ds.size).map { |e| ds.first(e).join('/') }
+    end
+    bin_list += dirs.sort.uniq
+
+    [bin_list.sort, dev_list.sort]
   end
 end

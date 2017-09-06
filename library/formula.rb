@@ -88,7 +88,7 @@ class Formula
   #
   def install(r = releases.last, opts = {})
     options = { platform: Global::PLATFORM_NAME, check_shasum: true, cache_only: false }
-    options.merge(opts)
+    options.merge!(opts)
 
     release = find_release(r)
     platform_name = options[:platform]

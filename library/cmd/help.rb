@@ -160,6 +160,11 @@ The INSTALL command support the following options:
   --force        install even if specified formula(s) installed
 
   --all-versions install all version of the specified formula(s)
+
+  --with-dev-files
+                 do not remove development files when installing
+                 a package; makes sense only for utilities that
+                 have a development files, ignored otherwise
 EOS
 
 SOURCE_HELP = <<-EOS

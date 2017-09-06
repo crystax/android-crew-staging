@@ -14,6 +14,7 @@ class InstallOptions
     @cache_only = false
     @force = false
     @all_versions = false
+    @with_dev_files = false
 
     opts.each do |opt|
       case opt
@@ -27,6 +28,8 @@ class InstallOptions
         @force = true
       when '--all-versions'
         @all_versions = true
+      when '--with-dev-files'
+        @with_dev_files = true
       else
         raise "unknow option: #{opt}"
       end
@@ -49,7 +52,17 @@ class InstallOptions
     @all_versions
   end
 
+  def with_dev_files?
+    @with_dev_files
+  end
+
   def as_hash
-    { platform: self.platform, check_shasum: self.check_shasum?, cache_only: self.cache_only?, force: self.force?, all_versions: self.all_versions? }
+    { platform:       self.platform,
+      check_shasum:   self.check_shasum?,
+      cache_only:     self.cache_only?,
+      force:          self.force?,
+      all_versions:   self.all_versions?,
+      with_dev_files: self.with_dev_files?
+    }
   end
 end
