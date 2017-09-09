@@ -28,7 +28,8 @@ class Libssh2 < Utility
     build_env['LIBS']     = "-lcrypt32 -lgdi32" if platform.target_os == 'windows'
     build_env['LIBS']     = "-ldl"              if platform.target_os == 'linux'
 
-    build_env['LD_LIBRARY_PATH'] = "#{tools_dir}/lib" unless platform.target_os == 'windows'
+    build_env['LD_LIBRARY_PATH']   = "#{tools_dir}/lib" if platform.target_os == 'linux'
+    build_env['DYLD_LIBRARY_PATH'] = "#{tools_dir}/lib" if platform.target_os == 'darwin'
 
     args = platform.configure_args +
            ["--prefix=#{install_dir}",
@@ -37,10 +38,16 @@ class Libssh2 < Utility
             "--with-libz=#{tools_dir}"
            ]
 
+    add_dl_library_path "#{src_dir}/configure", "#{tools_dir}/lib" if platform.target_os == 'darwin'
+
     system "#{src_dir}/configure",  *args
     system 'make', '-j', num_jobs, 'V=1'
-    system 'make', 'check' if options.check? platform
     system 'make', 'install'
+
+    if options.check? platform
+      FileUtils.cp Dir["#{tools_dir}/lib/*.dylib"], "./tests/" if platform.target_os == 'darwin'
+      system 'make', 'check'
+    end
 
     # remove unneeded files
     FileUtils.rm_rf "#{install_dir}/lib/pkgconfig"
@@ -50,5 +57,16 @@ class Libssh2 < Utility
 
   def split_file_list(list, platform_name)
     split_file_list_by_shared_libs(list, platform_name)
+  end
+
+  def add_dl_library_path(script, lib_dir)
+    lines = File.readlines(script).map { |l| l.strip }
+    first = lines.delete(0)
+    File.open(script, "w") do |f|
+      f.puts first
+      f.puts "DYLD_LIBRARY_PATH=#{lib_dir}"
+      f.puts "export DYLD_LIBRARY_PATH"
+      lines.each { |l| f.puts l }
+    end
   end
 end
