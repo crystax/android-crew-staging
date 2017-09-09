@@ -33,16 +33,33 @@ class Openssl < Utility
             "-l#{zlib}"
            ]
 
-    # parallel build seems to be broken not only on darwin
-    # it seems that parallel build is broken for all host systems now
     system './Configure',  *args
     system 'make', 'depend'
     system 'make', '-j', num_jobs
-    system 'make', 'test' if options.check? platform
     system "make install"
 
+    if options.check? platform
+      FileUtils.cp Dir["#{tools_dir}/lib/libz*.dylib"], './test/' if platform.target_os == 'darwin'
+      fix_shlib_wrap_sh "#{tools_dir}/lib"
+      system 'make', 'test'
+    end
+
+    # fix dylib install names on darwin
+    if platform.target_os == 'darwin'
+      ver = release.version.split('.').first(2).join('.')
+      crypto_lib = "libcrypto.#{ver}.dylib"
+      ssl_lib = "libssl.#{ver}.dylib"
+      system 'install_name_tool', '-id', crypto_lib, "#{install_dir}/lib/#{crypto_lib}"
+      system 'install_name_tool', '-id', ssl_lib,    "#{install_dir}/lib/#{ssl_lib}"
+      system 'install_name_tool', '-change', "#{install_dir}/lib/#{crypto_lib}", crypto_lib, "#{install_dir}/lib/#{ssl_lib}"
+    end
+
     # remove unneeded files
-    FileUtils.rm_rf Dir["#{install_dir}/bin/c_rehash*", "#{install_dir}/bin/openssl*"]
+    if platform.target_os == 'windows'
+      FileUtils.rm_rf Dir["#{install_dir}/bin/c_rehash*", "#{install_dir}/bin/openssl*"]
+    else
+      FileUtils.rm_rf "#{install_dir}/bin"
+    end
     FileUtils.rm_rf Dir["#{install_dir}/lib/engines*"]
     FileUtils.rm_rf "#{install_dir}/lib/pkgconfig"
     FileUtils.rm_rf "#{install_dir}/share"
@@ -64,5 +81,12 @@ class Openssl < Utility
 
   def split_file_list(list, platform_name)
     split_file_list_by_shared_libs(list, platform_name)
+  end
+
+  # DYLD_LIBRARY_PATH="${THERE}:$DYLD_LIBRARY_PATH" # MacOS X
+  def fix_shlib_wrap_sh(lib_dir)
+    fname = 'util/shlib_wrap.sh'
+    text = File.read(fname).gsub(/^(\s+DYLD_LIBRARY_PATH="\${THERE}:)(\$DYLD_LIBRARY_PATH"\s+# MacOS X$)/, '\1' + "#{lib_dir}:" + '\2')
+    File.open(fname, "w") {|f| f.puts text }
   end
 end
