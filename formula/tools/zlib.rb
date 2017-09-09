@@ -38,9 +38,6 @@ class Zlib < Utility
       FileUtils.cp ['libz.a', 'libz.dll.a'], lib_dir
       FileUtils.cp ['zlib.h', 'zconf.h'],    inc_dir
     else
-      # args = ["--prefix=#{install_dir}",
-      #         "--static"
-      #        ]
       args = ["--prefix=#{install_dir}"]
 
       system "#{src_dir}/configure", *args
@@ -48,6 +45,10 @@ class Zlib < Utility
       system 'make', 'check' if options.check? platform
       system 'make', 'install'
 
+      if platform.target_os == 'darwin'
+        libname = "libz.#{release.version}.dylib"
+        system 'install_name_tool', '-id', libname, "#{install_dir}/lib/#{libname}"
+      end
       FileUtils.rm_rf ["#{install_dir}/share", "#{install_dir}/lib/pkgconfig"]
     end
   end
