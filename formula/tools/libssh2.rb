@@ -28,8 +28,7 @@ class Libssh2 < Utility
     build_env['LIBS']     = "-lcrypt32 -lgdi32" if platform.target_os == 'windows'
     build_env['LIBS']     = "-ldl"              if platform.target_os == 'linux'
 
-    build_env['LD_LIBRARY_PATH']   = "#{tools_dir}/lib" if platform.target_os == 'linux'
-    build_env['DYLD_LIBRARY_PATH'] = "#{tools_dir}/lib" if platform.target_os == 'darwin'
+    build_env['LD_LIBRARY_PATH'] = "#{tools_dir}/lib" if platform.target_os == 'linux'
 
     args = platform.configure_args +
            ["--prefix=#{install_dir}",
