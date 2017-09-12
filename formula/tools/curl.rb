@@ -14,18 +14,18 @@ class Curl < Utility
     install_dir = install_dir_for_platform(platform.name, release)
     tools_dir   = Global::tools_dir(platform.name)
 
-    #build_env['CPPFLAGS'] = "-DCURL_STATICLIB"
-    build_env['LIBS']     = '-ldl'      if platform.target_os == 'linux'
-    build_env['LIBS']     = '-lcrypt32' if platform.target_os == 'windows'
-
-    build_env['CPPFLAGS'] = "-I#{tools_dir}/include"
-    build_env['LDFLAGS']  = "-L#{tools_dir}/lib"
-
+    build_env['LIBS']            = '-ldl'                   if platform.target_os == 'linux'
+    build_env['LIBS']            = '-lcrypt32'              if platform.target_os == 'windows'
+    build_env['CPPFLAGS']        = "-I#{tools_dir}/include"
+    build_env['LDFLAGS']         = "-L#{tools_dir}/lib"
+    build_env['LD_LIBRARY_PATH'] = "#{tools_dir}/lib"       if platform.target_os == 'linux'
 
     args  = platform.configure_args +
             ["--prefix=#{install_dir}",
+             "--disable-silent-rules",
              "--disable-ldap"
             ]
+    args += ['--disable-pthreads'] if platform.target_os == 'windows'
 
     Build.add_dyld_library_path "#{src_dir}/configure", "#{tools_dir}/lib" if platform.target_os == 'darwin'
 
