@@ -38,7 +38,7 @@ class Libssh2 < Utility
             "--with-libz=#{tools_dir}"
            ]
 
-    add_dl_library_path "#{src_dir}/configure", "#{tools_dir}/lib" if platform.target_os == 'darwin'
+    Build.add_dyld_library_path "#{src_dir}/configure", "#{tools_dir}/lib" if platform.target_os == 'darwin'
 
     system "#{src_dir}/configure",  *args
     system 'make', '-j', num_jobs, 'V=1'
@@ -49,6 +49,13 @@ class Libssh2 < Utility
       system 'make', 'check'
     end
 
+    # fix dylib install names on darwin
+    if platform.target_os == 'darwin'
+      ver = release.version.split('.')[0]
+      ssh2_lib = "libssh2.#{ver}.dylib"
+      system 'install_name_tool', '-id', ssh2_lib, "#{install_dir}/lib/#{ssh2_lib}"
+    end
+
     # remove unneeded files
     FileUtils.rm_rf "#{install_dir}/lib/pkgconfig"
     FileUtils.rm_rf "#{install_dir}/share"
@@ -57,16 +64,5 @@ class Libssh2 < Utility
 
   def split_file_list(list, platform_name)
     split_file_list_by_shared_libs(list, platform_name)
-  end
-
-  def add_dl_library_path(script, lib_dir)
-    lines = File.readlines(script).map { |l| l.strip }
-    first = lines.delete(0)
-    File.open(script, "w") do |f|
-      f.puts first
-      f.puts "DYLD_LIBRARY_PATH=#{lib_dir}"
-      f.puts "export DYLD_LIBRARY_PATH"
-      lines.each { |l| f.puts l }
-    end
   end
 end

@@ -75,6 +75,17 @@ module Build
     "#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
   end
 
+  def self.add_dyld_library_path(configure_script, lib_dir)
+    lines = File.readlines(configure_script)
+    first = lines.delete(0)
+    File.open(configure_script, "w") do |f|
+      f.puts first
+      f.puts "DYLD_LIBRARY_PATH=#{lib_dir}"
+      f.puts "export DYLD_LIBRARY_PATH"
+      lines.each { |l| f.print l }
+    end
+  end
+
   # def self.copy_sysroot(arch, dir)
   #   FileUtils.mkdir_p dir
   #   FileUtils.cp_r "#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch}/usr", dir
