@@ -229,11 +229,7 @@ class HostBase < Formula
   # generic implementation to be used by utilities that are libraries like zlib, openssl
   def split_file_list_by_shared_libs(list, platform_name)
     # put binary files to bin list
-    if platform_name.start_with? 'windows'
-      bin_list, dev_list = list.partition { |e| e =~ /bin\/.+\.dll/ }
-    else
-      bin_list, dev_list = list.partition { |e| e =~ /lib\/.*\.(so|so\..+)/ }
-    end
+    bin_list, dev_list = list.partition { |e| e =~ /(bin\/.+)|(lib\/.*\.(so|so\..+|dylib))/ }
     # add directories to bin list
     dirs = []
     bin_list.each do |f|
