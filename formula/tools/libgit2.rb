@@ -1,43 +1,45 @@
-class Libgit2 < BuildDependency
+class Libgit2 < Utility
 
   desc "A portable, pure C implementation of the Git core methods provided as a re-entrant linkable library with a solid API"
   homepage 'https://libgit2.github.com/'
   url 'https://github.com/libgit2/libgit2/archive/v${version}.tar.gz'
 
-  release version: '0.24.6', crystax_version: 1
+  release version: '0.26.0', crystax_version: 1
 
   depends_on 'zlib'
   depends_on 'openssl'
   depends_on 'libssh2'
 
-  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)
-    zlib_dir    = host_dep_dirs[platform.name]['zlib']
-    openssl_dir = host_dep_dirs[platform.name]['openssl']
-    libssh2_dir = host_dep_dirs[platform.name]['libssh2']
+    tools_dir   = Global::tools_dir(platform.name)
 
-    FileUtils.cp_r File.join(src_dir, '.'), '.'
+    config_args = [
+      "CREW_ISYSROOT=#{platform.sysroot}",
+      "CREW_LIB_DIR=#{tools_dir}/lib",
+      "CMAKE_VERBOSE_MAKEFILE=ON",
+      "CMAKE_INSTALL_PREFIX=#{install_dir}",
+      "CMAKE_C_COMPILER=#{platform.cc}",
+      "CMAKE_C_FLAGS=\"#{platform.cflags} -I#{tools_dir}/include\"",
+      "CMAKE_FIND_ROOT_PATH=#{tools_dir}",
+      "BUILD_CLAR=OFF",
+      "USE_ICONV=OFF"
+    ]
 
-    build_env['EXTRA_CFLAGS']   = "#{platform.cflags}"
-    build_env['EXTRA_DEFINES']  = "-DGIT_OPENSSL -DOPENSSL_SHA1 -DGIT_SSH -DGIT_THREADS"
-    build_env['EXTRA_INCLUDES'] = "-I#{zlib_dir}/include -I#{openssl_dir}/include -I#{libssh2_dir}/include"
+    system 'cmake', src_dir, *config_args.map { |arg| "-D#{arg}" }
+    system 'cmake', '--build', '.', '--target', 'install'
 
-    build_env['EXTRA_DEFINES'] += " -DGIT_ARCH_64"  unless platform.name == 'windows'
-    build_env['EXTRA_DEFINES'] += " -DGIT_USE_NSEC" if platform.target_os == 'windows'
-
-    make_args = ['-f', 'Makefile.crystax']
-
-    if platform.target_os == 'windows'
-      build_env['EXTRA_DEFINES'] += " -DGIT_WIN32"
-      make_args << 'MINGW=1'
+    # fix dylib install names on darwin
+    if platform.target_os == 'darwin'
+      git2_lib = "libgit2.#{release.version}.dylib"
+      system 'install_name_tool', '-id', git2_lib, "#{install_dir}/lib/#{git2_lib}"
     end
 
-    system 'make', *make_args
+    # remove unneeded files
+    FileUtils.rm_rf "#{install_dir}/lib/pkgconfig"
+  end
 
-    FileUtils.mkdir_p ["#{install_dir}/lib", "#{install_dir}/include"]
-    #
-    FileUtils.cp   './libgit2.a',      "#{install_dir}/lib/"
-    FileUtils.cp   './include/git2.h', "#{install_dir}/include/"
-    FileUtils.cp_r './include/git2',   "#{install_dir}/include/"
+  def split_file_list(list, platform_name)
+    split_file_list_by_shared_libs(list, platform_name)
   end
 end
