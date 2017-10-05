@@ -25,6 +25,7 @@ class Libgit2 < Utility
       "BUILD_CLAR=OFF",
       "USE_ICONV=OFF"
     ]
+    build_env['LD_LIBRARY_PATH'] = nil if platform.target_os == 'linux'
 
     system 'cmake', src_dir, *config_args.map { |arg| "-D#{arg}" }
     system 'cmake', '--build', '.', '--target', 'install'
