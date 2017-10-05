@@ -15,7 +15,7 @@ class Libgit2 < Utility
     tools_dir   = Global::tools_dir(platform.name)
 
     config_args = [
-      "CREW_SHARED_LIB_EXT=#{Build.shared_lib_extension(platform.target_os)}",
+      "CREW_SHARED_LIB_EXT=#{Build.shared_lib_link_extension(platform.target_os)}",
       "CREW_ISYSROOT=#{platform.sysroot}",
       "CREW_LIB_DIR=#{tools_dir}/lib",
       "CMAKE_VERBOSE_MAKEFILE=ON",
@@ -26,7 +26,16 @@ class Libgit2 < Utility
       "BUILD_CLAR=OFF",
       "USE_ICONV=OFF"
     ]
-    build_env['LD_LIBRARY_PATH'] = nil if platform.target_os == 'linux'
+    if platform.target_os == 'windows'
+      config_args += ["WIN32=ON",
+                      "MINGW=ON",
+                      "DLLTOOL=#{platform.dlltool}",
+                      "CMAKE_RC_COMPILER=\"#{platform.windres}\"",
+                      "CMAKE_SYSTEM_NAME=Windows"
+                     ]
+    end
+
+    build_env['LD_LIBRARY_PATH'] = nil if ['linux', 'windows'].include? platform.target_os
 
     system 'cmake', src_dir, *config_args.map { |arg| "-D#{arg}" }
     system 'cmake', '--build', '.', '--target', 'install'

@@ -85,14 +85,14 @@ module Build
     end
   end
 
-  def self.shared_lib_extension(os)
+  def self.shared_lib_link_extension(os)
     case os
     when 'linux'
       'so'
     when 'darwin'
       'dylib'
     when 'windows'
-      'dll'
+      'dll.a'
     else
       raise UnsupportedOS.new(os)
     end
