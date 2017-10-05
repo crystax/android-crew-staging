@@ -1,4 +1,3 @@
-
 require 'date'
 require_relative 'exceptions.rb'
 require_relative 'global.rb'
@@ -83,6 +82,19 @@ module Build
       f.puts "DYLD_LIBRARY_PATH=#{lib_dir}"
       f.puts "export DYLD_LIBRARY_PATH"
       lines.each { |l| f.print l }
+    end
+  end
+
+  def self.shared_lib_extension(os)
+    case os
+    when 'linux'
+      'so'
+    when 'darwin'
+      'dylib'
+    when 'windows'
+      'dll'
+    else
+      raise UnsupportedOS.new(os)
     end
   end
 

@@ -15,6 +15,7 @@ class Libgit2 < Utility
     tools_dir   = Global::tools_dir(platform.name)
 
     config_args = [
+      "CREW_SHARED_LIB_EXT=#{Build.shared_lib_extension(platform.target_os)}",
       "CREW_ISYSROOT=#{platform.sysroot}",
       "CREW_LIB_DIR=#{tools_dir}/lib",
       "CMAKE_VERBOSE_MAKEFILE=ON",

@@ -1,6 +1,6 @@
 diff -Naur a/CMakeLists.txt b/CMakeLists.txt
 --- a/CMakeLists.txt	2017-06-14 14:31:20.000000000 +0300
-+++ b/CMakeLists.txt	2017-10-04 22:40:45.677362625 +0300
++++ b/CMakeLists.txt	2017-10-05 17:54:16.076806087 +0300
 @@ -50,9 +50,12 @@
  ENDIF()
  
@@ -35,7 +35,7 @@ diff -Naur a/CMakeLists.txt b/CMakeLists.txt
 -	IF (CURL_FOUND)
 +        #:
 +        SET(CURL_FOUND TRUE)
-+        SET(CURL_LIBRARIES "${CREW_LIB_DIR}/libcurl.dylib")
++        SET(CURL_LIBRARIES "${CREW_LIB_DIR}/libcurl.${CREW_SHARED_LIB_EXT}")
 +        SET(CURL_LDFLAGS "-lcurl")
 +        IF (CURL_FOUND)
  		ADD_DEFINITIONS(-DGIT_CURL)
@@ -58,7 +58,7 @@ diff -Naur a/CMakeLists.txt b/CMakeLists.txt
 +#:ENDIF()
 +
 +SET(LIBSSH2_FOUND TRUE)
-+SET(LIBSSH2_LIBRARIES "${CREW_LIB_DIR}/libssh2.dylib")
++SET(LIBSSH2_LIBRARIES "${CREW_LIB_DIR}/libssh2.${CREW_SHARED_LIB_EXT}")
 +SET(LIBSSH2_LDFLAGS "-lssh2")
 +
  IF (LIBSSH2_FOUND)
