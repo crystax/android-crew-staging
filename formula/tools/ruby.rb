@@ -207,6 +207,16 @@ class Ruby < Utility
   end
 
   def split_file_list(list, platform_name)
-    split_file_list_by_shared_libs(list, platform_name)
+    # put binary files to bin list
+    dev_list, bin_list = list.partition { |e| e =~ /(.*\.h)|(.*\.a)/ }
+    # add directories to bin list
+    dirs = []
+    dev_list.each do |f|
+      ds = File.dirname(f).split('/')
+      dirs += (1..ds.size).map { |e| ds.first(e).join('/') }
+    end
+    dev_list += dirs.sort.uniq
+
+    [bin_list.sort, dev_list.sort]
   end
 end
