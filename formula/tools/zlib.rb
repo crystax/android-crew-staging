@@ -47,7 +47,7 @@ class Zlib < Utility
 
       if platform.target_os == 'darwin'
         libname = "libz.#{release.version}.dylib"
-        system 'install_name_tool', '-id', libname, "#{install_dir}/lib/#{libname}"
+        system 'install_name_tool', '-id', "@rpath/#{libname}", "#{install_dir}/lib/#{libname}"
       end
       FileUtils.rm_rf ["#{install_dir}/share", "#{install_dir}/lib/pkgconfig"]
     end
