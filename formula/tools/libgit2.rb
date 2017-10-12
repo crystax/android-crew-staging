@@ -43,7 +43,7 @@ class Libgit2 < Utility
     # fix dylib install names on darwin
     if platform.target_os == 'darwin'
       git2_lib = "libgit2.#{release.version}.dylib"
-      system 'install_name_tool', '-id', git2_lib, "#{install_dir}/lib/#{git2_lib}"
+      system 'install_name_tool', '-id', "@rpath/#{git2_lib}", "#{install_dir}/lib/#{git2_lib}"
     end
 
     # remove unneeded files
