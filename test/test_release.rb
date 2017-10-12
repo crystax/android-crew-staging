@@ -33,38 +33,38 @@ class TestRelease < MiniTest::Test
     r = Release.new
     #
     r.installed = 5
-    assert_equal(5,    r.installed_crystax_version)
+    assert_equal(5, r.installed_crystax_version)
     assert_equal(true, r.installed?)
-    assert_equal(nil,  r.source_installed?)
+    assert_nil(r.source_installed?)
     #
     r.installed = false
-    assert_equal(nil,   r.installed_crystax_version)
+    assert_nil(r.installed_crystax_version)
     assert_equal(false, r.installed?)
-    assert_equal(nil  , r.source_installed?)
+    assert_nil(r.source_installed?)
     #
     r.source_installed = 6
-    assert_equal(6,     r.installed_crystax_version)
+    assert_equal(6, r.installed_crystax_version)
     assert_equal(false, r.installed?)
-    assert_equal(true,  r.source_installed?)
+    assert_equal(true, r.source_installed?)
     #
     r.source_installed = false
-    assert_equal(nil,   r.installed_crystax_version)
+    assert_nil(r.installed_crystax_version)
     assert_equal(false, r.installed?)
-    assert_equal(false,  r.source_installed?)
+    assert_equal(false, r.source_installed?)
     #
     r.installed = 7
     r.source_installed = 7
-    assert_equal(7,    r.installed_crystax_version)
+    assert_equal(7, r.installed_crystax_version)
     assert_equal(true, r.installed?)
     assert_equal(true, r.source_installed?)
     #
     r.installed = false
-    assert_equal(7,     r.installed_crystax_version)
+    assert_equal(7, r.installed_crystax_version)
     assert_equal(false, r.installed?)
     assert_equal(true,  r.source_installed?)
     #
     r.source_installed = false
-    assert_equal(nil,   r.installed_crystax_version)
+    assert_nil(r.installed_crystax_version)
     assert_equal(false, r.installed?)
     assert_equal(false, r.source_installed?)
     #
