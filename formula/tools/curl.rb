@@ -34,20 +34,18 @@ class Curl < Utility
     system 'make', 'install'
 
     if options.check? platform
-       if platform.target_os == 'darwin'
-         FileUtils.cp Dir["#{tools_dir}/lib/libz*.dylib"],      './tests/'
-         FileUtils.cp Dir["#{tools_dir}/lib/libcrypto*.dylib"], './tests/'
-         FileUtils.cp Dir["#{tools_dir}/lib/libssl*.dylib"],    './tests/'
-       end
+      fix_tests_makefile 'tests/Makefile', "#{tools_dir}/lib"
+      system 'install_name_tool', '-add_rpath', "#{tools_dir}/lib", 'src/.libs/curl' if platform.target_os == 'darwin'
       system 'make', 'test'
     end
 
-    # fix dylib install names on darwin
     # why dylib version is 4?
     if platform.target_os == 'darwin'
       ver = 4
       curl_lib = "libcurl.#{ver}.dylib"
-      system 'install_name_tool', '-id', curl_lib, "#{install_dir}/lib/#{curl_lib}"
+      system 'install_name_tool', '-id', "@rpath/#{curl_lib}", "#{install_dir}/lib/#{curl_lib}"
+      system 'install_name_tool', '-add_rpath', '@loader_path/../lib', "#{install_dir}/bin/curl"
+      system 'install_name_tool', '-change', "#{install_dir}/lib/#{curl_lib}", "@rpath/#{curl_lib}", "#{install_dir}/bin/curl"
     end
 
     # remove unneeded files before packaging
@@ -56,5 +54,14 @@ class Curl < Utility
 
   def split_file_list(list, platform_name)
     split_file_list_by_shared_libs(list, platform_name)
+  end
+
+  def fix_tests_makefile(makefile, rpath_dir)
+    lines = []
+    File.readlines(makefile).each do |l|
+      l = l.rstrip + " -Wl,-rpath,#{rpath_dir}\n" if l =~ /$LDFLAGS =/
+      lines << l
+    end
+    File.open(makefile, 'w') { |f| f.puts lines }
   end
 end
