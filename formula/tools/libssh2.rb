@@ -40,6 +40,8 @@ class Libssh2 < Utility
     Build.add_dyld_library_path "#{src_dir}/configure", "#{tools_dir}/lib" if platform.target_os == 'darwin'
 
     system "#{src_dir}/configure",  *args
+    fix_tests_makefile 'tests/Makefile', "#{Dir.pwd}/tests" if platform.target_os == 'darwin'
+
     system 'make', '-j', num_jobs, 'V=1'
     system 'make', 'install'
 
@@ -52,7 +54,7 @@ class Libssh2 < Utility
     if platform.target_os == 'darwin'
       ver = release.version.split('.')[0]
       ssh2_lib = "libssh2.#{ver}.dylib"
-      system 'install_name_tool', '-id', ssh2_lib, "#{install_dir}/lib/#{ssh2_lib}"
+      system 'install_name_tool', '-id', "@rpath/#{ssh2_lib}", "#{install_dir}/lib/#{ssh2_lib}"
     end
 
     # remove unneeded files
@@ -63,5 +65,18 @@ class Libssh2 < Utility
 
   def split_file_list(list, platform_name)
     split_file_list_by_shared_libs(list, platform_name)
+  end
+
+  def fix_tests_makefile(makefile, rpath_dir)
+    lines = []
+    simple_cmd = "\t$(AM_V_CCLD)$(LINK) $(simple_OBJECTS) $(simple_LDADD) $(LIBS)\n"
+    ssh2_cmd = "\t$(AM_V_CCLD)$(LINK) $(ssh2_OBJECTS) $(ssh2_LDADD) $(LIBS)\n"
+    File.readlines(makefile).each do |l|
+      lines << l
+      if l == simple_cmd or l == ssh2_cmd
+        lines << "\tinstall_name_tool -add_rpath #{rpath_dir} .libs/$@\n"
+      end
+    end
+    File.open(makefile, 'w') { |f| f.puts lines }
   end
 end
