@@ -49,9 +49,9 @@ class Openssl < Utility
       ver = release.version.split('.').first(2).join('.')
       crypto_lib = "libcrypto.#{ver}.dylib"
       ssl_lib = "libssl.#{ver}.dylib"
-      system 'install_name_tool', '-id', crypto_lib, "#{install_dir}/lib/#{crypto_lib}"
-      system 'install_name_tool', '-id', ssl_lib,    "#{install_dir}/lib/#{ssl_lib}"
-      system 'install_name_tool', '-change', "#{install_dir}/lib/#{crypto_lib}", crypto_lib, "#{install_dir}/lib/#{ssl_lib}"
+      system 'install_name_tool', '-id', "@rpath/#{crypto_lib}", "#{install_dir}/lib/#{crypto_lib}"
+      system 'install_name_tool', '-id', "@rpath/#{ssl_lib}",    "#{install_dir}/lib/#{ssl_lib}"
+      system 'install_name_tool', '-change', "#{install_dir}/lib/#{crypto_lib}", "@rpath/#{crypto_lib}", "#{install_dir}/lib/#{ssl_lib}"
     end
 
     # remove unneeded files
