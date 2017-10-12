@@ -4,7 +4,7 @@ class Ruby < Utility
   homepage 'https://www.ruby-lang.org/'
   url 'https://cache.ruby-lang.org/pub/ruby/${block}/ruby-${version}.tar.gz' do |r| r.version.split('.').slice(0, 2).join('.') end
 
-  release version: '2.2.2', crystax_version: 2
+  release version: '2.4.2', crystax_version: 2
 
   build_depends_on 'zlib'
   build_depends_on 'openssl'
@@ -19,7 +19,7 @@ class Ruby < Utility
     super(release, dir, src_name, log_prefix)
 
     # todo: get installed libgit2 version and make rugged version out of it
-    rugged_ver = '0.24.0'
+    rugged_ver = '0.26.0'
 
     # download and unpack rugged sources
     rugged_url = "https://github.com/libgit2/rugged/archive/v#{rugged_ver}.tar.gz"
@@ -53,22 +53,18 @@ class Ruby < Utility
 
   def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)
-    zlib_dir    = host_dep_dirs[platform.name]['zlib']
-    openssl_dir = host_dep_dirs[platform.name]['openssl']
-    libssh2_dir = host_dep_dirs[platform.name]['libssh2']
-    libgit2_dir = host_dep_dirs[platform.name]['libgit2']
+    tools_dir   = Global::tools_dir(platform.name)
 
-    cflags  = "-I#{zlib_dir}/include -I#{openssl_dir}/include #{platform.cflags}"
-    ldflags = "-w -L#{libssh2_dir}/lib -L#{libgit2_dir}/lib -L#{openssl_dir}/lib -L#{zlib_dir}/lib"
+    cflags  = "-I#{tools_dir}/include #{platform.cflags}"
+    ldflags = "-w -L#{tools_dir}/lib"
     if platform.target_os != 'windows'
       libs = '-lz -lgit2 -lssh2 -lssl -lcrypto -lz'
     else
-      libs = ["#{zlib_dir}/lib/libz.a",
-              "#{libgit2_dir}/lib/libgit2.a",
-              "#{libssh2_dir}/lib/libssh2.a",
-              "#{openssl_dir}/lib/libssl.a",
-              "#{openssl_dir}/lib/libcrypto.a",
-              "#{zlib_dir}/lib/libz.a",
+      libs = ["#{tools_dir}/lib/libgit2.dll.a",
+              "#{tools_dir}/lib/libssh2.dll.a",
+              "#{tools_dir}/lib/libssl.dll.a",
+              "#{tools_dir}/lib/libcrypto.dll.a",
+              "#{tools_dir}/lib/libz.dll.a",
               "-lws2_32",
               "-lcrypt32",
               "-lgdi32"
@@ -79,18 +75,21 @@ class Ruby < Utility
     build_env['LDFLAGS']         = ldflags
     build_env['LIBS']            = libs
     build_env['SSL_CERT_FILE']   = host_ssl_cert_file
-    build_env['RUGGED_CFLAGS']   = "#{cflags} -DRUBY_UNTYPED_DATA_WARNING=0 -I#{openssl_dir}/include -I#{libssh2_dir}/include -I#{libgit2_dir}/include"
+    build_env['RUGGED_CFLAGS']   = "#{cflags} -DRUBY_UNTYPED_DATA_WARNING=0 -I#{tools_dir}/include"
     build_env['RUGGED_MAKEFILE'] = "#{build_dir_for_platform(platform.name)}/ext/rugged/Makefile"
     build_env['DESTDIR']         = install_dir
     build_env['PATH']            = "#{platform.toolchain_path}:#{ENV['PATH']}" if platform.target_os == 'windows'
-    build_env['V']               = '1'
+
+    if platform.target_os == 'darwin'
+      build_env['LDFLAGS'] += " -Wl,-rpath,#{tools_dir}/lib -F#{platform.sysroot}/System/Library/Frameworks"
+    end
 
     args = platform.configure_args +
            ["--prefix=/",
             "--disable-install-doc",
             "--enable-load-relative",
-            "--with-openssl-dir=#{openssl_dir}",
-            "--with-static-linked-ext",
+            "--enable-shared",
+            "--with-openssl-dir=#{tools_dir}",
             "--without-gmp",
             "--without-tk",
             "--without-gdbm",
@@ -98,26 +97,36 @@ class Ruby < Utility
            ]
     args << "--with-baseruby=#{Global::tools_dir('linux-x86_64')}/bin/ruby" if platform.target_os == 'windows'
 
+    Build.add_dyld_library_path "#{src_dir}/configure", "#{tools_dir}/lib" if platform.target_os == 'darwin'
+
     system "#{src_dir}/configure", *args
     fix_winres_params if platform.name == 'windows'
     fix_win_makefile  if platform.target_os == 'windows'
-    system 'make', '-j', num_jobs
-    system 'make', 'test' if options.check? platform
-    system 'make', 'install'
+
+    system 'make', 'V=1', '-j', num_jobs
+    system 'make', 'V=1', 'test' if options.check? platform
+    system 'make', 'V=1', 'install'
+
+    if platform.target_os == 'darwin'
+      system 'install_name_tool', '-add_rpath', '@loader_path/../lib', "#{install_dir}/bin/ruby"
+    end
 
     # remove unneeded files
     FileUtils.rm_rf File.join(install_dir, 'lib', 'pkgconfig')
     FileUtils.rm_rf File.join(install_dir, 'share')
 
     gem = gem_path(release, platform, install_dir)
-    rspec_opts = (release.version == '2.2.2') ? { version: '3.4' } : {}
-    install_gem gem, install_dir, 'rspec', rspec_opts
+    install_gem gem, install_dir, 'rspec', release
   end
 
-  def install_gem(gem, install_dir, name, options = {})
+  def install_gem(gem, install_dir, name, release)
+    ver = release.version.split('.')
+    ver[2] = '0'
+    ruby_ver = ver.join('.')
+
     build_env.clear
-    build_env['GEM_HOME'] = "#{install_dir}/lib/ruby/gems/2.2.0"
-    build_env['GEM_PATH'] = "#{install_dir}/lib/ruby/gems/2.2.0"
+    build_env['GEM_HOME'] = "#{install_dir}/lib/ruby/gems/#{ruby_ver}"
+    build_env['GEM_PATH'] = "#{install_dir}/lib/ruby/gems/#{ruby_ver}"
     build_env['SSL_CERT_FILE'] = host_ssl_cert_file
 
     args = ['-V',
@@ -126,9 +135,7 @@ class Ruby < Utility
             "--bindir #{install_dir}/bin"
            ]
 
-    opts = ['-v', options[:version]] if options[:version]
-
-    system gem, 'install', *args, name, *opts
+    system gem, 'install', *args, name
   end
 
   def host_ssl_cert_file
@@ -197,5 +204,9 @@ class Ruby < Utility
     else
       "#{Global::tools_dir('linux-x86_64')}/bin/gem"
     end
+  end
+
+  def split_file_list(list, platform_name)
+    split_file_list_by_shared_libs(list, platform_name)
   end
 end
