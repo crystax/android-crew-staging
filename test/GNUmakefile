@@ -44,7 +44,7 @@ $(info Using PLATFORM: $(PLATFORM))
 
 RUBY_DIR = $(ORIG_TOOLS_DIR)/bin
 RUBY     = $(RUBY_DIR)/$(ruby_prog)
-RSPEC    = $(RUBY_DIR)/$(ruby_prog) $(RUBY_DIR)/rspec
+RSPEC    = $(RUBY_DIR)/$(ruby_prog) $(RUBY_DIR)/rspec --no-color
 
 SSL_CERT_FILE  = $(abspath ../etc/ca-certificates.crt)
 
