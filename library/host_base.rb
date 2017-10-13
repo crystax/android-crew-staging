@@ -42,8 +42,10 @@ class HostBase < Formula
     dev_file_list = File.join(release_directory(release, platform_name), DEV_LIST_FILE)
 
     unless options[:with_dev_files]
-      remove_files_from_list dev_file_list, platform_name
-      FileUtils.rm dev_file_list
+      if File.exist? dev_file_list
+        remove_files_from_list dev_file_list, platform_name
+        FileUtils.rm dev_file_list
+      end
     end
   end
 
