@@ -44,7 +44,7 @@ describe "crew info" do
                                      "Class:              ruby",
                                      "Releases:           #{ruby_rel.version} #{ruby_rel.crystax_version} (*)",
                                      "Dependencies:       none",
-                                     "Build dependencies: zlib, openssl, libssh2, libgit2"
+                                     "Build dependencies: zlib (*), openssl (*), libssh2 (*), libgit2 (*)"
                                     ])
     end
   end
@@ -64,7 +64,7 @@ describe "crew info" do
                                      "Class:              curl",
                                      "Releases:           #{curl_rel.version} #{curl_rel.crystax_version} (*)",
                                      "Dependencies:       none",
-                                     "Build dependencies: zlib, openssl, libssh2",
+                                     "Build dependencies: zlib (*), openssl (*), libssh2 (*)",
                                      "",
                                      "Name:               bsdtar",
                                      "Namespace:          host",
@@ -84,7 +84,7 @@ describe "crew info" do
                                      "Class:              ruby",
                                      "Releases:           #{ruby_rel.version} #{ruby_rel.crystax_version} (*)",
                                      "Dependencies:       none",
-                                     "Build dependencies: zlib, openssl, libssh2, libgit2"
+                                     "Build dependencies: zlib (*), openssl (*), libssh2 (*), libgit2 (*)"
                                     ])
     end
   end
