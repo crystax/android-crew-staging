@@ -1,5 +1,3 @@
-require 'pathname'
-
 module Crew
 
   module Test
