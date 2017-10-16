@@ -82,13 +82,16 @@ class Formula
     false
   end
 
+  def mix_install_options(opts)
+    { platform: Global::PLATFORM_NAME, check_shasum: true, cache_only: false }.merge(opts)
+  end
+
   # derived classes must define two methods in order to use install method:
   #   cache_file
   #   install_archive
   #
   def install(r = releases.last, opts = {})
-    options = { platform: Global::PLATFORM_NAME, check_shasum: true, cache_only: false }
-    options.merge!(opts)
+    options = mix_install_options(opts)
 
     release = find_release(r)
     platform_name = options[:platform]
