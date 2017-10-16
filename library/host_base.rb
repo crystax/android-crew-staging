@@ -35,7 +35,9 @@ class HostBase < Formula
     "#{postpone_dir}/upgrade.cmd"
   end
 
-  def install(release = releases.last, options = {})
+  def install(release = releases.last, opts = {})
+    options = mix_install_options(opts)
+
     super release, options
 
     platform_name = options[:platform]
