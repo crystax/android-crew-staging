@@ -28,6 +28,7 @@ if not defined CREW_TOOLS_DIR (
 rem set CREW
 rem set GIT
 
+set PATH=%CREW_TOOLS_DIR%\bin;%PATH%
 %CREW_TOOLS_DIR%\bin\ruby.exe -W0 %CREWFILEDIR%crew.rb %*
 
 if exist %CREW_NDK_DIR%\postpone (
