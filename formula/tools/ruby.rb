@@ -6,10 +6,10 @@ class Ruby < Utility
 
   release version: '2.4.2', crystax_version: 1
 
-  build_depends_on 'zlib'
-  build_depends_on 'openssl'
-  build_depends_on 'libssh2'
-  build_depends_on 'libgit2'
+  depends_on 'zlib'
+  depends_on 'openssl'
+  depends_on 'libssh2'
+  depends_on 'libgit2'
 
   def wrapper_script_lines(_exe, platform_name)
     platform_name.start_with?('windows') ? ['set GEM_HOME=', 'set GEM_PATH='] : ['unset GEM_HOME', 'unset GEM_PATH']
