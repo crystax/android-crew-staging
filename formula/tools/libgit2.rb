@@ -44,6 +44,7 @@ class Libgit2 < Utility
     if platform.target_os == 'darwin'
       git2_lib = "libgit2.#{release.version}.dylib"
       system 'install_name_tool', '-id', "@rpath/#{git2_lib}", "#{install_dir}/lib/#{git2_lib}"
+      system 'install_name_tool', '-add_rpath', '@executable_path/../lib', "#{install_dir}/lib/#{git2_lib}"
     end
 
     # remove unneeded files
