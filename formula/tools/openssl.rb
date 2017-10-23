@@ -33,6 +33,8 @@ class Openssl < Utility
             "-l#{zlib}"
            ]
 
+    args << "-Wl,-rpath,@executable_path/../lib" if platform.target_os == 'darwin'
+
     system './Configure',  *args
     system 'make', 'depend'
     system 'make', '-j', num_jobs
