@@ -25,10 +25,13 @@ class Libssh2 < Utility
 
     build_env['CFLAGS']  += " -I#{tools_dir}/include #{platform.cflags}"
     build_env['LDFLAGS']  = "-L#{tools_dir}/lib -l#{ssl} -l#{crypto} -l#{zlib}"
-    build_env['LIBS']     = "-lcrypt32 -lgdi32" if platform.target_os == 'windows'
-    build_env['LIBS']     = "-ldl"              if platform.target_os == 'linux'
+    build_env['LIBS']     = "-lcrypt32 -lgdi32"                  if platform.target_os == 'windows'
+    build_env['LDFLAGS']  = "-Wl,-rpath,@executable_path/../lib" if platform.target_os == 'darwin'
 
-    build_env['LD_LIBRARY_PATH'] = "#{tools_dir}/lib" if platform.target_os == 'linux'
+    if platform.target_os == 'linux'
+      build_env['LIBS'] = "-ldl"
+      build_env['LD_LIBRARY_PATH'] = "#{tools_dir}/lib"
+    end
 
     args = platform.configure_args +
            ["--prefix=#{install_dir}",
