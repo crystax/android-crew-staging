@@ -94,12 +94,14 @@ def create_archive(orig_release, release, util)
   FileUtils.cd(ORIG_NDK_DIR) do
     list_file = File.join('.crew', util, PLATFORM, orig_release.version, 'list')
     File.read(list_file).split("\n").each do |file|
-      if File.directory?(file)
-        FileUtils.mkdir_p File.join(package_dir, file)
-      else
-        target_dir = File.join(package_dir, File.dirname(file))
-        FileUtils.mkdir_p target_dir
-        FileUtils.cp file, target_dir
+      if File.exist?(file)
+        if File.directory?(file)
+          FileUtils.mkdir_p File.join(package_dir, file)
+        else
+          target_dir = File.join(package_dir, File.dirname(file))
+          FileUtils.mkdir_p target_dir
+          FileUtils.cp file, target_dir
+        end
       end
     end
     FileUtils.cp list_file, package_dir
