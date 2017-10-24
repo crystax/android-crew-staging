@@ -6,9 +6,9 @@ class Curl < Utility
 
   release version: '7.55.1', crystax_version: 1
 
-  build_depends_on 'zlib'
-  build_depends_on 'openssl'
-  build_depends_on 'libssh2'
+  depends_on 'zlib'
+  depends_on 'openssl'
+  depends_on 'libssh2'
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)
