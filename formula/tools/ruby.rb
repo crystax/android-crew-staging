@@ -206,6 +206,7 @@ class Ruby < Utility
     end
   end
 
+  # todo: fix: remove dirs that do not have respective (dev or non-dev) files
   def split_file_list(list, platform_name)
     # put binary files to bin list
     dev_list, bin_list = list.partition { |e| e =~ /(.*\.h)|(.*\.a)/ }
