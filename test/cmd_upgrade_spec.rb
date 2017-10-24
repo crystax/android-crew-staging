@@ -120,7 +120,8 @@ describe "crew upgrade" do
         repository_clone
         repository_add_formula :host, 'libarchive-2.rb:libarchive.rb', 'curl-3.rb:curl.rb', 'ruby-2.rb:ruby.rb'
         crew_checked 'update'
-        crew '-b', 'upgrade'
+        # todo: remove -W
+        crew '-W', '-b', 'upgrade'
         libarchive_new_rel = Crew::Test::UTILS_RELEASES['libarchive'][1]
         libarchive_old_rel = Crew::Test::UTILS_RELEASES['libarchive'][0]
         libarchive_file = "libarchive-#{libarchive_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
@@ -191,7 +192,8 @@ describe "crew upgrade" do
         repository_add_formula :target, 'libtwo.rb', 'libthree.rb'
         repository_add_formula :host, 'curl-3.rb:curl.rb', 'libarchive-2.rb:libarchive.rb', 'ruby-2.rb:ruby.rb'
         crew_checked 'update'
-        crew 'upgrade'
+        # todo: remove -W
+        crew '-W', 'upgrade'
         lib3file = "libthree-3.3.3_1.#{Global::ARCH_EXT}"
         lib2file = "libtwo-2.2.0_1.#{Global::ARCH_EXT}"
         libarchive_new_rel = Crew::Test::UTILS_RELEASES['libarchive'][1]

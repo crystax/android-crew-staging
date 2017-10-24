@@ -43,8 +43,8 @@ describe "crew info" do
                                      "Description:        Powerful, clean, object-oriented scripting language",
                                      "Class:              ruby",
                                      "Releases:           #{ruby_rel.version} #{ruby_rel.crystax_version} (*)",
-                                     "Dependencies:       none",
-                                     "Build dependencies: zlib (*), openssl (*), libssh2 (*), libgit2 (*)"
+                                     "Dependencies:       zlib (*), openssl (*), libssh2 (*), libgit2 (*)",
+                                     "Build dependencies: none"
                                     ])
     end
   end
@@ -63,8 +63,8 @@ describe "crew info" do
                                      "Description:        Get a file from an HTTP, HTTPS or FTP server",
                                      "Class:              curl",
                                      "Releases:           #{curl_rel.version} #{curl_rel.crystax_version} (*)",
-                                     "Dependencies:       none",
-                                     "Build dependencies: zlib (*), openssl (*), libssh2 (*)",
+                                     "Dependencies:       zlib (*), openssl (*), libssh2 (*)",
+                                     "Build dependencies: none",
                                      "",
                                      "Name:               bsdtar",
                                      "Namespace:          host",
@@ -83,8 +83,8 @@ describe "crew info" do
                                      "Description:        Powerful, clean, object-oriented scripting language",
                                      "Class:              ruby",
                                      "Releases:           #{ruby_rel.version} #{ruby_rel.crystax_version} (*)",
-                                     "Dependencies:       none",
-                                     "Build dependencies: zlib (*), openssl (*), libssh2 (*), libgit2 (*)"
+                                     "Dependencies:       zlib (*), openssl (*), libssh2 (*), libgit2 (*)",
+                                     "Build dependencies: none"
                                     ])
     end
   end
