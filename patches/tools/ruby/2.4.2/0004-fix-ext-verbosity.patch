@@ -1,0 +1,12 @@
+diff -Naur a/ext/extmk.rb b/ext/extmk.rb
+--- a/ext/extmk.rb	2017-03-12 10:51:35.000000000 +0300
++++ b/ext/extmk.rb	2017-10-31 15:17:48.337236732 +0300
+@@ -720,7 +720,7 @@
+   exts.map! {|d| "ext/#{d}/."}
+   gems.map! {|d| "gems/#{d}/."}
+   atomic_write_open($command_output) do |mf|
+-    mf.puts "V = 0"
++    mf.puts "V = 1"
+     mf.puts "Q1 = $(V:1=)"
+     mf.puts "Q = $(Q1:0=@)"
+     mf.puts "ECHO1 = $(V:1=@:)"

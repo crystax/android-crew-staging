@@ -29,6 +29,12 @@ class NdkStack < Utility
     build_env['LDFLAGS'] += ' -m32' if platform.target_cpu == 'x86'
     build_env['PATH']     = "#{platform.toolchain_path}:#{ENV['PATH']}" #if platform.target_os == 'darwin'
 
+    # it's because with use for windows builds gcc 7
+    if platform.target_os  == 'windows'
+      build_env['CFLAGS'] += ' -Wno-error=implicit-fallthrough -Wno-error=shift-negative-value -Wno-error=pointer-compare'
+      build_env['CFLAGS'] += ' -Wno-error=shift-overflow' if platform.target_cpu == 'x86'
+    end
+
     puts "  building binutils"
     build_binutils platform, binutils_src_dir, binutils_build_dir
 
@@ -43,16 +49,17 @@ class NdkStack < Utility
               "-I#{binutils_src_dir}/bfd",
               "-I#{binutils_src_dir}/include"
              ]
+
     ldflags = ["#{binutils_build_dir}/binutils/bucomm.o",
                "#{binutils_build_dir}/binutils/version.o",
                "#{binutils_build_dir}/binutils/filemode.o",
                "#{binutils_build_dir}/bfd/libbfd.a",
                "#{binutils_build_dir}/libiberty/libiberty.a"
               ]
+    ldflags += ['-ldl', '-lz'] unless platform.target_os  == 'windows'
 
     build_env['CFLAGS']  += ' ' + cflags.join(' ')
     build_env['LDFLAGS'] += ' ' + ldflags.join(' ')
-    build_env['LDFLAGS'] += ' -ldl -lz' unless platform.target_os  == 'windows'
 
     args = ['-C', src_dir,
             '-f', "#{src_dir}/GNUmakefile",

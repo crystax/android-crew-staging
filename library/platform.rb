@@ -60,9 +60,9 @@ class Platform
                 #                      # no windres
                 #                      # no dlltool
                 #                    },
-                'linux/windows' => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-w64-mingw32-4.9.3/bin",
+                'linux/windows' => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-w64-mingw32-7.2/bin",
                                      tool_prefix:   'x86_64-w64-mingw32-',
-                                     major_version: 4,
+                                     major_version: 7,
                                      gcc:           'gcc',
                                      gxx:           'g++',
                                      ld:            'ld',
@@ -150,8 +150,8 @@ class Platform
       @configure_build = 'x86_64-linux-gnu'
     when 'windows'
       @cflags          = '-m32'
-      @configure_host  = 'x86_64-w64-mingw32'
-      #@configure_host  = 'i586-pc-mingw32msvc'
+      @configure_host  = 'i686-w64-mingw32'
+      #@configure_host  = 'x86_64-w64-mingw32'
       @configure_build = 'x86_64-linux-gnu'
     end
 

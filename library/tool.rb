@@ -40,6 +40,7 @@ class Tool < HostBase
       build_env['CFLAGS']   = platform.cflags
       build_env['CXXFLAGS'] = platform.cxxflags
       build_env['LANG']     = 'C'
+      build_env['LC_ALL']   = 'C'
       build_env['PATH']     = "#{platform.toolchain_path}:#{Build.path}"
       build_env['RC']       = platform.windres if platform.target_os == 'windows'
       #

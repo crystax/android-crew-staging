@@ -55,11 +55,12 @@ class Ruby < Utility
     install_dir = install_dir_for_platform(platform.name, release)
     tools_dir   = Global::tools_dir(platform.name)
 
-    cflags  = "-I#{tools_dir}/include #{platform.cflags}"
+    cppflags = "-I#{tools_dir}/include #{platform.cflags}"
     ldflags = "-w -L#{tools_dir}/lib"
     if platform.target_os != 'windows'
       libs = '-lz -lgit2 -lssh2 -lssl -lcrypto -lz'
     else
+      cppflags += ' -D_FORTIFY_SOURCE=2 -D__USE_MINGW_ANSI_STDIO=1 -DFD_SETSIZE=2048'
       libs = ["#{tools_dir}/lib/libgit2.dll.a",
               "#{tools_dir}/lib/libssh2.dll.a",
               "#{tools_dir}/lib/libssl.dll.a",
@@ -71,14 +72,21 @@ class Ruby < Utility
              ].join(' ')
     end
 
-    build_env['CFLAGS']         += ' ' + cflags
+    build_env['CPPFLAGS']        = cppflags
     build_env['LDFLAGS']         = ldflags
     build_env['LIBS']            = libs
     build_env['SSL_CERT_FILE']   = host_ssl_cert_file
-    build_env['RUGGED_CFLAGS']   = "#{cflags} -DRUBY_UNTYPED_DATA_WARNING=0 -I#{tools_dir}/include"
+    build_env['RUGGED_CFLAGS']   = "#{cppflags} -DRUBY_UNTYPED_DATA_WARNING=0 -I#{tools_dir}/include"
     build_env['RUGGED_MAKEFILE'] = "#{build_dir_for_platform(platform.name)}/ext/rugged/Makefile"
     build_env['DESTDIR']         = install_dir
-    build_env['PATH']            = "#{platform.toolchain_path}:#{ENV['PATH']}" if platform.target_os == 'windows'
+    build_env['V']               = '1'
+
+    if platform.target_os == 'windows'
+      build_env['PATH']    = "#{platform.toolchain_path}:#{ENV['PATH']}"
+      build_env['WINDRES'] = platform.windres
+      build_env['DLLTOOL'] = platform.dlltool
+      build_env['CFLAGS'] += ' -march=i686' if platform.target_cpu == 'x86'
+    end
 
     if platform.target_os == 'darwin'
       build_env['LDFLAGS'] += " -Wl,-rpath,#{tools_dir}/lib -F#{platform.sysroot}/System/Library/Frameworks"
@@ -87,7 +95,9 @@ class Ruby < Utility
     args = platform.configure_args +
            ["--prefix=/",
             "--disable-install-doc",
+            "--disable-silent-rules",
             "--enable-load-relative",
+            "--disable-static",
             "--enable-shared",
             "--with-openssl-dir=#{tools_dir}",
             "--without-gmp",
@@ -95,15 +105,34 @@ class Ruby < Utility
             "--without-gdbm",
             "--enable-bundled-libyaml"
            ]
-    args << "--with-baseruby=#{Global::tools_dir('linux-x86_64')}/bin/ruby" if platform.target_os == 'windows'
+    if platform.target_os == 'windows'
+      args += ["--with-baseruby=#{Global::tools_dir('linux-x86_64')}/bin/ruby",
+               "--with-out-ext=readline,pty,syslog"
+              ]
+    end
 
     Build.add_dyld_library_path "#{src_dir}/configure", "#{tools_dir}/lib" if platform.target_os == 'darwin'
 
+    # ext/fiddle fails to build for windows with some strange error and
+    # then builds OK when make run second time
+    if platform.target_os == 'windows'
+      FileUtils.cd(src_dir) do
+        system 'autoreconf', '-fi'
+        FileUtils.cd('ext/fiddle/libffi-3.2.1') { system 'autoreconf', '-fi' }
+      end
+    end
     system "#{src_dir}/configure", *args
-    fix_winres_params if platform.name == 'windows'
-    fix_win_makefile  if platform.target_os == 'windows'
 
-    system 'make', 'V=1', '-j', num_jobs
+    begin
+      system 'make', 'V=1', '-j', num_jobs
+    rescue
+      if platform.name == 'windows'
+        system 'make', 'V=1', '-j', num_jobs
+      else
+        raise
+      end
+    end
+
     system 'make', 'V=1', 'test' if options.check? platform
     system 'make', 'V=1', 'install'
 
@@ -140,53 +169,45 @@ class Ruby < Utility
 
   def host_ssl_cert_file
     "#{Global::BASE_DIR}/etc/ca-certificates.crt"
-    # case Global::OS
-    # when 'darwin'
-    #   '/usr/local/etc/openssl/osx_cert.pem'
-    # when 'linux'
-    #   '/etc/ssl/certs/ca-certificates.crt'
-    # else
-    #   raise "unsupported host OS for ssl sert file: #{Global::OS}"
-    # end
   end
 
   # by default windres included with 64bit gcc toolchain (mingw) generates 64-bit obj files
   # we need to provide '-F pe-i386' to windres to generate 32bit output
-  def fix_winres_params
-    file = 'GNUmakefile'
-    lines = []
-    replaced = false
-    File.foreach(file) do |l|
-      if not l.start_with?('WINDRES = ')
-        lines << l
-      else
-        lines << l.gsub(/(.*-windres)/, '\1 -F pe-i386')
-        replaced = true
-      end
-    end
+  # def fix_winres_params
+  #   file = 'GNUmakefile'
+  #   lines = []
+  #   replaced = false
+  #   File.foreach(file) do |l|
+  #     if not l.start_with?('WINDRES = ')
+  #       lines << l
+  #     else
+  #       lines << l.gsub(/(.*-windres)/, '\1 -F pe-i386')
+  #       replaced = true
+  #     end
+  #   end
 
-    raise "not found WINDRES line in GNUmakefile" unless replaced
+  #   raise "not found WINDRES line in GNUmakefile" unless replaced
 
-    File.open(file, 'w') { |f| f.puts lines }
-  end
+  #   File.open(file, 'w') { |f| f.puts lines }
+  # end
 
-  def fix_win_makefile
-    file = 'Makefile'
-    lines = []
-    replaced = false
-    File.foreach(file) do |l|
-      if not l.include?('$(Q) $(LDSHARED) $(DLDFLAGS) $(OBJS) $(DLDOBJS) $(SOLIBS) $(EXTSOLIBS) $(OUTFLAG)$@')
-        lines << l
-      else
-        lines << "\t\t$(Q) $(LDSHARED) $(DLDFLAGS) $(OBJS) $(DLDOBJS) $(SOLIBS) $(EXTSOLIBS) -lcrypt32 $(OUTFLAG)$@"
-        replaced = true
-      end
-    end
+  # def fix_win_makefile
+  #   file = 'Makefile'
+  #   lines = []
+  #   replaced = false
+  #   File.foreach(file) do |l|
+  #     if not l.include?('$(Q) $(LDSHARED) $(DLDFLAGS) $(OBJS) $(DLDOBJS) $(SOLIBS) $(EXTSOLIBS) $(OUTFLAG)$@')
+  #       lines << l
+  #     else
+  #       lines << "\t\t$(Q) $(LDSHARED) $(DLDFLAGS) $(OBJS) $(DLDOBJS) $(SOLIBS) $(EXTSOLIBS) -lcrypt32 $(OUTFLAG)$@"
+  #       replaced = true
+  #     end
+  #   end
 
-    raise "not found required line in Makefile" unless replaced
+  #   raise "not found required line in Makefile" unless replaced
 
-    File.open(file, 'w') { |f| f.puts lines }
-  end
+  #   File.open(file, 'w') { |f| f.puts lines }
+  # end
 
   # to build ruby for windows platforms one must build and install ruby for linux platfrom
   # because here we need to run gem script and we can't run windows script on linux

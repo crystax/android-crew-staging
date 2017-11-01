@@ -364,6 +364,7 @@ Formula (no home directory)
 
             Utility (multi platform, single version)
             
+                Zlib       (f) 
                 Curl       (f)
                 Libarchive (f)
                 Make       (f)
@@ -391,7 +392,6 @@ Formula (no home directory)
                 Openssl  (f)
                 Ppl      (f)
                 Xz       (f)
-                Zlib     (f) 
                 
     TargetBase (single platform)
     
