@@ -144,9 +144,9 @@ module Spec
 
     def environment_init
       ENV['CREW_DOWNLOAD_BASE'] = Crew::Test::DOWNLOAD_BASE
-      ENV['CREW_BASE_DIR']      = "#{Dir.pwd}/#{Crew::Test::CREW_DIR}"
-      ENV['CREW_NDK_DIR']       = "#{Dir.pwd}/#{Crew::Test::NDK_DIR}"
-      ENV['CREW_PKG_CACHE_DIR'] = "#{Dir.pwd}/#{Crew::Test::PKG_CACHE_DIR}"
+      ENV['CREW_BASE_DIR']      = "#{File.dirname(__FILE__)}/#{Crew::Test::CREW_DIR}"
+      ENV['CREW_NDK_DIR']       = "#{File.dirname(__FILE__)}/#{Crew::Test::NDK_DIR}"
+      ENV['CREW_PKG_CACHE_DIR'] = "#{File.dirname(__FILE__)}/#{Crew::Test::PKG_CACHE_DIR}"
     end
 
     def origin_url
