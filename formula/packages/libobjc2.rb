@@ -20,6 +20,10 @@ class Libobjc2 < Package
 	    "."
            ]
 
+    # cmake (on linux) is built with curl
+    # this should prevent system cmake using our libcurl or any other libs from prebuilt/*/lib
+    build_env['LD_LIBRARY_PATH'] = nil
+
     system 'cmake', *args
     system 'make', '-j', num_jobs
     system 'make', 'install'
