@@ -4,12 +4,14 @@ class Ruby < Utility
   homepage 'https://www.ruby-lang.org/'
   url 'https://cache.ruby-lang.org/pub/ruby/${block}/ruby-${version}.tar.gz' do |r| r.version.split('.').slice(0, 2).join('.') end
 
-  release version: '2.4.2', crystax_version: 1
+  release version: '2.4.2', crystax_version: 2
 
   depends_on 'zlib'
   depends_on 'openssl'
   depends_on 'libssh2'
   depends_on 'libgit2'
+
+  RSPEC_VERSION = '3.7.0'
 
   def wrapper_script_lines(_exe, platform_name)
     platform_name.start_with?('windows') ? ['set GEM_HOME=', 'set GEM_PATH='] : ['unset GEM_HOME', 'unset GEM_PATH']
@@ -164,50 +166,14 @@ class Ruby < Utility
             "--bindir #{install_dir}/bin"
            ]
 
+    args << "--version #{RSPEC_VERSION}" if name == 'rspec'
+
     system gem, 'install', *args, name
   end
 
   def host_ssl_cert_file
     "#{Global::BASE_DIR}/etc/ca-certificates.crt"
   end
-
-  # by default windres included with 64bit gcc toolchain (mingw) generates 64-bit obj files
-  # we need to provide '-F pe-i386' to windres to generate 32bit output
-  # def fix_winres_params
-  #   file = 'GNUmakefile'
-  #   lines = []
-  #   replaced = false
-  #   File.foreach(file) do |l|
-  #     if not l.start_with?('WINDRES = ')
-  #       lines << l
-  #     else
-  #       lines << l.gsub(/(.*-windres)/, '\1 -F pe-i386')
-  #       replaced = true
-  #     end
-  #   end
-
-  #   raise "not found WINDRES line in GNUmakefile" unless replaced
-
-  #   File.open(file, 'w') { |f| f.puts lines }
-  # end
-
-  # def fix_win_makefile
-  #   file = 'Makefile'
-  #   lines = []
-  #   replaced = false
-  #   File.foreach(file) do |l|
-  #     if not l.include?('$(Q) $(LDSHARED) $(DLDFLAGS) $(OBJS) $(DLDOBJS) $(SOLIBS) $(EXTSOLIBS) $(OUTFLAG)$@')
-  #       lines << l
-  #     else
-  #       lines << "\t\t$(Q) $(LDSHARED) $(DLDFLAGS) $(OBJS) $(DLDOBJS) $(SOLIBS) $(EXTSOLIBS) -lcrypt32 $(OUTFLAG)$@"
-  #       replaced = true
-  #     end
-  #   end
-
-  #   raise "not found required line in Makefile" unless replaced
-
-  #   File.open(file, 'w') { |f| f.puts lines }
-  # end
 
   # to build ruby for windows platforms one must build and install ruby for linux platfrom
   # because here we need to run gem script and we can't run windows script on linux
