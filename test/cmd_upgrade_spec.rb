@@ -37,6 +37,22 @@ describe "crew upgrade" do
 
   context "when there are changes only in libraries" do
 
+    # context 'when there is one release with updated crystax_version' do
+    #   it 'says about installing new release' do
+    #     repository_add_formula :target, 'libone.rb'
+    #     repository_clone
+    #     crew_checked 'install', 'libone'
+    #     repository_add_formula :target, 'libone-2.rb:libone.rb'
+    #     crew_checked 'update'
+    #     crew 'upgrade'
+    #     expect(result).to eq(:ok)
+    #     expect(out).to eq("Will install: libone:1.0.0:2\n"                                                                       \
+    #                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libone-1.0.0_2.#{Global::ARCH_EXT}\n" \
+    #                       "checking integrity of the archive file libone-1.0.0_2.#{Global::ARCH_EXT}\n"                          \
+    #                       "unpacking archive\n")
+    #   end
+    # end
+
     context "when there is one new release in one formula" do
       it "says about installing new release" do
         repository_add_formula :target, 'libone.rb', 'libtwo-1.rb:libtwo.rb'

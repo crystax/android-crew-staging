@@ -23,8 +23,8 @@ class HostBase < Formula
     File.join(Global::SERVICE_DIR, file_name, platform_name, release.version)
   end
 
-  def upgrading_ruby_on_windows?
-    name == 'ruby' and Global::OS == 'windows'
+  def upgrading_ruby?
+    name == 'ruby'
   end
 
   def postpone_dir
@@ -32,7 +32,8 @@ class HostBase < Formula
   end
 
   def ruby_upgrade_script
-    "#{postpone_dir}/upgrade.cmd"
+    ext = Global::OS == 'windows' ? 'cmd' :  'sh'
+    "#{postpone_dir}/upgrade.#{ext}"
   end
 
   def install(release = releases.last, opts = {})
@@ -54,8 +55,8 @@ class HostBase < Formula
   def uninstall_archive(release, platform_name)
     rel_dir = release_directory(release, platform_name)
     if Dir.exist? rel_dir
-      if upgrading_ruby_on_windows?
-        gen_ruby_upgrade_cmd_script rel_dir
+      if upgrading_ruby?
+        gen_ruby_upgrade_script rel_dir
       else
         remove_archive_files rel_dir, platform_name
       end
@@ -72,7 +73,7 @@ class HostBase < Formula
     rel_dir = release_directory(release, platform_name)
     FileUtils.mkdir_p rel_dir
 
-    target_dir = (upgrading_ruby_on_windows? == true) ? postpone_dir : Global::NDK_DIR
+    target_dir = (upgrading_ruby? == true) ? postpone_dir : Global::NDK_DIR
     Utils.unpack archive, target_dir
     bin_list_file = File.join(target_dir, BIN_LIST_FILE)
     dev_list_file = File.join(target_dir, DEV_LIST_FILE)
@@ -149,19 +150,28 @@ class HostBase < Formula
     remove_files_from_list(dev_list_file, platform_name) if File.exist? dev_list_file
   end
 
-  def gen_ruby_upgrade_cmd_script rel_dir
+  def gen_ruby_upgrade_script rel_dir
     dirs = []
     files = []
     FileUtils.cd(Global::NDK_DIR) do
       bin_dirs, bin_files = read_files_from_list(File.join(rel_dir, BIN_LIST_FILE))
-      dev_dirs, dev_files = read_files_from_list(File.join(rel_dir, DEV_LIST_FILE))
+      dev_dirs, dev_files = read_files_from_list(File.join(rel_dir, DEV_LIST_FILE)) if File.exist?(DEV_LIST_FILE)
+      bin_dirs  ||= []
+      bin_files ||= []
+      dev_dirs  ||= []
+      dev_files ||= []
       dirs  = bin_dirs + dev_dirs
       files = bin_files + dev_files
     end
     FileUtils.mkdir_p postpone_dir
     File.open(ruby_upgrade_script, 'w') do |f|
-      f.puts '%echo off'
-      f.puts 'rem This script is automatically generated to finish upgrade proccess of ruby on windows platforms'
+      ttl = 'This script is automatically generated to finish upgrade proccess of ruby'
+      if Global::OS == 'windows'
+        f.puts '%echo off'
+        f.puts "rem #{ttl}"
+      else
+        f.puts "\# #{ttl}"
+      end
       f.puts
       f.puts 'echo Finishing RUBY upgrade process'
       f.puts 'echo = Removing old binary files'
@@ -170,7 +180,11 @@ class HostBase < Formula
         dir = File.dirname(e)
         if (dir.end_with?('/bin') and not dir.include?('/lib/')) or (dir.end_with?('/lib') and e.end_with?('.a'))
           path = "#{Global::NDK_DIR}/#{e}".gsub('/', '\\')
-          f.puts "del /f/q #{path}"
+          if Global::OS == 'windows'
+            f.puts "del /f/q #{path}"
+          else
+            f.puts "rm -f #{path}"
+          end
         end
       end
       f.puts
@@ -178,13 +192,23 @@ class HostBase < Formula
       inc_dir = "#{Global::NDK_DIR}/#{inc_dir}".gsub('/', '\\')
       lib_dir = "#{Global::TOOLS_DIR}/lib/ruby".gsub('/', '\\')
       f.puts "echo = Removing old directories"
-      f.puts "rd /q/s #{lib_dir}"
-      f.puts "rd /q/s #{inc_dir}"
+      if Global::OS == 'windows'
+        f.puts "rd /q/s #{lib_dir}"
+        f.puts "rd /q/s #{inc_dir}"
+      else
+        f.puts "rm -rf #{lib_dir}"
+        f.puts "rm -rf #{inc_dir}"
+      end
       f.puts
-      src_dir = "#{postpone_dir}/prebuilt".gsub('/', '\\')
-      dst_dir = "#{Global::NDK_DIR}/prebuilt".gsub('/', '\\')
       f.puts "echo = Coping new files"
-      f.puts "xcopy #{src_dir} #{dst_dir} /e/q"
+      if Global::OS == 'windows'
+        src_dir = "#{postpone_dir}/prebuilt".gsub('/', '\\')
+        dst_dir = "#{Global::NDK_DIR}/prebuilt".gsub('/', '\\')
+        f.puts "xcopy #{src_dir} #{dst_dir} /e/q"
+      else
+        src_dir = "#{postpone_dir}/prebuilt"
+        f.puts "cp -r #{src_dir} #{Global::NDK_DIR}"
+      end
     end
   end
 

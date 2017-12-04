@@ -43,4 +43,16 @@ export LD_LIBRARY_PATH="$CREW_TOOLS_DIR/lib"
 export DYLD_LIBRARY_PATH="$CREW_TOOLS_DIR/lib"
 export SSL_CERT_FILE
 
-exec $CREW_RUBY -W0 "$CREW_FILE_DIR/crew.rb" "$@"
+$CREW_RUBY -W0 "$CREW_FILE_DIR/crew.rb" "$@"
+
+status=$?
+if [ $status -ne 0 ]; then
+    exit $status
+fi
+
+if [ -f $CREW_NDK_DIR/postpone ]; then
+    echo Start postponed upgrade process
+    $CREW_NDK_DIR/postpon/upgrade.sh
+    echo = Cleaning up
+    rm -rf $CREW_NDK_DIR/postpone
+fi
