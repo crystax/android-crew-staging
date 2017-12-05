@@ -16,12 +16,9 @@ class MakeStandaloneToolchainOptions
 
   extend CommandOptions
 
-  attr_reader :install_dir, :gcc, :llvm, :stl, :arch, :platform, :api_level, :with_packages
+  attr_reader :install_dir, :stl, :arch, :platform, :api_level, :with_packages
 
   def initialize(opts)
-    gcc_version = Toolchain::DEFAULT_GCC.version
-    llvm_version = Toolchain::DEFAULT_LLVM.version
-
     @clean_install_dir = false
     @stl = 'gnustl'
     @platform = Platform.new(Global::PLATFORM_NAME)
@@ -34,12 +31,6 @@ class MakeStandaloneToolchainOptions
         @clean_install_dir = true
       when /^--install-dir=/
         @install_dir = opt.split('=')[1]
-      when /^--gcc-version=/
-        gcc_version = opt.split('=')[1]
-        raise "unsupported GCC version #{gcc_version}" unless Toolchain::SUPPORTED_GCC.map(&:version).include? gcc_version
-      when /^--llvm-version=/
-        llvm_version = opt.split('=')[1]
-        raise "unsupported LLVM version #{llvm_version}" unless Toolchain::SUPPORTED_LLVM.map(&:version).include? llvm_version
       when /^--stl=/
         @stl = opt.split('=')[1]
         raise "unsupported STL #{@stl}" unless ['gnustl', 'libc++'].include? @stl
@@ -67,8 +58,7 @@ class MakeStandaloneToolchainOptions
 
     @api_level ||= arch.min_api_level
 
-    @gcc = Toolchain::GCC.new(gcc_version)
-    @llvm = Toolchain::LLVM.new(llvm_version, gcc)
+    @llvm = Toolchain::DEFAULT_LLVM
 
     package_names.each do |package|
       name, release = package.split(':')

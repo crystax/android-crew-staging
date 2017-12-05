@@ -7,7 +7,7 @@ require_relative 'toolchain.rb'
 
 module Build
 
-  API_LEVELS = [3, 4, 5, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 21, 23, 24]
+  API_LEVELS = [14, 15, 16, 17, 18, 19, 21, 23, 24, 25, 26]
 
   # for some reason libtool does not handle library dependencies for these abis
   BAD_ABIS = ['mips', 'arm64-v8a', 'mips64']
@@ -30,10 +30,10 @@ module Build
 
   NDK_HOST_TOOLS_DIR = File.join(Global::NDK_DIR, 'sources', 'host-tools')
 
-  CMAKE_TOOLCHAIN_FILE = File.join(Global::NDK_DIR, 'cmake', 'toolchain.cmake')
+  # CMAKE_TOOLCHAIN_FILE = File.join(Global::NDK_DIR, 'cmake', 'toolchain.cmake')
 
-  DEFAULT_TOOLCHAIN = Toolchain::DEFAULT_GCC
-  TOOLCHAIN_LIST = Toolchain::SUPPORTED_GCC + Toolchain::SUPPORTED_LLVM
+  DEFAULT_TOOLCHAIN = Toolchain::DEFAULT_LLVM
+  TOOLCHAIN_LIST = Toolchain::SUPPORTED_LLVM
 
   BINUTILS_VER = '2.25'
   BUG_URL      = 'https://tracker.crystax.net/projects/ndk'
@@ -76,12 +76,22 @@ module Build
   end
 
   def self.cmake_toolchain_file
-    "#{Global::NDK_DIR}/cmake/toolchain.cmake"
+    "#{Global::NDK_DIR}/build/cmake/android.toolchain.cmake"
   end
 
-  def self.sysroot(abi)
+  def self.sysroot_libs(abi)
     arch = arch_for_abi(abi)
     "#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
+    # /usr/#{arch.default_lib_dir}
+  end
+
+  def self.sysroot_inc(abi)
+    "#{Global::NDK_DIR}/sysroot"
+  end
+
+  def self.sysroot_inc_arch(abi)
+    arch = arch_for_abi(abi)
+    "#{Global::NDK_DIR}/sysroot/usr/include/#{arch.host}"
   end
 
   def self.add_dyld_library_path(configure_script, lib_dir)
@@ -165,9 +175,9 @@ module Build
   #   end
   # end
 
-  def self.default_c_compiler_for_arch(arch)
-    File.join(Global::NDK_DIR, 'toolchains', "#{arch.toolchain}-#{Toolchain::DEFAULT_GCC.version}", 'prebuilt', Global::PLATFORM_NAME, 'bin', "#{arch.host}-gcc")
-  end
+  # def self.default_c_compiler_for_arch(arch)
+  #   File.join(Global::NDK_DIR, 'toolchains', "#{arch.toolchain}-#{Toolchain::DEFAULT_GCC.version}", 'prebuilt', Global::PLATFORM_NAME, 'bin', "#{arch.host}-gcc")
+  # end
 
   def self.gen_host_compiler_wrapper(wrapper, compiler, *opts)
     # todo: we do not have platform/prebuilts in NDK distribution
@@ -178,9 +188,10 @@ module Build
       cc = "#{ndk_root_dir}/platform/prebuilts/gcc/darwin-x86/host/x86_64-apple-darwin-4.9.3/bin/#{compiler}"
       args = "-isysroot #{sysroot_dir} -mmacosx-version-min=10.6 -DMACOSX_DEPLOYMENT_TARGET=10.6 -Wl,-syslibroot,#{sysroot_dir} "
     when 'linux'
-      sysroot_dir = "#{ndk_root_dir}/platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/sysroot"
-      cc = "#{ndk_root_dir}/platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/bin/x86_64-linux-#{compiler}"
-      args = "--sysroot=#{sysroot_dir}"
+      # sysroot_dir = "#{ndk_root_dir}/platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/sysroot"
+      # cc = "#{ndk_root_dir}/platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/bin/x86_64-linux-#{compiler}"
+      # args = "--sysroot=#{sysroot_dir}"
+      cc = "/usr/bin/gcc"
     else
       raise "unsupported OS: #{Global::OS}"
     end

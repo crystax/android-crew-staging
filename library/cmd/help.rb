@@ -318,13 +318,6 @@ The MAKE-STANDALONE-TOOLCHAIN command supports the following options:
                  install files to PATH; if --clean-install-dir was not
                  specified then PATH must point to an empty or
                  non-existent directory; required
-  --gcc-version=VER
-                 specify GCC version; possible values are #{Toolchain::SUPPORTED_GCC.map(&:version).join(', ')};
-                 default value is '#{Toolchain::DEFAULT_GCC.version}'
-
-  --llvm-version=VER
-                 specify LLVM version; possible values are #{Toolchain::SUPPORTED_LLVM.map(&:version).join(', ')};
-                 default value is '#{Toolchain::DEFAULT_LLVM.version}'
 
   --stl=NAME     specify C++ STL; possible values are 'gnustl', 'libc++';
                  default value is 'gnustl'
