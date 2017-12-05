@@ -86,8 +86,9 @@ class Ruby < Utility
     if platform.target_os == 'windows'
       build_env['PATH']    = "#{platform.toolchain_path}:#{ENV['PATH']}"
       build_env['WINDRES'] = platform.windres
-      build_env['DLLTOOL'] = platform.dlltool
-      build_env['CFLAGS'] += ' -march=i686' if platform.target_cpu == 'x86'
+      build_env['DLLWRAP'] = platform.dllwrap
+      build_env['STRIP']   = platform.strip
+      build_env['CFLAGS'] += ' -ggdb' if platform.target_cpu == 'x86'
     end
 
     if platform.target_os == 'darwin'
@@ -97,7 +98,6 @@ class Ruby < Utility
     args = platform.configure_args +
            ["--prefix=/",
             "--disable-install-doc",
-            "--disable-silent-rules",
             "--enable-load-relative",
             "--disable-static",
             "--enable-shared",
@@ -111,6 +111,7 @@ class Ruby < Utility
       args += ["--with-baseruby=#{Global::tools_dir('linux-x86_64')}/bin/ruby",
                "--with-out-ext=readline,pty,syslog"
               ]
+      args << "--target=#{platform.configure_host}" if platform.target_cpu == 'x86'
     end
 
     Build.add_dyld_library_path "#{src_dir}/configure", "#{tools_dir}/lib" if platform.target_os == 'darwin'

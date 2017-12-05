@@ -20,6 +20,7 @@ class Platform
                                      nm:            'gcc-nm'
                                      # no windres
                                      # no dlltool
+                                     # no dllwrap
                                    },
                 'linux/linux'   => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/bin",
                                      tool_prefix:   'x86_64-linux-',
@@ -33,6 +34,7 @@ class Platform
                                      nm:            'nm'
                                      # no windres
                                      # no dlltool
+                                     # no dllwrap
                                    },
                 'linux/darwin'  => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-apple-darwin10-4.9.4/bin",
                                      tool_prefix:   'x86_64-apple-darwin10-',
@@ -46,6 +48,7 @@ class Platform
                                      nm:            'nm'
                                      # no windres
                                      # no dlltool
+                                     # no dllwrap
                                    },
                 # 'linux/darwin'  => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-apple-darwin10-6.3/bin",
                 #                      tool_prefix:   'x86_64-apple-darwin10-',
@@ -59,6 +62,7 @@ class Platform
                 #                      nm:            'nm'
                 #                      # no windres
                 #                      # no dlltool
+                #                      # no dllwrap
                 #                    },
                 'linux/windows' => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/linux-x86/host/x86_64-w64-mingw32-7.2/bin",
                                      tool_prefix:   'x86_64-w64-mingw32-',
@@ -71,7 +75,8 @@ class Platform
                                      strip:         'strip',
                                      nm:            'nm',
                                      windres:       'windres',
-                                     dlltool:       'dlltool'
+                                     dlltool:       'dlltool',
+                                     dllwrap:       'dllwrap'
                                    }
               }
 
@@ -81,7 +86,7 @@ class Platform
 
   attr_reader :name, :host_os, :target_os, :target_cpu
   attr_reader :toolchain_path
-  attr_reader :cc, :cxx, :ld, :ar, :ranlib, :strip, :nm, :windres, :dlltool
+  attr_reader :cc, :cxx, :ld, :ar, :ranlib, :strip, :nm, :windres, :dlltool, :dllwrap
   attr_reader :sysroot
   attr_reader :cflags, :cxxflags
   attr_reader :configure_host, :configure_build
@@ -127,6 +132,7 @@ class Platform
       @windres  = File.join(@toolchain_path, "#{prefix}#{toolchain[:windres]}")
       @windres += ' -F pe-i386' if @target_cpu == 'x86'
       @dlltool  = File.join(@toolchain_path, "#{prefix}#{toolchain[:dlltool]}")
+      @dllwrap  = File.join(@toolchain_path, "#{prefix}#{toolchain[:dllwrap]}")
     end
 
     case @name
@@ -146,12 +152,10 @@ class Platform
     when 'windows-x86_64'
       @cflags          = '-m64'
       @configure_host  = 'x86_64-w64-mingw32'
-      #@configure_host  = 'x86_64-pc-mingw32msvc'
       @configure_build = 'x86_64-linux-gnu'
     when 'windows'
       @cflags          = '-m32'
       @configure_host  = 'i686-w64-mingw32'
-      #@configure_host  = 'x86_64-w64-mingw32'
       @configure_build = 'x86_64-linux-gnu'
     end
 
