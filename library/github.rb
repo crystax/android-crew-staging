@@ -1,6 +1,6 @@
 module GitHub
 
-  OWNER = 'crystax'
+  OWNER = [nil, ''].include?(ENV['CREW_OWNER']) ? 'crystax' : ENV['CREW_OWNER']
 
   STAGING_REPO_NAME  = 'android-crew-staging'
   STAGING_RELEASE_ID = '7122171'
