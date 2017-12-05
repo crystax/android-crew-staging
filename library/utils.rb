@@ -69,7 +69,7 @@ module Utils
   end
 
   def self.download(url, outpath)
-    args = [url, '-o', outpath, '--silent', '--fail', '-L']
+    args = [url, '-o', outpath, '--insecure', '--silent', '--fail', '-L']
     run_command(curl_prog, *args)
   rescue ErrorDuringExecution => e
     case e.exit_code
