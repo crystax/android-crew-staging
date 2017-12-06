@@ -18,10 +18,10 @@ def process_compiler_args(compiler, build_options, stl_lib_name, cflags, ldflags
     args = cflags.split(' ') + args
   end
 
-  if build_options[:debug_compiler_args]
-    puts "compiler: #{compiler}"
-    puts "args:     #{args}"
-  end
+  #if build_options[:debug_compiler_args]
+  #puts "compiler: #{compiler}"
+  #puts "args:     #{args}"
+  #end
 
   [compiler, args]
 end
@@ -39,30 +39,20 @@ def fix_soname(args)
       when '-Wl,-soname', '-Wl,-h', '-install_name'
         args[i] = '-Wl,-soname'
         next_param_is_libname = true
-      when /-Wl,-soname,lib.*|-Wl,-h,lib.*/
+      when /-Wl,-soname[,=]lib.*|-Wl,-h,lib.*/
         puts "args[#{i}] = #{args[i]}"
         libname = extract_libname(args[i])
-        args[i] = "-Wl,-soname,-l#{libname}.so"
+        args[i] = "-Wl,-soname=#{libname}.so"
       end
     end
   end
 end
 
 def extract_libname(s)
-  regex1 = /.*(lib[a-zA-z_]+)(\d*).so/
-  regex2 = /.*(lib[a-zA-z_]+)(\d*)([a-zA-z_]+).so/
-
-  # to cover cases like libpng16.so
-  m = regex1.match(s)
+  regex = /.*(lib[a-zA-z_\d]+)\.so.*/
+  m = regex.match(s)
   if m
-    libname = m[1]
-    return libname
-  end
-
-  # to cover cases like libicui18n.so.57
-  m = regex2.match(s)
-  if m
-    libname = m[1] + m[2] + m[3]
+    libname = "#{m[1]}.so"
     return libname
   end
 
