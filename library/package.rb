@@ -18,12 +18,13 @@ class Package < TargetBase
                         setup_env:                      true,
                         debug_compiler_args:            false,
                         copy_installed_dirs:            ['lib', 'include'],
+                        check_sonames:                  true,
                         gen_android_mk:                 true,
-                        wrapper_fix_soname:             true,
+                        wrapper_translate_sonames:      Hash.new,
                         wrapper_fix_stl:                false,
                         wrapper_filter_out:             nil,
-                        wrapper_remove_args:            [],
-                        wrapper_replace_args:           {}
+                        wrapper_remove_args:            Array.new,
+                        wrapper_replace_args:           Hash.new
                       }.freeze
 
   attr_reader :pre_build_result, :post_build_result
@@ -130,6 +131,7 @@ class Package < TargetBase
     end
 
     toolchain = Build::DEFAULT_TOOLCHAIN
+    build_options[:wrapper_translate_sonames] = sonames_translation_table(release) if self.respond_to? :sonames_translation_table
 
     FileUtils.mkdir_p package_dir
     arch_list.each do |arch|
@@ -145,6 +147,7 @@ class Package < TargetBase
         #
         setup_build_env abi, toolchain if build_options[:setup_env]
         FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, host_dep_dirs, target_dep_dirs, options }
+        Build.check_sonames install_dir_for_abi(abi), arch if build_options[:check_sonames]
         copy_installed_files abi
         FileUtils.rm_rf base_dir_for_abi(abi) unless options.no_clean?
       end

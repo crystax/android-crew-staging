@@ -98,6 +98,24 @@ module Build
     end
   end
 
+  def self.check_sonames(dir, arch)
+    Dir["#{dir}/**/*.so"].each do |solib|
+      soname = read_soname(solib, arch)
+      if File.basename(solib) != soname
+        raise "dynamic library #{solib} has bad soname #{soname}"
+      end
+    end
+  end
+
+  def self.read_soname(path, arch)
+    readelf = DEFAULT_TOOLCHAIN.tool(arch, 'readelf')
+    cmd = "#{readelf} -d #{path} | grep SONAME"
+    output = `#{cmd}`
+    raise "failed to run command: #{cmd}" unless $? == 0
+    output.split(' ')[4].delete('[]')
+  end
+
+
   # def self.copy_sysroot(arch, dir)
   #   FileUtils.mkdir_p dir
   #   FileUtils.cp_r "#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch}/usr", dir

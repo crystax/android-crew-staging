@@ -4,7 +4,7 @@ class Icu4c < Package
   homepage "http://site.icu-project.org/"
   url "https://ssl.icu-project.org/files/icu4c/${version}/icu4c-${block}-src.tgz" do |r| r.version.gsub('.', '_') end
 
-  release version: '58.2', crystax_version: 1
+  release version: '58.2', crystax_version: 2
 
   # this libs were in 57.1: 'libicule', 'libiculx'
   build_libs 'libicudata', 'libicui18n', 'libicuio', 'libicutest', 'libicutu', 'libicuuc'
@@ -53,7 +53,7 @@ class Icu4c < Package
     FileUtils.cd("#{install_dir}/lib") do
       FileUtils.rm_rf ['pkgconfig', 'icu']
       build_libs.each do |f|
-        FileUtils.rm ["#{f}.so", "#{f}.so.#{release.version.split('.')[0]}"]
+        FileUtils.rm ["#{f}.so", "#{f}.so.#{major_ver(release)}"]
         FileUtils.mv "#{f}.so.#{release.version}", "#{f}.so"
       end
     end
@@ -68,5 +68,20 @@ class Icu4c < Package
     else
       raise 'unsuppoted ICU host platform'
     end
+  end
+
+  def sonames_translation_table(release)
+    v = major_ver(release)
+    { "libicudata.so.#{v}" => 'libicudata',
+      "libicui18n.so.#{v}" => 'libicui18n',
+      "libicuio.so.#{v}"   => 'libicuio',
+      "libicutest.so.#{v}" => 'libicutest',
+      "libicutu.so.#{v}"   => 'libicutu',
+      "libicuuc.so.#{v}"   => 'libicuuc'
+    }
+  end
+
+  def major_ver(release)
+    release.version.split('.')[0]
   end
 end

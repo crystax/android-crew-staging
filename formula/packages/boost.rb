@@ -4,7 +4,7 @@ class Boost < Package
   homepage "http://www.boost.org"
   url "https://downloads.sourceforge.net/project/boost/boost/${version}/boost_${block}.tar.bz2" do |r| r.version.gsub('.', '_') end
 
-  release version: '1.64.0', crystax_version: 1
+  release version: '1.64.0', crystax_version: 2
 
   # todo: add versions, like this: python:2.7.*, python:3.*.*
   depends_on 'python'

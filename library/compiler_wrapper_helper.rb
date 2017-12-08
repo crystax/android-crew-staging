@@ -8,9 +8,9 @@ def process_compiler_args(compiler, build_options, stl_lib_name, cflags, ldflags
   args += ARGV
 
   # todo: handle build options and other parameters
-  fix_soname(args) if build_options[:wrapper_fix_soname]
-  remove_args(args, build_options[:wrapper_remove_args])
-  replace_args(args, build_options[:wrapper_replace_args])
+  fix_soname   args, build_options[:wrapper_translate_sonames]
+  remove_args  args, build_options[:wrapper_remove_args]
+  replace_args args, build_options[:wrapper_replace_args]
 
   if linking? args
     args = ldflags[:before].split(' ') + args + ldflags[:after].split(' ')
@@ -26,38 +26,91 @@ def process_compiler_args(compiler, build_options, stl_lib_name, cflags, ldflags
   [compiler, args]
 end
 
-def fix_soname(args)
-  next_param_is_libname = false
+def fix_soname(args, translation_table)
+  return if translation_table.empty?
+
   args.each_index do |i|
-    if next_param_is_libname
+    case args[i]
+    when '-Wl,-soname', '-Wl,-h', '-install_name'
       puts "args[#{i}] = #{args[i]}"
-      libname = extract_libname(args[i])
-      args[i] = "-Wl,#{libname}.so"
-      next_param_is_libname = false
-    else
-      case args[i]
-      when '-Wl,-soname', '-Wl,-h', '-install_name'
+      puts "args[#{i+1}] = #{args[i+1]}"
+      new_soname = translation_table[extract_libname(args[i+1])]
+      if new_soname
         args[i] = '-Wl,-soname'
-        next_param_is_libname = true
-      when /-Wl,-soname[,=]lib.*|-Wl,-h,lib.*/
-        puts "args[#{i}] = #{args[i]}"
-        libname = extract_libname(args[i])
-        args[i] = "-Wl,-soname=#{libname}.so"
+        args[i+1] = "-Wl,#{new_soname}.so"
+        break
+      end
+    when /-Wl,-soname[,=]lib.*|-Wl,-h,lib.*/
+      puts "args[#{i}] = #{args[i]}"
+      new_soname = translation_table[extract_libname(args[i])]
+      if new_soname
+        args[i] = "-Wl,-soname=#{new_soname}.so"
+        break
       end
     end
   end
 end
 
 def extract_libname(s)
-  regex = /.*(lib[a-zA-z_\d]+)\.so.*/
-  m = regex.match(s)
+  m = /.*(lib.*)/.match(s)
   if m
-    libname = "#{m[1]}.so"
+    libname = "#{m[1]}"
     return libname
   end
 
-  raise "do not know how to handle libname: #{s}"
+  raise "do not know how to extract libname: #{s}"
 end
+
+  #   if next_param_is_libname
+  #     puts "args[#{i}] = #{args[i]}"
+  #     libname = extract_libname(args[i])
+  #     args[i] = "-Wl,#{libname}.so"
+  #     next_param_is_libname = false
+  #   else
+  #   end
+  # end
+
+  # building_so_lib = false
+  # args.each_index do |i|
+  #   if args[i] == '-o'
+  #     building_so_lib = true if args[i+1].end_with?('.so')
+  #     break
+  #   end
+  # end
+
+  # if building_so_lib
+  #   args.each_index do |i|
+  #     case args[i]
+  #     when '-Wl,-soname', '-Wl,-h', '-install_name'
+  #       args[i] = nil
+  #       args[i+1] = nil
+  #     when /-Wl,-soname[,=]lib.*|-Wl,-h,lib.*/
+  #       args[i] = nil
+  #     end
+  #   end
+  #   args.compact!
+  # end
+
+  # next_param_is_libname = false
+  # args.each_index do |i|
+  #   if next_param_is_libname
+  #     puts "args[#{i}] = #{args[i]}"
+  #     libname = extract_libname(args[i])
+  #     args[i] = "-Wl,#{libname}.so"
+  #     next_param_is_libname = false
+  #   else
+  #     case args[i]
+  #     when '-Wl,-soname', '-Wl,-h', '-install_name'
+  #       args[i] = '-Wl,-soname'
+  #       next_param_is_libname = true
+  #     when /-Wl,-soname[,=]lib.*|-Wl,-h,lib.*/
+  #       puts "args[#{i}] = #{args[i]}"
+  #       libname = extract_libname(args[i])
+  #       args[i] = "-Wl,-soname=#{libname}.so"
+  #     end
+  #   end
+  # end
+
 
 def remove_args(args, toremove)
   toremove.each { |e| args.delete(e) }

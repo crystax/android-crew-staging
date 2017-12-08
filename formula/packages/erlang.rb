@@ -4,7 +4,7 @@ class Erlang < Package
   homepage "https://www.erlang.org/"
   url "https://github.com/erlang/otp/archive/OTP-${version}.tar.gz"
 
-  release version: '20.0.2', crystax_version: 1
+  release version: '20.0.2', crystax_version: 2
 
   depends_on 'ncurses'
   depends_on 'openssl'
@@ -15,6 +15,7 @@ class Erlang < Package
   # debug_compiler_args:  true,
   build_options setup_env:           false,
                 copy_installed_dirs: [],
+                check_sonames:       false,
                 gen_android_mk:      false
 
   build_copy 'LICENSE.txt'

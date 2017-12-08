@@ -4,7 +4,7 @@ class X264 < Package
   homepage "https://www.videolan.org/developers/x264.html"
   url "https://git.videolan.org/git/x264.git|git_commit:90a61ec76424778c050524f682a33f115024be96"
 
-  release version: 'r2762', crystax_version: 1
+  release version: 'r2762', crystax_version: 2
 
   build_copy 'COPYING'
   build_libs 'libx264'
@@ -35,5 +35,9 @@ class X264 < Package
       FileUtils.rm 'libx264.so'
       FileUtils.mv Dir['libx264.so.*'][0], 'libx264.so'
     end
+  end
+
+  def sonames_translation_table(_release)
+    { 'libx264.so.148' => 'libx264' }
   end
 end

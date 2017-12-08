@@ -4,7 +4,7 @@ class Openssl < Package
   homepage "https://openssl.org/"
   url 'https://openssl.org/source/openssl-${version}.tar.gz'
 
-  release version: '1.0.2m', crystax_version: 1
+  release version: '1.0.2m', crystax_version: 2
 
   build_options copy_installed_dirs: ['bin', 'include', 'lib']
   build_copy 'LICENSE'
@@ -76,5 +76,14 @@ class Openssl < Package
     raise "not found required line in #{makefile}" unless replaced
 
     File.open(makefile, 'w') { |f| f.puts lines }
+  end
+
+  def sonames_translation_table(release)
+    r = release.version.split('.')
+    v = "#{r[0]}.#{r[1]}.0"
+
+    { "libcrypto.so.#{v}" => 'libcrypto',
+      "libssl.so.#{v}"    => 'libssl'
+    }
   end
 end

@@ -5,7 +5,7 @@ class Libpng < Package
   url "http://sourceforge.net/projects/libpng/files/libpng16/${version}/libpng-${version}.tar.xz"
   url "http://sourceforge.net/projects/libpng/files/libpng16/older-releases/${version}/libpng-${version}.tar.xz"
 
-  release version: '1.6.29', crystax_version: 1
+  release version: '1.6.29', crystax_version: 2
 
   build_copy 'LICENSE'
   build_options export_ldlibs: '-lz'
@@ -30,11 +30,19 @@ class Libpng < Package
     FileUtils.cd("#{install_dir}/lib") do
       FileUtils.rm_rf 'pkgconfig'
       FileUtils.rm Dir['*.la']
-      vs = release.version.split('.').first(2).join
+      vs = v2d(release)
       ['a', 'so'].each do |ext|
         FileUtils.rm "libpng.#{ext}"
         FileUtils.mv "libpng#{vs}.#{ext}", "libpng.#{ext}"
       end
     end
+  end
+
+  def sonames_translation_table(release)
+    { "libpng#{v2d(release)}.so" => 'libpng' }
+  end
+
+  def v2d(release)
+    release.version.split('.').first(2).join
   end
 end
