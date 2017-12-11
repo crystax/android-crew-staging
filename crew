@@ -47,12 +47,13 @@ $CREW_RUBY -W0 "$CREW_FILE_DIR/crew.rb" "$@"
 
 status=$?
 if [ $status -ne 0 ]; then
+    #echo "status: $status"
     exit $status
 fi
 
-if [ -f $CREW_NDK_DIR/postpone ]; then
+if [ -d $CREW_NDK_DIR/postpone ]; then
     echo Start postponed upgrade process
-    $CREW_NDK_DIR/postpon/upgrade.sh
+    $CREW_NDK_DIR/postpone/upgrade.sh
     echo = Cleaning up
     rm -rf $CREW_NDK_DIR/postpone
 fi

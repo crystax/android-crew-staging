@@ -180,36 +180,39 @@ class HostBase < Formula
         dir = File.dirname(e)
         if (dir.end_with?('/bin') and not dir.include?('/lib/')) or (dir.end_with?('/lib') and e.end_with?('.a'))
           path = "#{Global::NDK_DIR}/#{e}".gsub('/', '\\')
-          if Global::OS == 'windows'
-            f.puts "del /f/q #{path}"
-          else
+          if Global::OS != 'windows'
             f.puts "rm -f #{path}"
+          else
+            f.puts "del /f/q #{path}"
           end
         end
       end
       f.puts
       inc_dir = dirs.select { |d| d =~ /\/include\/ruby-\d+\.\d+\.0$/ }[0]
-      inc_dir = "#{Global::NDK_DIR}/#{inc_dir}".gsub('/', '\\')
-      lib_dir = "#{Global::TOOLS_DIR}/lib/ruby".gsub('/', '\\')
+      inc_dir = "#{Global::NDK_DIR}/#{inc_dir}"
+      lib_dir = "#{Global::TOOLS_DIR}/lib/ruby"
       f.puts "echo = Removing old directories"
-      if Global::OS == 'windows'
-        f.puts "rd /q/s #{lib_dir}"
-        f.puts "rd /q/s #{inc_dir}"
-      else
+      if Global::OS != 'windows'
         f.puts "rm -rf #{lib_dir}"
         f.puts "rm -rf #{inc_dir}"
+      else
+        inc_dir.gsub!('/', '\\')
+        lib_dir.gsub!('/', '\\')
+        f.puts "rd /q/s #{lib_dir}"
+        f.puts "rd /q/s #{inc_dir}"
       end
       f.puts
       f.puts "echo = Coping new files"
-      if Global::OS == 'windows'
-        src_dir = "#{postpone_dir}/prebuilt".gsub('/', '\\')
+      src_dir = "#{postpone_dir}/prebuilt"
+      if Global::OS != 'windows'
+        f.puts "cp -r #{src_dir} #{Global::NDK_DIR}"
+      else
+        src_dir.gsub!('/', '\\')
         dst_dir = "#{Global::NDK_DIR}/prebuilt".gsub('/', '\\')
         f.puts "xcopy #{src_dir} #{dst_dir} /e/q"
-      else
-        src_dir = "#{postpone_dir}/prebuilt"
-        f.puts "cp -r #{src_dir} #{Global::NDK_DIR}"
       end
     end
+    FileUtils.chmod 'a+x', ruby_upgrade_script
   end
 
   def remove_files_from_list(file_list, platform_name)
