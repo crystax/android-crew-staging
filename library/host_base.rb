@@ -23,8 +23,8 @@ class HostBase < Formula
     File.join(Global::SERVICE_DIR, file_name, platform_name, release.version)
   end
 
-  def upgrading_ruby?
-    name == 'ruby'
+  def upgrading_ruby?(platform_name)
+    (name == 'ruby') and (Global::PLATFORM_NAME == platform_name)
   end
 
   def postpone_dir
@@ -55,7 +55,7 @@ class HostBase < Formula
   def uninstall_archive(release, platform_name)
     rel_dir = release_directory(release, platform_name)
     if Dir.exist? rel_dir
-      if upgrading_ruby?
+      if upgrading_ruby?(platform_name)
         gen_ruby_upgrade_script rel_dir
       else
         remove_archive_files rel_dir, platform_name
@@ -73,7 +73,7 @@ class HostBase < Formula
     rel_dir = release_directory(release, platform_name)
     FileUtils.mkdir_p rel_dir
 
-    target_dir = (upgrading_ruby? == true) ? postpone_dir : Global::NDK_DIR
+    target_dir = (upgrading_ruby?(platform_name) == true) ? postpone_dir : Global::NDK_DIR
     Utils.unpack archive, target_dir
     bin_list_file = File.join(target_dir, BIN_LIST_FILE)
     dev_list_file = File.join(target_dir, DEV_LIST_FILE)
@@ -188,18 +188,24 @@ class HostBase < Formula
         end
       end
       f.puts
-      inc_dir = dirs.select { |d| d =~ /\/include\/ruby-\d+\.\d+\.0$/ }[0]
-      inc_dir = "#{Global::NDK_DIR}/#{inc_dir}"
       lib_dir = "#{Global::TOOLS_DIR}/lib/ruby"
       f.puts "echo = Removing old directories"
       if Global::OS != 'windows'
         f.puts "rm -rf #{lib_dir}"
-        f.puts "rm -rf #{inc_dir}"
       else
-        inc_dir.gsub!('/', '\\')
         lib_dir.gsub!('/', '\\')
         f.puts "rd /q/s #{lib_dir}"
-        f.puts "rd /q/s #{inc_dir}"
+      end
+      # there can be no include dir if ruby was not installed
+      inc_dir = dirs.select { |d| d =~ /\/include\/ruby-\d+\.\d+\.0$/ }[0]
+      if inc_dir
+        inc_dir = "#{Global::NDK_DIR}/#{inc_dir}"
+        if Global::OS != 'windows'
+          f.puts "rm -rf #{inc_dir}"
+        else
+          inc_dir.gsub!('/', '\\')
+          f.puts "rd /q/s #{inc_dir}"
+        end
       end
       f.puts
       f.puts "echo = Coping new files"

@@ -54,6 +54,12 @@ fi
 if [ -d $CREW_NDK_DIR/postpone ]; then
     echo Start postponed upgrade process
     $CREW_NDK_DIR/postpone/upgrade.sh
-    echo = Cleaning up
-    rm -rf $CREW_NDK_DIR/postpone
+    status=$?
+    if [ $status -ne 0 ]; then
+        echo "= ERROR: upgrade script failed!"
+        exit $status
+    else
+        echo = Cleaning up
+        rm -rf $CREW_NDK_DIR/postpone
+    fi
 fi
