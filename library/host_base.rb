@@ -73,7 +73,7 @@ class HostBase < Formula
     rel_dir = release_directory(release, platform_name)
     FileUtils.mkdir_p rel_dir
 
-    target_dir = (upgrading_ruby?(platform_name) == true) ? postpone_dir : Global::NDK_DIR
+    target_dir = (upgrading_ruby?(platform_name) and File.exist?(ruby_upgrade_script)) ? postpone_dir : Global::NDK_DIR
     Utils.unpack archive, target_dir
     bin_list_file = File.join(target_dir, BIN_LIST_FILE)
     dev_list_file = File.join(target_dir, DEV_LIST_FILE)
