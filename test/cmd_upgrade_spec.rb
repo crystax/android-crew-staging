@@ -151,16 +151,23 @@ describe "crew upgrade" do
         ruby_file = "ruby-#{ruby_new_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
         ruby_ver = "#{ruby_new_rel.version}:#{ruby_new_rel.crystax_version}"
         expect(result).to eq(:ok)
-        expect(out).to eq("Will install: bsdtar:#{libarchive_ver}, curl:#{curl_ver}, ruby:#{ruby_ver}\n"   \
-                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{libarchive_file}\n" \
-                          "checking integrity of the archive file #{libarchive_file}\n"                    \
-                          "unpacking archive\n"                                                            \
-                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{curl_file}\n"             \
-                          "checking integrity of the archive file #{curl_file}\n"                          \
-                          "unpacking archive\n"                                                            \
-                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{ruby_file}\n"             \
-                          "checking integrity of the archive file #{ruby_file}\n"                          \
-                          "unpacking archive\n")
+        expect(out.split("\n")).to eq(["Will install: bsdtar:#{libarchive_ver}, curl:#{curl_ver}, ruby:#{ruby_ver}",
+                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{libarchive_file}",
+                                       "checking integrity of the archive file #{libarchive_file}",
+                                       "unpacking archive",
+                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{curl_file}",
+                                       "checking integrity of the archive file #{curl_file}",
+                                       "unpacking archive",
+                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{ruby_file}",
+                                       "checking integrity of the archive file #{ruby_file}",
+                                       "unpacking archive",
+                                       "Start postponed upgrade process",
+                                       "Finishing RUBY upgrade process",
+                                       "= Removing old binary files",
+                                       "= Removing old directories",
+                                       "= Coping new files",
+                                       "= Cleaning up"
+                                      ])
         expect(pkg_cache_in?(:host, 'libarchive', libarchive_new_rel.version,  libarchive_new_rel.crystax_version)).to eq(true)
         expect(pkg_cache_in?(:host, 'curl',       curl_new_rel.version,        curl_new_rel.crystax_version)).to       eq(true)
         expect(pkg_cache_in?(:host, 'ruby',       ruby_new_rel.version,        ruby_new_rel.crystax_version)).to       eq(true)
@@ -240,7 +247,13 @@ describe "crew upgrade" do
                                        "unpacking archive",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{ruby_file}",
                                        "checking integrity of the archive file #{ruby_file}",
-                                       "unpacking archive"
+                                       "unpacking archive",
+                                       "Start postponed upgrade process",
+                                       "Finishing RUBY upgrade process",
+                                       "= Removing old binary files",
+                                       "= Removing old directories",
+                                       "= Coping new files",
+                                       "= Cleaning up"
                                       ])
         expect(pkg_cache_in?(:host, 'libarchive', libarchive_new_rel.version,  libarchive_new_rel.crystax_version)).to eq(true)
         expect(pkg_cache_in?(:host, 'curl',       curl_new_rel.version,        curl_new_rel.crystax_version)).to       eq(true)
