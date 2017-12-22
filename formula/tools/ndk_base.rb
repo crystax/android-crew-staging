@@ -5,10 +5,10 @@ class NdkBase < HostBase
   homepage "https://www.crystax.net"
   # todo: use commit? use master branch? something else?
   #       choose somehow between gitlab and github repos
-  url 'git@git.crystax.net:android/platform-ndk.git|git_commit:449001a953bd58c5e5fe20b385511a18629c3bbc'
-  url 'https://git.crystax.net/android/platform-ndk.git|git_commit:449001a953bd58c5e5fe20b385511a18629c3bbc'
+  url 'git@git.crystax.net:android/platform-ndk.git|git_commit:bd3214dafac527b932b1eadbec3a858e03935063'
+  url 'https://git.crystax.net/android/platform-ndk.git|git_commit:bd3214dafac527b932b1eadbec3a858e03935063'
 
-  release version: '11', crystax_version: 3
+  release version: '11', crystax_version: 4
 
   # todo: fix files list
   TOP_FILES_AND_DIRS = ['Android.mk',
