@@ -5,7 +5,7 @@ class Libarchive < Utility
   homepage 'http://www.libarchive.org'
   url 'http://www.libarchive.org/downloads/libarchive-${version}.tar.gz'
 
-  release version: '3.3.1', crystax_version: 1
+  release version: '3.3.2', crystax_version: 1
 
   build_depends_on 'xz'
 
