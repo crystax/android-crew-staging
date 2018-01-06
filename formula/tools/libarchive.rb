@@ -5,7 +5,8 @@ class Libarchive < Utility
   homepage 'http://www.libarchive.org'
   url 'http://www.libarchive.org/downloads/libarchive-${version}.tar.gz'
 
-  release version: '3.3.2', crystax_version: 1
+  # 3.3.2 fails to build for windows
+  release version: '3.3.1', crystax_version: 1
 
   build_depends_on 'xz'
 
@@ -16,7 +17,6 @@ class Libarchive < Utility
     build_env['CFLAGS']  += " -I#{xz_dir}/include #{platform.cflags}"
     build_env['LDFLAGS']  = "-L#{xz_dir}/lib"
 
-    #env['LDFLAGS'] = ' -ldl' if options.target_os == 'linux'
     args = platform.configure_args +
            ["--prefix=#{install_dir}",
             "--disable-shared",
