@@ -95,7 +95,7 @@ module Utils
     FileUtils.rm_f archive
     FileUtils.mkdir_p File.dirname(archive)
     dirs << '.' if dirs.empty?
-    args = ['-C', indir, '-Jcf', archive] + dirs
+    args = ['-C', indir, '-JLcf', archive] + dirs
     run_command(tar_prog, *args)
   end
 
