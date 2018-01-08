@@ -11,6 +11,7 @@ module Utils
 
   @@crew_tar_prog      = File.join(Global::TOOLS_DIR, 'bin', "bsdtar#{Global::EXE_EXT}")
   @@crew_copy_tar_prog = File.join(Global::TOOLS_DIR, 'bin', "bsdtar-copy#{Global::EXE_EXT}")
+  @@system_tar         = (Global::OS == 'darwin') ? 'gtar' : 'tar'
 
   @@patch_prog = '/usr/bin/patch'
   @@unzip_prog = '/usr/bin/unzip'
@@ -95,7 +96,9 @@ module Utils
     FileUtils.rm_f archive
     FileUtils.mkdir_p File.dirname(archive)
     dirs << '.' if dirs.empty?
-    args = ['-C', indir, '-JLcf', archive] + dirs
+    # gnu tar and bsd tar use different options to  derefence symlinks
+    args  = (['tar', 'gtar'].include?(tar_prog)) ? ['--dereference'] : ['-L']
+    args += ['-C', indir, '-Jcf', archive] + dirs
     run_command(tar_prog, *args)
   end
 
@@ -131,7 +134,9 @@ module Utils
   end
 
   def self.tar_prog
-    @@tar_prog ||= File.exist?(@@crew_tar_prog) ? @@crew_tar_prog : 'tar'
+    # we use bsdtar when respective package is built and installed, otherwise we use system tar
+    # on linux systems gnu tar is installed as 'tar', on darwin systems we use gnu tar from brew (gtar)
+    @@tar_prog ||= File.exist?(@@crew_tar_prog) ? @@crew_tar_prog : @@system_tar
   end
 
   def self.use_copy_tar_prog
