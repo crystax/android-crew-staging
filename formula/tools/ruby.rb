@@ -4,7 +4,8 @@ class Ruby < Utility
   homepage 'https://www.ruby-lang.org/'
   url 'https://cache.ruby-lang.org/pub/ruby/${block}/ruby-${version}.tar.gz' do |r| r.version.split('.').slice(0, 2).join('.') end
 
-  release version: '2.4.2', crystax_version: 4
+  #release version: '2.4.2', crystax_version: 4
+  release version: '2.5.0', crystax_version: 1
 
   depends_on 'zlib'
   depends_on 'openssl'
@@ -197,7 +198,7 @@ class Ruby < Utility
   # todo: fix: remove dirs that do not have respective (dev or non-dev) files
   def split_file_list(list, platform_name)
     # put binary files to bin list
-    dev_list, bin_list = list.partition { |e| e =~ /(.*\.h)|(.*\.a)/ }
+    dev_list, bin_list = list.partition { |e| e =~ /(.*\.h)|(.*\.a)$/ }
     # add directories to bin list
     dirs = []
     dev_list.each do |f|
