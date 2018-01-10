@@ -240,7 +240,7 @@ class HostBase < Formula
         end
       end
       files.sort.uniq.each { |f| FileUtils.rm_f f }
-      dirs.sort.uniq.reverse_each { |d| FileUtils.rmdir d if Dir['d/*'].empty? }
+      dirs.sort.uniq.reverse_each { |d| FileUtils.rmdir(d) if Dir.empty?(d) }
     end
   end
 
