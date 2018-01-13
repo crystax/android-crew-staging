@@ -442,8 +442,6 @@ class Gcc < Tool
   def prepare_build_environment(platform)
     build_env.clear
     build_env['PATH']   = "#{platform.toolchain_path}:#{Build.path}"
-    build_env['LANG']   = 'C'
-    build_env['LC_ALL'] = 'C'
     build_env['CC']     = platform.cc
     build_env['CXX']    = platform.cxx
     build_env['AR']     = platform.ar
