@@ -213,8 +213,7 @@ class Package < TargetBase
       Build.gen_compiler_wrapper cc, c_comp, toolchain, build_options, '', ldflags_wrapper_arg
     end
 
-    @build_env = {'LANG'        => 'C',
-                  'LC_MESSAGES' => 'C',
+    @build_env = {'LC_MESSAGES' => 'C',
                   'CC'          => cc,
                   'CPP'         => "#{cc} #{cflags} -E",
                   'AR'          => ar,
