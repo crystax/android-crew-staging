@@ -197,7 +197,6 @@ class Llvm < Tool
     build_env.clear
 
     build_env['PATH']           = path
-    build_env['LANG']           = 'C'
     build_env['CC']             = platform.cc
     build_env['CXX']            = platform.cxx
     build_env['AR']             = platform.ar

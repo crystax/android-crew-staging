@@ -17,7 +17,6 @@ class NdkStack < Utility
     FileUtils.mkdir_p [install_dir, binutils_build_dir]
 
     build_env.clear
-    build_env['LANG']     = 'C'
     build_env['CC']       = platform.cc
     build_env['CXX']      = platform.cxx
     build_env['AR']       = platform.ar

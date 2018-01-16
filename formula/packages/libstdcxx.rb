@@ -320,8 +320,7 @@ class Libstdcxx < BasePackage
                   'CPPFLAGS' => cppflags,
                   'CFLAGS'   => cflags,
                   'CXXFLAGS' => cxxflags,
-                  'LDFLAGS'  => ldflags,
-                  'LANG'     => 'C'
+                  'LDFLAGS'  => ldflags
                  }
   end
 

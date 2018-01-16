@@ -32,7 +32,6 @@ class Erlang < Package
     build_env.clear
 
     build_env['ERL_TOP'] = Dir.pwd
-    build_env['LANG'] = 'C'
     build_env['MAKEFLAGS'] = "-j#{num_jobs}"
 
     system './otp_build', 'autoconf'
