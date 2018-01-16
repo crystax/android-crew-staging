@@ -4,7 +4,7 @@ class Ppl < BuildDependency
   homepage "http://bugseng.com/products/ppl"
   url "http://bugseng.com/products/ppl/download/ftp/releases/${version}/ppl-${version}.tar.xz"
 
-  release version: '1.2', crystax_version: 1
+  release version: '1.2', crystax_version: 2
 
   depends_on 'gmp'
 

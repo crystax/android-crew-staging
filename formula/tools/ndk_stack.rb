@@ -4,7 +4,7 @@ class NdkStack < Utility
   name 'ndk-stack'
   homepage ""
 
-  release version: '1', crystax_version: 1
+  release version: '1', crystax_version: 2
 
   def prepare_source_code(release, dir, src_name, log_prefix)
   end

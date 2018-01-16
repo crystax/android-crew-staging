@@ -6,9 +6,9 @@ class Libstdcxx < BasePackage
   #homepage ""
   #url ""
 
-  release version: '4.9', crystax_version: 1
-  release version: '5',   crystax_version: 1
-  release version: '6',   crystax_version: 1
+  release version: '4.9', crystax_version: 2
+  release version: '5',   crystax_version: 2
+  release version: '6',   crystax_version: 2
 
   build_depends_on 'platforms'
   build_depends_on 'libcrystax'

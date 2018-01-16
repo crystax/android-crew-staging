@@ -4,7 +4,7 @@ class Bash < Package
   homepage "https://www.gnu.org/software/bash/"
   url "http://ftp.gnu.org/gnu/bash/bash-${version}.tar.gz"
 
-  release version: '4.3.30', crystax_version: 2
+  release version: '4.3.30', crystax_version: 3
 
   build_options copy_installed_dirs: ['bin'],
                 gen_android_mk:      false

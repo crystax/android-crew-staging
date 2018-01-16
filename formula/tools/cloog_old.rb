@@ -5,7 +5,7 @@ class CloogOld < BuildDependency
   homepage "https://www.cloog.org/"
   url "https://www.bastoul.net/cloog/pages/download/cloog-${version}.tar.gz"
 
-  release version: '0.18.0', crystax_version: 1
+  release version: '0.18.0', crystax_version: 2
 
   depends_on 'gmp'
   depends_on 'ppl'

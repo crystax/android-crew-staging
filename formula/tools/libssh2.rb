@@ -4,7 +4,7 @@ class Libssh2 < Utility
   homepage 'http://www.libssh2.org/'
   url 'http://www.libssh2.org/download/libssh2-${version}.tar.gz'
 
-  release version: '1.8.0', crystax_version: 2
+  release version: '1.8.0', crystax_version: 3
 
   depends_on 'zlib'
   depends_on 'openssl'

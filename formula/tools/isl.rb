@@ -5,7 +5,7 @@ class Isl < BuildDependency
   url "http://isl.gforge.inria.fr/isl-${version}.tar.xz"
   url "https://mirrors.ocf.berkeley.edu/debian/pool/main/i/isl/isl-${version}.orig.tar.xz"
 
-  release version: '0.18', crystax_version: 1
+  release version: '0.18', crystax_version: 2
 
   depends_on 'gmp'
 

@@ -6,7 +6,7 @@ class Openssl < Utility
 
   #release version: '1.0.2l', crystax_version: 1
   # todo: add possibility to depend_on special version before uncommenting this
-  release version: '1.1.0f', crystax_version: 1
+  release version: '1.1.0f', crystax_version: 2
 
   depends_on 'zlib'
 

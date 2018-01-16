@@ -5,7 +5,7 @@ class Libedit < BuildDependency
   url "http://thrysoee.dk/editline/libedit-${version}.tar.gz"
 
   # todo: version 20160618-3.1 fails to build on darwin
-  release version: '20150325-3.1', crystax_version: 1
+  release version: '20150325-3.1', crystax_version: 2
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)

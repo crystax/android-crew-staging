@@ -4,7 +4,7 @@ class Sqlite < Package
   homepage "https://sqlite.org/"
   url "https://sqlite.org/2017/sqlite-amalgamation-${block}.zip" do |r| ('%s%-2s%-2s00' % r.version.split('.')).gsub(' ', '0') end
 
-  release version: '3.18.0', crystax_version: 2
+  release version: '3.18.0', crystax_version: 3
 
   build_options setup_env: false
   build_libs 'libsqlite3'

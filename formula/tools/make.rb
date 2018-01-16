@@ -4,7 +4,7 @@ class Make < Utility
   homepage "https://www.gnu.org/software/make/"
   #url "https://ftpmirror.gnu.org/make/make-${version}.tar.bz2"
 
-  release version: '3.81', crystax_version: 1
+  release version: '3.81', crystax_version: 2
 
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in sources/host-tools/ directory

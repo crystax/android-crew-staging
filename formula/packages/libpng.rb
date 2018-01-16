@@ -5,7 +5,7 @@ class Libpng < Package
   url "http://sourceforge.net/projects/libpng/files/libpng16/${version}/libpng-${version}.tar.xz"
   url "http://sourceforge.net/projects/libpng/files/libpng16/older-releases/${version}/libpng-${version}.tar.xz"
 
-  release version: '1.6.29', crystax_version: 2
+  release version: '1.6.29', crystax_version: 3
 
   build_copy 'LICENSE'
   build_options export_ldlibs: '-lz'
