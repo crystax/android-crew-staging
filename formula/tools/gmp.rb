@@ -9,8 +9,9 @@ class Gmp < BuildDependency
   def build_for_platform(platform, release, options, _host_deps_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)
 
-    args = platform.configure_args +
-           ["--prefix=#{install_dir}",
+    args = ["--host=#{platform.configure_host}",
+            "--build=#{platform.configure_build}",
+            "--prefix=#{install_dir}",
             "--enable-cxx",
             "--disable-shared"
            ]

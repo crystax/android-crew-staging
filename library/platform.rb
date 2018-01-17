@@ -169,7 +169,7 @@ class Platform
   end
 
   def configure_args
-    ["--host=#{configure_host}", "--build=#{configure_build}"]
+    cross_compile? ? ["--host=#{configure_host}", "--build=#{configure_build}"] : []
   end
 
   def to_sym
