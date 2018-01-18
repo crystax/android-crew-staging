@@ -88,6 +88,7 @@ class Ruby < Utility
       build_env['WINDRES'] = platform.windres
       build_env['DLLWRAP'] = platform.dllwrap
       build_env['STRIP']   = platform.strip
+      # todo: remove when win32 build will be fixed
       build_env['CFLAGS'] += ' -ggdb' if platform.target_cpu == 'x86'
     end
 
@@ -95,18 +96,19 @@ class Ruby < Utility
       build_env['LDFLAGS'] += " -Wl,-rpath,#{tools_dir}/lib -F#{platform.sysroot}/System/Library/Frameworks"
     end
 
-    args = platform.configure_args +
-           ["--prefix=/",
-            "--disable-install-doc",
-            "--enable-load-relative",
-            "--disable-static",
-            "--enable-shared",
-            "--with-openssl-dir=#{tools_dir}",
-            "--without-gmp",
-            "--without-tk",
-            "--without-gdbm",
-            "--enable-bundled-libyaml"
-           ]
+    # on linux using even the same --host and --build treated as crosscompiling which breaks build
+    args  = (platform.target_os == 'linux') ? [] : platform.configure_args
+    args += ["--prefix=/",
+             "--disable-install-doc",
+             "--enable-load-relative",
+             "--disable-static",
+             "--enable-shared",
+             "--with-openssl-dir=#{tools_dir}",
+             "--without-gmp",
+             "--without-tk",
+             "--without-gdbm",
+             "--enable-bundled-libyaml"
+            ]
     if platform.target_os == 'windows'
       args += ["--with-baseruby=#{Global::tools_dir('linux-x86_64')}/bin/ruby",
                "--with-out-ext=readline,pty,syslog"
@@ -116,8 +118,6 @@ class Ruby < Utility
 
     Build.add_dyld_library_path "#{src_dir}/configure", "#{tools_dir}/lib" if platform.target_os == 'darwin'
 
-    # ext/fiddle fails to build for windows with some strange error and
-    # then builds OK when make run second time
     if platform.target_os == 'windows'
       FileUtils.cd(src_dir) do
         system 'autoreconf', '-fi'
@@ -129,6 +129,8 @@ class Ruby < Utility
     begin
       system 'make', 'V=1', '-j', num_jobs
     rescue
+      # ext/fiddle fails to build for windows with some strange error and
+      # then builds OK when make run second time
       if platform.name == 'windows'
         system 'make', 'V=1', '-j', num_jobs
       else
