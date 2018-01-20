@@ -35,6 +35,8 @@ module Build
   BINUTILS_VER = '2.25'
   BUG_URL      = 'https://tracker.crystax.net/projects/ndk'
 
+  MACOS_MIN_VER = '10.6'
+
   def self.path
     case Global::OS
     when 'darwin'
