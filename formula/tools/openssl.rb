@@ -4,9 +4,7 @@ class Openssl < Utility
   homepage "https://openssl.org/"
   url 'https://www.openssl.org/source/openssl-${version}.tar.gz'
 
-  #release version: '1.0.2l', crystax_version: 1
-  # todo: add possibility to depend_on special version before uncommenting this
-  release version: '1.1.0f', crystax_version: 2
+  release version: '1.1.0g', crystax_version: 1
 
   depends_on 'zlib'
 
