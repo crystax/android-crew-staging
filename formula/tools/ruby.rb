@@ -4,7 +4,7 @@ class Ruby < Utility
   homepage 'https://www.ruby-lang.org/'
   url 'https://cache.ruby-lang.org/pub/ruby/${block}/ruby-${version}.tar.gz' do |r| r.version.split('.').slice(0, 2).join('.') end
 
-  release version: '2.5.0', crystax_version: 2
+  release version: '2.5.0', crystax_version: 3
 
   depends_on 'zlib'
   depends_on 'openssl'

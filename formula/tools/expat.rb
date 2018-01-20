@@ -4,7 +4,7 @@ class Expat < BuildDependency
   homepage "http://expat.sourceforge.net"
   url "https://downloads.sourceforge.net/project/expat/expat/${version}/expat-${version}.tar.bz2"
 
-  release version: '2.2.0', crystax_version: 2
+  release version: '2.2.0', crystax_version: 3
 
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)

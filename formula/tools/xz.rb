@@ -4,7 +4,7 @@ class Xz < BuildDependency
   homepage "http://tukaani.org/xz/"
   url "http://tukaani.org/xz/xz-${version}.tar.xz"
 
-  release version: '5.2.3', crystax_version: 2
+  release version: '5.2.3', crystax_version: 3
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)

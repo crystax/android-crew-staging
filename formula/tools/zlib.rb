@@ -5,7 +5,7 @@ class Zlib < Utility
   url 'http://zlib.net/zlib-${version}.tar.xz'
   url 'https://github.com/madler/zlib/archive/v${version}.tar.gz'
 
-  release version: '1.2.11', crystax_version: 3
+  release version: '1.2.11', crystax_version: 4
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)
@@ -39,8 +39,6 @@ class Zlib < Utility
       FileUtils.cp ['zlib.h', 'zconf.h'],    inc_dir
     else
       args = ["--prefix=#{install_dir}"]
-
-      build_env['MACOSX_DEPLOYMENT_TARGET'] = '10.6'
 
       system "#{src_dir}/configure", *args
       system 'make', '-j', num_jobs

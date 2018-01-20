@@ -4,7 +4,7 @@ class NdkStack < Utility
   name 'ndk-stack'
   homepage ""
 
-  release version: '1', crystax_version: 2
+  release version: '1', crystax_version: 3
 
   def prepare_source_code(release, dir, src_name, log_prefix)
   end
@@ -17,16 +17,17 @@ class NdkStack < Utility
     FileUtils.mkdir_p [install_dir, binutils_build_dir]
 
     build_env.clear
-    build_env['CC']       = platform.cc
-    build_env['CXX']      = platform.cxx
-    build_env['AR']       = platform.ar
-    build_env['RANLIB']   = platform.ranlib
-    build_env['CFLAGS']   = platform.cflags
-    build_env['CXXFLAGS'] = platform.cxxflags
-    build_env['LDFLAGS']  = ''
-    build_env['LDFLAGS'] += ' -Wl,-gc-sections' unless platform.target_os == "darwin"
-    build_env['LDFLAGS'] += ' -m32' if platform.target_cpu == 'x86'
-    build_env['PATH']     = "#{platform.toolchain_path}:#{ENV['PATH']}" #if platform.target_os == 'darwin'
+    build_env['CC']                       = platform.cc
+    build_env['CXX']                      = platform.cxx
+    build_env['AR']                       = platform.ar
+    build_env['RANLIB']                   = platform.ranlib
+    build_env['CFLAGS']                   = platform.cflags
+    build_env['CXXFLAGS']                 = platform.cxxflags
+    build_env['LDFLAGS']                  = ''
+    build_env['LDFLAGS']                 += ' -Wl,-gc-sections'                         unless platform.target_os == "darwin"
+    build_env['LDFLAGS']                 += ' -m32'                                     if platform.target_cpu == 'x86'
+    build_env['PATH']                     = "#{platform.toolchain_path}:#{ENV['PATH']}" #if platform.target_os == 'darwin'
+    build_env['MACOSX_DEPLOYMENT_TARGET'] = Build::MACOS_MIN_VER                        if platform.target_os == 'darwin'
 
     # it's because with use for windows builds gcc 7
     if platform.target_os  == 'windows'

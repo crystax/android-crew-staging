@@ -4,9 +4,9 @@ class Llvm < Tool
   homepage "http://llvm.org/"
   url "toolchain/llvm-${version}"
 
-  release version: '3.6', crystax_version: 2
-  release version: '3.7', crystax_version: 2
-  release version: '3.8', crystax_version: 2
+  release version: '3.6', crystax_version: 3
+  release version: '3.7', crystax_version: 3
+  release version: '3.8', crystax_version: 3
 
   build_depends_on 'libedit'
   depends_on 'python'
@@ -205,8 +205,12 @@ class Llvm < Tool
     build_env['CXXFLAGS']       = cflags
     build_env['LDFLAGS']        = ldflags
     build_env['REQUIRES_RTTI']  = '1'
-    build_env['DARWIN_SYSROOT'] = platform.sysroot if platform.target_os == 'darwin'
     build_env['PYTHONHOME']     = python_home
+
+    if platform.target_os == 'darwin'
+      build_env['DARWIN_SYSROOT'] = platform.sysroot
+      build_env['MACOSX_DEPLOYMENT_TARGET'] = Build::MACOS_MIN_VER
+    end
 
     if platform.target_os == 'darwin'
       # from build-llvm.sh:

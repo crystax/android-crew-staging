@@ -4,7 +4,7 @@ class Mpc < BuildDependency
   homepage "http://multiprecision.org"
   url "https://ftpmirror.gnu.org/mpc/mpc-${version}.tar.gz"
 
-  release version: '1.0.3', crystax_version: 2
+  release version: '1.0.3', crystax_version: 3
 
   depends_on 'gmp'
   depends_on 'mpfr'

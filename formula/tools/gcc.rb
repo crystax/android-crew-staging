@@ -4,9 +4,9 @@ class Gcc < Tool
   homepage "https://gcc.gnu.org"
   url "toolchain/gcc"
 
-  release version: '4.9', crystax_version: 2
-  release version: '5',   crystax_version: 2
-  release version: '6',   crystax_version: 2
+  release version: '4.9', crystax_version: 3
+  release version: '5',   crystax_version: 3
+  release version: '6',   crystax_version: 3
 
   build_depends_on 'gmp'
   build_depends_on 'isl'
@@ -452,14 +452,13 @@ class Gcc < Tool
 
     if platform.target_os == 'windows'
       build_env['CFLAGS'] += ' -D__USE_MINGW_ANSI_STDIO=1'
-      build_env['RC'] = platform.windres
-      if platform.target_cpu == 'x86'
-        build_env['CFLAGS'] += ' -m32'
-        #build_env['LDFLAGS'] = ' -m32'
-      end
+      build_env['RC']      = platform.windres
+      build_env['CFLAGS'] += ' -m32' if platform.target_cpu == 'x86'
     end
 
     build_env['CXXFLAGS'] = build_env['CFLAGS']
+
+    build_env['MACOSX_DEPLOYMENT_TARGET'] = Build::MACOS_MIN_VER if platform.target_os == 'darwin'
   end
 
   # here we do what ./build/tools/gen-platforms.sh --minimal does
