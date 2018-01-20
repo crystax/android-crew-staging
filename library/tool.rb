@@ -1,3 +1,4 @@
+require_relative 'build.rb'
 require_relative 'properties.rb'
 require_relative 'platform.rb'
 require_relative 'formula.rb'
@@ -31,16 +32,17 @@ class Tool < HostBase
       self.log_file = build_log_file(platform.name)
       # prepare standard build environment
       build_env.clear
-      build_env['CC']       = platform.cc
-      build_env['CXX']      = platform.cxx
-      build_env['LD']       = platform.ld
-      build_env['AR']       = platform.ar
-      build_env['RANLIB']   = platform.ranlib
-      build_env['NM']       = platform.nm
-      build_env['CFLAGS']   = platform.cflags
-      build_env['CXXFLAGS'] = platform.cxxflags
-      build_env['PATH']     = "#{platform.toolchain_path}:#{Build.path}"
-      build_env['RC']       = platform.windres if platform.target_os == 'windows'
+      build_env['CC']                       = platform.cc
+      build_env['CXX']                      = platform.cxx
+      build_env['LD']                       = platform.ld
+      build_env['AR']                       = platform.ar
+      build_env['RANLIB']                   = platform.ranlib
+      build_env['NM']                       = platform.nm
+      build_env['CFLAGS']                   = platform.cflags
+      build_env['CXXFLAGS']                 = platform.cxxflags
+      build_env['PATH']                     = "#{platform.toolchain_path}:#{Build.path}"
+      build_env['RC']                       = platform.windres                           if platform.target_os == 'windows'
+      build_env['MACOSX_DEPLOYMENT_TARGET'] = Build::MACOS_MIN_VER                       if platform.target_os == 'darwin'
       #
       FileUtils.cd(build_dir) { build_for_platform platform, release, options, host_dep_dirs, target_dep_dirs }
       write_file_list package_dir, platform.name if build_filelist?
