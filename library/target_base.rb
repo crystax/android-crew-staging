@@ -9,6 +9,7 @@ class TargetBase < Formula
   namespace :target
 
   include Properties
+  include MultiVersion
 
   def initialize(path)
     super path

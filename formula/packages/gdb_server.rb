@@ -1,5 +1,7 @@
 class GdbServer < BasePackage
 
+  include SingleVersion
+
   desc "GDB server"
   name 'gdb-server'
   # todo:

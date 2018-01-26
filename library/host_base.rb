@@ -5,6 +5,7 @@ require_relative 'formula.rb'
 class HostBase < Formula
 
   include Properties
+  include SingleVersion
 
   namespace :host
 
@@ -37,7 +38,7 @@ class HostBase < Formula
   end
 
   def install(release = releases.last, opts = {})
-    options = mix_install_options(opts)
+    options = merge_default_install_options(opts)
 
     super release, options
 

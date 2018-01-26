@@ -261,6 +261,10 @@ class Package < TargetBase
         # copy libs
         FileUtils.mkdir_p "#{package_dir}/libs"
         FileUtils.cp_r "#{install_dir}/lib", "#{package_dir}/libs/#{abi}", preserve: true
+      when 'libexec'
+        # copy libs
+        FileUtils.mkdir_p "#{package_dir}/libexec"
+        FileUtils.cp_r "#{install_dir}/libexec", "#{package_dir}/libexec/#{abi}", preserve: true
       when 'share'
         # copy shared files if they were not copied yet
         FileUtils.cp_r "#{install_dir}/share", package_dir, preserve: true unless Dir.exists? "#{package_dir}/share"

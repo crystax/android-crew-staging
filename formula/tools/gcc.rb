@@ -1,5 +1,7 @@
 class Gcc < Tool
 
+  include MultiVersion
+
   desc "GCC-based toolchain"
   homepage "https://gcc.gnu.org"
   url "toolchain/gcc"

@@ -1,5 +1,7 @@
 class Platforms < BasePackage
 
+  include SingleVersion
+
   desc "Android platforms headers and libraries"
   # todo:
   #homepage ""

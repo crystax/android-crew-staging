@@ -295,12 +295,24 @@ Example:
 
 ### upgrade
 
-For all installed formulas do the following: if there is more recent version
-then install it.
+For all installed formulas do the following:
+
+* for single version HostBase derived formulas: if there is more recent release then install it;
+  
+* for multi version HostBase derived formulas: for every installed release
+  if there is a release with more recent crystax_verison then install it;
+  
+* for single version TargetBase derived base packages:  if there is more recent release then install it;
+
+* for multi version TargetBase derived base packages: for every installed release
+  if there is a release with more recent crystax_verison then install it;
+
+* for packages: for every installed release if there is a release with more recent crystax_verison then install it.
+
 
 Example:
 
-    $ upgrade
+    $ crew upgrade
     Will install: boost:1.59.0:1, icu4c:55.1:1
     downloading http://localhost:9999/packages/boost/boost-1.59.0_1.7z
     checking integrity of the archive file boost-1.59.0_1.7z
@@ -365,6 +377,8 @@ Formula (no home directory)
             Utility (multi platform, single version)
             
                 Zlib       (f) 
+                Libgit2    (f)
+                Libssh2    (f)
                 Curl       (f)
                 Libarchive (f)
                 Make       (f)
@@ -376,7 +390,7 @@ Formula (no home directory)
                 Toolbox    (f)
                 Yasm       (f)
                 
-        BuildDependency (multi platform, multi version)
+        BuildDependency (multi platform, single version)
         
                 CloogOld (f)
                 Cloog    (f)
@@ -385,8 +399,6 @@ Formula (no home directory)
                 IslOld   (f)
                 Isl      (f)
                 Libedit  (f)
-                Libgit2  (f)
-                Libssh2  (f)
                 Mpc      (f)
                 Mpfr     (f)
                 Openssl  (f)

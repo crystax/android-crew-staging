@@ -1,5 +1,7 @@
 class Llvm < Tool
 
+  include MultiVersion
+
   desc "LLVM-based toolchain"
   homepage "http://llvm.org/"
   url "toolchain/llvm-${version}"

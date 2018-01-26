@@ -10,6 +10,7 @@ INFO_SYNTAX                      = 'info [options] name1 [name2 ...]'.freeze
 INSTALL_SYNTAX                   = 'install [options] name[:version] ...'.freeze
 SOURCE_SYNTAX                    = 'source [options] name[:version] ...'.freeze
 BUILD_SYNTAX                     = 'build [options] name[:version] ...'.freeze
+UPGRADE_SYNTAX                   = 'upgrade [options]'.freeze
 CLEANUP_SYNTAX                   = 'cleanup [options]'.freeze
 SHASUM_SYNTAX                    = 'shasum [options] [name1 name2 ...]'.freeze
 MAKE_STANDALONE_TOOLCHAIN_SYNTAX = 'make-standalone-toolchain [options]'.freeze
@@ -229,6 +230,20 @@ Options for building target packages:
                  by default the formula will be built for all ABIs
 EOS
 
+UPGRADE_HELP = <<-EOS
+#{UPGRADE_SYNTAX}
+
+The UPGRADE command support the following options:
+
+  --no-check-shasum
+                 do not check SHA256 sum of the packages before
+                 installing them
+
+  -n, --dry-run  don't actually upgrade anything, just print what
+                 will be done
+
+EOS
+
 CLEANUP_HELP = <<-EOS
 #{CLEANUP_SYNTAX}
 
@@ -330,7 +345,7 @@ CMD_HELP = {
   'build'                     => BUILD_HELP,
   'remove-source'             => NO_HELP,
   'update'                    => NO_HELP,
-  'upgrade'                   => NO_HELP,
+  'upgrade'                   => UPGRADE_HELP,
   'cleanup'                   => CLEANUP_HELP,
   'shasum'                    => SHASUM_HELP,
   'make-standalone-toolchain' => MAKE_STANDALONE_TOOLCHAIN_HELP

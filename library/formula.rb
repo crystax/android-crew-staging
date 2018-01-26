@@ -4,6 +4,8 @@ require 'fileutils'
 require 'open3'
 require 'rugged'
 require_relative 'extend/module.rb'
+require_relative 'single_version.rb'
+require_relative 'multi_version.rb'
 require_relative 'release.rb'
 require_relative 'utils.rb'
 require_relative 'patch.rb'
@@ -82,7 +84,7 @@ class Formula
     false
   end
 
-  def mix_install_options(opts)
+  def merge_default_install_options(opts)
     { platform: Global::PLATFORM_NAME, check_shasum: true, cache_only: false }.merge(opts)
   end
 
@@ -91,7 +93,7 @@ class Formula
   #   install_archive
   #
   def install(r = releases.last, opts = {})
-    options = mix_install_options(opts)
+    options = merge_default_install_options(opts)
 
     release = find_release(r)
     platform_name = options[:platform]

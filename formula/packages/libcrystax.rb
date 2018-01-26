@@ -1,5 +1,7 @@
 class Libcrystax < BasePackage
 
+  include SingleVersion
+
   desc "Crystax Library, the Heart of the Crystax NDK"
   name 'libcrystax'
   # todo:
