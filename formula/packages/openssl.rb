@@ -5,6 +5,7 @@ class Openssl < Package
   url 'https://openssl.org/source/openssl-${version}.tar.gz'
 
   release version: '1.0.2n', crystax_version: 1
+  release version: '1.1.0g', crystax_version: 1
 
   build_options copy_installed_dirs: ['bin', 'include', 'lib']
   build_copy 'LICENSE'
@@ -22,11 +23,18 @@ class Openssl < Package
             build_env['LDFLAGS'],
            ]
 
+    # 1.1.* uses engine/name for engine sonames
+    # todo: check if we can safely remove 'engine/' prefixes from engine's sonames
+    self.build_options[:check_sonames] = false if release.version =~ /^1\.1/
+
     # parallel build seems to be broken on darwin
-    self.num_jobs = 1 if Global::OS == 'darwin' and options.num_jobs_default?
+    # lets try parallell build with 1.1.*
+    self.num_jobs = 1 if release.version =~ /^1\.0/ and Global::OS == 'darwin' and options.num_jobs_default?
 
     system './Configure',  *args
-    fix_ccgost_makefile build_dir_for_abi(abi), toolchain.ldflags(abi)
+    # 1.1* have no gost engine
+    fix_ccgost_makefile build_dir_for_abi(abi), toolchain.ldflags(abi) if release.version =~ /^1\.0/
+
     system 'make', 'depend'
     system 'make', '-j', num_jobs
     system "make install"
@@ -34,10 +42,15 @@ class Openssl < Package
     # prepare installed files for packaging
     FileUtils.rm_rf File.join(install_dir, 'lib', 'pkgconfig')
     FileUtils.cd(File.join(install_dir, 'lib')) do
-      major = release.version.split('.')[0]
+      major, minor, _ = release.version.split('.')
       build_libs.each do |f|
         FileUtils.rm "#{f}.so"
-        FileUtils.mv "#{f}.so.#{major}.0.0", "#{f}.so"
+        # 1.0.* uses 1.0.0 suffix for lib names
+        if release.version =~ /^1\.0/
+          FileUtils.mv "#{f}.so.#{major}.#{minor}.0", "#{f}.so"
+        else
+          FileUtils.mv "#{f}.so.#{major}.#{minor}", "#{f}.so"
+        end
       end
     end
 
@@ -80,10 +93,15 @@ class Openssl < Package
 
   def sonames_translation_table(release)
     r = release.version.split('.')
-    v = "#{r[0]}.#{r[1]}.0"
-
-    { "libcrypto.so.#{v}" => 'libcrypto',
-      "libssl.so.#{v}"    => 'libssl'
-    }
+    v = "#{r[0]}.#{r[1]}"
+    if release.version =~ /^1\.0/
+      { "libcrypto.so.#{v}.0" => 'libcrypto',
+        "libssl.so.#{v}.0"    => 'libssl'
+      }
+    else
+      { "libcrypto.so.#{v}" => 'libcrypto',
+        "libssl.so.#{v}"    => 'libssl'
+      }
+    end
   end
 end
