@@ -34,7 +34,8 @@ module Crew
       host_deps.each do |d|
         f = formulary[d.fqn]
         options.platforms.each do |platform|
-          dep = { f.name => f.code_directory(f.highest_installed_release, platform) }
+          rel = d.version ? f.find_release(d.version) : f.highest_installed_release
+          dep = { f.name => f.code_directory(rel, platform) }
           host_dep_dirs[platform].update dep
         end
       end
@@ -42,7 +43,8 @@ module Crew
       target_dep_dirs = {}
       target_deps.each do |d|
         f = formulary[d.fqn]
-        target_dep_dirs[f.name] = f.release_directory(f.highest_installed_release)
+        rel = d.version ? f.find_release(d.version) : f.highest_installed_release
+        target_dep_dirs[f.name] = f.release_directory(rel)
       end
 
       formula.build release, options, host_dep_dirs, target_dep_dirs

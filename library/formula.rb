@@ -169,6 +169,10 @@ class Formula
     def fqn
       "#{@options[:ns]}/#{@options[:name]}"
     end
+
+    def version
+      @options[:version]
+    end
   end
 
   class << self
