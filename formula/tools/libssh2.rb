@@ -1,6 +1,6 @@
 class Libssh2 < Utility
 
-  desc "A Massively Spiffy Yet Delicately Unobtrusive Compression Library"
+  desc "libssh2 is a client-side C library implementing the SSH2 protocol"
   homepage 'http://www.libssh2.org/'
   url 'http://www.libssh2.org/download/libssh2-${version}.tar.gz'
 
