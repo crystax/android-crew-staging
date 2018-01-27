@@ -103,6 +103,12 @@ class TestRelease < MiniTest::Test
     r7 = Release.new('4.1.2', 2)
     r8 = Release.new('4.1.2', 2)
 
+    assert_equal(true,  r1.match?(/^1\.1/))
+    assert_equal(false, r1.match?(/^1\.0/))
+    assert_equal(false, r1.match?(/^2\.1/))
+
+    assert_raises(RuntimeError) { r1.match?(1) }
+
     assert_equal(true,  r0.match?(r0))
     assert_equal(true,  r0.match?(r1))
     assert_equal(true,  r0.match?(r2))
