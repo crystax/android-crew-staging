@@ -8,7 +8,7 @@ class Python < Package
   release version: '3.5.1',  crystax_version: 2
 
   depends_on 'sqlite'
-  depends_on 'openssl'
+  depends_on 'openssl', version: /^1\.0/
 
   build_copy 'LICENSE'
   build_options sysroot_in_cflags:   false,
