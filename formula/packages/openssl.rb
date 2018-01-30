@@ -12,8 +12,10 @@ class Openssl < Package
   build_libs 'libcrypto', 'libssl'
 
   def build_for_abi(abi, toolchain, release, _host_dep_dirs, _target_dep_dirs, options)
+    ssl_ver = ssl_major_minor_ver(release)
     install_dir = install_dir_for_abi(abi)
     build_env['CFLAGS'] << ' -DOPENSSL_NO_DEPRECATED'
+
 
     args = ["--prefix=#{install_dir}",
             "shared",
@@ -25,39 +27,36 @@ class Openssl < Package
 
     # 1.1.* uses engine/name for engine sonames
     # todo: check if we can safely remove 'engine/' prefixes from engine's sonames
-    self.build_options[:check_sonames] = false if release.version =~ /^1\.1/
+    self.build_options[:check_sonames] = false if ssl_ver == '1.1'
 
     # parallel build seems to be broken on darwin
     # lets try parallell build with 1.1.*
-    self.num_jobs = 1 if release.version =~ /^1\.0/ and Global::OS == 'darwin' and options.num_jobs_default?
+    self.num_jobs = 1 if ssl_ver == '1.0' and Global::OS == 'darwin' and options.num_jobs_default?
 
     system './Configure',  *args
     # 1.1* have no gost engine
-    fix_ccgost_makefile build_dir_for_abi(abi), toolchain.ldflags(abi) if release.version =~ /^1\.0/
+    fix_ccgost_makefile build_dir_for_abi(abi), toolchain.ldflags(abi) if ssl_ver == '1.0'
 
     system 'make', 'depend'
     system 'make', '-j', num_jobs
     system "make install"
 
     # prepare installed files for packaging
-    FileUtils.rm_rf File.join(install_dir, 'lib', 'pkgconfig')
-    FileUtils.cd(File.join(install_dir, 'lib')) do
-      major, minor, _ = release.version.split('.')
+    FileUtils.rm_rf File.join("#{install_dir}/lib/pkgconfig")
+    FileUtils.cd("#{install_dir}/lib") do
+      FileUtils.mv "engines-#{ssl_ver}", 'engines' if ssl_ver == '1.1'
       build_libs.each do |f|
         FileUtils.rm "#{f}.so"
         # 1.0.* uses 1.0.0 suffix for lib names
-        if release.version =~ /^1\.0/
-          FileUtils.mv "#{f}.so.#{major}.#{minor}.0", "#{f}.so"
-        else
-          FileUtils.mv "#{f}.so.#{major}.#{minor}", "#{f}.so"
-        end
+        suffix =  (ssl_ver == '1.0') ? "#{ssl_ver}.0" : ssl_ver
+        FileUtils.mv "#{f}.so.#{suffix}", "#{f}.so"
       end
     end
+  end
 
-    # copy engines
-    # libs_dir = "#{package_dir}/libs/#{abi}"
-    # FileUtils.mkdir_p libs_dir
-    # FileUtils.cp_r File.join(install_dir, 'lib', 'engines'), libs_dir
+  def ssl_major_minor_ver(release)
+    major, minor, _ = release.version.split('.')
+    "#{major}.#{minor}"
   end
 
   def target(abi)
