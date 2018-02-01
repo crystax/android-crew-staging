@@ -12,10 +12,10 @@ def process_compiler_args(compiler, build_options, stl_lib_name, cflags, ldflags
   remove_args  args, build_options[:wrapper_remove_args]
   replace_args args, build_options[:wrapper_replace_args]
 
-  if linking? args
-    args = ldflags[:before].split(' ') + args + ldflags[:after].split(' ')
-  else
+  if compiling? args
     args = cflags.split(' ') + args
+  else
+    args = ldflags[:before].split(' ') + args + ldflags[:after].split(' ')
   end
 
   #if build_options[:debug_compiler_args]
@@ -124,8 +124,8 @@ def replace_args(args, toreplace)
 end
 
 
-def linking?(args)
-  !args.include?('-c') and !args.include?('-emit-pth')
+def compiling?(args)
+  args.include?('-c') or args.include?('-emit-pth')
 end
 
 
