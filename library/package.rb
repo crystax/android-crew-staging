@@ -10,13 +10,13 @@ class Package < TargetBase
   SRC_DIR_BASENAME = 'src'
 
   DEF_BUILD_OPTIONS = { source_archive_without_top_dir: false,
+                        build_outside_source_tree:      false,
                         c_wrapper:                      'cc',
                         sysroot_in_cflags:              true,
                         ldflags_in_c_wrapper:           false,
                         use_cxx:                        false,
                         cxx_wrapper:                    'c++',
                         setup_env:                      true,
-                        debug_compiler_args:            false,
                         copy_installed_dirs:            ['lib', 'include'],
                         check_sonames:                  true,
                         gen_android_mk:                 true,
@@ -103,7 +103,7 @@ class Package < TargetBase
       FileUtils.rm_rf rel_dir
     else
       prop = get_properties(rel_dir)
-      FileUtils.rm_r File.join(rel_dir, SRC_DIR_BASENAME)
+      FileUtils.rm_r source_directory(release)
       prop[:source_installed] = false
       save_properties prop, rel_dir
     end
@@ -119,7 +119,7 @@ class Package < TargetBase
     arch_list = Build.abis_to_arch_list(options.abis)
     build_log_puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
 
-    src_dir = "#{release_directory(release)}/#{SRC_DIR_BASENAME}"
+    src_dir = source_directory(release)
     @num_jobs = options.num_jobs
 
     build_env.clear
@@ -141,9 +141,14 @@ class Package < TargetBase
         FileUtils.mkdir_p base_dir_for_abi(abi)
         build_dir = build_dir_for_abi(abi)
         #
-        FileUtils.cp_r "#{src_dir}/.", build_dir
-        timestamp = Time.new.localtime.strftime('%Y%m%d%H%M.%S')
-        Dir["#{build_dir}/**/*"].each { |f| Utils::run_command('touch', '-t', timestamp, f) }
+        if build_options[:build_outside_source_tree]
+          FileUtils.mkdir_p build_dir
+        else
+          FileUtils.cp_r "#{src_dir}/.", build_dir
+          # todo: check that we do not need it any more
+          #timestamp = Time.new.localtime.strftime('%Y%m%d%H%M.%S')
+          #Dir["#{build_dir}/**/*"].each { |f| Utils::run_command('touch', '-t', timestamp, f) }
+        end
         #
         setup_build_env abi, toolchain if build_options[:setup_env]
         FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, host_dep_dirs, target_dep_dirs, options }
@@ -190,6 +195,10 @@ class Package < TargetBase
     end
   end
 
+  def source_directory(release)
+    "#{release_directory(release)}/#{SRC_DIR_BASENAME}"
+  end
+
   def setup_build_env(abi, toolchain)
     cflags  = toolchain.cflags(abi)
     ldflags = toolchain.ldflags(abi)
@@ -226,13 +235,15 @@ class Package < TargetBase
     if build_options[:use_cxx]
       cxx_comp = toolchain.cxx_compiler(arch, abi)
       cxx_comp += " --sysroot=#{Build.sysroot(abi)}" unless build_options[:sysroot_in_cflags]
+      ldflags += ' ' + toolchain.search_path_for_stl_libs(abi)
 
       if not build_options[:cxx_wrapper]
         cxx = cxx_comp
       else
         cxx = build_options[:cxx_wrapper] == true ? toolchain.cxx_compiler_name : build_options[:cxx_wrapper]
         cxx = "#{build_dir_for_abi(abi)}/#{cxx}"
-        Build.gen_compiler_wrapper cxx, cxx_comp, toolchain, build_options
+        ldflags_wrapper_arg = build_options[:ldflags_in_c_wrapper] ? { before: ldflags, after: '' } : nil
+        Build.gen_compiler_wrapper cxx, cxx_comp, toolchain, build_options, '', ldflags_wrapper_arg
       end
 
       cxxflags = cflags + ' ' + toolchain.search_path_for_stl_includes(abi)
@@ -240,7 +251,7 @@ class Package < TargetBase
       @build_env['CXX']      = cxx
       @build_env['CXXCPP']   = "#{cxx} #{cxxflags} -E"
       @build_env['CXXFLAGS'] = cxxflags
-      @build_env['LDFLAGS'] += ' ' + toolchain.search_path_for_stl_libs(abi)
+      @build_env['LDFLAGS']  = ldflags
     end
   end
 
