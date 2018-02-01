@@ -11,12 +11,6 @@ class Utility < Tool
 
   build_filelist true
 
-  def install_archive(release, archive, platform_name)
-    Utils.use_copy_tar_prog if name == 'bsdtar'
-    super release, archive, platform_name
-    Utils.reset_tar_prog if name == 'bsdtar'
-  end
-
   def code_directory(_release, platform_name)
     Global.tools_dir(platform_name)
   end

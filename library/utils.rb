@@ -10,7 +10,6 @@ module Utils
   @@tar_prog  = nil
 
   @@crew_tar_prog      = File.join(Global::TOOLS_DIR, 'bin', "bsdtar#{Global::EXE_EXT}")
-  @@crew_copy_tar_prog = File.join(Global::TOOLS_DIR, 'bin', "bsdtar-copy#{Global::EXE_EXT}")
   @@system_tar         = (Global::OS == 'darwin') ? 'gtar' : 'tar'
 
   @@patch_prog = '/usr/bin/patch'
@@ -89,7 +88,7 @@ module Utils
       args = ["-C", outdir, "-xf", archive]
       prog = tar_prog
     end
-      run_command(prog, *args)
+    run_command(prog, *args)
   end
 
   def self.pack(archive, indir, *dirs)
@@ -136,21 +135,7 @@ module Utils
   def self.tar_prog
     # we use bsdtar when respective package is built and installed, otherwise we use system tar
     # on linux systems gnu tar is installed as 'tar', on darwin systems we use gnu tar from brew (gtar)
-    @@tar_prog ||= File.exist?(@@crew_tar_prog) ? @@crew_tar_prog : @@system_tar
-  end
-
-  def self.use_copy_tar_prog
-    if not File.exist? @@crew_tar_prog
-      @@tar_prog = nil
-    else
-      FileUtils.cp @@crew_tar_prog, @@crew_copy_tar_prog
-      @@tar_prog = @@crew_copy_tar_prog
-    end
-  end
-
-  def self.reset_tar_prog
-    @@tar_prog = nil
-    FileUtils.rm_f @@crew_copy_tar_prog
+    @@tar_prog = File.exist?(@@crew_tar_prog) ? @@crew_tar_prog : @@system_tar
   end
 
   def self.to_cmd_s(*args)
