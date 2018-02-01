@@ -18,7 +18,6 @@ def process_compiler_args(compiler, build_options, stl_lib_name, cflags, ldflags
     args = ldflags[:before].split(' ') + args + ldflags[:after].split(' ')
   end
 
-  #if build_options[:debug_compiler_args]
   #puts "compiler: #{compiler}"
   #puts "args:     #{args}"
   #end
