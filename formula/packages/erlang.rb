@@ -12,7 +12,6 @@ class Erlang < Package
   #build_depends_on 'libcrystax'
 
   # ldflags_in_c_wrapper: true,
-  # debug_compiler_args:  true,
   build_options setup_env:           false,
                 copy_installed_dirs: [],
                 check_sonames:       false,
