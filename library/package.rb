@@ -145,9 +145,9 @@ class Package < TargetBase
           FileUtils.mkdir_p build_dir
         else
           FileUtils.cp_r "#{src_dir}/.", build_dir
-          # todo: check that we do not need it any more
-          #timestamp = Time.new.localtime.strftime('%Y%m%d%H%M.%S')
-          #Dir["#{build_dir}/**/*"].each { |f| Utils::run_command('touch', '-t', timestamp, f) }
+          # without this code some packages (f.e. cpio) could fail to build
+          timestamp = Time.new.localtime.strftime('%Y%m%d%H%M.%S')
+          Dir["#{build_dir}/**/*"].each { |f| Utils::run_command('touch', '-t', timestamp, f) }
         end
         #
         setup_build_env abi, toolchain if build_options[:setup_env]
