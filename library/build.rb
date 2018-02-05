@@ -71,6 +71,10 @@ module Build
     arch_list.select { |arch| arch.abis.include? abi } [0]
   end
 
+  def self.cmake_toolchain_file
+    "#{Global::NDK_DIR}/cmake/toolchain.cmake"
+  end
+
   def self.sysroot(abi)
     arch = arch_for_abi(abi)
     "#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
@@ -229,6 +233,22 @@ module Build
         f.puts ""
       end
     end
+  end
+
+  def self.replace_lines_in_file(file)
+    content = []
+    replaced = 0
+    File.read(file).split("\n").each do |l1|
+      l2 = yield(l1)
+      replaced += 1 if l1 != l2
+      content << l2
+    end
+
+    raise "no  line was replaced in #{file}" unless replaced > 0
+
+    File.open(file, 'w') { |f| f.puts content }
+
+    replaced
   end
 
   COPYRIGHT_STR = <<-EOS
