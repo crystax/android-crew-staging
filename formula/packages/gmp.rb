@@ -6,9 +6,10 @@ class Gmp < Package
 
   release version: '6.1.2', crystax_version: 1
 
-  build_copy 'COPYING', 'COPYING.LESSERv3', 'COPYINGv2', 'COPYINGv3'
   build_options use_cxx:              true,
                 ldflags_in_c_wrapper: true
+  build_copy 'COPYING', 'COPYING.LESSERv3', 'COPYINGv2', 'COPYINGv3'
+  build_libs 'libgmp', 'libgmpxx'
 
   def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, _target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)

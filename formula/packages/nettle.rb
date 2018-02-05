@@ -9,11 +9,9 @@ class Nettle < Package
   depends_on 'openssl'
   depends_on 'gmp'
 
-  build_copy 'COPYING.LESSERv3', 'COPYINGv2', 'COPYINGv3'
-
   build_options use_cxx: true
-
-  #               ldflags_in_c_wrapper: true
+  build_copy 'COPYING.LESSERv3', 'COPYINGv2', 'COPYINGv3'
+  build_libs 'libhogweed', 'libnettle'
 
   def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)
@@ -29,8 +27,6 @@ class Nettle < Package
               "--with-include-path=#{openssl_dir}/include:#{gmp_dir}/include",
               "--with-lib-path=#{openssl_dir}/libs/#{abi}:#{gmp_dir}/libs/#{abi}"
             ]
-
-    #args << "--disable-assembly" if abi == 'mips64'
 
     system './configure', *args
     system 'make', '-j', num_jobs
