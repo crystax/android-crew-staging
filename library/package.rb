@@ -346,6 +346,21 @@ class Package < TargetBase
     Dir["#{dir}/#{abi}/*"]
   end
 
+  def clean_install_dir(abi, *types)
+    FileUtils.cd(install_dir_for_abi(abi)) do
+      types.each do |type|
+        case type
+        when :lib
+          FileUtils.cd('lib') { FileUtils.rm_rf ['pkgconfig'] + Dir["*.la"] }
+        when :share
+          FileUtils.rm_rf 'share'
+        else
+          raise "unknown type to cleanup: #{type}"
+        end
+      end
+    end
+  end
+
   private
 
   def binary_files(rel_dir)

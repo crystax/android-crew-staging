@@ -251,14 +251,6 @@ module Build
     replaced
   end
 
-  # todo: move call to the method to Package.build method
-  def self.clean_lib_dir(install_dir)
-    FileUtils.cd("#{install_dir}/lib") do
-      FileUtils.rm Dir["*.la"]
-      FileUtils.rm_rf 'pkgconfig'
-    end
-  end
-
   COPYRIGHT_STR = <<-EOS
 # Copyright (c) 2011-#{Date.today.strftime("%Y")} CrystaX.
 # All rights reserved.
