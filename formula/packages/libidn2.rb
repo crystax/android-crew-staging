@@ -33,6 +33,7 @@ class Libidn2 < Package
     system 'make', '-j', num_jobs, 'V=1'
     system 'make', 'install'
 
-    Build.clean_lib_dir install_dir
+    # todo: move to Package.build
+    clean_install_dir abi, :lib
   end
 end
