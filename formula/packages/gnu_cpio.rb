@@ -1,5 +1,6 @@
-class Cpio < Package
+class GnuCpio < Package
 
+  name 'gnu-cpio'
   desc "GNU cpio copies files into or out of a cpio or tar archive. The archive can be another file on the disk, a magnetic tape, or a pipe"
   homepage "https://www.gnu.org/software/cpio/"
   url "http://ftp.gnu.org/gnu/cpio/cpio-${version}.tar.bz2"
