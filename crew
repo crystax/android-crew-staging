@@ -1,8 +1,5 @@
 #!/bin/bash
 
-unset GEM_HOME
-unset GEM_PATH
-
 CREW_FILE_DIR=$(dirname $0)
 CREW_HOST_OS=`uname -s | tr '[:upper:]' '[:lower:]'`
 
@@ -24,6 +21,8 @@ fi
 
 if [ -f $CREW_TOOLS_DIR/bin/ruby ]; then
     CREW_RUBY=$CREW_TOOLS_DIR/bin/ruby
+    unset GEM_HOME
+    unset GEM_PATH
 else
     CREW_RUBY=ruby
     warnings="yes"
