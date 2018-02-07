@@ -1,0 +1,38 @@
+diff -Naur a/src/cpulimit.c b/src/cpulimit.c
+--- a/src/cpulimit.c	2015-06-17 09:46:59.000000000 +0300
++++ b/src/cpulimit.c	2018-02-07 21:58:23.574766128 +0300
+@@ -43,7 +43,7 @@
+ #include <sys/types.h>
+ #include <sys/wait.h>
+ 
+-#ifdef __APPLE__ || __FREEBSD__
++#if defined(__APPLE__) || defined(__FREEBSD__) || defined(__ANDROID__)
+ #include <libgen.h>
+ #endif
+ 
+diff -Naur a/src/process_group.c b/src/process_group.c
+--- a/src/process_group.c	2015-06-17 09:46:59.000000000 +0300
++++ b/src/process_group.c	2018-02-07 21:59:12.389524852 +0300
+@@ -27,6 +27,10 @@
+ 
+ #include <assert.h>
+ 
++#if defined(__APPLE__) || defined(__FreeBSD__) || defined(__ANDROID__)
++#include <libgen.h>
++#endif
++
+ #include "process_iterator.h"
+ #include "process_group.h"
+ #include "list.h"
+diff -Naur a/tests/process_iterator_test.c b/tests/process_iterator_test.c
+--- a/tests/process_iterator_test.c	2015-06-17 09:46:59.000000000 +0300
++++ b/tests/process_iterator_test.c	2018-02-07 21:59:58.420262674 +0300
+@@ -28,7 +28,7 @@
+ #include <signal.h>
+ #include <string.h>
+ 
+-#ifdef __APPLE__ || __FREEBSD__
++#if defined(__APPLE__) || defined(__FREEBSD__) || defined(__ANDROID__)
+ #include <libgen.h>
+ #endif
+ 
