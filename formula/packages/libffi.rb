@@ -7,9 +7,6 @@ class Libffi < Package
   release version: '3.2.1', crystax_version: 1
 
   build_copy 'LICENSE'
-  # build_libs 'libgmp', 'libgmpxx'
-  # build_options use_cxx:              true,
-  #               ldflags_in_c_wrapper: true
 
   def build_for_abi(abi, _toolchain, release, _host_dep_dirs, _target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)
@@ -27,7 +24,14 @@ class Libffi < Package
     system 'make', '-j', num_jobs
     system 'make', 'install'
 
+    FileUtils.cd(install_dir) do
+      if Dir.exist?('lib64')
+        FileUtils.rm_rf 'lib'
+        FileUtils.mv 'lib64', 'lib'
+      end
+    end
+
     # todo: move to Package.build
-    clean_install_dir abi, :lib, :share
+    clean_install_dir abi, :lib
   end
 end
