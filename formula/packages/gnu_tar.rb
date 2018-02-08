@@ -11,9 +11,8 @@ class GnuTar < Package
   build_options copy_installed_dirs: ['bin', 'libexec'],
                 gen_android_mk:      false
 
-  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, _target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)
-    ncurses_dir = target_dep_dirs['ncurses']
 
     args =  ["--prefix=#{install_dir}",
              "--host=#{host_for_abi(abi)}",
