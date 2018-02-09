@@ -8,7 +8,8 @@ class InfoUnzip < Package
   release version: '6.0', crystax_version: 1
 
   build_copy 'LICENSE'
-  build_options ldflags_in_c_wrapper: true,
+  build_options cflags_in_c_wrapper:  true,
+                ldflags_in_c_wrapper: true,
                 copy_installed_dirs:  ['bin'],
                 gen_android_mk:       false
 
