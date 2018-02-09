@@ -13,6 +13,7 @@ class Package < TargetBase
                         build_outside_source_tree:      false,
                         c_wrapper:                      'cc',
                         sysroot_in_cflags:              true,
+                        cflags_in_c_wrapper:            false,
                         ldflags_in_c_wrapper:           false,
                         use_cxx:                        false,
                         cxx_wrapper:                    'c++',
@@ -218,6 +219,7 @@ class Package < TargetBase
     else
       cc = build_options[:c_wrapper] == true ? toolchain.c_compiler_name : build_options[:c_wrapper]
       cc = "#{build_dir_for_abi(abi)}/#{cc}"
+      c_comp += ' ' + cflags if build_options[:cflags_in_c_wrapper]
       ldflags_wrapper_arg = build_options[:ldflags_in_c_wrapper] ? { before: ldflags, after: '' } : nil
       Build.gen_compiler_wrapper cc, c_comp, toolchain, build_options, '', ldflags_wrapper_arg
     end
