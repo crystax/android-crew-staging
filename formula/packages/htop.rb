@@ -10,6 +10,7 @@ class Htop < Package
 
   build_copy 'COPYING'
   build_options copy_installed_dirs:  ['bin'],
+                ldflags_in_c_wrapper: true,
                 gen_android_mk:       false
 
 
@@ -17,8 +18,7 @@ class Htop < Package
     install_dir = install_dir_for_abi(abi)
     ncurses_dir = target_dep_dirs['ncurses']
 
-    build_env['CFLAGS']  += " -I#{ncurses_dir}/include"
-    build_env['LDFLAGS'] += " -L#{ncurses_dir}/libs/#{abi}"
+    build_env['CFLAGS']  += " -I#{ncurses_dir}/include -L#{ncurses_dir}/libs/#{abi}"
     build_env['LIBS']     = '-ltinfow'
 
     args =  [ "--prefix=#{install_dir}",
