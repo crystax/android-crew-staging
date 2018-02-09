@@ -10,7 +10,8 @@ class GnuLess < Package
   depends_on 'ncurses'
 
   build_copy 'COPYING', 'LICENSE'
-  build_options copy_installed_dirs: ['bin'],
+  build_options sysroot_in_cflags:   false,
+                copy_installed_dirs: ['bin'],
                 gen_android_mk:      false
 
   def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs, _options)
@@ -23,7 +24,7 @@ class GnuLess < Package
     build_env['LDFLAGS'] += " -L#{ncurses_dir}/libs/#{abi}"
 
     system './configure', *args
-    system 'make', '-j', num_jobs, 'V=1'
+    system 'make', '-j', num_jobs
     system 'make', 'install'
   end
 end
