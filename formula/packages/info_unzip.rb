@@ -7,8 +7,6 @@ class InfoUnzip < Package
 
   release version: '6.0', crystax_version: 1
 
-  depends_on 'ncurses'
-
   build_copy 'LICENSE'
   build_options ldflags_in_c_wrapper: true,
                 copy_installed_dirs:  ['bin'],
