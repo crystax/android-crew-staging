@@ -283,9 +283,9 @@ class Formula
         src_dir = File.join(dir, src_name)
         if git_repo_spec? eurl
           git_url, git_ref, ref_type = parse_git_url(eurl)
-          puts "git_url:  #{git_url}"
-          puts "git_ref:  #{git_ref}"
-          puts "ref_type: #{ref_type}"
+          # puts "git_url:  #{git_url}"
+          # puts "git_ref:  #{git_ref}"
+          # puts "ref_type: #{ref_type}"
           repo = Rugged::Repository.clone_at(git_url, src_dir, credentials: Utils.make_git_credentials(git_url))
           case ref_type
           when :commit
