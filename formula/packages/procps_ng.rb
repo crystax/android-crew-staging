@@ -20,7 +20,20 @@ class ProcpsNg < Package
     # todo: remove HOST_NAME_MAX when libcrystax is fixed
     build_env['CFLAGS'] += " -I#{ncurses_dir}/include -I#{ncurses_dir}/include/ncursesw -L#{ncurses_dir}/libs/#{abi} -DHOST_NAME_MAX=255"
     build_env['LIBS']    = '-ltinfow'
-    build_env['PATH']    = "/usr/local/opt/gettext/bin:#{ENV['PATH']}" if Global::OS == 'darwin'
+
+    if Global::OS == 'darwin'
+      build_env['PATH'] = "/usr/local/opt/gettext/bin:#{ENV['PATH']}"
+      Build.replace_lines_in_file('autogen.sh') do |line|
+        case line
+        when /libtoolize/
+          line.gsub 'libtoolize', 'glibtoolize'
+        when /libtool/
+          line.gsub 'libtool', 'glibtool'
+        else
+          line
+        end
+      end
+    end
 
     args =  [ "--prefix=#{install_dir}",
               "--host=#{host_for_abi(abi)}",
