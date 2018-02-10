@@ -9,7 +9,8 @@ class Vim < Package
   depends_on 'ncurses'
 
   build_copy 'README.txt'
-  build_options copy_installed_dirs: ['bin', 'share'],
+  build_options sysroot_in_cflags:   false,
+                copy_installed_dirs: ['bin', 'share'],
                 gen_android_mk:      false
 
   def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs, _options)
