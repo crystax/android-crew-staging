@@ -282,9 +282,19 @@ class Formula
         eurl = expand_url(url, release)
         src_dir = File.join(dir, src_name)
         if git_repo_spec? eurl
-          git_url, git_commit = parse_git_url(eurl)
+          git_url, git_ref, ref_type = parse_git_url(eurl)
+          puts "git_url:  #{git_url}"
+          puts "git_ref:  #{git_ref}"
+          puts "ref_type: #{ref_type}"
           repo = Rugged::Repository.clone_at(git_url, src_dir, credentials: Utils.make_git_credentials(git_url))
-          repo.checkout git_commit, strategy: :force
+          case ref_type
+          when :commit
+            repo.checkout git_ref, strategy: :force
+          when :tag
+            repo.checkout_tree repo.tags[git_ref].peel, strategy: :force
+          else
+            raise "unknown ref type: #{ref_type}"
+          end
           repo.close
           FileUtils.rm_rf File.join(src_dir, '.git')
         else
@@ -330,20 +340,21 @@ class Formula
   end
 
   def git_repo_spec?(uri)
-    uri =~ /\|git_commit:/
+    uri =~ /\|git_.*:/
   end
 
   def parse_git_url(uri)
-    url = ''
-    commit = ''
-    uri.split('|').each do |e|
-      if e.start_with? 'git_commit:'
-        commit = e.split(':')[1]
-      else
-        url = e
-      end
+    url, ref = uri.split('|')
+    type, ref = ref.split(':')
+    case type
+    when 'git_commit'
+      type = :commit
+    when 'git_tag'
+      type = :tag
+    else
+      raise "unsupported git ref type: #{type}"
     end
-    [url, commit]
+    [url, ref, type]
   end
 
   def build_log_print(msg)
