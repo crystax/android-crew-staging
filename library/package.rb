@@ -267,7 +267,7 @@ class Package < TargetBase
       when 'bin', 'libexec', 'sbin'
         FileUtils.mkdir_p "#{package_dir}/#{dir}"
         FileUtils.cp_r "#{install_dir}/#{dir}", "#{package_dir}/#{dir}/#{abi}", preserve: true
-      when 'include', 'share'
+      when 'etc', 'include', 'share'
         # copy files if they were not copied yet
         FileUtils.cp_r "#{install_dir}/#{dir}", package_dir, preserve: true unless Dir.exists? "#{package_dir}/#{dir}"
       when 'lib'
