@@ -320,13 +320,13 @@ class Formula
             raise "source archive does not have top directory, diff: #{diff}" if diff.count != 1
             FileUtils.cd(dir) { FileUtils.mv diff[0], src_name }
           end
+        end
 
-          if patches(release.version).size > 0
-            puts "#{log_prefix} patching in dir #{src_dir}"
-            patches(release.version).each do |p|
-              puts "#{log_prefix}   applying #{File.basename(p.path)}"
-              p.apply src_dir
-            end
+        if patches(release.version).size > 0
+          puts "#{log_prefix} patching in dir #{src_dir}"
+          patches(release.version).each do |p|
+            puts "#{log_prefix}   applying #{File.basename(p.path)}"
+            p.apply src_dir
           end
         end
       rescue Exception => e
