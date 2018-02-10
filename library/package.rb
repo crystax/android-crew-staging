@@ -264,24 +264,16 @@ class Package < TargetBase
     FileUtils.mkdir_p package_dir
     dirs.each do |dir|
       case dir
-      when 'bin'
-        # copy binary files
-        FileUtils.mkdir_p "#{package_dir}/bin"
-        FileUtils.cp_r "#{install_dir}/bin", "#{package_dir}/bin/#{abi}", preserve: true
-      when 'include'
-        # copy headers if they were not copied yet
-        FileUtils.cp_r "#{install_dir}/include", package_dir, preserve: true unless Dir.exists? "#{package_dir}/include"
+      when 'bin', 'libexec', 'sbin'
+        FileUtils.mkdir_p "#{package_dir}/#{dir}"
+        FileUtils.cp_r "#{install_dir}/#{dir}", "#{package_dir}/#{dir}/#{abi}", preserve: true
+      when 'include', 'share'
+        # copy files if they were not copied yet
+        FileUtils.cp_r "#{install_dir}/#{dir}", package_dir, preserve: true unless Dir.exists? "#{package_dir}/#{dir}"
       when 'lib'
         # copy libs
         FileUtils.mkdir_p "#{package_dir}/libs"
         FileUtils.cp_r "#{install_dir}/lib", "#{package_dir}/libs/#{abi}", preserve: true
-      when 'libexec'
-        # copy libs
-        FileUtils.mkdir_p "#{package_dir}/libexec"
-        FileUtils.cp_r "#{install_dir}/libexec", "#{package_dir}/libexec/#{abi}", preserve: true
-      when 'share'
-        # copy shared files if they were not copied yet
-        FileUtils.cp_r "#{install_dir}/share", package_dir, preserve: true unless Dir.exists? "#{package_dir}/share"
       else
         raise "unsupported installed dir name: #{dir}"
       end
