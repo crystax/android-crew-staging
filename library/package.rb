@@ -230,6 +230,7 @@ class Package < TargetBase
                   'AR'          => ar,
                   'RANLIB'      => ranlib,
                   'READELF'     => readelf,
+                  'STRIP'       => toolchain.tool(arch, 'strip'),
                   'CFLAGS'      => cflags,
                   'LDFLAGS'     => ldflags
                  }
