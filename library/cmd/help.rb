@@ -312,6 +312,7 @@ The MAKE-STANDALONE-TOOLCHAIN command supports the following options:
                  default value is 'gnustl'
 
   --arch=NAME    specify target architecture; possible values are
+                 #{Arch::LIST.values.map(&:name).join(', ')}
 
   --platform=NAME
                  specify host system; possible value on darwin host is
