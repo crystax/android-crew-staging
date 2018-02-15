@@ -111,8 +111,10 @@ module Crew
         FileUtils.cp_r "#{src_sysroot_lib}/../lib64",   install_sysroot_usr_dir
         FileUtils.cp_r "#{src_sysroot_lib}/../lib64r2", install_sysroot_usr_dir
       end
+
       # remove this libstdc++ library to avoid possible clashes with real ones
-      FileUtils.rm Dir['/tmp/crew-gcc/sysroot/usr/**/libstdc++*']
+      FileUtils.rm Dir["#{install_sysroot_usr_dir}/**/libstdc++*"]
+      exit
       # copy runtime
       FileUtils.cp Dir["platforms/#{options.platform.name}/arch-#{options.arch.name}/usr/lib/crt*"], "#{install_sysroot_usr_dir}/lib/"
 
