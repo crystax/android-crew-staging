@@ -114,7 +114,6 @@ module Crew
 
       # remove this libstdc++ library to avoid possible clashes with real ones
       FileUtils.rm Dir["#{install_sysroot_usr_dir}/**/libstdc++*"]
-      exit
       # copy runtime
       FileUtils.cp Dir["platforms/#{options.platform.name}/arch-#{options.arch.name}/usr/lib/crt*"], "#{install_sysroot_usr_dir}/lib/"
 
@@ -131,21 +130,29 @@ module Crew
       target_lib_dir = File.join(install_dir, options.arch.host)
       FileUtils.mkdir_p target_include_dir
 
-      if options.stl == 'gnustl'
-        stl_name = 'libstdc++'
-        stl_rel = Release.new(options.gcc.version)
+      if options.stl == 'libc++'
+        package = PackageInfo.new('libc++', Release.new(options.llvm.version))
+        puts "    #{formula.name}:#{release}"
+        formula.copy_to_standalone_toolchain(release, options.arch, target_include_dir, target_lib_dir, gcc_version: options.gcc.version)
       else
-        stl_name = 'libc++'
-        stl_rel = Release.new(options.llvm.version)
-      end
-
-      [PackageInfo.new('libcrystax'), PackageInfo.new('libobjc2'), PackageInfo.new(stl_name, stl_rel)].each do |package|
+        # GNU GCC C++ headers must be copied to directory where they will be found by a compiler
+        cxx_include_dir = "#{install_dir}/#{options.arch.host}/include"
+        package = PackageInfo.new('libstdc++', Release.new(options.gcc.version))
         formula = formulary["target/#{package.name}"]
         release = package.release ? formula.find_release(package.release) : formula.highest_installed_release
         puts "    #{formula.name}:#{release}"
-        opts = {}
-        opts[:gcc_version] = options.gcc.version if formula.name == 'libc++'
-        formula.copy_to_standalone_toolchain(release, options.arch, target_include_dir, target_lib_dir, opts)
+        formula.copy_to_standalone_toolchain(release, options.arch, cxx_include_dir, target_lib_dir, {})
+        # rename C++ include dir to correspond to full GCC version
+        old = options.gcc.version
+        new = gcc_ver("#{install_dir}/bin/#{options.arch.host}-gcc")
+        FileUtils.cd("#{cxx_include_dir}/c++") { FileUtils.mv old, new } unless old == new
+      end
+
+      [PackageInfo.new('libcrystax'), PackageInfo.new('libobjc2')].each do |package|
+        formula = formulary["target/#{package.name}"]
+        release = package.release ? formula.find_release(package.release) : formula.highest_installed_release
+        puts "    #{formula.name}:#{release}"
+        formula.copy_to_standalone_toolchain(release, options.arch, target_include_dir, target_lib_dir, {})
       end
 
       options.with_packages.each do |package|
@@ -156,8 +163,9 @@ module Crew
   end
 
   def self.write_clang_scripts(bin_dir, options)
-    clang       = "clang#{options.llvm.version}"
-    clangxx     = "clang#{options.llvm.version}++"
+    llvm_ver = options.llvm.version.split('.').join
+    clang = "clang#{llvm_ver}"
+    clangxx = "clang#{llvm_ver}++"
 
     llvm_ver = options.llvm.version.delete('.')
     llvm_target = options.llvm.target(options.arch.abis[0])
@@ -209,5 +217,12 @@ module Crew
       f.puts "if ERRORLEVEL 1 exit /b 1"
       f.puts ":done"
     end
+  end
+
+  def self.gcc_ver(gcc_prog)
+    cmd = "#{gcc_prog} -dumpversion"
+    v = `#{cmd}`.strip
+    raise "failed to run #{cmd}" unless $? == 0
+    v
   end
 end
