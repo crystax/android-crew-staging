@@ -178,8 +178,8 @@ module Crew
       clang_shell_script 'clang',   clang, clang_flags
       clang_shell_script 'clang++', clangxx, clang_flags
       FileUtils.chmod 0755, ['clang', 'clang++']
-      FileUtils.cp 'clang',   "{toolchain_prefix}-clang"
-      FileUtils.cp 'clang++', "{toolchain_prefix}-clang++"
+      FileUtils.cp 'clang',   "#{toolchain_prefix}-clang"
+      FileUtils.cp 'clang++', "#{toolchain_prefix}-clang++"
 
       if options.platform.target_os == 'window'
         clang_flags = target_flag + ' --sysroot %~dp0\\..\\sysroot'

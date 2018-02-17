@@ -114,6 +114,9 @@ class Libcrystax < BasePackage
 
     case arch.name
     when 'arm'
+      # todo: here we copy armeabi-v7a libs in two sets of directories
+      FileUtils.cp Dir["#{crystax_libs_dir}/armeabi-v7a/libcrystax.*"],            "#{target_lib_dir}/lib/"
+      FileUtils.cp Dir["#{crystax_libs_dir}/armeabi-v7a/thumb/libcrystax.*"],      "#{target_lib_dir}/lib/thumb/"
       FileUtils.cp Dir["#{crystax_libs_dir}/armeabi-v7a/libcrystax.*"],            "#{target_lib_dir}/lib/armv7-a/"
       FileUtils.cp Dir["#{crystax_libs_dir}/armeabi-v7a/thumb/libcrystax.*"],      "#{target_lib_dir}/lib/armv7-a/thumb/"
       FileUtils.cp Dir["#{crystax_libs_dir}/armeabi-v7a-hard/libcrystax.*"],       "#{target_lib_dir}/lib/armv7-a/hard/"

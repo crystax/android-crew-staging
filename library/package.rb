@@ -326,6 +326,11 @@ class Package < TargetBase
 
     case arch.name
     when 'arm'
+      # todo: it seems clang can't find required libs so we copy armveabi-v7a libs to a place where armeabi libs were
+      #       gcc works fine without those copies
+      FileUtils.cp toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/"
+      FileUtils.cp toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/thumb/"
+      #
       FileUtils.cp toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/armv7-a/"
       FileUtils.cp toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/armv7-a/thumb/"
       FileUtils.cp toolchain_libs(src_lib_dir, 'armeabi-v7a-hard'), "#{target_lib_dir}/lib/armv7-a/hard/"

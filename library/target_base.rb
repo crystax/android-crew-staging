@@ -44,6 +44,8 @@ class TargetBase < Formula
   def make_target_lib_dirs(arch, target_dir)
     dirs = case arch.name
            when 'arm'
+             # todo: remove this when clang isssue with arm will be solved
+             ["lib", "lib/thumb"] +
              ["lib/armv7-a", "lib/armv7-a/thumb", "lib/armv7-a/hard", "lib/armv7-a/thumb/hard"]
            when 'mips'
              ["lib", "libr2", "libr6"]

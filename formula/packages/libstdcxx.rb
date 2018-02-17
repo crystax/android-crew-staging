@@ -113,6 +113,14 @@ class Libstdcxx < BasePackage
     # copy arch/abi specific libs and headers
     case arch.name
     when 'arm'
+      # todo: ?
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/libgnustl_shared.so",       "#{target_lib_dir}/lib/"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/libsupc++.a",               "#{target_lib_dir}/lib/"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/libgnustl_static.a",        "#{target_lib_dir}/lib/libstdc++.a"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/thumb/libgnustl_shared.so", "#{target_lib_dir}/lib/thumb/"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/thumb/libsupc++.a",         "#{target_lib_dir}/lib/thumb/"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/thumb/libgnustl_static.a",  "#{target_lib_dir}/lib/thumb/libstdc++.a"
+      #
       FileUtils.cp "#{release_dir}/libs/armeabi-v7a/libgnustl_shared.so",       "#{target_lib_dir}/lib/armv7-a/"
       FileUtils.cp "#{release_dir}/libs/armeabi-v7a/libsupc++.a",               "#{target_lib_dir}/lib/armv7-a/"
       FileUtils.cp "#{release_dir}/libs/armeabi-v7a/libgnustl_static.a",        "#{target_lib_dir}/lib/armv7-a/libstdc++.a"
@@ -127,7 +135,11 @@ class Libstdcxx < BasePackage
       FileUtils.cp "#{release_dir}/libs/armeabi-v7a-hard/thumb/libsupc++.a",         "#{target_lib_dir}/lib/armv7-a/thumb/hard/"
       FileUtils.cp "#{release_dir}/libs/armeabi-v7a-hard/thumb/libgnustl_static.a",  "#{target_lib_dir}/lib/armv7-a/thumb/hard/libstdc++.a"
       #
-      FileUtils.mkdir_p ["#{arch_include_dir}/armv7-a/thumb", "#{arch_include_dir}/armv7-a/hard", "#{arch_include_dir}/armv7-a/thumb/hard"]
+      FileUtils.mkdir_p ["#{arch_include_dir}/armv7-a/thumb", "#{arch_include_dir}/armv7-a/thumb", "#{arch_include_dir}/armv7-a/hard", "#{arch_include_dir}/armv7-a/thumb/hard"]
+      # todo: ?
+      FileUtils.cp_r "#{release_dir}/libs/armeabi-v7a/include/bits",      "#{arch_include_dir}/"
+      FileUtils.cp_r "#{release_dir}/libs/armeabi-v7a/include/bits",      "#{arch_include_dir}/thumb/"
+      #
       FileUtils.cp_r "#{release_dir}/libs/armeabi-v7a/include/bits",      "#{arch_include_dir}/armv7-a/"
       FileUtils.cp_r "#{release_dir}/libs/armeabi-v7a/include/bits",      "#{arch_include_dir}/armv7-a/thumb/"
       FileUtils.cp_r "#{release_dir}/libs/armeabi-v7a-hard/include/bits", "#{arch_include_dir}/armv7-a/hard"
