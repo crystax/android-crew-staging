@@ -131,21 +131,40 @@ module Crew
       FileUtils.mkdir_p target_include_dir
 
       if options.stl == 'libc++'
-        package = PackageInfo.new('libc++', Release.new(options.llvm.version))
-        puts "    #{formula.name}:#{release}"
-        formula.copy_to_standalone_toolchain(release, options.arch, target_include_dir, target_lib_dir, gcc_version: options.gcc.version)
+        stl_name = 'libc++'
+        stl_version = options.llvm.version
+        stl_opts = { gcc_version: options.gcc.version }
       else
-        # GNU GCC C++ headers must be copied to directory where they will be found by a compiler
-        cxx_include_dir = "#{install_dir}/#{options.arch.host}/include"
-        package = PackageInfo.new('libstdc++', Release.new(options.gcc.version))
-        formula = formulary["target/#{package.name}"]
-        release = package.release ? formula.find_release(package.release) : formula.highest_installed_release
-        puts "    #{formula.name}:#{release}"
-        formula.copy_to_standalone_toolchain(release, options.arch, cxx_include_dir, target_lib_dir, {})
-        # rename C++ include dir to correspond to full GCC version
-        old = options.gcc.version
-        new = gcc_ver("#{install_dir}/bin/#{options.arch.host}-gcc")
-        FileUtils.cd("#{cxx_include_dir}/c++") { FileUtils.mv old, new } unless old == new
+        stl_name = 'libstdc++'
+        stl_version = options.gcc.version
+        stl_opts = {}
+      end
+
+      # GNU GCC C++ headers must be copied to directory where they will be found by a compiler
+      cxx_include_dir = "#{install_dir}/#{options.arch.host}/include"
+      package = PackageInfo.new(stl_name, Release.new(stl_version))
+      formula = formulary["target/#{package.name}"]
+      release = package.release ? formula.find_release(package.release) : formula.highest_installed_release
+      puts "    #{formula.name}:#{release}"
+      formula.copy_to_standalone_toolchain(release, options.arch, cxx_include_dir, target_lib_dir, stl_opts)
+      # rename C++ include dir to correspond to full GCC version
+      old = options.gcc.version
+      new = gcc_ver("#{install_dir}/bin/#{options.arch.host}-gcc")
+      FileUtils.cd("#{cxx_include_dir}/c++") { FileUtils.mv old, new } unless old == new
+      #
+      if stl_name == 'libc++'
+        arch_subdir = case options.arch.name
+                      when 'arm'
+                        'armeabi-v7a'
+                      when 'arm64'
+                        'arm64-v8a'
+                      else
+                        options.arch.name
+                      end
+        gccunwind_lib = "#{Global::NDK_DIR}/sources/android/gccunwind/libs/#{arch_subdir}/libgccunwind.a"
+        FileUtils.cp gccunwind_lib, "#{install_sysroot_usr_dir}/lib/"
+        FileUtils.cp gccunwind_lib, "#{install_sysroot_usr_dir}/lib64/" if options.arch.name == 'mips64'
+
       end
 
       [PackageInfo.new('libcrystax'), PackageInfo.new('libobjc2')].each do |package|

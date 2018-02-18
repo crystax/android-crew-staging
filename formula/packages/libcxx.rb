@@ -120,6 +120,12 @@ class Libcxx < BasePackage
     # copy libs
     case arch.name
     when 'arm'
+      # todo: ?
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/libc++_shared.so",       "#{target_lib_dir}/lib/libc++_shared.so"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/libc++_static.a",        "#{target_lib_dir}/lib/libstdc++.a"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/thumb/libc++_shared.so", "#{target_lib_dir}/lib/thumb/libc++_shared.so"
+      FileUtils.cp "#{release_dir}/libs/armeabi-v7a/thumb/libc++_static.a",  "#{target_lib_dir}/lib/thumb/libstdc++.a"
+      #
       FileUtils.cp "#{release_dir}/libs/armeabi-v7a/libc++_shared.so",       "#{target_lib_dir}/lib/armv7-a/libc++_shared.so"
       FileUtils.cp "#{release_dir}/libs/armeabi-v7a/libc++_static.a",        "#{target_lib_dir}/lib/armv7-a/libstdc++.a"
       FileUtils.cp "#{release_dir}/libs/armeabi-v7a/thumb/libc++_shared.so", "#{target_lib_dir}/lib/armv7-a/thumb/libc++_shared.so"
