@@ -4,7 +4,7 @@ class Libunistring < Package
   homepage "https://www.gnu.org/software/libunistring/"
   url "http://ftp.gnu.org/gnu/libunistring/libunistring-0.9.8.tar.xz"
 
-  release version: '0.9.8', crystax_version: 1
+  release version: '0.9.8', crystax_version: 2
 
   build_copy 'COPYING', 'COPYING.LIB'
 
@@ -23,7 +23,7 @@ class Libunistring < Package
     system './configure', *args
     # libunistring uses pthread_cancel to check whether pthread is in use
     # since we do not have pthread_cancel (at least right now) we must handle the issue by editing config.h
-    Build.replace_lines_in_file('config.h') do |line|
+    replace_lines_in_file('config.h') do |line|
       if line == '/* #undef PTHREAD_IN_USE_DETECTION_HARD */'
         '#define PTHREAD_IN_USE_DETECTION_HARD 1'
       else
@@ -31,13 +31,9 @@ class Libunistring < Package
       end
     end
 
-    system 'make', '-j', num_jobs, 'V=1'
+    system 'make', '-j', num_jobs
     system 'make', 'install'
 
-    # remove unneeded files
-    FileUtils.cd(install_dir) do
-      FileUtils.rm Dir["lib/*.la"]
-      FileUtils.rm_rf 'share'
-    end
+    clean_install_dir abi, :lib
   end
 end
