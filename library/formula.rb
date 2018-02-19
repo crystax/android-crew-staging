@@ -233,6 +233,21 @@ class Formula
     [nm, ns]
   end
 
+  def replace_lines_in_file(file)
+    content = []
+    replaced = 0
+    File.read(file).split("\n").each do |l1|
+      l2 = yield(l1)
+      replaced += 1 if l1 != l2
+      content << l2
+    end
+
+    raise "no  line was replaced in #{file}" unless replaced > 0
+
+    File.open(file, 'w') { |f| f.puts content }
+
+    replaced
+  end
 
   private
 

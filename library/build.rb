@@ -235,22 +235,6 @@ module Build
     end
   end
 
-  def self.replace_lines_in_file(file)
-    content = []
-    replaced = 0
-    File.read(file).split("\n").each do |l1|
-      l2 = yield(l1)
-      replaced += 1 if l1 != l2
-      content << l2
-    end
-
-    raise "no  line was replaced in #{file}" unless replaced > 0
-
-    File.open(file, 'w') { |f| f.puts content }
-
-    replaced
-  end
-
   COPYRIGHT_STR = <<-EOS
 # Copyright (c) 2011-#{Date.today.strftime("%Y")} CrystaX.
 # All rights reserved.
