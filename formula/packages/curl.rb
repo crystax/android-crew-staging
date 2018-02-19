@@ -4,7 +4,7 @@ class Curl < Package
   homepage 'http://curl.haxx.se/'
   url 'https://curl.haxx.se/download/curl-${version}.tar.bz2'
 
-  release version: '7.58.0', crystax_version: 1
+  release version: '7.58.0', crystax_version: 2
 
   depends_on 'openssl'
   depends_on 'libssh2'
@@ -38,25 +38,16 @@ class Curl < Package
     system 'make', '-j', num_jobs
     system 'make', 'install'
 
-    # remove unneeded files
-    FileUtils.cd(install_dir) { FileUtils.rm_rf ['share', 'lib/pkgconfig', 'lib/libcurl.la'] }
+    clean_install_dir abi, :lib
   end
 
   def fix_curl_makefile
-    makefile = 'src/Makefile'
-    lines = []
-    replaced = false
-    File.foreach(makefile) do |l|
+    replace_lines_in_file('src/Makefile') do |line|
       if not l =~ /^LDFLAGS =[ \t]*/
-        lines << l
+        line
       else
-        lines << l.gsub('LDFLAGS =', 'LDFLAGS = -lssh2 -lssl -lcrypto -lz ')
-        replaced = true
+        line.gsub('LDFLAGS =', 'LDFLAGS = -lssh2 -lssl -lcrypto -lz ')
       end
     end
-
-    raise "not found 'LDFLAGS =' line in #{makefile}" unless replaced
-
-    File.open(makefile, 'w') { |f| f.puts lines }
   end
 end
