@@ -351,7 +351,7 @@ class Package < TargetBase
       types.each do |type|
         case type
         when :lib
-          FileUtils.cd('lib') { FileUtils.rm_rf ['pkgconfig'] + Dir["*.la"] }
+          FileUtils.rm_rf ['lib/pkgconfig'] + Dir['lib/**/*.la']
         when :share
           FileUtils.rm_rf 'share'
         else
