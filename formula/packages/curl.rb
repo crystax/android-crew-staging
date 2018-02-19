@@ -32,8 +32,7 @@ class Curl < Package
 
     system './configure', *args
 
-    # for some reason libtool for some abis does not handle dependency libs
-    fix_curl_makefile if ['mips', 'arm64-v8a', 'mips64'].include? abi
+    fix_makefile if ['mips', 'arm64-v8a', 'mips64'].include? abi
 
     system 'make', '-j', num_jobs
     system 'make', 'install'
@@ -41,9 +40,10 @@ class Curl < Package
     clean_install_dir abi, :lib
   end
 
-  def fix_curl_makefile
+  # for some reason libtool for some abis does not handle dependency libs
+  def fix_makefile
     replace_lines_in_file('src/Makefile') do |line|
-      if not l =~ /^LDFLAGS =[ \t]*/
+      if not line =~ /^LDFLAGS =[ \t]*/
         line
       else
         line.gsub('LDFLAGS =', 'LDFLAGS = -lssh2 -lssl -lcrypto -lz ')
