@@ -8,6 +8,7 @@ class GnuTls < Package
   release version: '3.5.17', crystax_version: 1
 
   depends_on 'gmp'
+  depends_on 'libffi'
   depends_on 'nettle'
   depends_on 'libunistring'
   depends_on 'libidn2'
@@ -23,6 +24,7 @@ class GnuTls < Package
 
     build_env['CFLAGS']  += target_dep_dirs.values.inject('') { |acc, dir| "#{acc} -I#{dir}/include" }
     build_env['LDFLAGS'] += target_dep_dirs.values.inject('') { |acc, dir| "#{acc} -L#{dir}/libs/#{abi}" }
+    #build_env['LIBS']     = '-lp11-kit -lidn2 -lunistring -lnettle -lhogweed -lffi -lgmp'
 
     args =  [ "--prefix=#{install_dir}",
               "--host=#{host_for_abi(abi)}",
@@ -37,9 +39,23 @@ class GnuTls < Package
             ]
 
     system './configure', *args
+
+    fix_makefile if ['mips', 'arm64-v8a', 'mips64'].include? abi
+
     system 'make', '-j', num_jobs
     system 'make', 'install'
 
     clean_install_dir abi, :lib
+  end
+
+  # for some reason libtool for some abis does not handle dependency libs
+  def fix_makefile
+    replace_lines_in_file('src/Makefile') do |line|
+      if not line =~ /^LIBS =[ \t]*/
+        line
+      else
+        line.gsub('LIBS =', 'LIBS = -lp11-kit -lidn2 -lunistring -lnettle -lhogweed -lffi -lgmp -lz ')
+      end
+    end
   end
 end
