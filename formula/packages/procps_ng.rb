@@ -5,7 +5,7 @@ class ProcpsNg < Package
   homepage 'https://gitlab.com/procps-ng/procps'
   url "https://gitlab.com/procps-ng/procps.git|git_tag:v${version}"
 
-  release version: '3.3.12', crystax_version: 1
+  release version: '3.3.12', crystax_version: 2
 
   depends_on 'ncurses'
 
@@ -23,7 +23,7 @@ class ProcpsNg < Package
 
     if Global::OS == 'darwin'
       build_env['PATH'] = "/usr/local/opt/gettext/bin:#{ENV['PATH']}"
-      Build.replace_lines_in_file('autogen.sh') do |line|
+      replace_lines_in_file('autogen.sh') do |line|
         case line
         when /libtoolize/
           line.gsub 'libtoolize', 'glibtoolize'
