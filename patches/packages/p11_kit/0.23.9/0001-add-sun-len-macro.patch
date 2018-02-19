@@ -1,0 +1,22 @@
+diff -Naur a/p11-kit/server.c b/p11-kit/server.c
+--- a/p11-kit/server.c	2017-09-26 21:25:48.000000000 +0700
++++ b/p11-kit/server.c	2018-02-18 20:16:34.319613851 +0700
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (C) 2014 Red Hat Inc.
++ * Copyright (C) 2014, 2018 Red Hat Inc.
+  *
+  * Redistribution and use in source and binary forms, with or without
+  * modification, are permitted provided that the following conditions
+@@ -72,6 +72,11 @@
+ #define SIGHANDLER_T sighandler_t
+ #endif
+ 
++#if defined(__ANDROID__) && defined(__CRYSTAX__)
++/* actual length of an initialized sockaddr_un */
++#define SUN_LEN(su) (sizeof(*(su)) - sizeof((su)->sun_path) + strlen((su)->sun_path))
++#endif
++
+ #endif /* OS_UNIX */
+ 
+ typedef struct {
