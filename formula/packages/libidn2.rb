@@ -4,7 +4,7 @@ class Libidn2 < Package
   homepage "https://www.gnu.org/software/libidn/#libidn2"
   url "https://ftp.gnu.org/gnu/libidn/libidn2-${version}.tar.gz"
 
-  release version: '2.0.4', crystax_version: 1
+  release version: '2.0.4', crystax_version: 2
 
   depends_on 'libunistring'
 
@@ -33,7 +33,6 @@ class Libidn2 < Package
     system 'make', '-j', num_jobs, 'V=1'
     system 'make', 'install'
 
-    # todo: move to Package.build
     clean_install_dir abi, :lib
   end
 end

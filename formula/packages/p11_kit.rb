@@ -5,7 +5,7 @@ class P11Kit < Package
   homepage 'https://p11-glue.github.io/p11-glue/p11-kit.html/'
   url 'https://github.com/p11-glue/p11-kit/releases/download/0.23.9/p11-kit-${version}.tar.gz'
 
-  release version: '0.23.9', crystax_version: 1
+  release version: '0.23.9', crystax_version: 2
 
   depends_on 'libffi'
 
@@ -35,6 +35,6 @@ class P11Kit < Package
     system 'make', '-j', num_jobs, 'V=1'
     system 'make', 'install'
 
-    clean_install_dir abi, :lib, :share
+    clean_install_dir abi, :lib
   end
 end

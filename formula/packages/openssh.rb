@@ -45,7 +45,5 @@ class Openssh < Package
     system './configure', *args
     system 'make', '-j', num_jobs
     system 'make', 'install-nokeys'
-
-    #clean_install_dir abi, :lib
   end
 end

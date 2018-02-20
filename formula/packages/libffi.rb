@@ -4,7 +4,7 @@ class Libffi < Package
   homepage 'https://github.com/libffi/libffi'
   url 'https://github.com/libffi/libffi/archive/v${version}.tar.gz'
 
-  release version: '3.2.1', crystax_version: 1
+  release version: '3.2.1', crystax_version: 2
 
   build_copy 'LICENSE'
 
@@ -31,7 +31,6 @@ class Libffi < Package
       end
     end
 
-    # todo: move to Package.build
     clean_install_dir abi, :lib
   end
 end

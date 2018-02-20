@@ -4,15 +4,15 @@ class Openssl < Package
   homepage "https://openssl.org/"
   url 'https://openssl.org/source/openssl-${version}.tar.gz'
 
-  release version: '1.0.2n', crystax_version: 2
-  release version: '1.1.0g', crystax_version: 1
+  release version: '1.0.2n', crystax_version: 3
+  release version: '1.1.0g', crystax_version: 2
 
   build_options copy_installed_dirs: ['bin', 'include', 'lib']
   build_copy 'LICENSE'
   build_libs 'libcrypto', 'libssl'
 
   def build_for_abi(abi, toolchain, release, _host_dep_dirs, _target_dep_dirs, options)
-    ssl_ver = ssl_major_minor_ver(release)
+    ssl_ver = release.major_point_minor
     install_dir = install_dir_for_abi(abi)
     build_env['CFLAGS'] << ' -DOPENSSL_NO_DEPRECATED'
 
@@ -52,11 +52,6 @@ class Openssl < Package
         FileUtils.mv "#{f}.so.#{suffix}", "#{f}.so"
       end
     end
-  end
-
-  def ssl_major_minor_ver(release)
-    major, minor, _ = release.version.split('.')
-    "#{major}.#{minor}"
   end
 
   def target(abi)

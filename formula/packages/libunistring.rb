@@ -4,7 +4,7 @@ class Libunistring < Package
   homepage "https://www.gnu.org/software/libunistring/"
   url "http://ftp.gnu.org/gnu/libunistring/libunistring-0.9.8.tar.xz"
 
-  release version: '0.9.8', crystax_version: 2
+  release version: '0.9.8', crystax_version: 3
 
   build_copy 'COPYING', 'COPYING.LIB'
 
