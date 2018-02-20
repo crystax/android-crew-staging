@@ -17,6 +17,10 @@ class Release
     @r[:installed_crystax_version]
   end
 
+  def major_point_minor
+    @r[:version].split('.').first(2).join('.')
+  end
+
   def installed?
     @r[:installed]
   end
