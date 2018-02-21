@@ -15,10 +15,19 @@ module Crew
 
     # check that specified packages are available and set release if one was not specified
     formulary = Formulary.new
+    dependencies = []
     options.with_packages.each do |package|
       formula = formulary["target/#{package.name}"]
       package.release = package.release ? formula.find_release(package.release) : formula.highest_installed_release
+      raise "package #{package} is not installed; please, install it and repeat the command" unless formula.installed?(package.release)
       package.formula = formula
+      dependencies += formulary.dependencies(formula)
+    end
+
+    # handle dependecies
+    dependencies.uniq.each do |formula|
+      package = PackageInfo.new(formula.name, formula.highest_installed_release, formula)
+      options.with_packages << package
     end
 
     puts "Create standalone toolchain in #{options.install_dir}"
@@ -164,7 +173,6 @@ module Crew
         gccunwind_lib = "#{Global::NDK_DIR}/sources/android/gccunwind/libs/#{arch_subdir}/libgccunwind.a"
         FileUtils.cp gccunwind_lib, "#{install_sysroot_usr_dir}/lib/"
         FileUtils.cp gccunwind_lib, "#{install_sysroot_usr_dir}/lib64/" if options.arch.name == 'mips64'
-
       end
 
       [PackageInfo.new('libcrystax'), PackageInfo.new('libobjc2')].each do |package|
@@ -176,7 +184,7 @@ module Crew
 
       options.with_packages.each do |package|
         puts "    #{package.name}:#{package.release}"
-        package.formula.copy_to_standalone_toolchain(package.release, options.arch, target_include_dir, target_lib_dir, {})
+        package.formula.copy_to_standalone_toolchain(package.release, options.arch, target_include_dir, install_sysroot_usr_dir, {})
       end
     end
   end

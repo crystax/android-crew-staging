@@ -328,17 +328,17 @@ class Package < TargetBase
     when 'arm'
       # todo: it seems clang can't find required libs so we copy armveabi-v7a libs to a place where armeabi libs were
       #       gcc works fine without those copies
-      FileUtils.cp toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/"
-      FileUtils.cp toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/thumb/"
+      FileUtils.cp_r toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/"
+      FileUtils.cp_r toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/thumb/"
       #
-      FileUtils.cp toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/armv7-a/"
-      FileUtils.cp toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/armv7-a/thumb/"
-      FileUtils.cp toolchain_libs(src_lib_dir, 'armeabi-v7a-hard'), "#{target_lib_dir}/lib/armv7-a/hard/"
-      FileUtils.cp toolchain_libs(src_lib_dir, 'armeabi-v7a-hard'), "#{target_lib_dir}/lib/armv7-a/thumb/hard/"
+      FileUtils.cp_r toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/armv7-a/"
+      FileUtils.cp_r toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/armv7-a/thumb/"
+      FileUtils.cp_r toolchain_libs(src_lib_dir, 'armeabi-v7a-hard'), "#{target_lib_dir}/lib/armv7-a/hard/"
+      FileUtils.cp_r toolchain_libs(src_lib_dir, 'armeabi-v7a-hard'), "#{target_lib_dir}/lib/armv7-a/thumb/hard/"
     when 'mips64', 'x86_64'
-      FileUtils.cp toolchain_libs(src_lib_dir, arch.abis[0]), "#{target_lib_dir}/lib64/"
+      FileUtils.cp_r toolchain_libs(src_lib_dir, arch.abis[0]), "#{target_lib_dir}/lib64/"
     else
-      FileUtils.cp toolchain_libs(src_lib_dir, arch.abis[0]), "#{target_lib_dir}/lib/"
+      FileUtils.cp_ toolchain_libs(src_lib_dir, arch.abis[0]), "#{target_lib_dir}/lib/"
     end
   end
 

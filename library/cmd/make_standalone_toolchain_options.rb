@@ -5,8 +5,8 @@ require_relative '../command_options.rb'
 class MakeStandaloneToolchainOptions
 
   PackageInfo = Struct.new(:name, :release, :formula) do
-    def initialize(name, release = nil)
-      super name, release, nil
+    def initialize(name, release = nil, formula = nil)
+      super name, release, formula
     end
 
     def to_s
