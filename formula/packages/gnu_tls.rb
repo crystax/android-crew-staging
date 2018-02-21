@@ -21,10 +21,25 @@ class GnuTls < Package
 
   def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)
+    gmp_dir = target_dep_dirs['gmp']
+    nettle_dir = target_dep_dirs['nettle']
+    libidn2_dir = target_dep_dirs['libidn2']
+    p11_kit_dir = target_dep_dirs['p11-kit']
 
     build_env['CFLAGS']  += target_dep_dirs.values.inject('') { |acc, dir| "#{acc} -I#{dir}/include" }
     build_env['LDFLAGS'] += target_dep_dirs.values.inject('') { |acc, dir| "#{acc} -L#{dir}/libs/#{abi}" }
-    #build_env['LIBS']     = '-lp11-kit -lidn2 -lunistring -lnettle -lhogweed -lffi -lgmp'
+    build_env['LDFLAGS'] += ' -lp11-kit -lidn2 -lunistring -lnettle -lhogweed -lffi -lgmp -lz' if ['mips', 'arm64-v8a', 'mips64'].include? abi
+
+    build_env['GMP_CFLAGS']     = "-I#{gmp_dir}/include"
+    build_env['GMP_LIBS']       = "-L#{gmp_dir}/libs/#{abi} -lgmp"
+    build_env['NETTLE_CFLAGS']  = "-I#{nettle_dir}/include"
+    build_env['NETTLE_LIBS']    = "-L#{nettle_dir}/libs/#{abi} -lnettle"
+    build_env['HOGWEED_CFLAGS'] = "-I#{nettle_dir}/include"
+    build_env['HOGWEED_LIBS']   = "-L#{nettle_dir}/libs/#{abi} -lhogweed"
+    build_env['LIBIDN_CFLAGS']  = "-I#{libidn2_dir}/include"
+    build_env['LIBIDN_LIBS']    = "-L#{libidn2_dir}/libs/#{abi} -lidn2"
+    build_env['P11_KIT_CFLAGS'] = "-I#{p11_kit_dir}/include -I#{p11_kit_dir}/include/p11-kit-1"
+    build_env['P11_KIT_LIBS']   = "-L#{p11_kit_dir}/libs/#{abi} -lp11-kit"
 
     args =  [ "--prefix=#{install_dir}",
               "--host=#{host_for_abi(abi)}",
