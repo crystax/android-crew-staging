@@ -4,7 +4,7 @@ class Xz < Package
   homepage "http://tukaani.org/xz/"
   url "http://tukaani.org/xz/xz-${version}.tar.xz"
 
-  release version: '5.2.3', crystax_version: 3
+  release version: '5.2.3', crystax_version: 1
 
   build_copy 'COPYING'
   build_options build_outside_source_tree: true,
