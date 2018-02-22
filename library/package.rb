@@ -352,7 +352,7 @@ class Package < TargetBase
         case type
         when :lib
           FileUtils.rm_rf ['lib/pkgconfig'] + Dir['lib/**/*.la']
-          Dir['lib/**/*.so'].each { |f| FileUtils.rm f if File.symlink?(f) }
+          Dir['lib/**/*.so', 'lib/**/*.so.*'].each { |f| FileUtils.rm f if File.symlink?(f) }
         else
           raise "unknown type to cleanup: #{type}"
         end
