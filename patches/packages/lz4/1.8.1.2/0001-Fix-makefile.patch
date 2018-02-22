@@ -1,0 +1,36 @@
+diff -Naur a/lib/Makefile b/lib/Makefile
+--- a/lib/Makefile	2018-01-14 15:21:43.000000000 +0700
++++ b/lib/Makefile	2018-02-22 15:25:08.265862292 +0700
+@@ -1,6 +1,6 @@
+ # ################################################################
+ # LZ4 library - Makefile
+-# Copyright (C) Yann Collet 2011-2016
++# Copyright (C) Yann Collet 2011-2016, 2018
+ # All rights reserved.
+ #
+ # This Makefile is validated for Linux, macOS, *BSD, Hurd, Solaris, MSYS2 targets
+@@ -57,17 +57,17 @@
+ 
+ # OS X linker doesn't support -soname, and use different extension
+ # see : https://developer.apple.com/library/mac/documentation/DeveloperTools/Conceptual/DynamicLibraries/100-Articles/DynamicLibraryDesignGuidelines.html
+-ifeq ($(shell uname), Darwin)
+-	SHARED_EXT = dylib
+-	SHARED_EXT_MAJOR = $(LIBVER_MAJOR).$(SHARED_EXT)
+-	SHARED_EXT_VER = $(LIBVER).$(SHARED_EXT)
+-	SONAME_FLAGS = -install_name $(LIBDIR)/liblz4.$(SHARED_EXT_MAJOR) -compatibility_version $(LIBVER_MAJOR) -current_version $(LIBVER)
+-else
++#ifeq ($(shell uname), Darwin)
++#	SHARED_EXT = dylib
++#	SHARED_EXT_MAJOR = $(LIBVER_MAJOR).$(SHARED_EXT)
++#	SHARED_EXT_VER = $(LIBVER).$(SHARED_EXT)
++#	SONAME_FLAGS = -install_name $(LIBDIR)/liblz4.$(SHARED_EXT_MAJOR) -compatibility_version $(LIBVER_MAJOR) -current_version $(LIBVER)
++#else
+ 	SONAME_FLAGS = -Wl,-soname=liblz4.$(SHARED_EXT).$(LIBVER_MAJOR)
+ 	SHARED_EXT = so
+ 	SHARED_EXT_MAJOR = $(SHARED_EXT).$(LIBVER_MAJOR)
+ 	SHARED_EXT_VER = $(SHARED_EXT).$(LIBVER)
+-endif
++#endif
+ 
+ LIBLZ4 = liblz4.$(SHARED_EXT_VER)
+ 
