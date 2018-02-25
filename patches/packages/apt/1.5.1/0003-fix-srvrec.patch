@@ -1,0 +1,37 @@
+--- a/apt-pkg/contrib/srvrec.cc	2017-10-26 18:38:39.000000000 +0700
++++ b/apt-pkg/contrib/srvrec.cc	2018-02-25 15:59:54.492041608 +0700
+@@ -38,14 +38,25 @@
+    struct servent *s_ent = nullptr;
+    std::vector<char> buf(1024);
+ 
++#ifdef __ANDROID__
++   s_ent = getservbyport(htons(port), "tcp");
++   if (s_ent == nullptr)
++       return false;
++#else
+    res = getservbyport_r(htons(port), "tcp", &s_ent_buf, buf.data(), buf.size(), &s_ent);
+    if (res != 0 || s_ent == nullptr)
+       return false;
++#endif
+ 
+    strprintf(target, "_%s._tcp.%s", s_ent->s_name, host.c_str());
+    return GetSrvRecords(target, Result);
+ }
+ 
++#ifdef __ANDROID__
++extern "C" int __dn_skipname(const unsigned char* comp_dn, const unsigned char* eom);
++static inline int dn_skipname(const unsigned char* a, const unsigned char* b) { return __dn_skipname(a,b); }
++#endif
++
+ bool GetSrvRecords(std::string name, std::vector<SrvRec> &Result)
+ {
+    unsigned char answer[PACKETSZ];
+@@ -144,7 +155,7 @@
+    //        and figure out how the weights need to be adjusted if
+    //        a host refuses connections
+ 
+-#if 0  // all code below is only needed for the weight adjusted selection 
++#if 0  // all code below is only needed for the weight adjusted selection
+    // assign random number ranges
+    int prev_weight = 0;
+    int prev_priority = 0;
