@@ -216,4 +216,46 @@ module Toolchain
 
   DEFAULT_LLVM = LLVM_3_8
   SUPPORTED_LLVM = [LLVM_3_6, LLVM_3_7, LLVM_3_8]
+
+
+  class Standalone
+    attr_reader :base_dir, :sysroot_dir
+
+    def initialize(arch, base_dir, gcc_toolchain, llvm_toolchain, with_packages, formula)
+      @arch     = arch
+      @base_dir = base_dir
+      @gcc_toolchain = gcc_toolchain
+      @llvm_toolchain = llvm_toolchain
+      @bin_dir     = "#{base_dir}/bin"
+      @sysroot_dir = "#{base_dir}/sysroot"
+
+      args = ["#{Global::BASE_DIR}/crew",
+              "-b",
+              "make-standalone-toolchain",
+              "--arch=#{arch.name}",
+              "--install-dir=#{base_dir}",
+              "--clean-install-dir",
+              "--gcc-version=#{gcc_toolchain.version}"
+             ]
+      args << "--with-packages=#{with_packages.join(',')}" unless with_packages.empty?
+
+      formula.system *args
+    end
+
+    def gcc
+      "#{tool_prefix}-gcc"
+    end
+
+    def gxx
+      "#{tool_prefix}-g++"
+    end
+
+    def gcc_cflags(abi)
+      @gcc_toolchain.cflags abi
+    end
+
+    def tool_prefix
+      "#{@bin_dir}/#{@arch.host}"
+    end
+  end
 end

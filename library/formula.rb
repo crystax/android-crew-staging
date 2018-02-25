@@ -249,6 +249,7 @@ class Formula
     replaced
   end
 
+
   private
 
 
@@ -381,6 +382,8 @@ class Formula
     File.open(@log_file, "a") { |log| log.puts msg }
     puts msg
   end
+
+  public
 
   def system(*args)
     cmd = args.join(' ')

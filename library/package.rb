@@ -124,6 +124,7 @@ class Package < TargetBase
     @num_jobs = options.num_jobs
 
     build_env.clear
+    build_options[:setup_env] = false if build_options[:use_standalone_toolchain]
 
     if self.respond_to? :pre_build
       build_log_print "= executing pre build step: "
@@ -137,6 +138,12 @@ class Package < TargetBase
     FileUtils.mkdir_p package_dir
     arch_list.each do |arch|
       build_log_puts "= building for architecture: #{arch.name}"
+      if build_options[:use_standalone_toolchain]
+        st_packages = (build_options[:use_standalone_toolchain].is_a? Array) ? build_options[:use_standalone_toolchain] : []
+        st_base_dir = "#{build_base_dir}/#{arch.name}-toolchain"
+        build_log_puts "  making standalone toolchain with packages: #{st_packages}"
+        toolchain = Toolchain::Standalone.new(arch, st_base_dir, Toolchain::DEFAULT_GCC, Toolchain::DEFAULT_LLVM, st_packages, self)
+      end
       arch.abis_to_build.each do |abi|
         build_log_puts "  building for abi: #{abi}"
         FileUtils.mkdir_p base_dir_for_abi(abi)
@@ -267,7 +274,7 @@ class Package < TargetBase
       when 'bin', 'libexec', 'sbin'
         FileUtils.mkdir_p "#{package_dir}/#{dir}"
         FileUtils.cp_r "#{install_dir}/#{dir}", "#{package_dir}/#{dir}/#{abi}", preserve: true
-      when 'etc', 'include', 'share'
+      when 'etc', 'include', 'share', 'var'
         # copy files if they were not copied yet
         FileUtils.cp_r "#{install_dir}/#{dir}", package_dir, preserve: true unless Dir.exists? "#{package_dir}/#{dir}"
       when 'lib'
@@ -338,7 +345,7 @@ class Package < TargetBase
     when 'mips64', 'x86_64'
       FileUtils.cp_r toolchain_libs(src_lib_dir, arch.abis[0]), "#{target_lib_dir}/lib64/"
     else
-      FileUtils.cp_ toolchain_libs(src_lib_dir, arch.abis[0]), "#{target_lib_dir}/lib/"
+      FileUtils.cp_r toolchain_libs(src_lib_dir, arch.abis[0]), "#{target_lib_dir}/lib/"
     end
   end
 
