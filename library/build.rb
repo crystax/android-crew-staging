@@ -9,6 +9,9 @@ module Build
 
   API_LEVELS = [3, 4, 5, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 21, 23, 24]
 
+  # for some reason libtool does not handle library dependencies for these abis
+  BAD_ABIS = ['mips', 'arm64-v8a', 'mips64']
+
   USER = ENV['USER']
 
   # todo: honor CRYSTAX_NDK_BASE_TMP_DIR environment dir
