@@ -6,16 +6,21 @@ class Binutils < Utility
 
   release version: '2.30', crystax_version: 1
 
+  depends_on 'zlib'
+
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     FileUtils.cp_r Dir["#{src_dir}/*"], '.'
+    tools_dir = Global::tools_dir(platform.name)
+
+    build_env['CFLAGS']  += " -I#{tools_dir}/include"
+    build_env['LDFLAGS']  = "-L#{tools_dir}/lib"
 
     puts '  building bfd'
     FileUtils.cd('bfd') do
       args = platform.configure_args +
              ["--disable-shared",
               "--enable-static",
-              "--disable-nls",
-              "--with-system-zlib"
+              "--disable-nls"
              ]
       system './configure', *args
       system 'make', '-j', num_jobs
