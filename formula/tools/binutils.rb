@@ -34,6 +34,7 @@ class Binutils < Utility
     end
 
     puts '  building ar'
+    ar = platform.target_os == 'windows' ? 'ar.exe' : 'ar'
     install_dir = install_dir_for_platform(platform.name, release)
     FileUtils.cd('binutils') do
       args = platform.configure_args +
@@ -43,11 +44,11 @@ class Binutils < Utility
 
       build_env['CFLAGS']  += ' -I../bfd/include'
       system './configure', *args
-      system 'make', 'ar', '-j', num_jobs
+      system 'make', ar, '-j', num_jobs
     end
 
     install_bin_dir = "#{install_dir}/bin"
     FileUtils.mkdir_p install_bin_dir
-    FileUtils.cp 'binutils/ar', install_bin_dir
+    FileUtils.cp "binutils/#{ar}", install_bin_dir
   end
 end
