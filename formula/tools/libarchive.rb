@@ -1,12 +1,11 @@
 class Libarchive < Utility
 
-  name 'libarchive'
-  desc 'bsdtar and bsdcpio utilities from multi-format archive and compression library libarchive'
+  desc 'bsdtar utility from multi-format archive and compression library libarchive'
   homepage 'http://www.libarchive.org'
   url 'http://www.libarchive.org/downloads/libarchive-${version}.tar.gz'
 
   # 3.3.2 fails to build for windows
-  release version: '3.3.1', crystax_version: 4
+  release version: '3.3.1', crystax_version: 5
 
   build_depends_on 'xz'
 
@@ -40,8 +39,7 @@ class Libarchive < Utility
     FileUtils.cd(install_dir) do
       FileUtils.rm_rf ['include', 'lib', 'share']
       FileUtils.cd('bin') do
-        #FileUtils.rm_f  Dir['bsdcpio*'] + Dir['bsdcat*']
-        FileUtils.rm_f  Dir['bsdcat*']
+        FileUtils.rm_f  Dir['bsdcpio*'] + Dir['bsdcat*']
       end
     end
   end
