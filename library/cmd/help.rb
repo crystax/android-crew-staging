@@ -14,6 +14,7 @@ UPGRADE_SYNTAX                   = 'upgrade [options]'.freeze
 CLEANUP_SYNTAX                   = 'cleanup [options]'.freeze
 SHASUM_SYNTAX                    = 'shasum [options] [name1 name2 ...]'.freeze
 MAKE_STANDALONE_TOOLCHAIN_SYNTAX = 'make-standalone-toolchain [options]'.freeze
+MAKE_DEB_SYNTAX                  = 'make-deb [options] [name1 name2 ...]'.freeze
 
 NAME_RULES = <<-EOS
 Name for a formula can specified in two ways. First, it can be specified
@@ -75,6 +76,9 @@ COMMAND is one of the following:
                   check or update SHA256 sums
   #{MAKE_STANDALONE_TOOLCHAIN_SYNTAX}
                   create a standalone toolchain package for Android
+  #{MAKE_DEB_SYNTAX}
+                  create a deb-format packages for a specified formulas;
+                  formulas must be from a 'target' namespace
 EOS
 
 
@@ -334,6 +338,37 @@ The MAKE-STANDALONE-TOOLCHAIN command supports the following options:
 EOS
 
 
+MAKE_DEB_HELP = <<-EOS
+#{MAKE_DEB_SYNTAX}
+
+The MAKE-DEB command generates deb-format packages for the specified
+formulas. Formulas must be from the 'target' namespace. If no name was
+specified then command will make debs for all target formulas.
+
+A formula name can contain a desired version. If version is not
+specified then command will use the latest version in a formula.
+
+The command will use binary packages from the crew packages cache when
+possible. Otherwise required packages will be downloaded from a
+repository (but not installed).
+
+The command supports the following options:
+
+  --deb-root-prefix=PATH
+                  use given path as a prefix for all files in a deb
+                  package
+
+  --abis=LIST     list of abis for which deb packages should be
+                  generated
+
+  --all-versions  generate deb packages for all versions
+
+  --no-clean      do not remove working directories; by default all
+                  working directories will be removed after required
+                  packages were created
+EOS
+
+
 CMD_HELP = {
   'version'                   => NO_HELP,
   'help'                      => NO_HELP,
@@ -349,7 +384,8 @@ CMD_HELP = {
   'upgrade'                   => UPGRADE_HELP,
   'cleanup'                   => CLEANUP_HELP,
   'shasum'                    => SHASUM_HELP,
-  'make-standalone-toolchain' => MAKE_STANDALONE_TOOLCHAIN_HELP
+  'make-standalone-toolchain' => MAKE_STANDALONE_TOOLCHAIN_HELP,
+  'make-deb'                  => MAKE_DEB_HELP
 }
 
 

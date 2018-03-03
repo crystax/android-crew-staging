@@ -9,8 +9,9 @@ module Utils
   @@curl_prog = nil
   @@tar_prog  = nil
 
-  @@crew_tar_prog      = File.join(Global::TOOLS_DIR, 'bin', "bsdtar#{Global::EXE_EXT}")
-  @@system_tar         = (Global::OS == 'darwin') ? 'gtar' : 'tar'
+  @@crew_ar_prog  = File.join(Global::TOOLS_DIR, 'bin', "ar#{Global::EXE_EXT}")
+  @@crew_tar_prog = File.join(Global::TOOLS_DIR, 'bin', "bsdtar#{Global::EXE_EXT}")
+  @@system_tar    = (Global::OS == 'darwin') ? 'gtar' : 'tar'
 
   @@patch_prog = '/usr/bin/patch'
   @@unzip_prog = '/usr/bin/unzip'
@@ -110,6 +111,14 @@ module Utils
     else
       raise "this OS (#{Global::OS}) is not supported to count processors"
     end
+  end
+
+  def self.crew_ar_prog
+    @@crew_ar_prog
+  end
+
+  def self.crew_tar_prog
+    @@crew_tar_prog
   end
 
   def self.patch_prog

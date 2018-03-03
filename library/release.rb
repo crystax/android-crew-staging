@@ -59,10 +59,13 @@ class Release
   end
 
   def match?(r)
+    r = Release.new if r == nil
     if r.is_a? Release
       (version == r.version) or (version == nil) or (r.version == nil)
     elsif r.is_a? Regexp
       version =~ r ? true : false
+    elsif r.is_a? String
+      version == r
     else
       raise "bad type to match release: #{r.class.name}"
     end

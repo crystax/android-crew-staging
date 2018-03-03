@@ -11,6 +11,10 @@ class TargetBase < Formula
   include Properties
   include MultiVersion
 
+  BIN_PACKAGE_DIRS = ['bin', 'libs', 'libexec', 'sbin']
+  DEV_PACKAGE_DIRS = ['include', 'libs']
+  DEB_SKIP_DIRS    = ['src', 'tests']
+
   def initialize(path)
     super path
 
@@ -41,6 +45,39 @@ class TargetBase < Formula
     warning "formula #{name} does not support copying to stanalone toolchain"
   end
 
+  def copy_to_deb_data_dir(package_dir, data_dir, abi, deb_type)
+    case deb_type
+    when :bin
+      deb_bin_dir_list(package_dir).each do |dir|
+        unless BIN_PACKAGE_DIRS.include? dir
+          FileUtils.cp_r "#{package_dir}/#{dir}", data_dir
+        else
+          dst_dir = "#{data_dir}/#{dir}"
+          FileUtils.mkdir_p dst_dir
+          FileUtils.cp_r Dir["#{package_dir}/#{dir}/#{abi}/*"], dst_dir
+          if dir == 'libs'
+            FileUtils.cd(data_dir) do
+              FileUtils.rm Dir["#{dir}/*.a"]
+              FileUtils.mv 'libs', 'lib'
+            end
+          end
+        end
+      end
+    when :dev
+      deb_dev_dir_list(package_dir).each do |dir|
+        if dir != 'libs'
+          FileUtils.cp_r "#{package_dir}/#{dir}", data_dir
+        else
+          dst_dir = "#{data_dir}/lib"
+          FileUtils.mkdir_p dst_dir
+          FileUtils.cp Dir["#{package_dir}/libs/#{abi}/*.a"], dst_dir
+        end
+      end
+    else
+      raise "unsupported deb package type: #{deb_type}"
+    end
+  end
+
   def make_target_lib_dirs(arch, target_dir)
     dirs = case arch.name
            when 'arm'
@@ -60,13 +97,21 @@ class TargetBase < Formula
     FileUtils.cd(target_dir) { FileUtils.mkdir_p dirs }
   end
 
-  private
-
   def build_base_dir
     "#{Build::BASE_TARGET_DIR}/#{file_name}"
   end
 
+  private
+
   def build_log_file
     "#{build_base_dir}/build.log"
+  end
+
+  def deb_bin_dir_list(dir)
+    Dir["#{dir}/*"].select { |d| File.directory? d }.map { |d| File.basename(d) } - ['include'] - DEB_SKIP_DIRS
+  end
+
+  def deb_dev_dir_list(dir)
+    (Dir["#{dir}/*"].select { |d| File.directory? d }.map { |d| File.basename(d) } - DEB_SKIP_DIRS) & DEV_PACKAGE_DIRS
   end
 end
