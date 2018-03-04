@@ -53,6 +53,7 @@ module Build
                    'opt/gnu-sed/libexec/gnubin',
                    'opt/coreutils/libexec/gnubin',
                    'opt/grep/bin',
+                   'opt/gettext/bin',
                    'bin'
                   ].map { |p| File.join brew_root, p }.join(':')
       "#{brew_path}:#{ENV['PATH']}"
