@@ -1,0 +1,13 @@
+--- a/src/archives.c	2018-01-13 10:37:46.000000000 +0700
++++ b/src/archives.c	2018-03-06 19:27:09.755687742 +0700
+@@ -63,6 +63,10 @@
+ #include "filters.h"
+ #include "infodb.h"
+ 
++/* todo: remove when libcrystax fixed */
++#undef SYNC_FILE_RANGE_WRITE
++#undef SYNC_FILE_RANGE_WAIT_BEFORE
++
+ static inline void
+ fd_writeback_init(int fd)
+ {
