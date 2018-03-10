@@ -72,6 +72,10 @@ class Formula
     self.class.dependencies ? self.class.dependencies : []
   end
 
+  def package_info
+    self.class.package_info
+  end
+
   def build_options
     self.class.build_options
   end
@@ -213,6 +217,12 @@ class Formula
       deps = [] if !deps
       nm, ns = parse_name(name)
       deps << Dependency.new(nm, ns, options)
+    end
+
+    def package_info(hash = nil)
+      @package_info = Hash.new unless @package_info
+      @package_info.update hash if hash
+      @package_info
     end
 
     def build_options(hash = nil)

@@ -15,6 +15,7 @@ CLEANUP_SYNTAX                   = 'cleanup [options]'.freeze
 SHASUM_SYNTAX                    = 'shasum [options] [name1 name2 ...]'.freeze
 MAKE_STANDALONE_TOOLCHAIN_SYNTAX = 'make-standalone-toolchain [options]'.freeze
 MAKE_DEB_SYNTAX                  = 'make-deb [options] [name1 name2 ...]'.freeze
+MAKE_POSIX_ENV_SYNTAX            = 'make-posix-env [options]'.freeze
 
 NAME_RULES = <<-EOS
 Name for a formula can specified in two ways. First, it can be specified
@@ -79,6 +80,8 @@ COMMAND is one of the following:
   #{MAKE_DEB_SYNTAX}
                   create a deb-format packages for a specified formulas;
                   formulas must be from a 'target' namespace
+  #{MAKE_POSIX_ENV_SYNTAX}
+                  create a tarball with a 'POSIX environment'a
 EOS
 
 
@@ -366,6 +369,37 @@ The command supports the following options:
   --no-clean      do not remove working directories; by default all
                   working directories will be removed after required
                   packages were created
+
+  --no-check-shasum
+                 do not check SHA256 sum of the packages before
+                 using them
+EOS
+
+
+MAKE_POSIX_ENV_HELP = <<-EOS
+#{MAKE_POSIX_ENV_SYNTAX}
+
+The MAKE_POSIX_ENV creates direcory structure and fills it with the
+required files and, optionally, packs the whole structure into tarball
+that can be easily transferred to a target device using adb push
+command.
+
+The content of the directory structure is intended to emulate normal
+POSIX environment on an Android device and contains all necessary binary
+and configuration files.
+
+The command supports the following options:
+
+  --top-dir=PATH  top level directory where all the files will be copied
+
+  --abi=ABI       the abi of the target device for which environment
+                  will be created
+
+  --no-tarball    do not pack resulting directory
+
+  --no-check-shasum
+                 do not check SHA256 sum of the packages before
+                 using them
 EOS
 
 
@@ -385,7 +419,8 @@ CMD_HELP = {
   'cleanup'                   => CLEANUP_HELP,
   'shasum'                    => SHASUM_HELP,
   'make-standalone-toolchain' => MAKE_STANDALONE_TOOLCHAIN_HELP,
-  'make-deb'                  => MAKE_DEB_HELP
+  'make-deb'                  => MAKE_DEB_HELP,
+  'make-posix-env'            => MAKE_POSIX_ENV_HELP
 }
 
 

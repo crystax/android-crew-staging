@@ -45,26 +45,25 @@ class TargetBase < Formula
     warning "formula #{name} does not support copying to stanalone toolchain"
   end
 
-  def copy_to_deb_data_dir(package_dir, data_dir, abi, deb_type)
+  def copy_to_deb_data_dir(package_dir, data_dir, abi, deb_type = :bin)
     case deb_type
     when :bin
-      deb_bin_dir_list(package_dir).each do |dir|
+      bin_dir_list(package_dir).each do |dir|
         unless BIN_PACKAGE_DIRS.include? dir
-          FileUtils.cp_r "#{package_dir}/#{dir}", data_dir
+          dst_dir = (dir == 'share') ? "#{data_dir}/usr" : data_dir
+          FileUtils.mkdir_p dst_dir
+          FileUtils.cp_r "#{package_dir}/#{dir}", dst_dir
         else
-          dst_dir = "#{data_dir}/#{dir}"
+          sub_dir = (dir == 'libs') ? 'lib' : dir
+          sub_dir = "usr/#{sub_dir}" unless package_info[:root_package]
+          dst_dir = "#{data_dir}/#{sub_dir}"
           FileUtils.mkdir_p dst_dir
           FileUtils.cp_r Dir["#{package_dir}/#{dir}/#{abi}/*"], dst_dir
-          if dir == 'libs'
-            FileUtils.cd(data_dir) do
-              FileUtils.rm Dir["#{dir}/*.a"]
-              FileUtils.mv 'libs', 'lib'
-            end
-          end
+          FileUtils.rm Dir["#{dst_dir}/**/*.a"] if dir == 'libs'
         end
       end
     when :dev
-      deb_dev_dir_list(package_dir).each do |dir|
+      dev_dir_list(package_dir).each do |dir|
         if dir != 'libs'
           FileUtils.cp_r "#{package_dir}/#{dir}", data_dir
         else
@@ -107,11 +106,11 @@ class TargetBase < Formula
     "#{build_base_dir}/build.log"
   end
 
-  def deb_bin_dir_list(dir)
+  def bin_dir_list(dir)
     Dir["#{dir}/*"].select { |d| File.directory? d }.map { |d| File.basename(d) } - ['include'] - DEB_SKIP_DIRS
   end
 
-  def deb_dev_dir_list(dir)
+  def dev_dir_list(dir)
     (Dir["#{dir}/*"].select { |d| File.directory? d }.map { |d| File.basename(d) } - DEB_SKIP_DIRS) & DEV_PACKAGE_DIRS
   end
 end
