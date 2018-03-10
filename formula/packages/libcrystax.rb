@@ -10,6 +10,8 @@ class Libcrystax < BasePackage
 
   release version: '1', crystax_version: 5
 
+  package_info root_package: true
+
   # todo:
   build_depends_on 'platforms'
   #build_depends_on default_gcc_compiler
@@ -137,6 +139,17 @@ class Libcrystax < BasePackage
       FileUtils.cp Dir["#{crystax_libs_dir}/x86_64/x32/libcrystax.*"], "#{target_lib_dir}/libx32/"
     else
       FileUtils.cp Dir["#{crystax_libs_dir}/#{arch.abis[0]}/libcrystax.*"], "#{target_lib_dir}/lib/"
+    end
+  end
+
+  def copy_to_deb_data_dir(package_dir, data_dir, abi, deb_type = :bin)
+    case deb_type
+    when :bin
+      dst_dir = "#{data_dir}/lib"
+      FileUtils.mkdir_p dst_dir
+      FileUtils.cp Dir["#{package_dir}/sources/crystax/libs/#{abi}/*.so"], dst_dir
+    else
+      raise "unsupported deb package type: #{deb_type}"
     end
   end
 
