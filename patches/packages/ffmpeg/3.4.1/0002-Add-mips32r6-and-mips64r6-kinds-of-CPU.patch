@@ -1,0 +1,30 @@
+From 1fcd45eb0344a66faf54f048633f94cb5227c33c Mon Sep 17 00:00:00 2001
+From: Dmitry Moskalchuk <dm@crystax.net>
+Date: Wed, 22 Jun 2016 11:44:35 +0300
+Subject: [PATCH 2/6] Add 'mips32r6' and 'mips64r6' kinds of CPU
+
+Signed-off-by: Dmitry Moskalchuk <dm@crystax.net>
+---
+ configure | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/configure b/configure
+index d0adb15047..743b0b1345 100755
+--- a/configure
++++ b/configure
+@@ -4354,6 +4354,12 @@ elif enabled mips; then
+                     ;;
+                 esac
+             ;;
++            mips32r6)
++                enable mips32r6
++            ;;
++            mips64r6)
++                enable mips64r6
++            ;;
+             *)
+                 # Unknown CPU. Disable everything.
+                 warn "unknown CPU. Disabling all MIPS optimizations."
+-- 
+2.16.1
+

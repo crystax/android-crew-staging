@@ -4,39 +4,45 @@ class Coreutils < Package
   homepage "https://www.gnu.org/software/coreutils"
   url "http://ftpmirror.gnu.org/coreutils/coreutils-${version}.tar.xz"
 
-  release version: '8.27', crystax_version: 3
+  release version: '8.29', crystax_version: 1
 
-  build_options copy_installed_dirs: ['bin'],
-                check_sonames:       false,
-                gen_android_mk:      false
+  depends_on 'gmp'
+  depends_on 'openssl'
 
   build_copy 'COPYING'
+  build_options copy_installed_dirs: ['bin', 'libexec'],
+                gen_android_mk:      false
 
-  def build_for_abi(abi, _toolchain,  _release, _host_dep_dirs, _target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain,  _release, _host_dep_dirs, target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)
+    gmp_dir = target_dep_dirs['gmp']
+    openssl_dir = target_dep_dirs['openssl']
+
+    build_env['CPPFLAGS'] = "-I#{gmp_dir}/include -I#{openssl_dir}/include"
+    build_env['LDFLAGS'] += " -L#{gmp_dir}/libs/#{abi} -L#{openssl_dir}/libs/#{abi}"
+    build_env['PATH']     = Build.path
+
     args =  [ "--prefix=#{install_dir}",
               "--host=#{host_for_abi(abi)}",
-	      "--enable-single-binary=symlinks",
+              "--disable-silent-rules",
+              "--disable-rpath",
 	      "--disable-nls",
-	      "--disable-rpath",
-	      "--without-selinux",
-	      "--without-gmp",
-	      "--without-libiconv-prefix",
-	      "--without-libpth-prefix",
-	      "--without-libintl-prefix"
+	      "--with-openssl"
             ]
 
     FileUtils.touch 'configure'
 
     system './configure', *args
-    system 'make', '-j', num_jobs, 'V=1'
-    system 'make', 'install-exec'
 
-    # remove unneeded files
-    FileUtils.cd(install_dir) do
-      files = Dir['bin/*']
-      files.delete('bin/coreutils')
-      FileUtils.rm files
+    replace_lines_in_file('Makefile') do |line|
+      if line == 'src_libstdbuf_so_LDFLAGS = -shared'
+        'src_libstdbuf_so_LDFLAGS = -shared -Wl,-soname,libstdbuf.so'
+      else
+        line
+      end
     end
+
+    system 'make', '-j', num_jobs
+    system 'make', 'install'
   end
 end
