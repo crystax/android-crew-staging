@@ -59,21 +59,18 @@ module Toolchain
     end
 
     def cflags(abi)
-      # libtiff fails to build with -fPIE -pie for mips*, arm64,
+      f = '-fPIC -fPIE'
       case abi
       when 'armeabi-v7a'
-        '-fPIE -pie -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp'
+        f += ' -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp'
       when 'armeabi-v7a-hard'
-        '-fPIE -pie -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mhard-float'
-      when 'mips', 'mips64', 'arm64-v8a'
-        ''
-      else
-        '-fPIE -pie'
+        f += ' -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mhard-float'
       end
+      f
     end
 
     def ldflags(abi)
-      f = "-L#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
+      f = "-L#{Global::NDK_DIR}/sources/crystax/libs/#{abi} -pie"
       case abi
       when 'armeabi-v7a'
         f += ' -Wl,--fix-cortex-a8'
