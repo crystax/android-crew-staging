@@ -42,6 +42,7 @@ Usage: crew [OPTIONS] COMMAND [parameters]
 where
 
 OPTIONS are:
+
   --backtrace, -b output backtrace with exception message;
                   debug option
 
@@ -49,37 +50,54 @@ OPTIONS are:
                   do not output warnings
 
 COMMAND is one of the following:
+
   version         output version information
+
   help [command]...
                   if no command specified show this help message;
                   otherwise show addition info for the specified commands
+
   #{ENV_SYNTAX}   show crew's command working environment
+
   #{LIST_SYNTAX}
                   list the specified formulas;
                   whithout any options and arguments list all formulas
+
   #{INFO_SYNTAX}
                   show information about the specified formula(s)
+
   #{INSTALL_SYNTAX}
                   install the specified formula(s)
+
   remove name[:version] ...
                   uninstall the specified formulas
+
   #{SOURCE_SYNTAX}
                   install source code for the specified formula(s)
+
   #{BUILD_SYNTAX}
                   build the specified formula(s) from the source code
+
   remove-source name[:version] ...
                   remove source code for the specified formulas
+
   update          update crew repository information
+
   upgrade         install most recent versions
+
   #{CLEANUP_SYNTAX}
                   uninstall old versions and clean cache
+
   #{SHASUM_SYNTAX}
                   check or update SHA256 sums
+
   #{MAKE_STANDALONE_TOOLCHAIN_SYNTAX}
                   create a standalone toolchain package for Android
+
   #{MAKE_DEB_SYNTAX}
                   create a deb-format packages for a specified formulas;
                   formulas must be from a 'target' namespace
+
   #{MAKE_POSIX_ENV_SYNTAX}
                   create a tarball with a 'POSIX environment'a
 EOS
