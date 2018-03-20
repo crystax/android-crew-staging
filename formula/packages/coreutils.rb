@@ -43,5 +43,11 @@ class Coreutils < Package
 
     system 'make', '-j', num_jobs
     system 'make', 'install'
+
+    # remove unneeded symlinks
+    FileUtils.cd(install_dir) do
+      files = Dir['bin/*'] - ['bin/coreutils']
+      FileUtils.rm files
+    end
   end
 end
