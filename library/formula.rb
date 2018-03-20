@@ -118,7 +118,7 @@ class Formula
       raise "#{archive} not found in the packages cache #{Global.pkg_cache_dir(self)}" if cache_only
       # GitHub release assets feature does not support sub-folders
       # that is a packages/libjpeg-9b_1.tag.xz will be stored as packages.libjpeg-9b_1.tag.xz
-      sep = (Global::DOWNLOAD_BASE == GitHub::STAGING_DONWLOAD_BASE) ? '.' : '/'
+      sep = (Global::DOWNLOAD_BASE == GitHub::STAGING_DOWNLOAD_BASE) ? '.' : '/'
       url = "#{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[namespace]}#{sep}#{archive}"
       puts "downloading #{url}"
       Utils.download(url, cachepath)
@@ -398,6 +398,7 @@ class Formula
   def system(*args)
     cmd = args.join(' ')
     File.open(@log_file, "a") do |log|
+      log.sync = true
       log.puts "== build env:"
       build_env.keys.sort.each { |k| log.puts "  #{k} = #{build_env[k]}" }
       log.puts "== cmd started:"

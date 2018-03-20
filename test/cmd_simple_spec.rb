@@ -77,7 +77,7 @@ describe "simple crew commands" do
           set_origin_url GitHub::STAGING_SSH_URL
           crew 'env'
           expect(result).to eq(:ok)
-          expect(out.split("\n")).to eq(["DOWNLOAD_BASE:  #{GitHub::STAGING_DONWLOAD_BASE}",
+          expect(out.split("\n")).to eq(["DOWNLOAD_BASE:  #{GitHub::STAGING_DOWNLOAD_BASE}",
                                          "PKG_CACHE_DIR:  #{Global::PKG_CACHE_DIR}",
                                          "SRC_CACHE_DIR:  #{Global::SRC_CACHE_DIR}",
                                          "BASE_DIR:       #{Global::BASE_DIR}",
@@ -103,7 +103,7 @@ describe "simple crew commands" do
           set_origin_url GitHub::STAGING_SSH_URL
           crew 'env --download-base'
           expect(result).to eq(:ok)
-          expect(out.strip).to eq(GitHub::STAGING_DONWLOAD_BASE)
+          expect(out.strip).to eq(GitHub::STAGING_DOWNLOAD_BASE)
         end
       end
 
@@ -113,7 +113,7 @@ describe "simple crew commands" do
           set_origin_url GitHub::STAGING_HTTPS_URL
           crew 'env --download-base'
           expect(result).to eq(:ok)
-          expect(out.strip).to eq(GitHub::STAGING_DONWLOAD_BASE)
+          expect(out.strip).to eq(GitHub::STAGING_DOWNLOAD_BASE)
         end
       end
 

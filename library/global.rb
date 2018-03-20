@@ -40,7 +40,7 @@ module Global
     origin = Rugged::Repository.new(base_dir).remotes['origin']
 
     if origin and origin.url =~ /^(git@github.com:)|(https:\/\/).*android-crew-staging.git$/
-      url = GitHub::STAGING_DONWLOAD_BASE
+      url = GitHub::STAGING_DOWNLOAD_BASE
     else
       url = 'https://crew.crystax.net:9876'
     end
