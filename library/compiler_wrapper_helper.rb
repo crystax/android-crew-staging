@@ -16,6 +16,7 @@ def process_compiler_args(compiler, build_options, stl_lib_name, cflags, ldflags
     args = cflags.split(' ') + args
   else
     args = ldflags[:before].split(' ') + args + ldflags[:after].split(' ')
+    args.delete('-pie') if linking_so?(args)
   end
 
   #puts "compiler: #{compiler}"
@@ -122,9 +123,17 @@ def replace_args(args, toreplace)
   end
 end
 
-
 def compiling?(args)
   args.include?('-c') or args.include?('-emit-pth')
+end
+
+def linking_so?(args)
+  ind = args.find_index('-o')
+  if ind == nil
+    false
+  else
+    args[ind+1].end_with?('.so')
+  end
 end
 
 
