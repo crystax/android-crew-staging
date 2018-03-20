@@ -4,10 +4,9 @@ class Coreutils < Package
   homepage "https://www.gnu.org/software/coreutils"
   url "http://ftpmirror.gnu.org/coreutils/coreutils-${version}.tar.xz"
 
-  release version: '8.29', crystax_version: 1
+  release version: '8.29', crystax_version: 2
 
   depends_on 'gmp'
-  depends_on 'openssl'
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'libexec'],
@@ -24,10 +23,10 @@ class Coreutils < Package
 
     args =  [ "--prefix=#{install_dir}",
               "--host=#{host_for_abi(abi)}",
+              "--enable-single-binary=symlinks",
               "--disable-silent-rules",
               "--disable-rpath",
-	      "--disable-nls",
-	      "--with-openssl"
+	      "--disable-nls"
             ]
 
     FileUtils.touch 'configure'
