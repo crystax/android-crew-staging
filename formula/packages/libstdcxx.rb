@@ -6,9 +6,9 @@ class Libstdcxx < BasePackage
   #homepage ""
   #url ""
 
-  release version: '4.9', crystax_version: 2
-  release version: '5',   crystax_version: 2
-  release version: '6',   crystax_version: 2
+  release version: '4.9', crystax_version: 3
+  release version: '5',   crystax_version: 3
+  release version: '6',   crystax_version: 3
 
   build_depends_on 'platforms'
   build_depends_on 'libcrystax'
@@ -318,17 +318,16 @@ class Libstdcxx < BasePackage
 
     cc = toolchain.c_compiler(arch, abi)
     cxx = toolchain.cxx_compiler(arch, abi)
-    ar, ranlib, readelf = toolchain.tools(arch)
 
     @build_env = {'CC'       => cc,
                   'CXX'      => cxx,
                   'CPP'      => "#{cc} -E",
-                  'AR'       => ar,
-                  'AS'       => ar.gsub('-ar', '-as'),
-                  'RANLIB'   => ranlib,
-                  'READELF'  => readelf,
-                  'LD'       => ar.gsub('-ar', '-ld'),
-                  'STRIP'    => ar.gsub('-ar', '-strip'),
+                  'AR'       => toolchain.tool(arch, 'ar'),
+                  'AS'       => toolchain.tool(arch, 'as'),
+                  'RANLIB'   => toolchain.tool(arch, 'ranlib'),
+                  'READELF'  => toolchain.tool(arch, 'readelf'),
+                  'LD'       => toolchain.tool(arch, 'ld'),
+                  'STRIP'    => toolchain.tool(arch, 'strip'),
                   'CPPFLAGS' => cppflags,
                   'CFLAGS'   => cflags,
                   'CXXFLAGS' => cxxflags,

@@ -6,9 +6,9 @@ class Libcxx < BasePackage
   #homepage ""
   #url ""
 
-  release version: '3.6', crystax_version: 2
-  release version: '3.7', crystax_version: 2
-  release version: '3.8', crystax_version: 2
+  release version: '3.6', crystax_version: 3
+  release version: '3.7', crystax_version: 3
+  release version: '3.8', crystax_version: 3
 
   build_depends_on 'platforms'
   build_depends_on 'libcrystax'
@@ -167,7 +167,7 @@ class Libcxx < BasePackage
 
     cc = toolchain.c_compiler(arch, abi)
     cxx = toolchain.cxx_compiler(arch, abi)
-    ar = toolchain.tools(arch)[0]
+    ar = toolchain.tool(arch, 'ar')
 
     lib_file = "#{out_dir}/libc++_" + (options[:lib_type] == :static ? 'static.a' : 'shared.so')
 
