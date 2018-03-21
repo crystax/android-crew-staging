@@ -4,7 +4,7 @@ class Findutils < Package
   homepage 'https://www.gnu.org/software/findutils/'
   url 'https://ftp.gnu.org/pub/gnu/findutils/findutils-${version}.tar.gz'
 
-  release version: '4.6.0', crystax_version: 1
+  release version: '4.6.0', crystax_version: 2
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'libexec'],
