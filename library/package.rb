@@ -19,6 +19,8 @@ class Package < TargetBase
                         use_cxx:                        false,
                         cxx_wrapper:                    'c++',
                         setup_env:                      true,
+                        use_standalone_toolchain:       nil,
+                        use_static_libcrystax:          false,
                         copy_installed_dirs:            ['lib', 'include'],
                         check_sonames:                  true,
                         gen_android_mk:                 true,
@@ -126,6 +128,7 @@ class Package < TargetBase
 
     build_env.clear
     build_options[:setup_env] = false if build_options[:use_standalone_toolchain]
+    raise "static libcrystax can be used only with standalone toolchain" if build_options[:use_static_libcrystax] and not build_options[:use_standalone_toolchain]
 
     if self.respond_to? :pre_build
       build_log_print "= executing pre build step: "
@@ -144,6 +147,7 @@ class Package < TargetBase
         st_base_dir = "#{build_base_dir}/#{arch.name}-toolchain"
         build_log_puts "  making standalone toolchain with packages: #{st_packages}"
         toolchain = Toolchain::Standalone.new(arch, st_base_dir, Toolchain::DEFAULT_GCC, Toolchain::DEFAULT_LLVM, st_packages, self)
+        toolchain.remove_dynamic_libcrystax if build_options[:use_static_libcrystax]
       end
       arch.abis_to_build.each do |abi|
         build_log_puts "  building for abi: #{abi}"
@@ -214,7 +218,6 @@ class Package < TargetBase
 
     arch = Build.arch_for_abi(abi)
     c_comp = toolchain.c_compiler(arch, abi)
-    ar, ranlib, readelf = toolchain.tools(arch)
 
     if build_options[:sysroot_in_cflags]
       cflags += " --sysroot=#{Build.sysroot(abi)}"
@@ -235,9 +238,9 @@ class Package < TargetBase
     @build_env = {'LC_MESSAGES' => 'C',
                   'CC'          => cc,
                   'CPP'         => "#{cc} #{cflags} -E",
-                  'AR'          => ar,
-                  'RANLIB'      => ranlib,
-                  'READELF'     => readelf,
+                  'AR'          => toolchain.tool(arch, 'ar'),
+                  'RANLIB'      => toolchain.tool(arch, 'ranlib'),
+                  'READELF'     => toolchain.tool(arch, 'readelf'),
                   'STRIP'       => toolchain.tool(arch, 'strip'),
                   'CFLAGS'      => cflags,
                   'LDFLAGS'     => ldflags

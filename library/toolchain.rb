@@ -119,15 +119,6 @@ module Toolchain
       end
     end
 
-    def tools(arch)
-      gcc_toolchain.tools(arch)
-    end
-
-    # todo: remove?
-    # def tool_path(name, arch)
-    #   "#{tc_prefix(arch)}/bin/#{arch.host}-#{name}"
-    # end
-
     def c_compiler_name
       'clang'
     end
@@ -240,19 +231,31 @@ module Toolchain
     end
 
     def gcc
-      "#{tool_prefix}-gcc"
+      tool '', 'gcc'
     end
 
     def gxx
-      "#{tool_prefix}-g++"
+      tool '', 'g++'
+    end
+
+    def tool(_arch, name)
+      "#{tool_prefix}-#{name}"
     end
 
     def gcc_cflags(abi)
       @gcc_toolchain.cflags abi
     end
 
+    def gcc_ldflags(abi)
+      @gcc_toolchain.ldflags(abi).gsub("-L#{Global::NDK_DIR}/sources/crystax/libs/#{abi}", '')
+    end
+
     def tool_prefix
       "#{@bin_dir}/#{@arch.host}"
+    end
+
+    def remove_dynamic_libcrystax
+      FileUtils.rm "#{@base_dir}/#{@arch.host}/lib/libcrystax.so"
     end
   end
 end
