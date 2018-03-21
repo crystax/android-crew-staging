@@ -2,10 +2,9 @@ class Ncurses < Package
 
   desc "The ncurses library is a free software emulation of curses in System V Release 4.0 (SVr4)"
   homepage "https://www.gnu.org/software/ncurses/"
-  #url "http://ftp.gnu.org/gnu/ncurses/ncurses-${version}.tar.gz"
   url "https://github.com/mirror/ncurses/archive/v${version}.tar.gz"
 
-  release version: '6.0', crystax_version: 3
+  release version: '6.0', crystax_version: 4
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'lib', 'include', 'share'],

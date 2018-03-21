@@ -5,7 +5,7 @@ class GnuGrep < Package
   homepage "https://www.gnu.org/software/grep/"
   url "https://ftp.gnu.org/gnu/grep/grep-${version}.tar.xz"
 
-  release version: '3.1', crystax_version: 1
+  release version: '3.1', crystax_version: 2
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin'],
