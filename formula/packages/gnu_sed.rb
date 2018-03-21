@@ -5,7 +5,7 @@ class GnuSed < Package
   homepage "https://www.gnu.org/software/sed/"
   url "https://ftp.gnu.org/gnu/sed/sed-${version}.tar.xz"
 
-  release version: '4.4', crystax_version: 1
+  release version: '4.4', crystax_version: 2
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin'],
