@@ -132,7 +132,8 @@ def linking_so?(args)
   if ind == nil
     false
   else
-    args[ind+1].end_with?('.so')
+    # look for: *.so or *.so.*
+    args[ind+1] =~ /.*\.(so^|so\..*)/
   end
 end
 
