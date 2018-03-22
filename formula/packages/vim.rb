@@ -4,7 +4,7 @@ class Vim < Package
   homepage 'https://github.com/vim/vim'
   url 'https://github.com/vim/vim/archive/v${version}.tar.gz'
 
-  release version: '8.0.1486', crystax_version: 1
+  release version: '8.0.1486', crystax_version: 2
 
   depends_on 'ncurses'
 

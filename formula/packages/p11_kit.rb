@@ -5,7 +5,7 @@ class P11Kit < Package
   homepage 'https://p11-glue.github.io/p11-glue/p11-kit.html/'
   url 'https://github.com/p11-glue/p11-kit/releases/download/0.23.9/p11-kit-${version}.tar.gz'
 
-  release version: '0.23.9', crystax_version: 2
+  release version: '0.23.9', crystax_version: 3
 
   depends_on 'libffi'
 
