@@ -49,6 +49,8 @@ OPTIONS are:
   --no-warnings, -W
                   do not output warnings
 
+  --help, -h      equivalent to crew help
+
 COMMAND is one of the following:
 
   version         output version information

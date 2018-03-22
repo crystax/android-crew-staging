@@ -13,6 +13,7 @@ def split_arguments(arguments)
   arguments.each.with_index do |arg, index|
     if arg =~ /^-.*/
       goptions << arg
+      break if arg == '--help' or arg == '-h'
     else
       cmd = arg.to_s.gsub('-', '_').downcase
       args = arguments.slice(index + 1, arguments.length)
