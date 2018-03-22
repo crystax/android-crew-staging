@@ -6,12 +6,14 @@ class MakePosixEnvOptions
 
   extend CommandOptions
 
-  attr_accessor :top_dir, :abi
+  attr_accessor :top_dir, :abi, :with_packages
 
   def initialize(opts)
     @make_tarball = true
     @check_shasum = true
+    @with_packages = []
 
+    package_names = []
     opts.each do |opt|
       case opt
       when /^--top-dir=/
@@ -23,6 +25,8 @@ class MakePosixEnvOptions
         @make_tarball = false
       when '--no-check-shasum'
         @check_shasum = false
+      when /^--with-packages=/
+        package_names = opt.split('=')[1].split(',')
       else
         raise "unknow option: #{opt}"
       end
@@ -30,6 +34,10 @@ class MakePosixEnvOptions
 
     raise "--top-dir option is requried" unless @top_dir
     raise "--abi option is requried"     unless @abi
+
+    # todo: allow version to be given along with package name like in make-standalone-toolchain command
+    #       also allow packages from the --with-package option to overwrite default packages versions
+    @with_packages = package_names
   end
 
   def make_tarball?

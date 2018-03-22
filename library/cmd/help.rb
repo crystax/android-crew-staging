@@ -418,6 +418,10 @@ The command supports the following options:
   --no-check-shasum
                  do not check SHA256 sum of the packages before
                  using them
+
+  --with-packages=LIST
+                 specify names of the packages that should be added
+                 to posix environment
 EOS
 
 
