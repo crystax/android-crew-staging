@@ -67,7 +67,7 @@ class Openssl < Package
     end
   end
 
-  def fix_ccgost_makefile(build_dir, ldflgs)
+  def fix_ccgost_makefile(build_dir, ldflags)
     makefile = File.join(build_dir, 'engines', 'ccgost', 'Makefile')
     lines = []
     replaced = false
@@ -75,7 +75,8 @@ class Openssl < Package
       if not l.include?('LIBDEPS=\'-L$(TOP) -lcrypto')
         lines << l
       else
-        lines << l.gsub('LIBDEPS=\'', "LIBDEPS=\'#{ldflgs} ")
+        ldflags = ldflags.gsub(' -pie', '')
+        lines << l.gsub('LIBDEPS=\'', "LIBDEPS=\'#{ldflags} ")
         replaced = true
       end
     end
