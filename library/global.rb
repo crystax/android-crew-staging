@@ -37,15 +37,19 @@ module Global
   end
 
   def self.default_download_base(base_dir)
-    origin = Rugged::Repository.new(base_dir).remotes['origin']
+    # todo: when master will be available select it for master builds
+    #       right now use staging download for all cases
+    GitHub::STAGING_DOWNLOAD_BASE
 
-    if origin and origin.url =~ /^(git@github.com:)|(https:\/\/).*android-crew-staging.git$/
-      url = GitHub::STAGING_DOWNLOAD_BASE
-    else
-      url = 'https://crew.crystax.net:9876'
-    end
+    # origin = Rugged::Repository.new(base_dir).remotes['origin']
 
-    url
+    # if origin and origin.url =~ /^(git@github.com:)|(https:\/\/).*android-crew-staging.git$/
+    #   url = GitHub::STAGING_DOWNLOAD_BASE
+    # else
+    #   url = 'https://crew.crystax.net:9876'
+    # end
+
+    # url
   end
 
   # public
