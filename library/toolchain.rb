@@ -88,7 +88,7 @@ module Toolchain
     # private
 
     def tc_prefix(arch)
-      "#{Global::NDK_DIR}/toolchains/#{arch.toolchain}-#{version}/prebuilt/#{File.basename(Global::TOOLS_DIR)}"
+      "#{Global::NDK_DIR}/toolchains/#{arch.toolchain}-#{version}/prebuilt/#{Global::PLATFORM_NAME}"
     end
   end
 
@@ -168,7 +168,7 @@ module Toolchain
     end
 
     def tc_prefix(_arch)
-      "#{Global::NDK_DIR}/toolchains/llvm-#{version}/prebuilt/#{File.basename(Global::TOOLS_DIR)}"
+      "#{Global::NDK_DIR}/toolchains/llvm-#{version}/prebuilt/#{Global::PLATFORM_NAME}"
     end
 
     def target(abi)
