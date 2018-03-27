@@ -25,15 +25,8 @@ module Global
     end
   end
 
-  def self.def_tools_dir(ndkdir, os)
-    case os
-    when 'darwin', 'linux'
-      "#{ndkdir}/prebuilt/#{os}-x86_64"
-    else
-      dir64 = "#{ndkdir}/prebuilt/windows-x86_64"
-      dir32 = "#{ndkdir}/prebuilt/windows"
-      Dir.exists?(dir64) ? dir64 : dir32
-    end
+  def self.default_base_dir
+    Pathname.new(__FILE__).realpath.dirname.dirname.to_s
   end
 
   def self.default_download_base(base_dir)
@@ -127,28 +120,28 @@ module Global
     File.join(PKG_CACHE_DIR, NS_DIR[formula.namespace])
   end
 
-  VERSION = "0.3.0"
+  VERSION = "0.4.0"
   OS = operating_system
 
-  BASE_DIR      = [nil, ''].include?(ENV['CREW_BASE_DIR'])      ? Pathname.new(__FILE__).realpath.dirname.dirname.to_s : Pathname.new(ENV['CREW_BASE_DIR']).realpath.to_s
-  NDK_DIR       = [nil, ''].include?(ENV['CREW_NDK_DIR'])       ? Pathname.new(BASE_DIR).realpath.dirname.to_s         : Pathname.new(ENV['CREW_NDK_DIR']).realpath.to_s
-  DOWNLOAD_BASE = [nil, ''].include?(ENV['CREW_DOWNLOAD_BASE']) ? default_download_base(BASE_DIR)                      : ENV['CREW_DOWNLOAD_BASE']
-  SRC_CACHE_DIR = [nil, ''].include?(ENV['CREW_SRC_CACHE_DIR']) ? default_src_cache_dir(OS)                            : ENV['CREW_SRC_CACHE_DIR']
-  PKG_CACHE_DIR = [nil, ''].include?(ENV['CREW_PKG_CACHE_DIR']) ? default_pkg_cache_dir(OS)                            : ENV['CREW_PKG_CACHE_DIR']
-  TOOLS_DIR     = def_tools_dir(NDK_DIR, OS)
+  NDK_DIR       = [nil, ''].include?(ENV['CREW_NDK_DIR'])       ? fail('CREW_NDK_DIR must be set')   : Pathname.new(ENV['CREW_NDK_DIR']).realpath.to_s
+  TOOLS_DIR     = [nil, ''].include?(ENV['CREW_TOOLS_DIR'])     ? fail('CREW_TOOLS_DIR must be set') : Pathname.new(ENV['CREW_TOOLS_DIR']).realpath.to_s
+  BASE_DIR      = [nil, ''].include?(ENV['CREW_BASE_DIR'])      ? default_base_dir                   : Pathname.new(ENV['CREW_BASE_DIR']).realpath.to_s
+  DOWNLOAD_BASE = [nil, ''].include?(ENV['CREW_DOWNLOAD_BASE']) ? default_download_base(BASE_DIR)    : ENV['CREW_DOWNLOAD_BASE']
+  SRC_CACHE_DIR = [nil, ''].include?(ENV['CREW_SRC_CACHE_DIR']) ? default_src_cache_dir(OS)          : ENV['CREW_SRC_CACHE_DIR']
+  PKG_CACHE_DIR = [nil, ''].include?(ENV['CREW_PKG_CACHE_DIR']) ? default_pkg_cache_dir(OS)          : ENV['CREW_PKG_CACHE_DIR']
 
   PLATFORM_NAME = File.basename(TOOLS_DIR)
 
   NS_DIR = { host: 'tools', target: 'packages' }
 
-  HOLD_DIR               = create_required_dir(NDK_DIR, 'packages').realpath
-  SERVICE_DIR            = create_required_dir(NDK_DIR, '.crew').realpath
-  PATCHES_DIR            = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
-  FORMULA_DIR            = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
+  HOLD_DIR    = create_required_dir(NDK_DIR, 'packages').realpath
+  SERVICE_DIR = create_required_dir(NDK_DIR, '.crew').realpath
+  PATCHES_DIR = Pathname.new(File.join(BASE_DIR, 'patches')).realpath
+  FORMULA_DIR = Pathname.new(File.join(BASE_DIR, 'formula')).realpath
 
-  _ = create_required_dir(SRC_CACHE_DIR)
-  _ = create_required_dir(File.join(PKG_CACHE_DIR, NS_DIR[:host]))
-  _ = create_required_dir(File.join(PKG_CACHE_DIR, NS_DIR[:target]))
+  create_required_dir(SRC_CACHE_DIR)
+  create_required_dir(File.join(PKG_CACHE_DIR, NS_DIR[:host]))
+  create_required_dir(File.join(PKG_CACHE_DIR, NS_DIR[:target]))
 
 
   EXE_EXT  = RbConfig::CONFIG['EXEEXT']
@@ -168,7 +161,6 @@ end
 def error(msg)
   STDERR.puts "error: #{msg}"
 end
-
 
 def exception(exc)
   error(exc)
