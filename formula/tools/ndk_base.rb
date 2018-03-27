@@ -1,39 +1,10 @@
 class NdkBase < HostBase
 
-  desc "Base NDK directory structure, sources, build tools and scripts"
+  desc "Basic NDK directory structure, sources, build tools and scripts"
   name 'ndk-base'
   homepage "https://www.crystax.net"
-  # todo: use commit? use master branch? something else?
-  #       choose somehow between gitlab and github repos
-  url 'git@git.crystax.net:android/platform-ndk.git|git_commit:379fd1f12afb9681f883fa096afd42cbd572f6c6'
-  url 'https://git.crystax.net/android/platform-ndk.git|git_commit:379fd1f12afb9681f883fa096afd42cbd572f6c6'
 
-  release version: '11', crystax_version: 11
-
-  # todo: fix files list
-  TOP_FILES_AND_DIRS = ['Android.mk',
-                        'BACKERS.md',
-                        'CHANGELOG.md',
-                        'CleanSpec.mk',
-                        'OWNERS',
-                        'README.md',
-                        'build',
-                        'checkbuild.py',
-                        'cmake',
-                        'config.py',
-                        'crew',
-                        'docs',
-                        'ndk-build',
-                        'ndk-gdb',
-                        'ndk-gdb.py',
-                        'ndk-which',
-                        'sources',
-                        'tests',
-                        'tools'
-                       ]
-
-  UNIX_FILES = ['crew', 'ndk-build', 'ndk-gdb']
-  WIN_FILES = UNIX_FILES.map { |f| "#{f}.cmd" }
+  release version: '11', crystax_version: 12
 
   def install_archive(release, archive, platform_name)
     # disable warnings since ndk-base archive contains symlinks
@@ -41,8 +12,13 @@ class NdkBase < HostBase
     super release, archive, platform_name
   end
 
-  def code_directory(_release, _platform_name)
-    Global::NDK_DIR
+  # todo: when libcrystax will be moved to a separate repository it'll be easy to just copy ndk directory
+  #       and remove unneeded files
+  def prepare_source_code
+    commit = Utils.run_command('git', 'log', '-1', '--format=format:%H%n').strip
+    system 'git', 'clone', Global::NDK_DIR, src_dir
+    system 'git', 'checkout', commit
+    FileUtils.cd(src_dir) { FileUtils.rm_rf '.git' }
   end
 
   def build(release, options, host_dep_dirs, target_dep_dirs)
@@ -54,7 +30,8 @@ class NdkBase < HostBase
     # create required directories and download sources
     FileUtils.rm_rf build_base_dir
     puts "= preparing source code"
-    prepare_source_code release, File.dirname(src_dir), File.basename(src_dir), ' '
+    prepare_source_code
+
     if options.source_only?
       puts "Only sources were requested, find them in #{src_dir}"
       return
@@ -68,11 +45,11 @@ class NdkBase < HostBase
       FileUtils.mkdir_p install_dir
       self.log_file = build_log_file(platform.name)
 
-      FileUtils.cd(src_dir) do
-        FileUtils.cp_r TOP_FILES_AND_DIRS, install_dir
-        FileUtils.cp (platform.target_os == 'windows') ? WIN_FILES : UNIX_FILES, install_dir
-      end
+      FileUtils.cd(src_dir)     { FileUtils.cp_r Dir["*"], install_dir }
+      FileUtils.cd(install_dir) { FileUtils.rm Dir['*.cmd'] unless platform.target_os == 'windows' }
+
       next if options.build_only?
+
       write_file_list install_dir, platform.name
 
       archive = cache_file(release, platform.name)
