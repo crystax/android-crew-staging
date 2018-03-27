@@ -23,6 +23,8 @@ module Crew
         puts Global::DOWNLOAD_BASE
       when '--base-dir'
         puts Global::BASE_DIR
+      when '--ndk-dir'
+        puts Global::NDK_DIR
       when '--tools-dir'
         puts Global::TOOLS_DIR
       when '--pkg-cache-dir'

@@ -119,6 +119,8 @@ The ENV command supports the following options:
 
   --base-dir     output path to crew's base directory
 
+  --ndk-dir      output path to NDK directory
+
   --tools-dir    output path to crew's base directory
 
   --pkg-cache-dir
