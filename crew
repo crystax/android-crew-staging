@@ -1,30 +1,31 @@
 #!/bin/bash
 
-CREW_FILE_DIR=$(dirname $0)
-CREW_HOST_OS=`uname -s | tr '[:upper:]' '[:lower:]'`
-
-if [ -z $SSL_CERT_FILE ]; then
-    SSL_CERT_FILE="$CREW_FILE_DIR/etc/ca-certificates.crt"
-fi
+crew_file_dir=$(cd $(dirname $0); pwd)
 
 if [ -z $CREW_NDK_DIR ]; then
-    CREW_NDK_DIR=$CREW_FILE_DIR/..
+    dev_ndk_dir="$(dirname $crew_file_dir)/platform/ndk"
+    if [ -d $dev_ndk_dir ]; then
+        CREW_NDK_DIR=$dev_ndk_dir
+    elif [ $(basename $crew_file_dir) = "crew.dir" ]; then
+        CREW_NDK_DIR=$(cd $(dirname $crew_file_dir); pwd)
+    else
+        echo "error: could not find NDK directory"
+        exit 1
+    fi
 fi
 
 if [ -z $CREW_TOOLS_DIR ]; then
-    CREW_HOST_CPU=`uname -m`
-    if [ ! -d "$CREW_NDK_DIR/prebuilt/$CREW_HOST_OS-$CREW_HOST_CPU" ]; then
-        CREW_HOST_CPU=${CREW_HOST_CPU%_64}
-    fi
-    CREW_TOOLS_DIR="$CREW_NDK_DIR/prebuilt/$CREW_HOST_OS-$CREW_HOST_CPU"
+    crew_host_os=`uname -s | tr '[:upper:]' '[:lower:]'`
+    crew_host_cpu=`uname -m`
+    CREW_TOOLS_DIR="$CREW_NDK_DIR/prebuilt/$crew_host_os-$crew_host_cpu"
 fi
 
 if [ -f $CREW_TOOLS_DIR/bin/ruby ]; then
-    CREW_RUBY=$CREW_TOOLS_DIR/bin/ruby
+    crew_ruby=$CREW_TOOLS_DIR/bin/ruby
     unset GEM_HOME
     unset GEM_PATH
 else
-    CREW_RUBY=ruby
+    crew_ruby=ruby
     warnings="yes"
     for arg in $@; do
         if [ "$arg" = "-W" -o "$arg" = "--no-warnings" ]; then
@@ -37,12 +38,15 @@ else
     fi
 fi
 
+if [ -z $SSL_CERT_FILE ]; then
+    SSL_CERT_FILE="$crew_file_dir/etc/ca-certificates.crt"
+fi
 
 export LD_LIBRARY_PATH="$CREW_TOOLS_DIR/lib"
 export DYLD_LIBRARY_PATH="$CREW_TOOLS_DIR/lib"
-export SSL_CERT_FILE
+export SSL_CERT_FILE CREW_NDK_DIR CREW_TOOLS_DIR
 
-$CREW_RUBY -W0 "$CREW_FILE_DIR/crew.rb" "$@"
+$crew_ruby -W0 "$crew_file_dir/crew.rb" "$@"
 
 status=$?
 if [ $status -ne 0 ]; then
