@@ -15,10 +15,13 @@ class NdkBase < HostBase
   # todo: when libcrystax will be moved to a separate repository it'll be easy to just copy ndk directory
   #       and remove unneeded files
   def prepare_source_code
-    commit = Utils.run_command('git', 'log', '-1', '--format=format:%H%n').strip
+    commit = nil
+    FileUtils.cd(Global::NDK_DIR) { commit = Utils.run_command('git', 'log', '-1', '--format=format:%H%n').strip }
     system 'git', 'clone', Global::NDK_DIR, src_dir
-    system 'git', 'checkout', commit
-    FileUtils.cd(src_dir) { FileUtils.rm_rf '.git' }
+    FileUtils.cd(src_dir) do
+      system 'git', 'checkout', commit
+      FileUtils.rm_rf '.git'
+    end
   end
 
   def build(release, options, host_dep_dirs, target_dep_dirs)
@@ -27,7 +30,6 @@ class NdkBase < HostBase
 
     self.num_jobs = options.num_jobs
 
-    # create required directories and download sources
     FileUtils.rm_rf build_base_dir
     puts "= preparing source code"
     prepare_source_code
