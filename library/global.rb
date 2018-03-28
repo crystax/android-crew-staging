@@ -124,7 +124,7 @@ module Global
   OS = operating_system
 
   NDK_DIR       = [nil, ''].include?(ENV['CREW_NDK_DIR'])       ? fail('CREW_NDK_DIR must be set')   : Pathname.new(ENV['CREW_NDK_DIR']).realpath.to_s
-  TOOLS_DIR     = [nil, ''].include?(ENV['CREW_TOOLS_DIR'])     ? fail('CREW_TOOLS_DIR must be set') : Pathname.new(ENV['CREW_TOOLS_DIR']).realpath.to_s
+  TOOLS_DIR     = [nil, ''].include?(ENV['CREW_TOOLS_DIR'])     ? fail('CREW_TOOLS_DIR must be set') : ENV['CREW_TOOLS_DIR']
   BASE_DIR      = [nil, ''].include?(ENV['CREW_BASE_DIR'])      ? default_base_dir                   : Pathname.new(ENV['CREW_BASE_DIR']).realpath.to_s
   DOWNLOAD_BASE = [nil, ''].include?(ENV['CREW_DOWNLOAD_BASE']) ? default_download_base(BASE_DIR)    : ENV['CREW_DOWNLOAD_BASE']
   SRC_CACHE_DIR = [nil, ''].include?(ENV['CREW_SRC_CACHE_DIR']) ? default_src_cache_dir(OS)          : ENV['CREW_SRC_CACHE_DIR']
