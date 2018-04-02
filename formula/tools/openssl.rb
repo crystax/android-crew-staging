@@ -4,7 +4,7 @@ class Openssl < Utility
   homepage "https://openssl.org/"
   url 'https://www.openssl.org/source/openssl-${version}.tar.gz'
 
-  release version: '1.1.0g', crystax_version: 1
+  release version: '1.1.0h', crystax_version: 1
 
   depends_on 'zlib'
 
