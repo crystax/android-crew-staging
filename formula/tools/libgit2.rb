@@ -24,7 +24,8 @@ class Libgit2 < Utility
       "CMAKE_C_FLAGS=\"#{platform.cflags} -I#{tools_dir}/include\"",
       "CMAKE_FIND_ROOT_PATH=#{tools_dir}",
       "BUILD_CLAR=OFF",
-      "USE_ICONV=OFF"
+      "USE_ICONV=OFF",
+      "USE_EXT_HTTP_PARSER=OFF"
     ]
     if platform.target_os == 'windows'
       config_args += ["WIN32=ON",
