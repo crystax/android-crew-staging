@@ -4,7 +4,7 @@ class Ruby < Utility
   homepage 'https://www.ruby-lang.org/'
   url 'https://cache.ruby-lang.org/pub/ruby/${block}/ruby-${version}.tar.gz' do |r| r.version.split('.').slice(0, 2).join('.') end
 
-  release version: '2.5.0', crystax_version: 3
+  release version: '2.5.1', crystax_version: 1
 
   depends_on 'zlib'
   depends_on 'openssl'
@@ -21,7 +21,7 @@ class Ruby < Utility
     super(release, dir, src_name, log_prefix)
 
     # todo: get installed libgit2 version and make rugged version out of it
-    rugged_ver = '0.26.0'
+    rugged_ver = '0.27.0'
 
     # download and unpack rugged sources
     rugged_url = "https://github.com/libgit2/rugged/archive/v#{rugged_ver}.tar.gz"
