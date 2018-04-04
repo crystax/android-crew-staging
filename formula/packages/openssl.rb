@@ -4,8 +4,8 @@ class Openssl < Package
   homepage "https://openssl.org/"
   url 'https://openssl.org/source/openssl-${version}.tar.gz'
 
-  release version: '1.0.2n', crystax_version: 4
-  release version: '1.1.0g', crystax_version: 3
+  release version: '1.0.2o', crystax_version: 1
+  release version: '1.1.0h', crystax_version: 1
 
   build_options copy_installed_dirs: ['bin', 'include', 'lib']
   build_copy 'LICENSE'
@@ -34,8 +34,10 @@ class Openssl < Package
     self.num_jobs = 1 if ssl_ver == '1.0' and Global::OS == 'darwin' and options.num_jobs_default?
 
     system './Configure',  *args
+
     # 1.1* have no gost engine
     fix_ccgost_makefile build_dir_for_abi(abi), toolchain.ldflags(abi) if ssl_ver == '1.0'
+    fix_make_depend if release.version == '1.0.2o'
 
     system 'make', 'depend'
     system 'make', '-j', num_jobs
@@ -85,6 +87,18 @@ class Openssl < Package
 
     File.open(makefile, 'w') { |f| f.puts lines }
   end
+
+  def fix_make_depend
+    replaced = replace_lines_in_file('Makefile') do |line|
+      if line =~ /^MAKEDEPPROG= .*\/cc/
+        'MAKEDEPPROG= makedepend'
+      else
+        line
+      end
+    end
+    raise "fail to fix make depend" unless replaced == 1
+  end
+
 
   def sonames_translation_table(release)
     r = release.version.split('.')
