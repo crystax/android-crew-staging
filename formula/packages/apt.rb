@@ -8,7 +8,6 @@ class Apt < Package
 
   build_options build_outside_source_tree: true,
                 use_standalone_toolchain: ['berkley-db', 'curl', 'gnu-tls', 'xz', 'lz4'],
-                setup_env: false,
                 copy_installed_dirs: ['bin', 'etc', 'include', 'lib', 'libexec', 'var'],
                 gen_android_mk: false
 
