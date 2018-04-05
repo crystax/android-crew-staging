@@ -131,6 +131,9 @@ The ENV command supports the following options:
                  output path to the directory used as
                  a cache for sources for the crew packages
 
+  --platform-name
+                 output crew's platform
+
   --base-build-dir
                  output path to the base build directory
 

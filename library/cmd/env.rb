@@ -15,6 +15,7 @@ module Crew
       puts "BASE_DIR:       #{Global::BASE_DIR}"
       puts "NDK_DIR:        #{Global::NDK_DIR}"
       puts "TOOLS_DIR:      #{Global::TOOLS_DIR}"
+      puts "PLATFORM_NAME:  #{Global::PLATFORM_NAME}"
       puts "BASE_BUILD_DIR: #{Build::BASE_BUILD_DIR}"
       puts "GIT origin:     #{origin}"
     when 1
@@ -31,6 +32,8 @@ module Crew
         puts Global::PKG_CACHE_DIR
       when '--src-cache-dir'
         puts Global::SRC_CACHE_DIR
+      when '--platform-name'
+        puts Global::PLATFORM_NAME
       when '--base-build-dir'
         puts Build::BASE_BUILD_DIR
       when '--git-origin'
