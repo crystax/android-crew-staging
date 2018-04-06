@@ -302,7 +302,7 @@ For all installed formulas do the following:
 * for multi version HostBase derived formulas: for every installed release
   if there is a release with more recent crystax_verison then install it;
   
-* for single version TargetBase derived base packages:  if there is more recent release then install it;
+* for single version TargetBase derived base packages: if there is more recent release then install it;
 
 * for multi version TargetBase derived base packages: for every installed release
   if there is a release with more recent crystax_verison then install it;
