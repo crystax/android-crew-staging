@@ -51,9 +51,9 @@ describe "crew info" do
 
   context "about all crew utilities, all utilities with one release each" do
     it "outputs info about crew utilities" do
-      crew 'info', 'curl', 'bsdtar','ruby'
+      crew 'info', 'curl', 'libarchive','ruby'
       curl_rel = Crew::Test::UTILS_RELEASES['curl'][0]
-      bsdtar_rel = Crew::Test::UTILS_RELEASES['libarchive'][0]
+      libarchive_rel = Crew::Test::UTILS_RELEASES['libarchive'][0]
       ruby_rel = Crew::Test::UTILS_RELEASES['ruby'][0]
       expect(result).to eq(:ok)
       expect(out.split("\n")).to eq(["Name:               curl",
@@ -66,13 +66,13 @@ describe "crew info" do
                                      "Dependencies:       zlib (*), openssl (*), libssh2 (*)",
                                      "Build dependencies: none",
                                      "",
-                                     "Name:               bsdtar",
+                                     "Name:               libarchive",
                                      "Namespace:          host",
                                      "Formula:            #{Global::FORMULA_DIR}/#{Global::NS_DIR[:host]}/libarchive.rb",
                                      "Homepage:           http://www.libarchive.org",
                                      "Description:        bsdtar utility from multi-format archive and compression library libarchive",
-                                     "Class:              bsdtar",
-                                     "Releases:           #{bsdtar_rel.version} #{bsdtar_rel.crystax_version} (*)",
+                                     "Class:              libarchive",
+                                     "Releases:           #{libarchive_rel.version} #{libarchive_rel.crystax_version} (*)",
                                      "Dependencies:       none",
                                      "Build dependencies: xz",
                                      "",

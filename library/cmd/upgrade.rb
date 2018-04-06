@@ -24,8 +24,7 @@ module Crew
     unless upgrades.empty?
       # todo: remove sorting when formulas sorted in formulary
       names = upgrades.map { |d| n = d.formula.name; d.releases.map { |r| "#{n}:#{r}" }}.flatten
-      puts "Will upgrade:"
-      names.sort.each { |n| puts "  #{n}" }
+      puts "Will install: #{names.sort.join(', ')}"
       unless options.dry_run?
         upgrades.sort! { |a,b| a.formula.name <=> b.formula.name }
         upgrades.each { |data| data.releases.each { |r| data.formula.install r, check_shasum: options.check_shasum?}}

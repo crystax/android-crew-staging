@@ -160,8 +160,7 @@ describe "crew list" do
         crew 'list', '--tools'
         expect(result).to eq(:ok)
         got = out.split("\n")
-        exp = [/ \* bsdtar\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].version}\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].crystax_version}/,
-               /   cloog\s+\d+\.\d+\.\d+\s+\d+/,
+        exp = [/   cloog\s+\d+\.\d+\.\d+\s+\d+/,
                /   cloog-old\s+\d+\.\d+\.\d+\s+\d+/,
                / \* curl  \s+#{Crew::Test::UTILS_RELEASES['curl'][0].version}\s+#{Crew::Test::UTILS_RELEASES['curl'][0].crystax_version}/,
                /   expat\s+\d+\.\d+\.\d+\s+\d+/,
@@ -169,6 +168,7 @@ describe "crew list" do
                /   gmp\s+\d+\.\d+\.\d+\s+\d+/,
                /   isl\s+\d+\.\d+\s+\d+/,
                /   isl-old\s+\d+\.\d+\.\d+\s+\d+/,
+               / \* libarchive\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].version}\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].crystax_version}/,
                /   libedit\s+\d+-\d+\.\d+\s+\d+/,
                / \* libgit2\s+\d+\.\d+\.\d+\s+\d+/,
                / \* libssh2\s+\d+\.\d+\.\d+\s+\d+/,
@@ -211,7 +211,6 @@ describe "crew list" do
         expect(result).to eq(:ok)
         got = out.split("\n")
         exp = ["Tools:",
-               / \* bsdtar\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].version}\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].crystax_version}/,
                /   cloog\s+\d+\.\d+\.\d+\s+\d+/,
                /   cloog-old\s+\d+\.\d+\.\d+\s+\d+/,
                / \* curl  \s+#{Crew::Test::UTILS_RELEASES['curl'][0].version}\s+#{Crew::Test::UTILS_RELEASES['curl'][0].crystax_version}/,
@@ -220,6 +219,7 @@ describe "crew list" do
                /   gmp\s+\d+\.\d+\.\d+\s+\d+/,
                /   isl\s+\d+\.\d+\s+\d+/,
                /   isl-old\s+\d+\.\d+\.\d+\s+\d+/,
+               / \* libarchive\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].version}\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].crystax_version}/,
                /   libedit\s+\d+-\d+\.\d+\s+\d+/,
                / \* libgit2\s+\d+\.\d+\.\d+\s+\d+/,
                / \* libssh2\s+\d+\.\d+\.\d+\s+\d+/,

@@ -65,6 +65,7 @@ describe "simple crew commands" do
                                          "BASE_DIR:       #{Global::BASE_DIR}",
                                          "NDK_DIR:        #{Global::NDK_DIR}",
                                          "TOOLS_DIR:      #{Global::TOOLS_DIR}",
+                                         "PLATFORM_NAME:  #{Global::PLATFORM_NAME}",
                                          "BASE_BUILD_DIR: #{Build::BASE_BUILD_DIR}",
                                          "GIT origin:     #{origin_url}"
                                         ])
@@ -83,6 +84,7 @@ describe "simple crew commands" do
                                          "BASE_DIR:       #{Global::BASE_DIR}",
                                          "NDK_DIR:        #{Global::NDK_DIR}",
                                          "TOOLS_DIR:      #{Global::TOOLS_DIR}",
+                                         "PLATFORM_NAME:  #{Global::PLATFORM_NAME}",
                                          "BASE_BUILD_DIR: #{Build::BASE_BUILD_DIR}",
                                          "GIT origin:     #{GitHub::STAGING_SSH_URL}"
                                         ])

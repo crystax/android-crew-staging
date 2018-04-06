@@ -13,10 +13,10 @@ if File.exists? Crew::Test::DATA_READY_FILE
 end
 
 
-ORIG_TOOLS_DIR   = Pathname.new(ENV['ORIG_TOOLS_DIR']).realpath.to_s
-ORIG_NDK_DIR     = Pathname.new("#{ORIG_TOOLS_DIR}/../..").realpath.to_s
-ORIG_FORMULA_DIR = Pathname.new('../formula/tools').realpath.to_s
-PLATFORM         = File.basename(ORIG_TOOLS_DIR)
+CREW_TOOLS_DIR   = Pathname.new(ENV['CREW_TOOLS_DIR']).realpath.to_s
+CREW_NDK_DIR     = Pathname.new(ENV['CREW_NDK_DIR']).realpath.to_s
+CREW_FORMULA_DIR = Pathname.new('../formula/tools').realpath.to_s
+PLATFORM         = ENV['CREW_PLATFORM_NAME']
 PLATFORM_SYM     = PLATFORM.gsub(/-/, '_').to_sym
 
 tools_dir = "#{Crew::Test::NDK_DIR}/prebuilt/#{PLATFORM}"
@@ -31,8 +31,8 @@ TOOLS_DOWNLOAD_DIR = Pathname.new(tools_download_dir).realpath.to_s
 
 
 # copy utils from NDK dir to tests directory structure
-FileUtils.cp_r Dir["#{ORIG_TOOLS_DIR}/*"], TOOLS_DIR
-FileUtils.cp_r "#{ORIG_NDK_DIR}/.crew", Crew::Test::NDK_DIR
+FileUtils.cp_r Dir["#{CREW_TOOLS_DIR}/*"], TOOLS_DIR
+FileUtils.cp_r "#{CREW_NDK_DIR}/.crew", NDK_DIR
 FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/*.tar.xz"] - Dir["#{Crew::Test::DATA_DIR}/test_tool-1.0.0_1-*.tar.xz"], packages_download_dir
 FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/test_tool-1.0.0_1-*.tar.xz"], tools_download_dir
 FileUtils.rm_rf "#{TOOLS_DIR}/build_dependencies"
@@ -73,7 +73,7 @@ def replace_releases(formula, releases)
 end
 
 def installed_release(utility_name)
-  versions = Dir["#{File.join(ORIG_NDK_DIR, '.crew', utility_name, PLATFORM)}/*"]
+  versions = Dir["#{File.join(CREW_NDK_DIR, '.crew', utility_name, PLATFORM)}/*"]
 
   raise "#{utility_name} not installed" if versions.empty?
   raise "more than one version of #{utility_name} installed: #{versions}" if versions.size > 1
@@ -91,7 +91,7 @@ def create_archive(orig_release, release, util)
   package_dir = Pathname.new(package_dir).realpath.to_s
 
   # copy files
-  FileUtils.cd(ORIG_NDK_DIR) do
+  FileUtils.cd(CREW_NDK_DIR) do
     list_file = File.join('.crew', util, PLATFORM, orig_release.version, 'list')
     File.read(list_file).split("\n").each do |file|
       if File.exist?(file)
@@ -112,7 +112,7 @@ def create_archive(orig_release, release, util)
   FileUtils.mkdir_p File.dirname(archive_path)
   FileUtils.cd(package_dir) do
     args = ['-Jcf', archive_path, '.']
-    Utils.run_command(File.join(ORIG_TOOLS_DIR, 'bin', 'bsdtar'), *args)
+    Utils.run_command(File.join(CREW_TOOLS_DIR, 'bin', 'bsdtar'), *args)
   end
 
   # cleanup
@@ -133,7 +133,7 @@ def copy_universal_archive(filename)
   FileUtils.mkdir_p File.dirname(archive_path)
   FileUtils.cd(package_dir) do
     args = ['-Jcf', archive_path, '.']
-    Utils.run_command(File.join(ORIG_TOOLS_DIR, 'bin', 'bsdtar'), *args)
+    Utils.run_command(File.join(CREW_TOOLS_DIR, 'bin', 'bsdtar'), *args)
   end
 
   # cleanup
@@ -152,7 +152,7 @@ base = orig_releases['curl']
 curl_releases = [base, Release.new(base.version, base.crystax_version + 2), Release.new(base.version + 'a', 1)].each do |r|
   create_archive(base, r, 'curl')
 end
-curl_formula = File.join(ORIG_FORMULA_DIR, 'curl.rb')
+curl_formula = File.join(CREW_FORMULA_DIR, 'curl.rb')
 File.open(File.join(DATA_DIR, 'curl-1.rb'), 'w') { |f| f.puts replace_releases(curl_formula, curl_releases.slice(0, 1)) }
 File.open(File.join(DATA_DIR, 'curl-2.rb'), 'w') { |f| f.puts replace_releases(curl_formula, curl_releases.slice(1, 1)) }
 File.open(File.join(DATA_DIR, 'curl-3.rb'), 'w') { |f| f.puts replace_releases(curl_formula, curl_releases.slice(1, 2)) }
@@ -162,7 +162,7 @@ base = orig_releases['libarchive']
 libarchive_releases = [base, Release.new(base.version + 'a', 1)].each do |r|
   create_archive(base, r, 'libarchive')
 end
-libarchive_formula = File.join(ORIG_FORMULA_DIR, 'libarchive.rb')
+libarchive_formula = File.join(CREW_FORMULA_DIR, 'libarchive.rb')
 File.open(File.join(DATA_DIR, 'libarchive-1.rb'), 'w') { |f| f.puts replace_releases(libarchive_formula, libarchive_releases.slice(0, 1)) }
 File.open(File.join(DATA_DIR, 'libarchive-2.rb'), 'w') { |f| f.puts replace_releases(libarchive_formula, libarchive_releases.slice(0, 2)) }
 
@@ -171,7 +171,7 @@ base = orig_releases['ruby']
 ruby_releases = [base, Release.new(base.version + 'a', 1)].each do |r|
   create_archive(base, r, 'ruby')
 end
-ruby_formula = File.join(ORIG_FORMULA_DIR, 'ruby.rb')
+ruby_formula = File.join(CREW_FORMULA_DIR, 'ruby.rb')
 File.open(File.join(DATA_DIR, 'ruby-1.rb'), 'w') { |f| f.puts replace_releases(ruby_formula, ruby_releases.slice(0, 1)) }
 File.open(File.join(DATA_DIR, 'ruby-2.rb'), 'w') { |f| f.puts replace_releases(ruby_formula, ruby_releases.slice(0, 2)) }
 
@@ -181,7 +181,7 @@ Crew::Test::ALL_TOOLS.select { |t| not Crew::Test::UTILS_FILES.include?(t.filena
   formula = formulary["host/#{t.name}"]
   rel = formula.releases.last
   copy_universal_archive(formula.archive_filename(rel))
-  File.open("#{DATA_DIR}/#{t.filename}-1.rb", 'w') { |f| f.puts replace_releases("#{ORIG_FORMULA_DIR}/#{t.filename}.rb", [rel]) }
+  File.open("#{DATA_DIR}/#{t.filename}-1.rb", 'w') { |f| f.puts replace_releases("#{CREW_FORMULA_DIR}/#{t.filename}.rb", [rel]) }
 end
 
 # generate ruby source file with releases info

@@ -18,7 +18,7 @@ module Crew
                            FormulaData.new(:build_dependency, 'gmp'),
                            FormulaData.new(:build_dependency, 'isl'),
                            FormulaData.new(:build_dependency, 'isl_old'),
-                           FormulaData.new(:tool,             'libarchive', 'bsdtar'),
+                           FormulaData.new(:tool,             'libarchive'),
                            FormulaData.new(:build_dependency, 'libedit'),
                            FormulaData.new(:build_dependency, 'libgit2'),
                            FormulaData.new(:build_dependency, 'libssh2'),

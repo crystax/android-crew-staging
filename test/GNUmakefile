@@ -25,31 +25,24 @@ else
   RM = rm -rf
 endif
 
-ifeq ($(origin CREW_NDK_DIR), undefined)
-  CREW_NDK_DIR = $(realpath ../..)
-endif
+CREW_NDK_DIR       = $(shell ../crew env --ndk-dir)
+CREW_TOOLS_DIR     = $(shell ../crew env --tools-dir)
+CREW_PLATFORM_NAME = $(shell ../crew env --platform-name)
 
 $(info Using CREW_NDK_DIR: $(CREW_NDK_DIR))
+$(info Using ORIG_TOOLS_DIR: $(CREW_TOOLS_DIR))
+$(info Using PLATFORM: $(CREW_PLATFORM_NAME))
 
-ifneq ($(wildcard $(CREW_NDK_DIR)/prebuilt/$(host_os)-x86_64),)
-  ORIG_TOOLS_DIR = $(CREW_NDK_DIR)/prebuilt/$(host_os)-x86_64
-  PLATFORM = $(host_os)-x86_64
-else
-  ORIG_TOOLS_DIR = $(CREW_NDK_DIR)/prebuilt/$(host_os)
-  PLATFORM = $(host_os)
-endif
-
-$(info Using ORIG_TOOLS_DIR: $(ORIG_TOOLS_DIR))
-$(info Using PLATFORM: $(PLATFORM))
-
-RUBY_DIR = $(ORIG_TOOLS_DIR)/bin
+RUBY_DIR = $(CREW_TOOLS_DIR)/bin
 RUBY     = $(RUBY_DIR)/$(ruby_prog)
 RSPEC    = $(RUBY_DIR)/$(ruby_prog) $(RUBY_DIR)/rspec --no-color
 
 SSL_CERT_FILE  = $(abspath ../etc/ca-certificates.crt)
 
-export ORIG_TOOLS_DIR
 export SSL_CERT_FILE
+export CREW_NDK_DIR
+export CREW_TOOLS_DIR
+export CREW_PLATFORM_NAME
 
 
 .PHONY: all test clean test-data unit-tests rspec-tests $(rspec_cmd_tests)
@@ -59,8 +52,8 @@ all: test clean
 test: unit-tests rspec-tests
 
 clean:
-	$(RUBY) spec_cleanup.rb
-	$(RM) crew crew.git crew.net ndk
+	$(RM) crew crew.git crew.net ndk ndk.copy pkg.cache src.cache tmp www
+	$(RM) .testdataprepared data/curl-*.rb data/libarchive-*.rb data/ruby-*.rb data/xz-*.rb data/releases_info.rb
 
 unit-tests:
 	$(RUBY) -I ../library ts_crew.rb

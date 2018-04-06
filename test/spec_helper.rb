@@ -9,7 +9,7 @@ require_relative 'spec_consts.rb'
 log_dir = File.join(Crew::Test::WWW_DIR, 'log')
 base_dir = 'crew'
 
-FileUtils.mkdir(log_dir) unless Dir.exist?(log_dir)
+FileUtils.mkdir_p log_dir
 
 server = WEBrick::HTTPServer.new :Port => Crew::Test::PORT,
                                  :DocumentRoot => Crew::Test::DOCROOT_DIR,
@@ -28,6 +28,7 @@ FileUtils.mkdir_p File.join(Crew::Test::CREW_DIR, 'patches')
 ENV['CREW_DOWNLOAD_BASE'] = Crew::Test::DOWNLOAD_BASE
 ENV['CREW_BASE_DIR']      = "#{File.dirname(__FILE__)}/#{Crew::Test::CREW_DIR}"
 ENV['CREW_NDK_DIR']       = "#{File.dirname(__FILE__)}/#{Crew::Test::NDK_DIR}"
+ENV['CREW_TOOLS_DIR']     = "#{File.dirname(__FILE__)}/#{Crew::Test::NDK_DIR}/prebuilt/#{ENV['CREW_PLATFORM_NAME']}"
 ENV['CREW_PKG_CACHE_DIR'] = "#{File.dirname(__FILE__)}/#{Crew::Test::PKG_CACHE_DIR}"
 ENV['CREW_SRC_CACHE_DIR'] = "#{File.dirname(__FILE__)}/#{Crew::Test::SRC_CACHE_DIR}"
 
