@@ -33,8 +33,8 @@ TOOLS_DOWNLOAD_DIR = Pathname.new(tools_download_dir).realpath.to_s
 # copy utils from NDK dir to tests directory structure
 FileUtils.cp_r Dir["#{CREW_TOOLS_DIR}/*"], TOOLS_DIR
 FileUtils.cp_r "#{CREW_NDK_DIR}/.crew", NDK_DIR
-FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/*.tar.xz"] - Dir["#{Crew::Test::DATA_DIR}/test_tool-1.0.0_1-*.tar.xz"], packages_download_dir
-FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/test_tool-1.0.0_1-*.tar.xz"], tools_download_dir
+FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/*.tar.xz"] - Dir["#{Crew::Test::DATA_DIR}/test_tool-*-*.tar.xz"], packages_download_dir
+FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/test_tool-*-*.tar.xz"], tools_download_dir
 FileUtils.rm_rf "#{TOOLS_DIR}/build_dependencies"
 
 require_relative '../library/release.rb'

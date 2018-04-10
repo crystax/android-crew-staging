@@ -234,13 +234,13 @@ describe "crew install" do
 
     context 'test tool from release assets' do
       it 'outputs info about installing test_tool 1.0.0:1' do
-        rel = pkg_cache_add_tool_with_formula('test_tool', update: true, delete: true)
+        rel = pkg_cache_add_tool_with_formula('test_tool', release: Release.new('1.0.0', 1), update: true, delete: true)
         file = tool_archive_name('test_tool', rel)
         ENV['CREW_DOWNLOAD_BASE'] = nil
         set_origin_url GitHub::STAGING_HTTPS_URL
         crew_checked 'env',  '--download-base'
         url = "#{out.strip}/tools.#{file}"
-        crew 'install', 'test_tool'
+        crew 'install', 'test_tool:1.0.0'
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["calculating dependencies for test_tool: ",
                                        "  dependencies to install: ",

@@ -10,6 +10,7 @@ class TestTool < Tool
   release version: '1.0.0', crystax_version: 1
   release version: '2.0.0', crystax_version: 1
   release version: '3.0.0', crystax_version: 1
+  release version: '4.0.0', crystax_version: 1
 
   include TestToolMethods
 end
