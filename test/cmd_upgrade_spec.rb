@@ -551,6 +551,24 @@ describe "crew upgrade" do
 
   context "when there are changes only in utilities" do
 
+    context "when there is one new release for curl utility, which repplaces the installed one" do
+      it "says about installing new release" do
+        repository_clone
+        repository_add_formula :host, 'curl-4.rb:curl.rb'
+        crew_checked 'update'
+        crew '-b', 'upgrade'
+        curl_rel = Crew::Test::UTILS_RELEASES['curl'][3]
+        file = "curl-#{curl_rel}-#{Global::PLATFORM_NAME}.#{Global::ARCH_EXT}"
+        expect(result).to eq(:ok)
+        expect(out.split("\n")).to eq(["Will install: curl:#{curl_rel}",
+                                       "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{file}",
+                                       "checking integrity of the archive file #{file}",
+                                       "unpacking archive"
+                                      ])
+        expect(pkg_cache_in?(:host, 'curl', curl_rel.version, curl_rel.crystax_version)).to eq(true)
+      end
+    end
+
     context "when there is one new release for curl utility, with crystax_version changed" do
       it "says about installing new release" do
         repository_clone
@@ -624,7 +642,7 @@ describe "crew upgrade" do
       end
     end
 
-    context 'when there changes only in multi-version base host packages (like gcc and llvm)'do
+    context 'when there changes only in multi-version base host packages (like gcc and llvm)' do
 
       before do
         FileUtils.rm_rf "#{Global::SERVICE_DIR}/test_tool"

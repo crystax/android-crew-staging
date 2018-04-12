@@ -149,13 +149,14 @@ Crew::Test::UTILS_FILES.each { |u| orig_releases[u] = installed_release(u) }
 
 # create archives and formulas for curl
 base = orig_releases['curl']
-curl_releases = [base, Release.new(base.version, base.crystax_version + 2), Release.new(base.version + 'a', 1)].each do |r|
+curl_releases = [base, Release.new(base.version, base.crystax_version + 2), Release.new(base.version + 'a', 1), Release.new(base.version + 'b', 1)].each do |r|
   create_archive(base, r, 'curl')
 end
 curl_formula = File.join(CREW_FORMULA_DIR, 'curl.rb')
 File.open(File.join(DATA_DIR, 'curl-1.rb'), 'w') { |f| f.puts replace_releases(curl_formula, curl_releases.slice(0, 1)) }
 File.open(File.join(DATA_DIR, 'curl-2.rb'), 'w') { |f| f.puts replace_releases(curl_formula, curl_releases.slice(1, 1)) }
 File.open(File.join(DATA_DIR, 'curl-3.rb'), 'w') { |f| f.puts replace_releases(curl_formula, curl_releases.slice(1, 2)) }
+File.open(File.join(DATA_DIR, 'curl-4.rb'), 'w') { |f| f.puts replace_releases(curl_formula, curl_releases.slice(3, 3)) }
 
 # create archives and formulas for libarchive
 base = orig_releases['libarchive']

@@ -17,7 +17,21 @@ class HostBase < Formula
 
     # todo: handle platform dependant installations
     # mark installed releases and sources
-    releases.each { |r| r.update get_properties(release_directory(r, Global::PLATFORM_NAME)) }
+    base_dir = File.join(Global::SERVICE_DIR, file_name, Global::PLATFORM_NAME)
+    Dir.exist?(base_dir) and FileUtils.cd(base_dir) do
+      Dir['*'].each do |ver|
+        props = get_properties(ver)
+        ind = releases.find_index { |r| r.version == ver }
+        if ind
+          releases[ind].update props
+        else
+          r = Release.new(ver, props[:installed_crystax_version])
+          r.update props
+          releases.unshift r
+        end
+      end
+    end
+    #releases.each { |r| r.update get_properties(release_directory(r, Global::PLATFORM_NAME)) }
   end
 
   def release_directory(release, platform_name)
