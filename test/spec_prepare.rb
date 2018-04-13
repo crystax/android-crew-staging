@@ -29,10 +29,11 @@ NDK_DIR            = Pathname.new(Crew::Test::NDK_DIR).realpath.to_s
 TOOLS_DIR          = Pathname.new(tools_dir).realpath.to_s
 TOOLS_DOWNLOAD_DIR = Pathname.new(tools_download_dir).realpath.to_s
 
+require_relative '../library/global.rb'
 
 # copy utils from NDK dir to tests directory structure
 FileUtils.cp_r Dir["#{CREW_TOOLS_DIR}/*"], TOOLS_DIR
-FileUtils.cp_r "#{CREW_NDK_DIR}/.crew", NDK_DIR
+FileUtils.cp_r "#{CREW_NDK_DIR}/#{File.basename(Global::SERVICE_DIR)}", NDK_DIR
 FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/*.tar.xz"] - Dir["#{Crew::Test::DATA_DIR}/test_tool-*-*.tar.xz"], packages_download_dir
 FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/test_tool-*-*.tar.xz"], tools_download_dir
 FileUtils.rm_rf "#{TOOLS_DIR}/build_dependencies"
@@ -180,9 +181,17 @@ File.open(File.join(DATA_DIR, 'ruby-2.rb'), 'w') { |f| f.puts replace_releases(r
 formulary = Formulary.new
 Crew::Test::ALL_TOOLS.select { |t| not Crew::Test::UTILS_FILES.include?(t.filename) }.map do |t|
   formula = formulary["host/#{t.name}"]
+  # select release to keep
   rel = formula.releases.last
   copy_universal_archive(formula.archive_filename(rel))
   File.open("#{DATA_DIR}/#{t.filename}-1.rb", 'w') { |f| f.puts replace_releases("#{CREW_FORMULA_DIR}/#{t.filename}.rb", [rel]) }
+  # remove other installed releases from the sevice dir
+  formula_service_dir = File.join(NDK_DIR, File.basename(Global::SERVICE_DIR), formula.file_name, Global::PLATFORM_NAME)
+  Dir.exist?(formula_service_dir) and FileUtils.cd(formula_service_dir) do
+    Dir['*'].each do |dir|
+      FileUtils.rm_rf dir unless dir == rel.version
+    end
+  end
 end
 
 # generate ruby source file with releases info
