@@ -20,8 +20,8 @@ if [ -z $CREW_TOOLS_DIR ]; then
     CREW_TOOLS_DIR="$CREW_NDK_DIR/prebuilt/$crew_host_os-$crew_host_cpu"
 fi
 
-if [ -f $CREW_TOOLS_DIR/bin/ruby ]; then
-    crew_ruby=$CREW_TOOLS_DIR/bin/ruby
+if [ -f "$CREW_TOOLS_DIR/bin/ruby" ]; then
+    crew_ruby="$CREW_TOOLS_DIR/bin/ruby"
     unset GEM_HOME
     unset GEM_PATH
 else
@@ -54,15 +54,15 @@ if [ $status -ne 0 ]; then
     exit $status
 fi
 
-if [ -d $CREW_NDK_DIR/postpone ]; then
-    echo Start postponed upgrade process
+if [ -d "$CREW_NDK_DIR/postpone" ]; then
+    echo "Start postponed upgrade process"
     $CREW_NDK_DIR/postpone/upgrade.sh
     status=$?
     if [ $status -ne 0 ]; then
         echo "= ERROR: upgrade script failed!"
         exit $status
     else
-        echo = Cleaning up
-        rm -rf $CREW_NDK_DIR/postpone
+        echo "= Cleaning up"
+        rm -rf "$CREW_NDK_DIR/postpone"
     fi
 fi
