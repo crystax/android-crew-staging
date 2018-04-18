@@ -28,6 +28,7 @@ class Apt < Package
     cflags = toolchain.gcc_cflags(abi)
     cflags += ' -Wl,--no-warn-mismatch' if abi == 'armeabi-v7a-hard'
     cxxflags = cflags
+    ldflags = toolchain.gcc_ldflags(abi)
 
     config_args = [
       "WITH_DOC=OFF",
@@ -53,16 +54,27 @@ class Apt < Package
     ]
     system 'cmake', src_dir, *config_args.map { |arg| "-D#{arg}" }
 
-    apt_inst_ver    = find_version_in_cmake_list(src_dir, 'apt-inst')
     apt_private_ver = find_version_in_cmake_list(src_dir, 'apt-private')
+    apt_inst_ver    = find_version_in_cmake_list(src_dir, 'apt-inst')
     apt_pkg_ver     = apt_pkg_version(src_dir)
 
-    fix_link_txt('apt-private', apt_private_ver)
-    fix_link_txt('apt-inst',    apt_inst_ver)
-    fix_link_txt('apt-pkg',     apt_pkg_ver)
+    fix_lib_link_txt('apt-private', apt_private_ver)
+    fix_lib_link_txt('apt-inst',    apt_inst_ver)
+    fix_lib_link_txt('apt-pkg',     apt_pkg_ver)
 
     if Build::BAD_ABIS.include? abi
-      add_libs('apt-dump-solver', '-llz4 -llzma -lz')
+      Dir['cmdline/CMakeFiles/*.dir', 'methods/CMakeFiles/*.dir'].each do |dir|
+        libs =
+          case dir
+          when /(ftp|mirror|http)\.dir$/
+            '-lffi -lp11-kit -lidn2 -lunistring -lnettle -lhogweed -lgmp -llz4 -llzma -lz'
+          when /curl\.dir$/
+            '-lssh2 -lssl -lcrypto -llz4 -llzma -lz'
+          else
+            '-llz4 -llzma -lz'
+          end
+        fix_exe_link_txt(dir, libs, ldflags)
+      end
     end
 
     # todo: hack, remove when libcrystax is fixed
@@ -81,6 +93,54 @@ class Apt < Package
       end
       FileUtils.rm 'bin/apt-cdrom'
       FileUtils.rm 'libexec/apt/methods/cdrom'
+    end
+  end
+
+  def fix_crystax_resolv_h(sysroot_dir)
+    file = "#{sysroot_dir}/usr/include/crystax/bionic/libc/include/mangled-resolv.h"
+    content = []
+    fixed = false
+    File.read(file).split("\n").each do |line|
+      case line
+      when /^\/\* todo: this is handcopied \*\/$/
+        fixed = true
+      when /^#pragma GCC visibility pop/
+        if not fixed
+          content += ['/* todo: this is handcopied */',
+                      'int res_init(void);',
+                      'int res_mkquery(int __opcode, const char* __domain_name, int __class, int __type, const u_char* __data, int __data_size, const u_char* __new_rr_in, u_char* __buf, int __buf_size);',
+                      'int res_query(const char* __name, int __class, int __type, u_char* __answer, int __answer_size);',
+                      'int res_search(const char* __name, int __class, int __type, u_char* __answer, int __answer_size);',
+                      ''
+                     ]
+        end
+      end
+      content << line
+    end
+
+    File.open(file, 'w') { |f| f.puts content.join("\n") } unless fixed
+  end
+
+  def fix_lib_link_txt(name, ver)
+    major_ver = ver.split('.').first(2).join('.')
+
+    ["#{name}/CMakeFiles/#{name}.dir/link.txt", "#{name}/CMakeFiles/#{name}.dir/relink.txt"].each do |file|
+      replace_lines_in_file(file) do |line|
+        line
+          .sub(/ -Wl,-soname,lib#{name}.so.#{major_ver}/, " -Wl,-soname,lib#{name}.so")
+          .sub(/ -Wl,-version-script=".*"[ \t]*$/, "")
+          .sub(/ -Wl,-rpath,\S+/, "")
+      end
+    end
+  end
+
+  def fix_exe_link_txt(dir, libs, ldflags)
+    ["#{dir}/link.txt", "#{dir}/relink.txt"].each do |file|
+      if File.exist? file
+        replace_lines_in_file(file) do |line|
+          line.sub(/-Wl,-rpath,\S+/, "") +  ldflags + ' ' + libs
+        end
+      end
     end
   end
 
@@ -131,51 +191,5 @@ class Apt < Package
     raise "not found patch version in #{file}" unless patch
 
     [major, minor, patch].join('.')
-  end
-
-  def fix_link_txt(name, ver)
-    major_ver = ver.split('.').first(2).join('.')
-
-    ["#{name}/CMakeFiles/#{name}.dir/link.txt", "#{name}/CMakeFiles/#{name}.dir/relink.txt"].each do |file|
-      replace_lines_in_file(file) do |line|
-        line
-          .sub(/ -Wl,-soname,lib#{name}.so.#{major_ver}/, " -Wl,-soname,lib#{name}.so")
-          .sub(/ -Wl,-version-script=".*"[ \t]*$/,        "")
-          .sub(/-Wl,-rpath,.* /,                          "")
-      end
-    end
-  end
-
-  def fix_crystax_resolv_h(sysroot_dir)
-    file = "#{sysroot_dir}/usr/include/resolv.h"
-    content = []
-    fixed = false
-    File.read(file).split("\n").each do |line|
-      case line
-      when /^\/\* todo: this is handcopied \*\/$/
-        fixed = true
-      when /^#endif \/\* __CRYSTAX_INCLUDE/
-        if not fixed
-          content += ['/* todo: this is handcopied */',
-                      'int res_init(void);',
-                      'int res_mkquery(int __opcode, const char* __domain_name, int __class, int __type, const u_char* __data, int __data_size, const u_char* __new_rr_in, u_char* __buf, int __buf_size);',
-                      'int res_query(const char* __name, int __class, int __type, u_char* __answer, int __answer_size);',
-                      'int res_search(const char* __name, int __class, int __type, u_char* __answer, int __answer_size);'
-                     ]
-        end
-      end
-      content << line
-    end
-
-    File.open(file, 'w') { |f| f.puts content.join("\n") } unless fixed
-  end
-
-  def add_libs(name, libs)
-    dir = "cmdline/CMakeFiles/#{name}.dir"
-    ["#{dir}/link.txt", "#{dir}/relink.txt"].each do |file|
-      s = File.read(file).strip
-      s += ' ' + libs
-      File.open(file, 'w') { |f| f.puts s }
-    end
   end
 end
