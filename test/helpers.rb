@@ -344,6 +344,15 @@ module Spec
       Repository.clone_at(TEST_REPO_HTTPS_URL, Global::BASE_DIR).close
     end
 
+    def repository_change_crew_script
+      data_dir = Pathname.new(Crew::Test::DATA_DIR).realpath.to_s
+      FileUtils.cp "#{data_dir}/crew.new", "#{origin_dir}/crew"
+      repo = Repository.new origin_dir
+      repo.add 'crew'
+      repo.commit 'change crew script'
+      repo.close
+    end
+
     def repository_add_formula(ns, *names)
       dir = File.join('formula', Global::NS_DIR[ns])
       repo = Repository.new origin_dir
@@ -370,7 +379,6 @@ module Spec
       names.each { |n| repo.remove File.join(dir, n) }
       repo.commit "del_#{names.join('_')}"
     end
-
 
     def formula_most_recent_release(filename)
       lines = []
@@ -404,6 +412,8 @@ module Spec
       orig_host_dir = Pathname.new("../formula/#{Global::NS_DIR[:host]}").realpath.to_s
       data_dir = Pathname.new(Crew::Test::DATA_DIR).realpath.to_s
       FileUtils.cd(dir) do
+        FileUtils.cp "#{data_dir}/crew.old", 'crew'
+        repo.add 'crew'
         FileUtils.mkdir_p ['etc', 'patches', host_dir, target_dir]
         # copy crew tools formulas
         Crew::Test::ALL_TOOLS.each { |t| FileUtils.cp "#{data_dir}/#{t.filename}-1.rb", "#{host_dir}/#{t.filename}.rb" }

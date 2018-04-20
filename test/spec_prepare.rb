@@ -194,6 +194,19 @@ Crew::Test::ALL_TOOLS.select { |t| not Crew::Test::UTILS_FILES.include?(t.filena
   end
 end
 
+# create data for testing crew script update
+if Global::OS == 'windows'
+  fname   = 'crew.cmd'
+  comment = 'rem'
+else
+  fname   = 'crew'
+  comment = '#'
+end
+script = File.read("../#{fname}")
+sname = "#{DATA_DIR}/#{fname}"
+File.open("#{sname}.old", 'w') { |f| f.puts script }
+File.open("#{sname}.new", 'w') { |f| f.puts script; f.puts "\n#{comment} This is a modified version of the script" }
+
 # generate ruby source file with releases info
 curl_releases_str       = curl_releases.map       { |r| "Release.new(\'#{r.version}\', #{r.crystax_version})" }.join(', ')
 libarchive_releases_str = libarchive_releases.map { |r| "Release.new(\'#{r.version}\', #{r.crystax_version})" }.join(', ')

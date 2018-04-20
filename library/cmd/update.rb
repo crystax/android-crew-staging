@@ -11,21 +11,33 @@ module Crew
       raise CommandRequresNoArguments
     end
 
+    crew_script  = "#{Global::BASE_DIR}/crew"
+    crew_script += '.cmd' if Global::OS == 'windows'
+    crew_script_copy = "#{crew_script}.orig"
+    FileUtils.cp crew_script, crew_script_copy
+
     updater = Updater.new
     updater.pull!
 
     report = Report.new
     report.update(updater.report)
 
-    if report.empty?
+    if updater.revision_unchanged?
       puts "Already up-to-date."
     else
       puts "Updated Crew from #{updater.initial_revision[0,8]} to #{updater.current_revision[0,8]}."
-      report.dump
+      if crew_script_unchanged?(crew_script_copy, crew_script)
+        FileUtils.rm_f crew_script_copy
+      else
+        FileUtils.mv crew_script, "#{crew_script}.new"
+        FileUtils.mv crew_script_copy, crew_script
+      end
+
+      report.dump unless report.empty?
     end
   end
 
-  private
+  # private
 
   class Updater
     attr_reader :initial_revision, :current_revision, :repository, :repository_path
@@ -33,6 +45,10 @@ module Crew
     def initialize
       @repository = Rugged::Repository.new('.')
       @repository_path = Pathname.new(Global::BASE_DIR)
+    end
+
+    def revision_unchanged?
+      @initial_revision == @current_revision
     end
 
     def pull!
@@ -141,5 +157,9 @@ module Crew
     def fetch(type, *args)
       @hash[type].fetch(*args)
     end
+  end
+
+  def self.crew_script_unchanged?(f1, f2)
+    File.read(f1) == File.read(f2)
   end
 end

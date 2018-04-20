@@ -32,6 +32,17 @@ describe "crew update" do
     end
   end
 
+  context 'when crew script has been changed' do
+    it 'says that crew scripts was updated' do
+      repository_change_crew_script
+      crew '-b', 'update'
+      expect(result).to eq(:ok)
+      #expect(out.strip).to eq('crew script has been updated')
+      expect(out.strip).to match('Updated Crew from .*\.')
+      expect(File.exist?("#{Crew::Test::CREW_DIR}/crew")).to eq(true)
+    end
+  end
+
   context "when there are changes only in libraries" do
 
     context "when there is one new formula" do

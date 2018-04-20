@@ -69,3 +69,5 @@ if [[ -d "$CREW_NDK_DIR/postpone" ]]; then
         rm -rf "$CREW_NDK_DIR/postpone"
     fi
 fi
+
+# This is a modified version of the script
