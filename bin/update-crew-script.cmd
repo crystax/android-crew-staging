@@ -1,3 +1,3 @@
 @echo off
 
-move %1\crew.new %1\crew
+move /Y %1\crew.new.cmd %1\crew.cmd > nul

@@ -31,6 +31,11 @@ rem set GIT
 set PATH=%CREW_TOOLS_DIR%\bin;%PATH%
 %CREW_TOOLS_DIR%\bin\ruby.exe -W0 %CREWFILEDIR%crew.rb %*
 
+if exist %CREWFILEDIR%\crew.new (
+    %CREWFILEDIR%\bin\update-crew-script.cmd %CREWFILEDIR%
+)
+
+
 if exist %CREW_NDK_DIR%\postpone (
     echo Start postponed upgrade process
     call %CREW_NDK_DIR%\postpone\upgrade.cmd
