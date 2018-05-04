@@ -21,7 +21,11 @@ class Apt < Package
     install_dir = install_dir_for_abi(abi)
     src_dir = source_directory(release)
 
+    # on linux cmake linked against dynamic libcurl library
+    # if we do not unset LD_LIBRARY_PATH it will try to use crew's libcurl
+    # which may or may not have the required version
     build_env['PATH'] = Build.path
+    build_env['LD_LIBRARY_PATH'] = nil if Global::OS == 'linux'
 
     cc = toolchain.gcc
     cxx = toolchain.gxx
@@ -33,6 +37,7 @@ class Apt < Package
     config_args = [
       "WITH_DOC=OFF",
       "USE_NLS=OFF",
+      "CMAKE_MAKE_PROGRAM=make",
       "CMAKE_VERBOSE_MAKEFILE=ON",
       "CMAKE_INSTALL_PREFIX=#{install_dir}",
 
@@ -54,6 +59,7 @@ class Apt < Package
 
       "COMMON_ARCH=#{Deb.arch_for_abi(abi)}"
     ]
+
     system 'cmake', src_dir, *config_args.map { |arg| "-D#{arg}" }
 
     apt_private_ver = find_version_in_cmake_list(src_dir, 'apt-private')
@@ -63,6 +69,8 @@ class Apt < Package
     fix_lib_link_txt('apt-private', apt_private_ver)
     fix_lib_link_txt('apt-inst',    apt_inst_ver)
     fix_lib_link_txt('apt-pkg',     apt_pkg_ver)
+
+    fix_config_h if Global::OS == 'linux'
 
     if Build::BAD_ABIS.include? abi
       Dir['cmdline/CMakeFiles/*.dir', 'methods/CMakeFiles/*.dir'].each do |dir|
@@ -88,6 +96,11 @@ class Apt < Package
     # remove unneeded files
     clean_install_dir abi, :lib
     FileUtils.cd(install_dir) do
+      if Global::OS == 'linux'
+        FileUtils.mv 'lib', 'libexec'
+        FileUtils.mkdir_p 'lib'
+        FileUtils.mv Dir['libexec/*.so.*'], 'lib/'
+      end
       FileUtils.cd('lib') do
         FileUtils.mv "libapt-inst.so.#{apt_inst_ver}",       'libapt-inst.so'
         FileUtils.mv "libapt-pkg.so.#{apt_pkg_ver}",         'libapt-pkg.so'
@@ -123,15 +136,27 @@ class Apt < Package
     File.open(file, 'w') { |f| f.puts content.join("\n") } unless fixed
   end
 
+  def fix_config_h
+    replace_lines_in_file('include/config.h') do |line|
+      if line.start_with? "#define LIBEXEC_DIR "
+        line.sub(/install\/lib\/apt"$/, 'install/libexec/apt"')
+      else
+        line
+      end
+    end
+  end
+
   def fix_lib_link_txt(name, ver)
     major_ver = ver.split('.').first(2).join('.')
 
     ["#{name}/CMakeFiles/#{name}.dir/link.txt", "#{name}/CMakeFiles/#{name}.dir/relink.txt"].each do |file|
-      replace_lines_in_file(file) do |line|
-        line
-          .sub(/ -Wl,-soname,lib#{name}.so.#{major_ver}/, " -Wl,-soname,lib#{name}.so")
-          .sub(/ -Wl,-version-script=".*"[ \t]*$/, "")
-          .sub(/ -Wl,-rpath,\S+/, "")
+      if File.exist? file
+        replace_lines_in_file(file) do |line|
+          line
+            .sub(/ -Wl,-soname,lib#{name}.so.#{major_ver}/, " -Wl,-soname,lib#{name}.so")
+            .sub(/ -Wl,-version-script=".*"[ \t]*$/, "")
+            .sub(/ -Wl,-rpath,\S+/, "")
+        end
       end
     end
   end
