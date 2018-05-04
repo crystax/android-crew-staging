@@ -37,7 +37,7 @@ class Apt < Package
       "CMAKE_INSTALL_PREFIX=#{install_dir}",
 
       "PERL_EXECUTABLE=#{`which perl`.strip}",
-      "DPKG_DATADIR=#{install_dir}/share/dpkg",
+      "DPKG_DATADIR=#{toolchain.sysroot_dir}/share/dpkg",
 
       "CMAKE_SYSTEM_NAME=Linux",
       "CMAKE_C_COMPILER=#{cc}",
@@ -50,7 +50,9 @@ class Apt < Package
       "CMAKE_FIND_ROOT_PATH=#{toolchain.sysroot_dir}",
 
       "CMAKE_INCLUDE_PATH=#{toolchain.sysroot_dir}/usr/include",
-      "CMAKE_LIBRARY_PATH=#{toolchain.sysroot_dir}/usr/lib"
+      "CMAKE_LIBRARY_PATH=#{toolchain.sysroot_dir}/usr/lib",
+
+      "COMMON_ARCH=#{Deb.arch_for_abi(abi)}"
     ]
     system 'cmake', src_dir, *config_args.map { |arg| "-D#{arg}" }
 
