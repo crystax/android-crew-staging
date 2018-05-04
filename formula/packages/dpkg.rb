@@ -43,8 +43,6 @@ class Dpkg < Package
     build_env['MD_LIBS']   = "-L#{libmd_dir}/libs/#{abi} -lmd"
     build_env['LZMA_LIBS'] = "-L#{xz_dir}/libs/#{abi} -llzma"
 
-
-
     build_env['ac_dpkg_arch'] = Deb.arch_for_abi(abi)
 
     system './configure', *args
@@ -56,5 +54,11 @@ class Dpkg < Package
     FileUtils.mkdir_p "#{install_dir}/share/perl5"
     FileUtils.mv Dir["#{install_dir}/Dpkg*"], perl_dir
     FileUtils.rm_rf "#{install_dir}/share/man"
+  end
+
+  def copy_to_standalone_toolchain(release, arch, target_include_dir, target_lib_dir, options)
+    super release, arch, target_include_dir, target_lib_dir, options
+
+    FileUtils.cp_r "#{release_directory(release)}/share", "#{target_lib_dir}/../"
   end
 end
