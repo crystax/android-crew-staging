@@ -44,7 +44,7 @@ class BerkleyDb < Package
   end
 
   def sonames_translation_table(release)
-    v = release.version.split('.').first(2).join('.')
+    v = release.major_point_minor
     { "libdb-#{v}.so"     => 'libdb',
       "libdb_cxx-#{v}.so" => 'libdb_cxx'
     }
