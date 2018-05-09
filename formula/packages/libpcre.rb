@@ -26,13 +26,6 @@ class Libpcre < Package
     system 'make', '-j', num_jobs
     system 'make', 'install'
 
-    # FileUtils.cd(install_dir) do
-    #   if Dir.exist?('lib64')
-    #     FileUtils.rm_rf 'lib'
-    #     FileUtils.mv 'lib64', 'lib'
-    #   end
-    # end
-
     clean_install_dir abi, :lib
   end
 end
