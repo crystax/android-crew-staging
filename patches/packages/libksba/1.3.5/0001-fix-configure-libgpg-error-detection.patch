@@ -1,0 +1,23 @@
+diff -Naur a/configure b/configure
+--- a/configure	2016-08-22 12:56:54.000000000 +0300
++++ b/configure	2018-05-10 19:15:00.335852599 +0300
+@@ -13851,6 +13851,10 @@
+ #
+ # Checks for libraries.
+ #
++if test -n "$GPG_ERROR_CFLAGS"; then
++    $as_echo "GPG_ERROR_CFLAGS: $GPG_ERROR_CFLAGS"
++    $as_echo "GPG_ERROR_LIBS:   $GPG_ERROR_LIBS"
++else
+ 
+   gpg_error_config_prefix=""
+ 
+@@ -13993,7 +13997,7 @@
+     :
+   fi
+ 
+-
++fi
+ 
+ 
+ 
