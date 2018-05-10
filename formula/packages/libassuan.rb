@@ -9,7 +9,6 @@ class Libassuan < Package
   depends_on 'libgpg-error'
 
   build_copy 'COPYING','COPYING.LIB'
-  #build_libs 'libnpth'
 
   def build_for_abi(abi, _toolchain,  _release, _host_dep_dirs, target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)
