@@ -383,6 +383,14 @@ class Package < TargetBase
     end
   end
 
+  def target_dep_include_dir(dir)
+    "-I#{dir}/include"
+  end
+
+  def target_dep_lib_dir(dir, abi)
+    "-L#{dir}/libs/#{abi}"
+  end
+
   private
 
   def binary_files(rel_dir)
