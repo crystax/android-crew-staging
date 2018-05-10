@@ -357,6 +357,18 @@ class Package < TargetBase
     Dir["#{dir}/#{abi}/*"]
   end
 
+  # some libraries use pthread_cancel to check whether pthread is in use
+  # since we do not have pthread_cancel (at least right now) we must handle the issue by editing config.h
+  def set_pthread_in_use_detection_hard(config_h_file)
+    replace_lines_in_file(config_h_file) do |line|
+      if line == '/* #undef PTHREAD_IN_USE_DETECTION_HARD */'
+        '#define PTHREAD_IN_USE_DETECTION_HARD 1'
+      else
+        line
+      end
+    end
+  end
+
   def clean_install_dir(abi, *types)
     FileUtils.cd(install_dir_for_abi(abi)) do
       types.each do |type|
