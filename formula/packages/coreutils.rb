@@ -4,7 +4,7 @@ class Coreutils < Package
   homepage "https://www.gnu.org/software/coreutils"
   url "http://ftpmirror.gnu.org/coreutils/coreutils-${version}.tar.xz"
 
-  release version: '8.29', crystax_version: 3
+  release version: '8.29', crystax_version: 4
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'libexec'],
@@ -48,9 +48,10 @@ class Coreutils < Package
     end
   end
 
+  # todo: replace /system/bin/sh with /bin/sh when libcrystax will be ready
   def write_create_symlinks_script(symlinks)
     File.open(SYMLINKS_SCRIPT, 'w') do |f|
-      f.puts '#!/bin/sh'
+      f.puts '#!/system/bin/sh'
       f.puts ''
       f.puts 'cd $(dirname $0)'
       f.puts ''
