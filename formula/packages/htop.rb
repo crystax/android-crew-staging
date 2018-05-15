@@ -4,7 +4,7 @@ class Htop < Package
   homepage 'https://hisham.hm/htop/'
   url 'https://github.com/hishamhm/htop/archive/${version}.tar.gz'
 
-  release version: '2.1.0', crystax_version: 2
+  release version: '2.1.0', crystax_version: 3
 
   depends_on 'ncurses'
 
@@ -19,7 +19,7 @@ class Htop < Package
     ncurses_dir = target_dep_dirs['ncurses']
 
     build_env['CFLAGS']  += " -I#{ncurses_dir}/include -L#{ncurses_dir}/libs/#{abi}"
-    build_env['LIBS']     = '-ltinfow'
+    build_env['LIBS']     = '-lncursesw'
 
     args =  [ "--prefix=#{install_dir}",
               "--host=#{host_for_abi(abi)}",

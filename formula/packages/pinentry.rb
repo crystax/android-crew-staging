@@ -4,7 +4,7 @@ class Pinentry < Package
   homepage "https://www.gnupg.org/related_software/pinentry/"
   url "https://www.gnupg.org/ftp/gcrypt/pinentry/pinentry-${version}.tar.bz2"
 
-  release version: '1.1.0', crystax_version: 1
+  release version: '1.1.0', crystax_version: 2
 
   depends_on 'ncurses'
   depends_on 'libgpg-error'
@@ -29,7 +29,7 @@ class Pinentry < Package
     build_env['LIBASSUAN_LIBS']    = target_dep_lib_dir(libassuan_dir, abi)
     build_env['LIBASSUAN_VERSION'] = Formulary.new['target/libassuan'].highest_installed_release.version
 
-    build_env['LIBS']    =  '-lassuan -lgpg-error -lncursesw -ltinfow'
+    build_env['LIBS']    =  '-lassuan -lgpg-error -lncursesw' # -ltinfow'
     build_env['CFLAGS']  += ' ' + [build_env['NCURSES_CFLAGS'], build_env['GPG_ERROR_CFLAGS'], build_env['LIBASSUAN_CFLAGS']].join(' ')
     build_env['LDFLAGS'] += ' ' + [build_env['NCURSES_LIBS'], build_env['GPG_ERROR_LIBS'], build_env['LIBASSUAN_LIBS']].join(' ')
 

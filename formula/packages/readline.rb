@@ -4,7 +4,7 @@ class Readline < Package
   homepage "https://tiswww.case.edu/php/chet/readline/rltop.html"
   url "https://ftp.gnu.org/gnu/readline/readline-${version}.tar.gz"
 
-  release version: '7.0', crystax_version: 1
+  release version: '7.0', crystax_version: 2
 
   depends_on 'ncurses'
 

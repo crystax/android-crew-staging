@@ -5,7 +5,7 @@ class ProcpsNg < Package
   homepage 'https://gitlab.com/procps-ng/procps'
   url "https://gitlab.com/procps-ng/procps.git|git_tag:v${version}"
 
-  release version: '3.3.12', crystax_version: 4
+  release version: '3.3.12', crystax_version: 5
 
   depends_on 'ncurses'
 
@@ -19,7 +19,7 @@ class ProcpsNg < Package
 
     # todo: remove HOST_NAME_MAX when libcrystax is fixed
     build_env['CFLAGS'] += " -I#{ncurses_dir}/include -I#{ncurses_dir}/include/ncursesw -L#{ncurses_dir}/libs/#{abi} -DHOST_NAME_MAX=255"
-    build_env['LIBS']    = '-ltinfow'
+    build_env['LIBS']    = '-lncursesw'
 
     if Global::OS == 'darwin'
       build_env['PATH'] = "/usr/local/opt/gettext/bin:#{ENV['PATH']}"

@@ -4,7 +4,7 @@ class Vim < Package
   homepage 'https://github.com/vim/vim'
   url 'https://github.com/vim/vim/archive/v${version}.tar.gz'
 
-  release version: '8.0.1486', crystax_version: 2
+  release version: '8.0.1486', crystax_version: 3
 
   depends_on 'ncurses'
 
@@ -27,7 +27,7 @@ class Vim < Package
 
     build_env['CFLAGS']  += " -I#{ncurses_dir}/include"
     build_env['LDFLAGS'] += " -L#{ncurses_dir}/libs/#{abi}"
-    build_env['LIBS']     = '-ltinfow'
+    build_env['LIBS']     = '-lncursesw'
 
     set_vim_cv
     system './configure', *args
