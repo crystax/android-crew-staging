@@ -1,0 +1,37 @@
+diff -Naur a/random/rndunix.c b/random/rndunix.c
+--- a/random/rndunix.c	2017-11-23 21:16:58.000000000 +0300
++++ b/random/rndunix.c	2018-05-15 22:59:09.479849387 +0300
+@@ -3,7 +3,7 @@
+  *									    *
+  *   Unix Randomness-Gathering Code					    *
+  *									    *
+- *   Copyright Peter Gutmann, Paul Kendall, and Chris Wedgwood 1996-1999.   *
++ *   Copyright Peter Gutmann, Paul Kendall, and Chris Wedgwood 1996-1999, 2018.   *
+  *   Heavily modified for GnuPG by Werner Koch				    *
+  *									    *
+  *									    *
+@@ -226,6 +226,24 @@
+     const int hasAlternative;	    /* Whether source has alt.location */
+ } dataSources[] = {
+ 
++    // For Android
++    {	"/system/bin/vmstat", "-s", SC(-3), NULL, 0, 0, 0, 1    },
++    {	"/system/xbin/vmstat", "-s", SC(-3), NULL, 0, 0, 0, 1    },
++    {	"/system/bin/netstat", "-s", SC(2), NULL, 0, 0, 0, 1 },
++    {	"/system/xbin/netstat", "-s", SC(2), NULL, 0, 0, 0, 1 },
++    {	"/system/bin/mpstat", NULL, SC(1), NULL, 0, 0, 0, 0     },
++    {	"/system/xbin/mpstat", NULL, SC(1), NULL, 0, 0, 0, 0     },
++    {	"/system/bin/df", NULL, SC(1), NULL, 0, 0, 0, 0             },
++    {	"/system/xbin/df", NULL, SC(1), NULL, 0, 0, 0, 0             },
++    {	"/system/bin/iostat", NULL, SC(SC_0), NULL, 0, 0, 0, 0  },
++    {	"/system/xbin/iostat", NULL, SC(SC_0), NULL, 0, 0, 0, 0  },
++    {	"/system/bin/uptime", NULL, SC(SC_0), NULL, 0, 0, 0, 1   },
++    {	"/system/xbin/uptime", NULL, SC(SC_0), NULL, 0, 0, 0, 1   },
++    {	"/system/bin/ps", "aux", SC(0.3), NULL, 0, 0, 0, 1       },
++    {	"/system/xbin/ps", "aux", SC(0.3), NULL, 0, 0, 0, 1       },
++    {	"/system/bin/arp", "-a", SC(0.1), NULL, 0, 0, 0, 1  },
++    {	"/system/xbin/arp", "-a", SC(0.1), NULL, 0, 0, 0, 1  },
++
+     {	"/bin/vmstat", "-s", SC(-3), NULL, 0, 0, 0, 1    },
+     {	"/usr/bin/vmstat", "-s", SC(-3), NULL, 0, 0, 0, 0},
+     {	"/bin/vmstat", "-c", SC(-3), NULL, 0, 0, 0, 1     },

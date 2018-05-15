@@ -1,0 +1,33 @@
+diff -Naur a/random/random.c b/random/random.c
+--- a/random/random.c	2017-11-23 21:16:58.000000000 +0300
++++ b/random/random.c	2018-05-15 23:01:17.289776488 +0300
+@@ -1,5 +1,5 @@
+ /* random.c - Random number switch
+- * Copyright (C) 2003, 2006, 2008, 2012  Free Software Foundation, Inc.
++ * Copyright (C) 2003, 2006, 2008, 2012, 2018  Free Software Foundation, Inc.
+  *
+  * This file is part of Libgcrypt.
+  *
+@@ -34,6 +34,9 @@
+ #endif /*HAVE_SYSLOG*/
+ #include <ctype.h>
+ 
++#include <assert.h>
++#include <crystax.h>
++
+ #include "g10lib.h"
+ #include "random.h"
+ #include "rand-internal.h"
+@@ -102,7 +105,11 @@
+ unsigned int
+ _gcry_random_read_conf (void)
+ {
+-  const char *fname = RANDOM_CONF_FILE;
++  const char *crystax_base = crystax_posix_base();
++  const char *fname = malloc(strlen(crystax_base) + strlen(RANDOM_CONF_FILE) + 1);
++  assert(fname);
++  strcpy(fname, crystax_base);
++  strcat(fname, RANDOM_CONF_FILE);
+   FILE *fp;
+   char buffer[256];
+   char *p, *pend;
