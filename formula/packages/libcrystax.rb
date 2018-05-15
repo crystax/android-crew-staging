@@ -4,11 +4,8 @@ class Libcrystax < BasePackage
 
   desc "Crystax Library, the Heart of the Crystax NDK"
   name 'libcrystax'
-  # todo:
-  #homepage ""
-  #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '1', crystax_version: 5
+  release version: '1', crystax_version: 6
 
   package_info root_package: true
 
