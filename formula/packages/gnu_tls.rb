@@ -5,7 +5,7 @@ class GnuTls < Package
   homepage "https://www.gnutls.org"
   url "https://www.gnupg.org/ftp/gcrypt/gnutls/v${block}/gnutls-${version}.tar.xz" do |r| r.version.split('.').first(2).join('.') end
 
-  release version: '3.5.18', crystax_version: 2
+  release version: '3.5.18', crystax_version: 3
 
   depends_on 'gmp'
   depends_on 'libffi'
@@ -26,8 +26,8 @@ class GnuTls < Package
     libidn2_dir = target_dep_dirs['libidn2']
     p11_kit_dir = target_dep_dirs['p11-kit']
 
-    build_env['CFLAGS']  += target_dep_dirs.values.inject('') { |acc, dir| "#{acc} -I#{dir}/include" }
-    build_env['LDFLAGS'] += target_dep_dirs.values.inject('') { |acc, dir| "#{acc} -L#{dir}/libs/#{abi}" }
+    build_env['CFLAGS']  += target_dep_all_include_dirs(target_dep_dirs)
+    build_env['LDFLAGS'] += target_dep_all_lib_dirs(target_dep_dirs, abi)
     build_env['LDFLAGS'] += ' -lp11-kit -lidn2 -lunistring -lnettle -lhogweed -lffi -lgmp -lz' if ['mips', 'arm64-v8a', 'mips64'].include? abi
 
     build_env['GMP_CFLAGS']     = "-I#{gmp_dir}/include"
