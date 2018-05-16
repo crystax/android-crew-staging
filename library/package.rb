@@ -391,6 +391,14 @@ class Package < TargetBase
     "-L#{dir}/libs/#{abi}"
   end
 
+  def target_dep_all_include_dirs(dirs)
+    dirs.values.inject('') { |acc, dir| "#{acc} #{target_dep_include_dir(dir)}" }
+  end
+
+  def target_dep_all_lib_dirs(dirs, abi)
+    dirs.values.inject('') { |acc, dir| "#{acc} #{target_dep_lib_dir(dir, abi)}" }
+  end
+
   private
 
   def binary_files(rel_dir)
