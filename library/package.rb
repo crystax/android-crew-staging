@@ -19,7 +19,7 @@ class Package < TargetBase
                         use_cxx:                        false,
                         cxx_wrapper:                    'c++',
                         setup_env:                      true,
-                        use_standalone_toolchain:       nil,
+                        use_standalone_toolchain:       false,
                         use_static_libcrystax:          false,
                         copy_installed_dirs:            ['lib', 'include'],
                         check_sonames:                  true,
@@ -143,7 +143,7 @@ class Package < TargetBase
     arch_list.each do |arch|
       build_log_puts "= building for architecture: #{arch.name}"
       if build_options[:use_standalone_toolchain]
-        st_packages = (build_options[:use_standalone_toolchain].is_a? Array) ? build_options[:use_standalone_toolchain] : []
+        st_packages = target_dep_dirs.keys
         st_base_dir = "#{build_base_dir}/#{arch.name}-toolchain"
         build_log_puts "  making standalone toolchain with packages: #{st_packages}"
         toolchain = Toolchain::Standalone.new(arch, st_base_dir, Toolchain::DEFAULT_GCC, Toolchain::DEFAULT_LLVM, st_packages, self)
