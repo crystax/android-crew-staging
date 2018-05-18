@@ -3,11 +3,8 @@ class Platforms < BasePackage
   include SingleVersion
 
   desc "Android platforms headers and libraries"
-  # todo:
-  #homepage ""
-  #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '24', crystax_version: 4
+  release version: '24', crystax_version: 5
 
   # todo:
   #build_depends_on default_compiler
