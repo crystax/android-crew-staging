@@ -6,9 +6,10 @@ class MakeDebOptions
 
   extend CommandOptions
 
-  attr_accessor :deb_root_prefix, :abis
+  attr_accessor :deb_repo_base, :abis
 
   def initialize(opts)
+    @deb_repo_base = Global::DEB_CACHE_DIR
     @abis = Arch::ABI_LIST
     @all_versions = false
     @clean = true
@@ -16,8 +17,8 @@ class MakeDebOptions
 
     opts.each do |opt|
       case opt
-      when /^--deb-root-prefix=/
-        @deb_root_prefix = opt.split('=')[1]
+      when /^--deb-repo-base=/
+        @deb_repo_base = opt.split('=')[1]
       when '--all-versions'
         @all_versions = true
       when /^--abis=/

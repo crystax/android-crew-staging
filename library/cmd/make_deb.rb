@@ -15,23 +15,19 @@ module Crew
 
     formulary = Formulary.new
 
-    if args.empty?
-      formulas = formulary.packages
-    else
-      formulas = []
-      args.each do |name|
-        name, version = name.split(':')
-        name = "target/#{name}" unless name.include? '/'
-        f = formulary[name]
-        raise "only formulas with 'target' namespace may be packaged into deb format" if f.namespace == :host
-        if options.all_versions?
-          r = f.releases
-        else version
-          r = [f.find_release(version)]
-          formulas << DebInfo.new(f, r)
-        end
-      end
+    args = formulary.packages.map(&:name) if args.empty?
+
+    formulas = []
+    args.each do |name|
+      name, version = name.split(':')
+      name = "target/#{name}" unless name.include? '/'
+      formula = formulary[name]
+      raise "only formulas with 'target' namespace may be packaged into deb format" if formula.namespace == :host
+      releases = options.all_versions? ? formula.releases : [formula.find_release(Release.new(version))]
+      formulas << DebInfo.new(formula, releases)
     end
+
+    formulas.each { |ff| puts "#{ff.formula.name}:[#{ff.releases.join(',')}]" }
 
     platform_name = nil
 
@@ -47,10 +43,11 @@ module Crew
         archive = formula.download_archive(release, platform_name, shasum, false)
         Utils.unpack archive, package_dir
         options.abis.each do |abi|
-          working_dir = "#{base_dir}/#{abi}"
+          working_dir = "#{base_dir}/#{abi}/tmp"
+          FileUtils.rm_rf working_dir
           FileUtils.mkdir_p working_dir
           puts "  #{formula.name}_#{release}_#{Deb.arch_for_abi(abi)}.deb"
-          Deb.make_bin_package package_dir, working_dir, abi, options.deb_root_prefix, formula, release
+          Deb.make_bin_package package_dir, working_dir, abi, options.deb_repo_base, formula, release
           #Deb.make_deb_dev_package  if formula.deb_has_dev?
           FileUtils.mv Dir["#{working_dir}/*.deb"], formula.build_base_dir
         end

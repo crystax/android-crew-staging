@@ -6,12 +6,15 @@ module Deb
   DATA_TAR_FILE      = 'data.tar.xz'
 
 
-  def self.make_bin_package(package_dir, working_dir, abi, root_prefix, formula, release)
+  def self.make_bin_package(package_dir, working_dir, abi, repo_base, formula, release)
+    archive_dir = "#{repo_base}/#{arch_for_abi(abi)}"
+    data_dir = "#{working_dir}/data"
+    FileUtils.mkdir_p [archive_dir, data_dir]
     FileUtils.cd(working_dir) do
       make_debian_binary_file
-      make_data_tar_file    formula, release, :bin, root_prefix, abi, package_dir
-      make_control_tar_file formula, release, :bin, root_prefix, abi
-      make_deb_file "#{formula.name}_#{release}_#{arch_for_abi(abi)}.deb"
+      make_data_tar_file    formula, release, :bin, abi, data_dir, package_dir
+      make_control_tar_file formula, release, :bin, abi, data_dir
+      make_deb_file "#{archive_dir}/#{formula.name}_#{release}_#{arch_for_abi(abi)}.deb"
     end
   end
 
@@ -40,13 +43,12 @@ module Deb
     File.open(DEBIAN_BINARY_FILE, 'w') { |f| f.puts FORMAT_VERSION }
   end
 
-  def self.make_data_tar_file(formula, release, deb_type, data_dir, abi, package_dir)
-    FileUtils.mkdir_p data_dir
+  def self.make_data_tar_file(formula, release, deb_type, abi, data_dir, package_dir)
     formula.copy_to_deb_data_dir package_dir, data_dir, abi, deb_type
-    pack_archive '.', DATA_TAR_FILE, data_dir.split('/')[0]
+    pack_archive data_dir, DATA_TAR_FILE, '.'
   end
 
-  def self.make_control_tar_file(formula, release, deb_type, data_dir, abi)
+  def self.make_control_tar_file(formula, release, deb_type, abi, data_dir)
     control_dir = 'control'
     FileUtils.mkdir_p control_dir
 
@@ -68,6 +70,7 @@ module Deb
   end
 
   def self.make_deb_file(archive)
+    FileUtils.rm_rf archive
     args = ['q', archive, DEBIAN_BINARY_FILE, CONTROL_TAR_FILE, DATA_TAR_FILE]
     Utils.run_command Utils.crew_ar_prog, *args
   end
