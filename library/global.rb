@@ -90,23 +90,10 @@ module Global
     dir
   end
 
-  def self.default_src_cache_dir(os)
+  def self.default_cache_base_dir(os)
     case os
     when 'darwin'
-      "#{ENV['HOME']}/Library/Caches/Crew/sources"
-    when 'linux'
-      "#{ENV['HOME']}/.caches/crew/sources"
-    when 'windows'
-      "#{BASE_DIR}/cache/sources"
-    else
-      raise UnsupportedOS.new(OS)
-    end
-  end
-
-  def self.default_pkg_cache_dir(os)
-    case os
-    when 'darwin'
-      "#{ENV['HOME']}/Library/Caches/crew"
+      "#{ENV['HOME']}/Library/Caches/Crew"
     when 'linux'
       "#{ENV['HOME']}/.caches/crew"
     when 'windows'
@@ -114,6 +101,18 @@ module Global
     else
       raise UnsupportedOS.new(OS)
     end
+  end
+
+  def self.default_src_cache_dir(os)
+    "#{default_cache_base_dir(os)}/sources"
+  end
+
+  def self.default_pkg_cache_dir(os)
+    default_cache_base_dir(os)
+  end
+
+  def self.default_dev_cache_dir(os)
+    "#{default_cache_base_dir(os)}/deb"
   end
 
   def self.pkg_cache_dir(formula)
@@ -129,6 +128,7 @@ module Global
   DOWNLOAD_BASE = [nil, ''].include?(ENV['CREW_DOWNLOAD_BASE']) ? default_download_base(BASE_DIR)    : ENV['CREW_DOWNLOAD_BASE']
   SRC_CACHE_DIR = [nil, ''].include?(ENV['CREW_SRC_CACHE_DIR']) ? default_src_cache_dir(OS)          : ENV['CREW_SRC_CACHE_DIR']
   PKG_CACHE_DIR = [nil, ''].include?(ENV['CREW_PKG_CACHE_DIR']) ? default_pkg_cache_dir(OS)          : ENV['CREW_PKG_CACHE_DIR']
+  DEB_CACHE_DIR = [nil, ''].include?(ENV['CREW_DEB_CACHE_DIR']) ? default_deb_cache_dir(OS)          : ENV['CREW_DEB_CACHE_DIR']
 
   PLATFORM_NAME = File.basename(TOOLS_DIR)
 

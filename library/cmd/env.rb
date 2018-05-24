@@ -12,6 +12,7 @@ module Crew
       puts "DOWNLOAD_BASE:  #{Global::DOWNLOAD_BASE}"
       puts "PKG_CACHE_DIR:  #{Global::PKG_CACHE_DIR}"
       puts "SRC_CACHE_DIR:  #{Global::SRC_CACHE_DIR}"
+      puts "DEB_CACHE_DIR:  #{Global::DEB_CACHE_DIR}"
       puts "BASE_DIR:       #{Global::BASE_DIR}"
       puts "NDK_DIR:        #{Global::NDK_DIR}"
       puts "TOOLS_DIR:      #{Global::TOOLS_DIR}"
@@ -20,24 +21,16 @@ module Crew
       puts "GIT origin:     #{origin}"
     when 1
       case args[0]
-      when '--download-base'
-        puts Global::DOWNLOAD_BASE
-      when '--base-dir'
-        puts Global::BASE_DIR
-      when '--ndk-dir'
-        puts Global::NDK_DIR
-      when '--tools-dir'
-        puts Global::TOOLS_DIR
-      when '--pkg-cache-dir'
-        puts Global::PKG_CACHE_DIR
-      when '--src-cache-dir'
-        puts Global::SRC_CACHE_DIR
-      when '--platform-name'
-        puts Global::PLATFORM_NAME
-      when '--base-build-dir'
-        puts Build::BASE_BUILD_DIR
-      when '--git-origin'
-        puts origin
+      when '--download-base'  then puts Global::DOWNLOAD_BASE
+      when '--base-dir'       then puts Global::BASE_DIR
+      when '--ndk-dir'        then puts Global::NDK_DIR
+      when '--tools-dir'      then puts Global::TOOLS_DIR
+      when '--pkg-cache-dir'  then puts Global::PKG_CACHE_DIR
+      when '--src-cache-dir'  then puts Global::SRC_CACHE_DIR
+      when '--deb-cache-dir'  then puts Global::DEB_CACHE_DIR
+      when '--platform-name'  then puts Global::PLATFORM_NAME
+      when '--base-build-dir' then puts Build::BASE_BUILD_DIR
+      when '--git-origin'     then puts origin
       else
         raise "bad argument: #{args[0]}"
       end

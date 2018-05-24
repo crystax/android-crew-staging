@@ -45,61 +45,43 @@ OPTIONS are:
 
   --backtrace, -b output backtrace with exception message;
                   debug option
-
   --no-warnings, -W
                   do not output warnings
-
   --help, -h      equivalent to crew help
 
 COMMAND is one of the following:
 
   version         output version information
-
   help [command]...
                   if no command specified show this help message;
                   otherwise show addition info for the specified commands
-
   #{ENV_SYNTAX}   show crew's command working environment
-
   #{LIST_SYNTAX}
                   list the specified formulas;
                   whithout any options and arguments list all formulas
-
   #{INFO_SYNTAX}
                   show information about the specified formula(s)
-
   #{INSTALL_SYNTAX}
                   install the specified formula(s)
-
   remove name[:version] ...
                   uninstall the specified formulas
-
   #{SOURCE_SYNTAX}
                   install source code for the specified formula(s)
-
   #{BUILD_SYNTAX}
                   build the specified formula(s) from the source code
-
   remove-source name[:version] ...
                   remove source code for the specified formulas
-
   update          update crew repository information
-
   upgrade         install most recent versions
-
   #{CLEANUP_SYNTAX}
                   uninstall old versions and clean cache
-
   #{SHASUM_SYNTAX}
                   check or update SHA256 sums
-
   #{MAKE_STANDALONE_TOOLCHAIN_SYNTAX}
                   create a standalone toolchain package for Android
-
   #{MAKE_DEB_SYNTAX}
                   create a deb-format packages for a specified formulas;
                   formulas must be from a 'target' namespace
-
   #{MAKE_POSIX_ENV_SYNTAX}
                   create a tarball with a 'POSIX environment'a
 EOS
@@ -130,6 +112,10 @@ The ENV command supports the following options:
   --src-cache-dir
                  output path to the directory used as
                  a cache for sources for the crew packages
+
+  --deb-cache-dir
+                 output path to the directory used as
+                 a cache for crew's packages in deb format
 
   --platform-name
                  output crew's platform
@@ -382,9 +368,11 @@ repository (but not installed).
 
 The command supports the following options:
 
-  --deb-root-prefix=PATH
-                  use given path as a prefix for all files in a deb
-                  package
+  --deb-repo-base=PATH
+                  the path to a repository where the command will put
+                  built deb packages; the command will create
+                  subdirectories for each deb arch and put respective
+                  packages there; required
 
   --abis=LIST     list of abis for which deb packages should be
                   generated
