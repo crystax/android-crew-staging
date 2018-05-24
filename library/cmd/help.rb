@@ -372,7 +372,8 @@ The command supports the following options:
                   the path to a repository where the command will put
                   built deb packages; the command will create
                   subdirectories for each deb arch and put respective
-                  packages there; required
+                  packages there; default value is
+                  #{Global::DEB_CACHE_DIR}
 
   --abis=LIST     list of abis for which deb packages should be
                   generated
