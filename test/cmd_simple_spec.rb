@@ -62,6 +62,7 @@ describe "simple crew commands" do
           expect(out.split("\n")).to eq(["DOWNLOAD_BASE:  #{Global::DOWNLOAD_BASE}",
                                          "PKG_CACHE_DIR:  #{Global::PKG_CACHE_DIR}",
                                          "SRC_CACHE_DIR:  #{Global::SRC_CACHE_DIR}",
+                                         "DEB_CACHE_DIR:  #{Global::DEB_CACHE_DIR}",
                                          "BASE_DIR:       #{Global::BASE_DIR}",
                                          "NDK_DIR:        #{Global::NDK_DIR}",
                                          "TOOLS_DIR:      #{Global::TOOLS_DIR}",
@@ -81,6 +82,7 @@ describe "simple crew commands" do
           expect(out.split("\n")).to eq(["DOWNLOAD_BASE:  #{GitHub::STAGING_DOWNLOAD_BASE}",
                                          "PKG_CACHE_DIR:  #{Global::PKG_CACHE_DIR}",
                                          "SRC_CACHE_DIR:  #{Global::SRC_CACHE_DIR}",
+                                         "DEB_CACHE_DIR:  #{Global::DEB_CACHE_DIR}",
                                          "BASE_DIR:       #{Global::BASE_DIR}",
                                          "NDK_DIR:        #{Global::NDK_DIR}",
                                          "TOOLS_DIR:      #{Global::TOOLS_DIR}",
@@ -148,6 +150,14 @@ describe "simple crew commands" do
           crew 'env --src-cache-dir'
           expect(result).to eq(:ok)
           expect(out.strip).to eq(Global::SRC_CACHE_DIR)
+        end
+      end
+
+      context "crew env --deb-cache-dir" do
+        it "outputs crew's deb packages cache directory" do
+          crew 'env --deb-cache-dir'
+          expect(result).to eq(:ok)
+          expect(out.strip).to eq(Global::DEB_CACHE_DIR)
         end
       end
 
