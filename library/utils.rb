@@ -9,9 +9,10 @@ module Utils
   @@curl_prog = nil
   @@tar_prog  = nil
 
-  @@crew_ar_prog  = File.join(Global::TOOLS_DIR, 'bin', "ar#{Global::EXE_EXT}")
-  @@crew_tar_prog = File.join(Global::TOOLS_DIR, 'bin', "bsdtar#{Global::EXE_EXT}")
-  @@system_tar    = (Global::OS == 'darwin') ? 'gtar' : 'tar'
+  @@crew_md5sum_prog = 'md5sum'
+  @@crew_ar_prog     = File.join(Global::TOOLS_DIR, 'bin', "ar#{Global::EXE_EXT}")
+  @@crew_tar_prog    = File.join(Global::TOOLS_DIR, 'bin', "bsdtar#{Global::EXE_EXT}")
+  @@system_tar       = (Global::OS == 'darwin') ? 'gtar' : 'tar'
 
   @@patch_prog = '/usr/bin/patch'
   @@unzip_prog = '/usr/bin/unzip'
@@ -61,6 +62,10 @@ module Utils
     raise ErrorDuringExecution.new(cmd.join(' '), status.exitstatus, errstr) unless status.success?
 
     outstr
+  end
+
+  def self.run_md5sum(*args)
+    run_command @@crew_md5sum_prog, *args
   end
 
   def self.download(url, outpath)

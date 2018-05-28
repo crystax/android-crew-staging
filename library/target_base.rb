@@ -32,6 +32,10 @@ class TargetBase < Formula
     File.join(Global.pkg_cache_dir(self), archive_filename(release))
   end
 
+  def deb_cache_file(release, abi)
+    "#{Global::DEB_CACHE_DIR}/#{Deb.arch_for_abi(abi)}/#{Deb.file_name(name, release, abi)}"
+  end
+
   def read_shasum(release, _ = nil)
     Shasum.read qfn, release, 'android'
   end

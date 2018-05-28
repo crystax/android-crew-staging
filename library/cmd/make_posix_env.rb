@@ -11,15 +11,19 @@ top_dir=$(dirname $(dirname ${sourced}))
 
 PATH=$top_dir/bin:$top_dir/usr/bin:$top_dir/sbin:$PATH
 LD_LIBRARY_PATH=$top_dir/lib:$top_dir/usr/lib
+CRYSTAX_POSIX_BASE=$top_dir
+DPKG_ADMINDIR=$top_dir/var/lib/dpkg
 
 export PATH
 export LD_LIBRARY_PATH
+export CRYSTAX_POSIX_BASE
+export DPKG_ADMINDIR
 EOS
 
 
 module Crew
 
-  DEF_PACKAGES  = ['libcrystax', 'bash', 'coreutils', 'gnu-grep', 'gnu-sed', 'gnu-which', 'gzip', 'findutils', 'less', 'xz']
+  DEF_PACKAGES  = ['libcrystax', 'bash', 'coreutils', 'gnu-grep', 'gnu-sed', 'gnu-which', 'gnu-tar', 'gzip', 'findutils', 'less', 'xz']
 
   ENVIRONMENT_FILE = 'environment'
 
@@ -37,17 +41,19 @@ module Crew
 
     top_dir = options.top_dir
     FileUtils.rm_rf top_dir
+    FileUtils.mkdir_p top_dir
 
     puts "coping formulas:"
     (packages + dependencies).each do |formula|
       release = formula.releases.last
       puts "  #{formula.name}:#{release}"
-      FileUtils.rm_rf formula.build_base_dir
-      package_dir = "#{formula.build_base_dir}/#{release}/package"
-      shasum = options.check_shasum? ? formula.read_shasum(release) : nil
-      archive = formula.download_archive(release, nil, shasum, false)
-      Utils.unpack archive, package_dir
-      formula.copy_to_deb_data_dir package_dir, top_dir, options.abi
+      deb_file = formula.deb_cache_file(release, options.abi)
+      if not File.exist?(deb_file)
+        shasum = options.check_shasum? ? formula.read_shasum(release) : nil
+        formula.download_archive(release, nil, shasum, false)
+        make_deb_archive formula.name, release.version, options.check_shasum?
+      end
+      Deb.install_deb_archive formula, top_dir, deb_file, options.abi
     end
 
     FileUtils.mkdir_p "#{top_dir}/etc"
@@ -63,6 +69,13 @@ module Crew
   def self.packages_formulas(formulary, package_names)
     packages = package_names.map { |n| "target/#{n}" }.map { |n| formulary[n] }
     deps = packages.reduce([]) { |acc, f| acc + formulary.dependencies(f) }.uniq(&:name).sort { |f1, f2| f1.name <=> f2.name }
-    [packages, deps]
+    [packages, deps - packages]
+  end
+
+  def self.make_deb_archive(name, version, check_shasum)
+    cmd_with_args = ["#{Global::BASE_DIR}/crew", 'make-deb']
+    cmd_with_args << '--no-check-shasum' unless check_shasum
+    cmd_with_args << "#{name}:#{version}"
+    system *cmd_with_args
   end
 end

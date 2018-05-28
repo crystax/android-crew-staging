@@ -2,6 +2,7 @@ module Deb
 
   FORMAT_VERSION     = '2.0'
   DEBIAN_BINARY_FILE = 'debian-binary'
+  CONTROL_FILE       = 'control'
   CONTROL_TAR_FILE   = 'control.tar.xz'
   DATA_TAR_FILE      = 'data.tar.xz'
 
@@ -14,8 +15,49 @@ module Deb
       make_debian_binary_file
       make_data_tar_file    formula, release, :bin, abi, data_dir, package_dir
       make_control_tar_file formula, release, :bin, abi, data_dir
-      make_deb_file "#{archive_dir}/#{formula.name}_#{release}_#{arch_for_abi(abi)}.deb"
+      make_deb_file "#{archive_dir}/#{file_name(formula.name, release, abi)}"
     end
+  end
+
+  def self.install_deb_archive(formula, dst_dir, archive, abi)
+    arch = arch_for_abi(abi)
+    src_dir = "#{Build::BASE_TARGET_DIR}/tmp"
+    FileUtils.rm_rf src_dir
+    FileUtils.mkdir_p src_dir
+
+    FileUtils.cd(src_dir) do
+      Utils.run_command Utils.crew_ar_prog, '-x', archive
+
+      data_dir = 'data'
+      FileUtils.mkdir_p data_dir
+      unpack_archive data_dir, DATA_TAR_FILE
+      FileUtils.cp_r Dir["#{data_dir}/*"], dst_dir
+
+      dpkg_dir = "#{dst_dir}/var/lib/dpkg"
+      FileUtils.mkdir_p dpkg_dir
+      unpack_archive '.', CONTROL_TAR_FILE
+      status_info = File.readlines(CONTROL_FILE)
+      status_info.insert(1, "Status: install ok installed\n")
+      status_info << "\n"
+      status_file = "#{dpkg_dir}/status"
+      File.open(status_file, 'a') { |f| f.puts(status_info) }
+
+      arch_file = "#{dpkg_dir}/arch"
+      File.open(arch_file, 'w') { |f| f.puts arch } unless File.exist? arch_file
+
+      info_dir = "#{dpkg_dir}/info"
+      FileUtils.mkdir_p info_dir
+      make_m5sums_file data_dir, "#{info_dir}/#{formula.name}.md5sums"
+      make_list_file   data_dir, "#{info_dir}/#{formula.name}.list"
+    end
+  end
+
+  def self.file_name(name, release, abi)
+    "#{name}_#{version(release)}_#{arch_for_abi(abi)}.deb"
+  end
+
+  def self.version(release)
+    "#{release.version}-#{release.crystax_version}"
   end
 
   def self.arch_for_abi(abi)
@@ -57,10 +99,11 @@ module Deb
 
     File.open("#{control_dir}/control", 'w') do |f|
       f.puts "Package: #{formula.name}"
-      f.puts "Version: #{release}"
+      f.puts "Version: #{version(release)}"
       f.puts "Description: #{formula.desc}"
-      f.puts "Priority: standard"              # todo: deb_info[:priority] ? deb_info[:priority] : 'standard',
+      f.puts "Priority: standard"                             # todo: deb_info[:priority] ? deb_info[:priority] : 'standard',
       f.puts "Installed-size: #{installed_size}"
+      f.puts "Maintainer: Alexander Zhukov <zuav@crystax.net>"
       f.puts "Architecture: #{arch_for_abi(abi)}"
       f.puts "Homepage: #{formula.homepage}"
       f.puts "Depends: #{deps.join(', ')}" unless deps.empty?
@@ -78,5 +121,25 @@ module Deb
   def self.pack_archive(dir, archive, files)
     args = ['--format', 'ustar', '-C', dir, '-Jcf', archive, files].flatten
     Utils.run_command Utils.crew_tar_prog, *args
+  end
+
+  def self.unpack_archive(dir, archive)
+    args = ['-C', dir, '-xf', archive]
+    Utils.run_command Utils.crew_tar_prog, *args
+  end
+
+  def self.make_m5sums_file(dir, sums_file)
+    FileUtils.cd(dir) do
+      files = Dir['./**/*'].select { |f| File.file?(f) }
+      sums = Utils.run_md5sum(*files)
+      File.open(sums_file, 'w') { |f| f.puts sums }
+    end
+  end
+
+  def self.make_list_file(dir, list_file)
+    FileUtils.cd(dir) do
+      files = Dir['./**/*'].map { |l| l.sub(/^\./, '') }
+      File.open(list_file, 'w') { |f| f.puts files.join("\n") }
+    end
   end
 end
