@@ -4,7 +4,7 @@ class Dpkg < Package
   homepage "https://wiki.debian.org/Teams/Dpkg"
   url "http://http.debian.net/debian/pool/main/d/dpkg/dpkg_${version}.tar.xz"
 
-  release version: '1.19.0.5', crystax_version: 2
+  release version: '1.19.0.5', crystax_version: 3
 
   depends_on 'libmd'
   depends_on 'xz'
@@ -46,6 +46,7 @@ class Dpkg < Package
     build_env['ac_dpkg_arch'] = Deb.arch_for_abi(abi)
 
     system './configure', *args
+    fix_tar_name
     system 'make', '-j', num_jobs
     system 'make', 'install'
 
@@ -54,6 +55,12 @@ class Dpkg < Package
     FileUtils.mkdir_p "#{install_dir}/share/perl5"
     FileUtils.mv Dir["#{install_dir}/Dpkg*"], perl_dir
     FileUtils.rm_rf "#{install_dir}/share/man"
+  end
+
+  def fix_tar_name
+    replace_lines_in_file('config.h') do |line|
+      line.sub(/^#define TAR "gtar"$/, '#define TAR "tar"')
+    end
   end
 
   def copy_to_standalone_toolchain(release, arch, target_include_dir, target_lib_dir, options)
