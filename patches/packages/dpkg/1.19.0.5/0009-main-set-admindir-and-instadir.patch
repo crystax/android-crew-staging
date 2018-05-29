@@ -1,0 +1,33 @@
+diff -Naur a/src/main.c b/src/main.c
+--- a/src/main.c	2017-11-03 01:28:26.000000000 +0300
++++ b/src/main.c	2018-05-29 14:47:38.596075405 +0300
+@@ -2,7 +2,7 @@
+  * dpkg - main program for package management
+  * main.c - main program
+  *
+- * Copyright © 1994,1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
++ * Copyright © 1994,1995,2018 Ian Jackson <ijackson@chiark.greenend.org.uk>
+  * Copyright © 2006-2016 Guillem Jover <guillem@debian.org>
+  * Copyright © 2010 Canonical Ltd.
+  *   written by Martin Pitt <martin.pitt@canonical.com>
+@@ -51,6 +51,8 @@
+ #include <dpkg/command.h>
+ #include <dpkg/options.h>
+ 
++#include <crystax.h>
++
+ #include "main.h"
+ #include "filesdb.h"
+ #include "filters.h"
+@@ -892,6 +894,11 @@
+ int main(int argc, const char *const *argv) {
+   int ret;
+ 
++  /* zuav: for Crystax NDK project always set admindir and instdir
++   * relative to crystax_posix_base */
++  admindir = getenv("DPKG_ADMINDIR");
++  set_instdir(cmdinfos, admindir);
++
+   dpkg_locales_init(PACKAGE);
+   dpkg_program_init("dpkg");
+   dpkg_options_load(DPKG, cmdinfos);

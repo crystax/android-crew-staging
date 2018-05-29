@@ -1,0 +1,21 @@
+diff -Naur a/lib/dpkg/atomic-file.c b/lib/dpkg/atomic-file.c
+--- a/lib/dpkg/atomic-file.c	2018-01-13 06:37:44.000000000 +0300
++++ b/lib/dpkg/atomic-file.c	2018-05-29 14:03:01.684979314 +0300
+@@ -2,7 +2,7 @@
+  * libdpkg - Debian packaging suite library routines
+  * atomic-file.c - atomic file helper functions
+  *
+- * Copyright © 2011-2014 Guillem Jover <guillem@debian.org>
++ * Copyright © 2011-2014, 2018 Guillem Jover <guillem@debian.org>
+  *
+  * This is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -90,7 +90,7 @@
+ 
+ 	if (unlink(name_old) && errno != ENOENT)
+ 		ohshite(_("error removing old backup file '%s'"), name_old);
+-	if (link(file->name, name_old) && errno != ENOENT)
++	if (rename(file->name, name_old) && errno != ENOENT)
+ 		ohshite(_("error creating new backup file '%s'"), name_old);
+ 
+ 	free(name_old);

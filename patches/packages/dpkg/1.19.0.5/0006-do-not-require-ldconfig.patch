@@ -1,0 +1,21 @@
+diff -Naur a/src/help.c b/src/help.c
+--- a/src/help.c	2017-11-03 01:28:26.000000000 +0300
++++ b/src/help.c	2018-05-29 14:04:48.377745003 +0300
+@@ -2,7 +2,7 @@
+  * dpkg - main program for package management
+  * help.c - various helper routines
+  *
+- * Copyright © 1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
++ * Copyright © 1995, 2018 Ian Jackson <ijackson@chiark.greenend.org.uk>
+  * Copyright © 2007-2015 Guillem Jover <guillem@debian.org>
+  *
+  * This is free software; you can redistribute it and/or modify
+@@ -125,7 +125,7 @@
+      * an ldconfig. */
+ #if defined(__APPLE__) && defined(__MACH__)
+     "update_dyld_shared_cache",
+-#else
++#elif !defined(__ANDROID__)
+     "ldconfig",
+ #endif
+ #if BUILD_START_STOP_DAEMON

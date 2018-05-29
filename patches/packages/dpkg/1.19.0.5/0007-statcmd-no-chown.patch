@@ -1,0 +1,21 @@
+diff -Naur a/src/statcmd.c b/src/statcmd.c
+--- a/src/statcmd.c	2017-11-03 01:28:26.000000000 +0300
++++ b/src/statcmd.c	2018-05-29 14:06:37.687015348 +0300
+@@ -1,7 +1,7 @@
+ /*
+  * dpkg-statoverride - override ownership and mode of files
+  *
+- * Copyright © 2000, 2001 Wichert Akkerman <wakkerma@debian.org>
++ * Copyright © 2000, 2001, 2018 Wichert Akkerman <wakkerma@debian.org>
+  * Copyright © 2006-2015 Guillem Jover <guillem@debian.org>
+  *
+  * This is free software; you can redistribute it and/or modify
+@@ -161,8 +161,6 @@
+ static void
+ statdb_node_apply(const char *filename, struct file_stat *filestat)
+ {
+-	if (chown(filename, filestat->uid, filestat->gid) < 0)
+-		ohshite(_("error setting ownership of '%.255s'"), filename);
+ 	if (chmod(filename, filestat->mode & ~S_IFMT))
+ 		ohshite(_("error setting permissions of '%.255s'"), filename);
+ 

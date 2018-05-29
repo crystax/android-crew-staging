@@ -1,0 +1,27 @@
+diff -Naur a/lib/dpkg/dbmodify.c b/lib/dpkg/dbmodify.c
+--- a/lib/dpkg/dbmodify.c	2018-01-03 04:23:14.000000000 +0300
++++ b/lib/dpkg/dbmodify.c	2018-05-29 13:30:01.681344162 +0300
+@@ -2,7 +2,7 @@
+  * libdpkg - Debian packaging suite library routines
+  * dbmodify.c - routines for managing dpkg database updates
+  *
+- * Copyright © 1994,1995 Ian Jackson <ijackson@chiark.greenend.org.uk>
++ * Copyright © 1994,1995,2018 Ian Jackson <ijackson@chiark.greenend.org.uk>
+  * Copyright © 2001 Wichert Akkerman <wichert@debian.org>
+  * Copyright © 2006-2014 Guillem Jover <guillem@debian.org>
+  *
+@@ -256,9 +256,6 @@
+   switch (readwritereq) {
+   case msdbrw_needsuperuser:
+   case msdbrw_needsuperuserlockonly:
+-    if (getuid() || geteuid())
+-      ohshit(_("requested operation requires superuser privilege"));
+-    /* Fall through. */
+   case msdbrw_write: case msdbrw_writeifposs:
+     if (access(dpkg_db_get_dir(), W_OK)) {
+       if (errno != EACCES)
+@@ -441,4 +438,3 @@
+   if (cstatus >= msdbrw_write)
+     modstatdb_note(pkg);
+ }
+-
