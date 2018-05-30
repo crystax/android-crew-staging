@@ -29,15 +29,15 @@ module Crew
     case args.length
     when 0
       puts "Tools:"
-      list_elements formulary.tools
+      list_elements sort_by_name(formulary.tools)
       puts "Packages:"
-      list_elements formulary.packages
+      list_elements sort_by_name(formulary.packages)
     when 1
       case args[0]
       when '--packages'
-        list_elements formulary.packages
+        list_elements sort_in_buildable_order(formulary, formulary.packages)
       when '--tools'
-        list_elements formulary.tools
+        list_elements sort_by_name(formulary.tools)
       else
         raise "bad command syntax; try ./crew help list"
       end
@@ -51,6 +51,35 @@ module Crew
   end
 
   # private
+
+  def self.sort_by_name(formulas)
+    formulas.sort { |f1, f2| f1.name <=> f2.name }
+  end
+
+  def self.sort_in_buildable_order(formulary, formulas)
+    Struct.new('Pair', :formula, :dependencies)
+    unresolved = sort_by_name(formulas).map { |f| Struct::Pair.new(f, formulary.dependencies(f).map(&:fqn)) }
+    resolved, unresolved = sort_in_buildable_order_impl([], unresolved)
+
+    unless unresolved.empty?
+      ustr = unresolved.reduce('') { |acc, uf| acc += "#{uf.formula.fqn}: #{uf.dependencies}\n" }
+      raise "unresolved dependencies: #{ustr}"
+    end
+
+    resolved
+  end
+
+  def self.sort_in_buildable_order_impl(resolved, unresolved)
+    rf = unresolved.find { |e| e.dependencies.empty? }
+    if not rf
+      [resolved, unresolved]
+    else
+      unresolved.delete rf
+      resolved << rf.formula
+      unresolved = unresolved.map { |uf| Struct::Pair.new(uf.formula, uf.dependencies.delete_if { |e| rf.formula.fqn == e }) }
+      sort_in_buildable_order_impl resolved, unresolved
+    end
+  end
 
   def self.list_elements(elements)
     list = []
@@ -73,7 +102,7 @@ module Crew
       end
     end
 
-    list.sort.each do |l|
+    list.each do |l|
       printf " %s %-#{max_name_len}s  %-#{max_ver_len}s  %-#{max_cxver_len}s%s\n", l.installed_sign, l.name, l.version, l.crystax_version, l.installed_source
     end
   end
