@@ -6,8 +6,14 @@ class Apt < Package
 
   release version: '1.5.1', crystax_version: 1
 
+  depends_on 'xz'
+  depends_on 'lz4'
+  depends_on 'berkley-db'
+  depends_on 'curl'
+  depends_on 'gnu-tls'
+
   build_options build_outside_source_tree: true,
-                use_standalone_toolchain: ['berkley-db', 'curl', 'gnu-tls', 'xz', 'lz4'],
+                use_standalone_toolchain: true,
                 copy_installed_dirs: ['bin', 'etc', 'include', 'lib', 'libexec', 'var'],
                 gen_android_mk: false
 
@@ -93,7 +99,6 @@ class Apt < Package
     system 'make', '-j', num_jobs
     system 'make', 'install'
 
-    # remove unneeded files
     clean_install_dir abi, :lib
     FileUtils.cd(install_dir) do
       if Global::OS == 'linux'

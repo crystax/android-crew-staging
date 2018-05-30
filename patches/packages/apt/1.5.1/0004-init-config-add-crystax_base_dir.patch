@@ -1,0 +1,136 @@
+diff -Nabur a/apt-pkg/init.cc b/apt-pkg/init.cc
+--- a/apt-pkg/init.cc	2018-05-30 16:47:04.913534877 +0300
++++ b/apt-pkg/init.cc	2018-05-30 16:54:22.846487445 +0300
+@@ -18,6 +18,8 @@
+ #include <apt-pkg/pkgsystem.h>
+ #include <apt-pkg/strutl.h>
+ 
++#include <crystax.h>
++
+ #include <cstdlib>
+ #include <fstream>
+ #include <sstream>
+@@ -39,6 +41,22 @@
+    APT_HIDDEN extern std::unordered_map<std::string, std::vector<std::string>> ArchToTupleMap;
+ }
+ 
++extern std::string getCrystaxBaseDir();
++
++std::string getCrystaxBaseDir()
++{
++   std::string basedir = crystax_posix_base();
++   if (basedir[0] == '/')
++      basedir.erase(0, 1);
++   if (basedir.size() > 0) {
++      int ind = basedir.size() - 1;
++      if (basedir[ind] == '/')
++         basedir.erase(ind, 1);
++   }
++
++   return basedir;
++}
++
+ // Splits by whitespace. There may be continuous spans of whitespace - they
+ // will be considered as one.
+ static std::vector<std::string> split(std::string const & s)
+@@ -51,15 +69,15 @@
+    return vec;
+ }
+ 
+-
+ // pkgInitArchTupleMap - Initialize the architecture tuple map				/*{{{*/
+ // ---------------------------------------------------------------------
+ /* This initializes */
+ static bool pkgInitArchTupleMap()
+ {
+-   auto tuplepath = _config->FindFile("Dir::dpkg::tupletable", DPKG_DATADIR "/tupletable");
+-   auto tripletpath = _config->FindFile("Dir::dpkg::triplettable", DPKG_DATADIR "/triplettable");
+-   auto cpupath = _config->FindFile("Dir::dpkg::cputable", DPKG_DATADIR "/cputable");
++   std::string dpkgdatadir = getCrystaxBaseDir() + "/usr/share/dpkg";
++   auto tuplepath = _config->FindFile("Dir::dpkg::tupletable", (dpkgdatadir + "/tupletable").c_str());
++   auto tripletpath = _config->FindFile("Dir::dpkg::triplettable", (dpkgdatadir + "/triplettable").c_str());
++   auto cpupath = _config->FindFile("Dir::dpkg::cputable", (dpkgdatadir + "/cputable").c_str());
+ 
+    // Load a list of CPUs
+    std::vector<std::string> cpus;
+@@ -118,7 +136,6 @@
+ }
+ 									/*}}}*/
+ 
+-    
+ // pkgInitConfig - Initialize the configuration class			/*{{{*/
+ // ---------------------------------------------------------------------
+ /* Directories are specified in such a way that the FindDir function will
+@@ -126,6 +143,13 @@
+    is prepended, this allows a fair degree of flexability. */
+ bool pkgInitConfig(Configuration &Cnf)
+ {
++   std::string basedir = getCrystaxBaseDir();
++   std::string statedir   = basedir + "/var/lib/apt";
++   std::string cachedir   = basedir + "/var/cache/apt";
++   std::string confdir    = basedir + "/etc/apt";
++   std::string libexecdir = basedir + "/usr/libexec/apt";
++   std::string logdir     = basedir + "/var/log/apt";
++
+    // General APT things
+    Cnf.CndSet("APT::Architecture", COMMON_ARCH);
+    if (Cnf.Exists("APT::Build-Essential") == false)
+@@ -135,19 +159,19 @@
+    Cnf.CndSet("Dir","/");
+    
+    // State
+-   Cnf.CndSet("Dir::State", STATE_DIR + 1);
++   Cnf.CndSet("Dir::State", statedir);
+    Cnf.CndSet("Dir::State::lists","lists/");
+    Cnf.CndSet("Dir::State::cdroms","cdroms.list");
+    Cnf.CndSet("Dir::State::mirrors","mirrors/");
+ 
+    // Cache
+-   Cnf.CndSet("Dir::Cache", CACHE_DIR + 1);
++   Cnf.CndSet("Dir::Cache", cachedir);
+    Cnf.CndSet("Dir::Cache::archives","archives/");
+    Cnf.CndSet("Dir::Cache::srcpkgcache","srcpkgcache.bin");
+    Cnf.CndSet("Dir::Cache::pkgcache","pkgcache.bin");
+ 
+    // Configuration
+-   Cnf.CndSet("Dir::Etc", CONF_DIR + 1);
++   Cnf.CndSet("Dir::Etc", confdir);
+    Cnf.CndSet("Dir::Etc::sourcelist","sources.list");
+    Cnf.CndSet("Dir::Etc::sourceparts","sources.list.d");
+    Cnf.CndSet("Dir::Etc::main","apt.conf");
+@@ -157,13 +181,13 @@
+    Cnf.CndSet("Dir::Etc::preferencesparts","preferences.d");
+    Cnf.CndSet("Dir::Etc::trusted", "trusted.gpg");
+    Cnf.CndSet("Dir::Etc::trustedparts","trusted.gpg.d");
+-   Cnf.CndSet("Dir::Bin::methods", LIBEXEC_DIR "/methods");
+-   Cnf.CndSet("Dir::Bin::solvers::",LIBEXEC_DIR  "/solvers");
+-   Cnf.CndSet("Dir::Bin::planners::",LIBEXEC_DIR  "/planners");
++   Cnf.CndSet("Dir::Bin::methods", libexecdir + "/methods");
++   Cnf.CndSet("Dir::Bin::solvers::", libexecdir + "/solvers");
++   Cnf.CndSet("Dir::Bin::planners::", libexecdir + "/planners");
+    Cnf.CndSet("Dir::Media::MountPath","/media/apt");
+ 
+    // State
+-   Cnf.CndSet("Dir::Log", LOG_DIR + 1);
++   Cnf.CndSet("Dir::Log", logdir);
+    Cnf.CndSet("Dir::Log::Terminal","term.log");
+    Cnf.CndSet("Dir::Log::History","history.log");
+    Cnf.CndSet("Dir::Log::Planner","eipp.log.xz");
+@@ -183,7 +207,7 @@
+    Cnf.CndSet("Acquire::AllowDowngradeToInsecureRepositories", false);
+ 
+    // Default cdrom mount point
+-   Cnf.CndSet("Acquire::cdrom::mount", "/media/cdrom/");
++   Cnf.CndSet("Acquire::cdrom::mount", basedir + "/media/cdrom/");
+ 
+    // The default user we drop to in the methods
+    Cnf.CndSet("APT::Sandbox::User", "_apt");
+@@ -212,6 +236,8 @@
+    Cnf.CndSet("Acquire::Changelogs::URI::Origin::Ultimedia", "http://packages.ultimediaos.com/changelogs/pool/@CHANGEPATH@/changelog.txt");
+    Cnf.CndSet("Acquire::Changelogs::AlwaysOnline::Origin::Ubuntu", true);
+ 
++   Cnf.CndSet("Acquire::Languages", "none");
++
+    // Read an alternate config file
+    _error->PushToStack();
+    const char *Cfg = getenv("APT_CONFIG");

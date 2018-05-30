@@ -1,0 +1,27 @@
+diff -Nabur a/cmdline/apt-key.in b/cmdline/apt-key.in
+--- a/cmdline/apt-key.in	2018-05-30 16:47:04.900913937 +0300
++++ b/cmdline/apt-key.in	2018-05-30 16:58:30.196523530 +0300
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!/system/bin/sh
+ 
+ set -e
+ unset GREP_OPTIONS GPGHOMEDIR CURRENTTRAP
+@@ -288,7 +288,7 @@
+ 	if accessible_file_exists "$TRUSTEDFILE" && is_supported_keyring "$TRUSTEDFILE"; then
+ 	    $ACTION "$TRUSTEDFILE" "$@"
+ 	fi
+-	local TRUSTEDPARTS="/etc/apt/trusted.gpg.d"
++	local TRUSTEDPARTS="$CRYSTAX_POSIX_BASE/etc/apt/trusted.gpg.d"
+ 	eval "$(apt-config shell TRUSTEDPARTS Dir::Etc::TrustedParts/d)"
+ 	if [ -d "$TRUSTEDPARTS" ]; then
+ 	    TRUSTEDPARTS="$(readlink -f "$TRUSTEDPARTS")"
+@@ -570,7 +570,7 @@
+ done
+ 
+ if [ -z "$TRUSTEDFILE" ]; then
+-   TRUSTEDFILE="/etc/apt/trusted.gpg"
++   TRUSTEDFILE="$CRYSTAX_POSIX_BASE/etc/apt/trusted.gpg"
+    eval $(apt-config shell TRUSTEDFILE Apt::GPGV::TrustedKeyring)
+    eval $(apt-config shell TRUSTEDFILE Dir::Etc::Trusted/f)
+ fi
