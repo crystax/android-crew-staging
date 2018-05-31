@@ -26,33 +26,10 @@ class GnuPg < Package
 
   def build_for_abi(abi, toolchain,  _release, _host_dep_dirs, target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)
-    # sqlite_dir = target_dep_dirs['sqlite']
-    # gnu_tls_dir = target_dep_dirs['gnu-tls']
-    # libgpg_error_dir = target_dep_dirs['libgpg-error']
-    # libassuan_dir = target_dep_dirs['libassuan']
-    # libksba_dir = target_dep_dirs['libksba']
-    # libgcrypt_dir = target_dep_dirs['libgcrypt']
 
-    # build_env['SQLITE3_CFLAGS'] = target_dep_include_dir(sqlite_dir)
-    # build_env['SQLITE3_LIBS']   = target_dep_lib_dir(sqlite_dir, abi)
-
-    # build_env['LIBGNUTLS_CFLAGS'] = target_dep_include_dir(gnu_tls_dir)
-    # build_env['LIBGNUTLS_LIBS']   = target_dep_lib_dir(gnu_tls_dir, abi)
-
-    #build_env['GPG_ERROR_CFLAGS'] = '' #target_dep_include_dir(libgpg_error_dir)
-    #build_env['GPG_ERROR_LIBS']   = target_dep_lib_dir(libgpg_error_dir, abi)
     build_env['GPG_ERROR_VERSION'] = Formulary.new['target/libgpg-error'].highest_installed_release.version
-
-    #build_env['LIBASSUAN_CFLAGS']  = ''  #target_dep_include_dir(libassuan_dir)
-    #build_env['LIBASSUAN_LIBS']    = target_dep_lib_dir(libassuan_dir, abi)
     build_env['LIBASSUAN_VERSION'] = Formulary.new['target/libassuan'].highest_installed_release.version
-
-    #build_env['KSBA_CFLAGS']  = '' #target_dep_include_dir(libksba_dir)
-    #build_env['KSBA_LIBS']    = target_dep_lib_dir(libksba_dir, abi)
     build_env['KSBA_VERSION'] = Formulary.new['target/libksba'].highest_installed_release.version
-
-    #build_env['LIBGCRYPT_CFLAGS'] = ''  #target_dep_include_dir(libgcrypt_dir)
-    #build_env['LIBGCRYPT_LIBS']   = target_dep_lib_dir(libgcrypt_dir, abi)
     build_env['LIBGCRYPT_VERSION'] = Formulary.new['target/libksba'].highest_installed_release.version
 
     lib = (abi == 'mips64') ? 'lib64' : 'lib'
