@@ -111,7 +111,7 @@ module Global
     default_cache_base_dir(os)
   end
 
-  def self.default_dev_cache_dir(os)
+  def self.default_deb_cache_dir(os)
     "#{default_cache_base_dir(os)}/deb"
   end
 
