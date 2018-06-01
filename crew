@@ -24,6 +24,8 @@ if [[ -f "$CREW_TOOLS_DIR/bin/ruby" ]]; then
     crew_ruby="$CREW_TOOLS_DIR/bin/ruby"
     unset GEM_HOME
     unset GEM_PATH
+    unset RUBYLIB
+    unset RUBYOPT
 else
     crew_ruby=ruby
     warnings="yes"
