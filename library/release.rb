@@ -29,6 +29,10 @@ class Release
     @r[:source_installed]
   end
 
+  def obsolete?
+    @r[:obsolete]
+  end
+
   def installed=(cxver)
     if cxver.is_a? Integer
       @r[:installed] = true
@@ -51,6 +55,10 @@ class Release
     else
       raise "bad cxver value: #{cxver}; expected integer or 'false'"
     end
+  end
+
+  def obsolete=(v)
+    @r[:obsolete] = v ? true : nil
   end
 
   def update(hash)

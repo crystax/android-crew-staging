@@ -27,6 +27,7 @@ class HostBase < Formula
         else
           r = Release.new(ver, props[:installed_crystax_version])
           r.update props
+          r.obsolete = true
           releases.unshift r
         end
       end

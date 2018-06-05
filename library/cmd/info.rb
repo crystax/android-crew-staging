@@ -16,7 +16,7 @@ module Crew
       formulas.each.with_index do |formula, num|
         case options.show_info
         when :versions
-          puts formula.releases.map(&:to_s).join(' ')
+          puts formula.releases.select { |r| not r.obsolete? }.map(&:to_s).join(' ')
         when :path
           puts formula.path
         else
