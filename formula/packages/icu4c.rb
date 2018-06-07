@@ -4,11 +4,11 @@ class Icu4c < Package
   homepage "http://site.icu-project.org/"
   url "https://ssl.icu-project.org/files/icu4c/${version}/icu4c-${block}-src.tgz" do |r| r.version.gsub('.', '_') end
 
-  #release version: '58.2', crystax_version: 3
-  release version: '61.1', crystax_version: 1
+  release version: '61.1', crystax_version: 2
 
   # this libs were in 57.1: 'libicule'
-  build_libs 'libicudata', 'libicui18n', 'libicuio', 'libicutest', 'libicutu', 'libicuuc', 'libiculx'
+  # todo: 'libiculx' requires harfbuzz
+  build_libs 'libicudata', 'libicui18n', 'libicuio', 'libicutest', 'libicutu', 'libicuuc'
   build_copy 'license.html'
   build_options use_cxx: true
 
@@ -39,6 +39,8 @@ class Icu4c < Package
              "--host=#{host_for_abi(abi)}",
              "--enable-shared",
              "--enable-static",
+             "--disable-tests",
+             "--disable-samples",
              "--with-cross-build=#{native_build_dir}"
            ]
 
@@ -56,7 +58,7 @@ class Icu4c < Package
 
     clean_install_dir abi, :lib
     FileUtils.cd("#{install_dir}/lib") do
-      FileUtils.rm_rf 'icu'
+      FileUtils.rm_rf ['icu'] + Dir['libiculx.*']
       build_libs.each { |f| FileUtils.mv "#{f}.so.#{release.version}", "#{f}.so" }
     end
   end
@@ -76,15 +78,6 @@ class Icu4c < Package
     v = major_ver(release)
     table = {}
     build_libs.each { |l| table["#{l}.so.#{v}"] = l }
-
-    # { "libicudata.so.#{v}" => 'libicudata',
-    #   "libicui18n.so.#{v}" => 'libicui18n',
-    #   "libicuio.so.#{v}"   => 'libicuio',
-    #   "libicutest.so.#{v}" => 'libicutest',
-    #   "libicutu.so.#{v}"   => 'libicutu',
-    #   "libicuuc.so.#{v}"   => 'libicuuc'
-    # }
-
     table
   end
 
