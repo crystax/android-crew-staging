@@ -1,6 +1,6 @@
-diff -Naur a/configure b/configure
+diff -Naurw a/configure b/configure
 --- a/configure	2018-05-02 22:35:26.000000000 +0300
-+++ b/configure	2018-05-17 22:03:50.467432972 +0300
++++ b/configure	2018-06-08 17:38:40.865960527 +0300
 @@ -5,7 +5,7 @@
  # Report bugs to <https://bugs.gnupg.org>.
  #
@@ -96,3 +96,32 @@ diff -Naur a/configure b/configure
  
  
  
+@@ -9426,6 +9447,11 @@
+ #
+ # Check whether the nPth library is available
+ #
++if test -n "$NPTH_VERSION"; then
++    $as_echo "NPTH_CFLAGS: $NPTH_CFLAGS"
++    $as_echo "NPTH_LIBS:   $NPTH_LIBS"
++    have_npth=yes
++else
+ 
+ # Check whether --with-npth-prefix was given.
+ if test "${with_npth_prefix+set}" = set; then :
+@@ -9575,6 +9601,7 @@
+     have_npth=no
+   fi
+ 
++fi
+ 
+ 
+ if test "$have_npth" = "yes"; then
+@@ -9596,6 +9623,8 @@
+ *** we need the support of the New Portable Threads Library.
+ ***" >&2;}
+ fi
++
++
+ #
+ # Enable debugging of nPth
+ #

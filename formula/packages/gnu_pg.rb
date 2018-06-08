@@ -5,7 +5,7 @@ class GnuPg < Package
   homepage "https://www.gnupg.org"
   url "https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-${version}.tar.bz2"
 
-  release version: '2.2.7', crystax_version: 1
+  release version: '2.2.7', crystax_version: 2
 
   depends_on 'sqlite'
   depends_on 'npth'
@@ -27,9 +27,15 @@ class GnuPg < Package
   def build_for_abi(abi, toolchain,  _release, _host_dep_dirs, target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)
 
+    build_env['NPTH_VERSION']     = Formulary.new['target/npth'].highest_installed_release.version
+    build_env['SQLITE3_CFLAGS']   = ' '
+    build_env['SQLITE3_LIBS']     = ' '
+    build_env['LIBGNUTLS_CFLAGS'] = ' '
+    build_env['LIBGNUTLS_LIBS']   = ' '
+
     build_env['GPG_ERROR_VERSION'] = Formulary.new['target/libgpg-error'].highest_installed_release.version
     build_env['LIBASSUAN_VERSION'] = Formulary.new['target/libassuan'].highest_installed_release.version
-    build_env['KSBA_VERSION'] = Formulary.new['target/libksba'].highest_installed_release.version
+    build_env['KSBA_VERSION']      = Formulary.new['target/libksba'].highest_installed_release.version
     build_env['LIBGCRYPT_VERSION'] = Formulary.new['target/libksba'].highest_installed_release.version
 
     lib = (abi == 'mips64') ? 'lib64' : 'lib'
@@ -39,11 +45,12 @@ class GnuPg < Package
 
     arch = Build.arch_for_abi(abi)
 
-    gnutls_libs = Build::BAD_ABIS.include?(abi) ? ' -lp11-kit -lidn2 -lunistring -lnettle -lhogweed -lffi -lgmp -lz ' : ' '
+    gnupg_libs  = '-lgcrypt -lksba -lassuan -lgpg-error'
+    gnutls_libs = '-lgnutls -lp11-kit -lidn2 -lunistring -lnettle -lhogweed -lffi -lgmp -lz'  #Build::BAD_ABIS.include?(abi) ? '  ' : ' '
 
     build_env['CFLAGS']      = cflags
     build_env['LDFLAGS']     = ldflags
-    build_env['LIBS']        =  '-lgcrypt -lksba -lassuan -lgpg-error -lgnutls' + gnutls_libs + '-lreadline -lncursesw -lnpth -lsqlite3'
+    build_env['LIBS']        = gnupg_libs + ' '  + gnutls_libs + ' -lreadline -lncursesw -lnpth -lsqlite3'
     build_env['PATH']        = Build.path
     build_env['LC_MESSAGES'] = 'C'
     build_env['CC']          = toolchain.gcc
