@@ -4,7 +4,7 @@ class Dpkg < Package
   homepage "https://wiki.debian.org/Teams/Dpkg"
   url "http://http.debian.net/debian/pool/main/d/dpkg/dpkg_${version}.tar.xz"
 
-  release version: '1.19.0.5', crystax_version: 4
+  release version: '1.19.0.5', crystax_version: 5
 
   depends_on 'libmd'
   depends_on 'xz'
@@ -46,7 +46,7 @@ class Dpkg < Package
     build_env['ac_dpkg_arch'] = Deb.arch_for_abi(abi)
 
     system './configure', *args
-    fix_tar_name
+    fix_tar_name if Global::OS == 'darwin'
     system 'make', '-j', num_jobs
     system 'make', 'install'
 
