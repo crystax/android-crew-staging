@@ -1,6 +1,7 @@
---- a/apt-pkg/CMakeLists.txt	2017-10-26 18:38:39.000000000 +0700
-+++ b/apt-pkg/CMakeLists.txt	2018-02-25 15:57:51.704470795 +0700
-@@ -49,7 +49,7 @@
+diff -Naurw a/apt-pkg/CMakeLists.txt b/apt-pkg/CMakeLists.txt
+--- a/apt-pkg/CMakeLists.txt	2018-04-20 13:08:18.000000000 +0300
++++ b/apt-pkg/CMakeLists.txt	2018-06-14 16:28:07.306234484 +0300
+@@ -50,7 +50,7 @@
  )
  
  target_link_libraries(apt-pkg

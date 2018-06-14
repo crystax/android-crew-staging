@@ -1,6 +1,6 @@
-diff -Nabur a/apt-pkg/init.cc b/apt-pkg/init.cc
---- a/apt-pkg/init.cc	2018-05-30 16:47:04.913534877 +0300
-+++ b/apt-pkg/init.cc	2018-05-30 16:54:22.846487445 +0300
+diff -Naurw a/apt-pkg/init.cc b/apt-pkg/init.cc
+--- a/apt-pkg/init.cc	2018-04-20 13:08:18.000000000 +0300
++++ b/apt-pkg/init.cc	2018-06-14 16:39:12.982572590 +0300
 @@ -18,6 +18,8 @@
  #include <apt-pkg/pkgsystem.h>
  #include <apt-pkg/strutl.h>
@@ -33,13 +33,7 @@ diff -Nabur a/apt-pkg/init.cc b/apt-pkg/init.cc
  // Splits by whitespace. There may be continuous spans of whitespace - they
  // will be considered as one.
  static std::vector<std::string> split(std::string const & s)
-@@ -51,15 +69,15 @@
-    return vec;
- }
- 
--
- // pkgInitArchTupleMap - Initialize the architecture tuple map				/*{{{*/
- // ---------------------------------------------------------------------
+@@ -57,9 +75,10 @@
  /* This initializes */
  static bool pkgInitArchTupleMap()
  {
@@ -53,15 +47,7 @@ diff -Nabur a/apt-pkg/init.cc b/apt-pkg/init.cc
  
     // Load a list of CPUs
     std::vector<std::string> cpus;
-@@ -118,7 +136,6 @@
- }
- 									/*}}}*/
- 
--    
- // pkgInitConfig - Initialize the configuration class			/*{{{*/
- // ---------------------------------------------------------------------
- /* Directories are specified in such a way that the FindDir function will
-@@ -126,6 +143,13 @@
+@@ -126,6 +145,13 @@
     is prepended, this allows a fair degree of flexability. */
  bool pkgInitConfig(Configuration &Cnf)
  {
@@ -75,7 +61,7 @@ diff -Nabur a/apt-pkg/init.cc b/apt-pkg/init.cc
     // General APT things
     Cnf.CndSet("APT::Architecture", COMMON_ARCH);
     if (Cnf.Exists("APT::Build-Essential") == false)
-@@ -135,19 +159,19 @@
+@@ -135,18 +161,18 @@
     Cnf.CndSet("Dir","/");
     
     // State
@@ -83,7 +69,6 @@ diff -Nabur a/apt-pkg/init.cc b/apt-pkg/init.cc
 +   Cnf.CndSet("Dir::State", statedir);
     Cnf.CndSet("Dir::State::lists","lists/");
     Cnf.CndSet("Dir::State::cdroms","cdroms.list");
-    Cnf.CndSet("Dir::State::mirrors","mirrors/");
  
     // Cache
 -   Cnf.CndSet("Dir::Cache", CACHE_DIR + 1);
@@ -98,17 +83,18 @@ diff -Nabur a/apt-pkg/init.cc b/apt-pkg/init.cc
     Cnf.CndSet("Dir::Etc::sourcelist","sources.list");
     Cnf.CndSet("Dir::Etc::sourceparts","sources.list.d");
     Cnf.CndSet("Dir::Etc::main","apt.conf");
-@@ -157,13 +181,13 @@
+@@ -156,13 +182,13 @@
     Cnf.CndSet("Dir::Etc::preferencesparts","preferences.d");
     Cnf.CndSet("Dir::Etc::trusted", "trusted.gpg");
     Cnf.CndSet("Dir::Etc::trustedparts","trusted.gpg.d");
 -   Cnf.CndSet("Dir::Bin::methods", LIBEXEC_DIR "/methods");
 -   Cnf.CndSet("Dir::Bin::solvers::",LIBEXEC_DIR  "/solvers");
 -   Cnf.CndSet("Dir::Bin::planners::",LIBEXEC_DIR  "/planners");
+-   Cnf.CndSet("Dir::Media::MountPath","/media/apt");
 +   Cnf.CndSet("Dir::Bin::methods", libexecdir + "/methods");
 +   Cnf.CndSet("Dir::Bin::solvers::", libexecdir + "/solvers");
 +   Cnf.CndSet("Dir::Bin::planners::", libexecdir + "/planners");
-    Cnf.CndSet("Dir::Media::MountPath","/media/apt");
++   Cnf.CndSet("Dir::Media::MountPath", basedir + "/media/apt");
  
     // State
 -   Cnf.CndSet("Dir::Log", LOG_DIR + 1);
@@ -116,7 +102,7 @@ diff -Nabur a/apt-pkg/init.cc b/apt-pkg/init.cc
     Cnf.CndSet("Dir::Log::Terminal","term.log");
     Cnf.CndSet("Dir::Log::History","history.log");
     Cnf.CndSet("Dir::Log::Planner","eipp.log.xz");
-@@ -183,7 +207,7 @@
+@@ -182,7 +208,7 @@
     Cnf.CndSet("Acquire::AllowDowngradeToInsecureRepositories", false);
  
     // Default cdrom mount point
@@ -125,7 +111,7 @@ diff -Nabur a/apt-pkg/init.cc b/apt-pkg/init.cc
  
     // The default user we drop to in the methods
     Cnf.CndSet("APT::Sandbox::User", "_apt");
-@@ -212,6 +236,8 @@
+@@ -211,6 +237,8 @@
     Cnf.CndSet("Acquire::Changelogs::URI::Origin::Ultimedia", "http://packages.ultimediaos.com/changelogs/pool/@CHANGEPATH@/changelog.txt");
     Cnf.CndSet("Acquire::Changelogs::AlwaysOnline::Origin::Ubuntu", true);
  

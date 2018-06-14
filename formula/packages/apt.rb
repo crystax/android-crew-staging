@@ -2,9 +2,11 @@ class Apt < Package
 
   desc "apt is the main commandline package manager for Debian and its derivatives"
   homepage "https://github.com/Debian/apt"
-  url "https://github.com/Debian/apt/archive/${version}.tar.gz"
+  #url "https://github.com/Debian/apt/archive/${version}.tar.gz"
+  url "http://http.debian.net/debian/pool/main/a/apt/apt_${version}.tar.xz"
 
-  release version: '1.5.1', crystax_version: 1
+  #release version: '1.5.1', crystax_version: 1
+  release version: '1.6.1', crystax_version: 1
 
   depends_on 'xz'
   depends_on 'lz4'

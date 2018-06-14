@@ -1,6 +1,6 @@
-diff -Nabur a/apt-pkg/deb/debsystem.cc b/apt-pkg/deb/debsystem.cc
---- a/apt-pkg/deb/debsystem.cc	2018-05-30 16:47:04.936760704 +0300
-+++ b/apt-pkg/deb/debsystem.cc	2018-05-30 17:07:42.229010911 +0300
+diff -Naurw a/apt-pkg/deb/debsystem.cc b/apt-pkg/deb/debsystem.cc
+--- a/apt-pkg/deb/debsystem.cc	2018-04-20 13:08:18.000000000 +0300
++++ b/apt-pkg/deb/debsystem.cc	2018-06-14 16:48:07.741578688 +0300
 @@ -43,6 +43,8 @@
  
  debSystem debSys;
@@ -10,18 +10,17 @@ diff -Nabur a/apt-pkg/deb/debsystem.cc b/apt-pkg/deb/debsystem.cc
  class APT_HIDDEN debSystemPrivate {
  public:
     debSystemPrivate() : LockFD(-1), LockCount(0), StatusFile(0)
-@@ -210,7 +212,9 @@
+@@ -210,7 +212,8 @@
     Cnf.CndSet("Dir::State::extended_states", "extended_states");
     if (Cnf.Exists("Dir::State::status") == false)
        Cnf.Set("Dir::State::status", getDpkgStatusLocation(Cnf));
 -   Cnf.CndSet("Dir::Bin::dpkg",BIN_DIR"/dpkg");
-+
 +   std::string dpkg = getCrystaxBaseDir() + "/usr/bin/dpkg";
 +   Cnf.CndSet("Dir::Bin::dpkg",dpkg.c_str());
  
     if (d->StatusFile) {
       delete d->StatusFile;
-@@ -238,9 +242,10 @@
+@@ -238,9 +241,10 @@
  signed debSystem::Score(Configuration const &Cnf)
  {
     signed Score = 0;
@@ -29,7 +28,7 @@ diff -Nabur a/apt-pkg/deb/debsystem.cc b/apt-pkg/deb/debsystem.cc
     if (FileExists(Cnf.FindFile("Dir::State::status",getDpkgStatusLocation(Cnf).c_str())) == true)
         Score += 10;
 -   if (FileExists(Cnf.Find("Dir::Bin::dpkg",BIN_DIR"/dpkg")) == true)
-+   if (FileExists(Cnf.Find("Dir::Bin::dpkg",bindir + "/dpkg")) == true)
++   if (FileExists(Cnf.Find("Dir::Bin::dpkg", bindir+"/dpkg")) == true)
        Score += 10;
     if (FileExists("/etc/debian_version") == true)
        Score += 10;

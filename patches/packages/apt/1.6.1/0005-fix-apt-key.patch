@@ -1,6 +1,6 @@
-diff -Nabur a/cmdline/apt-key.in b/cmdline/apt-key.in
---- a/cmdline/apt-key.in	2018-05-30 16:47:04.900913937 +0300
-+++ b/cmdline/apt-key.in	2018-05-30 16:58:30.196523530 +0300
+diff -Naurw a/cmdline/apt-key.in b/cmdline/apt-key.in
+--- a/cmdline/apt-key.in	2018-04-20 13:08:18.000000000 +0300
++++ b/cmdline/apt-key.in	2018-06-14 16:42:57.429432002 +0300
 @@ -1,4 +1,4 @@
 -#!/bin/sh
 +#!/system/bin/sh

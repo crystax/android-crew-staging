@@ -1,5 +1,6 @@
---- a/apt-pkg/contrib/srvrec.cc	2017-10-26 18:38:39.000000000 +0700
-+++ b/apt-pkg/contrib/srvrec.cc	2018-02-25 15:59:54.492041608 +0700
+diff -Naurw a/apt-pkg/contrib/srvrec.cc b/apt-pkg/contrib/srvrec.cc
+--- a/apt-pkg/contrib/srvrec.cc	2018-04-20 13:08:18.000000000 +0300
++++ b/apt-pkg/contrib/srvrec.cc	2018-06-14 16:38:37.923017545 +0300
 @@ -38,14 +38,25 @@
     struct servent *s_ent = nullptr;
     std::vector<char> buf(1024);
@@ -26,12 +27,3 @@
  bool GetSrvRecords(std::string name, std::vector<SrvRec> &Result)
  {
     unsigned char answer[PACKETSZ];
-@@ -144,7 +155,7 @@
-    //        and figure out how the weights need to be adjusted if
-    //        a host refuses connections
- 
--#if 0  // all code below is only needed for the weight adjusted selection 
-+#if 0  // all code below is only needed for the weight adjusted selection
-    // assign random number ranges
-    int prev_weight = 0;
-    int prev_priority = 0;
