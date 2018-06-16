@@ -117,8 +117,8 @@ class Platform
       # use system ld
       @ld     = 'ld'
       # there is a problem with lt_plugin on darwin
-      @ar     = 'ar'
-      @ranlib = 'ranlib'
+      @ar     = '/usr/bin/ar'
+      @ranlib = '/usr/bin/ranlib'
       @strip  = 'strip'
       @nm     = 'nm'
     else
