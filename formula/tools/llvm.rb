@@ -195,7 +195,6 @@ class Llvm < Tool
     path = "#{platform.toolchain_path}:#{Build.path}"
     path = "#{python_home}/bin:#{path}" unless platform.target_os == 'windows'
 
-
     build_env.clear
 
     build_env['PATH']           = path
