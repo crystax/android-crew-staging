@@ -4,7 +4,7 @@ class NdkBase < HostBase
   name 'ndk-base'
   homepage "https://www.crystax.net"
 
-  release version: '11', crystax_version: 13
+  release version: '11', crystax_version: 14
 
   def install_archive(release, archive, platform_name)
     # disable warnings since ndk-base archive contains symlinks
@@ -28,9 +28,12 @@ class NdkBase < HostBase
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"
 
-    self.num_jobs = options.num_jobs
-
     FileUtils.rm_rf build_base_dir
+    FileUtils.mkdir_p build_base_dir
+
+    self.num_jobs = options.num_jobs
+    self.log_file = File.join(build_base_dir, 'build.log')
+
     puts "= preparing source code"
     prepare_source_code
 
