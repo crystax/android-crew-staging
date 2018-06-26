@@ -5,7 +5,7 @@ class Libcrystax < BasePackage
   desc "Crystax Library, the Heart of the Crystax NDK"
   name 'libcrystax'
 
-  release version: '1', crystax_version: 6
+  release version: '1', crystax_version: 7
 
   package_info root_package: true
 
@@ -68,10 +68,10 @@ class Libcrystax < BasePackage
     if options.build_only?
       puts "Build only, no packaging and installing"
     else
-      # pack archive and copy into cache dir
       archive = cache_file(release)
       puts "Creating archive file #{archive}"
       Utils.pack(archive, package_dir)
+      clean_deb_cache release, options.abis
 
       install_archive release, archive if options.install?
     end

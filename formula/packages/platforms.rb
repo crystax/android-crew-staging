@@ -4,7 +4,7 @@ class Platforms < BasePackage
 
   desc "Android platforms headers and libraries"
 
-  release version: '24', crystax_version: 6
+  release version: '24', crystax_version: 7
 
   # todo:
   #build_depends_on default_compiler
@@ -60,6 +60,7 @@ class Platforms < BasePackage
     archive = cache_file(release)
     puts "= packaging #{archive}"
     Utils.pack archive, install_dir, *ARCHIVE_TOP_DIRS
+    clean_deb_cache release, options.abis
 
     update_shasum release if options.update_shasum?
 

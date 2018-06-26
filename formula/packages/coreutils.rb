@@ -65,4 +65,9 @@ class Coreutils < Package
     end
     FileUtils.chmod '+x', SYMLINKS_SCRIPT
   end
+
+  # def copy_to_deb_data_dir(package_dir, data_dir, abi, deb_type = :bin)
+  #   super package_dir, data_dir, abi, deb_type
+  #   FileUtils.mv Dir["#{data_dir}/usr/bin/coreutils*"], "#{data_dir}/bin"
+  # end
 end

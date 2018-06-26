@@ -8,7 +8,7 @@ class GdbServer < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '7.10', crystax_version: 2
+  release version: '7.10', crystax_version: 3
 
   # todo:
   #build_depends_on default_compiler
@@ -78,10 +78,10 @@ class GdbServer < BasePackage
     if options.build_only?
       puts "Build only, no packaging and installing"
     else
-      # pack archive and copy into cache dir
       archive = cache_file(release)
       puts "Creating archive file #{archive}"
       Utils.pack archive, package_dir
+      clean_deb_cache release, options.abis
 
       update_shasum release if options.update_shasum?
 

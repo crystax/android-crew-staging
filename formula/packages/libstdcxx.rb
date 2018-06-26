@@ -6,9 +6,9 @@ class Libstdcxx < BasePackage
   #homepage ""
   #url ""
 
-  release version: '4.9', crystax_version: 3
-  release version: '5',   crystax_version: 3
-  release version: '6',   crystax_version: 3
+  release version: '4.9', crystax_version: 4
+  release version: '5',   crystax_version: 4
+  release version: '6',   crystax_version: 4
 
   build_depends_on 'platforms'
   build_depends_on 'libcrystax'
@@ -81,7 +81,6 @@ class Libstdcxx < BasePackage
     if options.build_only?
       puts "Build only, no packaging and installing"
     else
-      # pack archive and copy into cache dir
       archive = cache_file(release)
       puts "Creating archive file #{archive}"
       Utils.pack(archive, package_dir)

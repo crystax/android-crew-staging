@@ -185,10 +185,11 @@ class Package < TargetBase
     if options.build_only?
       build_log_puts "Build only, no packaging and installing"
     else
-      # pack archive and copy into cache dir
       archive = cache_file(release)
       build_log_puts "Creating archive file #{archive}"
       Utils.pack(archive, package_dir)
+      # remove old deb file to force make-posix-env command to make new one
+      clean_deb_cache release, options.abis
 
       update_shasum release if options.update_shasum?
 
