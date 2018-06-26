@@ -36,6 +36,10 @@ class TargetBase < Formula
     "#{Global::DEB_CACHE_DIR}/#{Deb.arch_for_abi(abi)}/#{Deb.file_name(name, release, abi)}"
   end
 
+  def clean_deb_cache(release, abis)
+    abis.each { |abi| FileUtils.rm_f deb_cache_file(release, abi) }
+  end
+
   def read_shasum(release, _ = nil)
     Shasum.read qfn, release, 'android'
   end
