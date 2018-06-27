@@ -63,7 +63,7 @@ class TargetBase < Formula
           FileUtils.cp_r "#{package_dir}/#{dir}", dst_dir
         else
           sub_dir = (dir == 'libs') ? 'lib' : dir
-          sub_dir = "usr/#{sub_dir}" unless package_info[:root_package]
+          sub_dir = "usr/#{sub_dir}" unless package_info[:root_dir].include?(dir)
           dst_dir = "#{data_dir}/#{sub_dir}"
           FileUtils.mkdir_p dst_dir
           FileUtils.cp_r Dir["#{package_dir}/#{dir}/#{abi}/*"], dst_dir

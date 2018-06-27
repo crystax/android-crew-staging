@@ -220,7 +220,7 @@ class Formula
     end
 
     def package_info(hash = nil)
-      @package_info = Hash.new unless @package_info
+      @package_info = { root_dir: [] } unless @package_info
       @package_info.update hash if hash
       @package_info
     end
