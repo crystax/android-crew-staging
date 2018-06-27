@@ -51,7 +51,7 @@ module Crew
       if not File.exist?(deb_file)
         shasum = options.check_shasum? ? formula.read_shasum(release) : nil
         formula.download_archive(release, nil, shasum, false)
-        make_deb_archive formula.name, release.version, options.check_shasum?
+        make_deb_archive formula.name, release.version, options
       end
       Deb.install_deb_archive formula, top_dir, deb_file, options.abi
     end
@@ -72,9 +72,9 @@ module Crew
     [packages, deps - packages]
   end
 
-  def self.make_deb_archive(name, version, check_shasum)
-    cmd_with_args = ["#{Global::BASE_DIR}/crew", 'make-deb']
-    cmd_with_args << '--no-check-shasum' unless check_shasum
+  def self.make_deb_archive(name, version, options)
+    cmd_with_args = ["#{Global::BASE_DIR}/crew", 'make-deb', "--abis=#{options.abi}"]
+    cmd_with_args << '--no-check-shasum' unless options.check_shasum?
     cmd_with_args << "#{name}:#{version}"
     system *cmd_with_args
   end
