@@ -4,7 +4,9 @@ class Coreutils < Package
   homepage "https://www.gnu.org/software/coreutils"
   url "http://ftpmirror.gnu.org/coreutils/coreutils-${version}.tar.xz"
 
-  release version: '8.29', crystax_version: 4
+  release version: '8.29', crystax_version: 5
+
+  package_info root_dir: ['bin']
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'libexec'],
