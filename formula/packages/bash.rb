@@ -4,9 +4,9 @@ class Bash < Package
   homepage "https://www.gnu.org/software/bash/"
   url "http://ftp.gnu.org/gnu/bash/bash-${version}.tar.gz"
 
-  release version: '4.4.18', crystax_version: 1
+  release version: '4.4.18', crystax_version: 2
 
-  package_info root_package: true
+  package_info root_dir: ['bin']
 
   build_copy 'COPYING'
   build_options use_standalone_toolchain: [],
