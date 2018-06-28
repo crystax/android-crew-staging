@@ -18,6 +18,12 @@ export PATH
 export LD_LIBRARY_PATH
 export CRYSTAX_POSIX_BASE
 export DPKG_ADMINDIR
+
+PS1='\\s-\\v \\w $ '
+export PS1
+
+unset sourced
+unset top_dir
 EOS
 
 
