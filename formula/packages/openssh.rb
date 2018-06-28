@@ -2,12 +2,12 @@ class Openssh < Package
 
   desc 'Command line and full screen utilities for browsing procfs'
   homepage 'https://www.openssh.com'
-  url 'git@git.crystax.net:android/vendor-openssh.git|git_commit:f021ec58c66ae1c1ac4d7850d761b7f46a5714ff'
-  url 'https://github.com/crystax/android-vendor-openssh.git|git_commit:f021ec58c66ae1c1ac4d7850d761b7f46a5714ff'
+  url 'git@git.crystax.net:android/vendor-openssh.git|git_commit:4de3053e9b9caffa66ac31bcb3e4f324ef8b12ce'
+  url 'https://github.com/crystax/android-vendor-openssh.git|git_commit:4de3053e9b9caffa66ac31bcb3e4f324ef8b12ce'
 
-  release version: '7.2p2', crystax_version: 2
+  release version: '7.7p1', crystax_version: 1
 
-  depends_on 'openssl', version: /^1\.0/
+  depends_on 'openssl'
 
   build_copy 'LICENCE'
   build_options sysroot_in_cflags:    false,
