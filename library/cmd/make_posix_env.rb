@@ -5,25 +5,40 @@ require_relative 'make_posix_env_options.rb'
 
 ETC_ENVIRONMENT_FILE_STR = <<-EOS
 # This file MUST be sourced before starting to use Crystax POSIX environment
-sourced=$_
-top_dir=$(dirname $(dirname ${sourced}))
+top_dir=$(dirname $(dirname ${BASH_SOURCE[0]}))
 #echo "top_dir=$top_dir"
 
 PATH=$top_dir/bin:$top_dir/usr/bin:$top_dir/sbin:$PATH
 LD_LIBRARY_PATH=$top_dir/lib:$top_dir/usr/lib
+TERMINFO=$top_dir/usr/share/terminfo
 CRYSTAX_POSIX_BASE=$top_dir
 DPKG_ADMINDIR=$top_dir/var/lib/dpkg
 
 export PATH
 export LD_LIBRARY_PATH
+export TERMINFO
 export CRYSTAX_POSIX_BASE
 export DPKG_ADMINDIR
 
 PS1='\\s-\\v \\w $ '
 export PS1
 
-unset sourced
 unset top_dir
+EOS
+
+ETC_BASH_PROFILE_STR = <<-EOS
+etcdir34b728476740cc8e8aec68a96df0b5ac=$(dirname ${BASH_SOURCE[0]})
+test -e $etcdir34b728476740cc8e8aec68a96df0b5ac/environment && source $etcdir34b728476740cc8e8aec68a96df0b5ac/environment
+test -e $etcdir34b728476740cc8e8aec68a96df0b5ac/bashrc && source $etcdir34b728476740cc8e8aec68a96df0b5ac/bashrc
+unset etcdir34b728476740cc8e8aec68a96df0b5ac
+EOS
+
+ETC_BASHRC_STR = <<-EOS
+alias ll='ls -FAl --color=auto'
+EOS
+
+ROOT_BASH_PROFILE_STR = <<-EOS
+source $(dirname ${BASH_SOURCE[0]})/etc/bash_profile
 EOS
 
 
@@ -64,6 +79,9 @@ module Crew
 
     FileUtils.mkdir_p "#{top_dir}/etc"
     File.open("#{top_dir}/etc/#{ENVIRONMENT_FILE}", 'w') { |f| f.puts ETC_ENVIRONMENT_FILE_STR }
+    File.open("#{top_dir}/etc/bash_profile", 'w') { |f| f.puts ETC_BASH_PROFILE_STR }
+    File.open("#{top_dir}/etc/bashrc", 'w') { |f| f.puts ETC_BASHRC_STR }
+    File.open("#{top_dir}/.bash_profile", 'w') { |f| f.puts ROOT_BASH_PROFILE_STR }
 
     if options.make_tarball?
       archive = "#{top_dir}.tar.bz2"
