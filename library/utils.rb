@@ -163,9 +163,13 @@ module Utils
       # no credentials for github based repos
       nil
     when /git@git\.crystax\.net/
+      if ENV.has_key?('SSH_AUTH_SOCK')
+        Rugged::Credentials::SshKeyFromAgent.new(username: 'git')
+      else
         Rugged::Credentials::SshKey.new(username: 'git',
                                         publickey: File.expand_path("~/.ssh/id_rsa.pub"),
                                         privatekey: File.expand_path("~/.ssh/id_rsa"))
+      end
     when /https:\/\/git\.crystax\.net/
       # when we run on the CI machine GITLAB_USERNAME and GITLAB_PASSWORD env vars must be set
       unless [nil, ''].include? ENV['GITLAB_USERNAME']
