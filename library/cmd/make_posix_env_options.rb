@@ -12,6 +12,7 @@ class MakePosixEnvOptions
     @make_tarball = true
     @check_shasum = true
     @with_packages = []
+    @minimize = false
 
     package_names = []
     opts.each do |opt|
@@ -27,6 +28,8 @@ class MakePosixEnvOptions
         @check_shasum = false
       when /^--with-packages=/
         package_names = opt.split('=')[1].split(',')
+      when '--minimize'
+        @minimize = true
       else
         raise "unknow option: #{opt}"
       end
@@ -46,5 +49,9 @@ class MakePosixEnvOptions
 
   def check_shasum?
     @check_shasum
+  end
+
+  def minimize?
+    @minimize
   end
 end

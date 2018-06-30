@@ -83,6 +83,27 @@ module Crew
     File.open("#{top_dir}/etc/bashrc", 'w') { |f| f.puts ETC_BASHRC_STR }
     File.open("#{top_dir}/.bash_profile", 'w') { |f| f.puts ROOT_BASH_PROFILE_STR }
 
+    Dir.chdir(top_dir) do
+      FileUtils.chmod_R 'u+w', top_dir
+
+      toolchain = Build::DEFAULT_TOOLCHAIN
+      arch = Build.abis_to_arch_list([options.abi]).first
+      readelf = toolchain.tool(arch, 'readelf')
+      strip   = toolchain.tool(arch, 'strip')
+
+      files = Dir.glob(File.join(top_dir, '**', '*')).select { |e| File.file?(e) && !File.symlink?(e) }
+
+      files.sort.each do |e|
+        _, status = Process.wait2 Kernel.spawn(readelf, '-h', e, out: '/dev/null', err: '/dev/null')
+        next unless status.success?
+
+        puts "  strip: #{e}"
+        _, status = Process.wait2 Kernel.spawn(strip, e)
+        fail unless status.success?
+      end
+
+    end if options.minimize?
+
     if options.make_tarball?
       archive = "#{top_dir}.tar.bz2"
       puts "creating tarball: #{archive}"
