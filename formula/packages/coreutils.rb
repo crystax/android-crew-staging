@@ -13,6 +13,8 @@ class Coreutils < Package
                 gen_android_mk:      false
 
 
+  SYMLINKS_SCRIPT = 'coreutils-create-symlinks.sh'
+
   def build_for_abi(abi, _toolchain,  _release, _host_dep_dirs, _target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)
 
@@ -44,10 +46,26 @@ class Coreutils < Package
     FileUtils.cd("#{install_dir}/bin") do
       symlinks = Dir['*'] - ['coreutils']
       FileUtils.rm symlinks
-      symlinks.each do |f|
-        FileUtils.ln_s 'coreutils', f
-      end
+      write_create_symlinks_script symlinks
     end
+  end
+
+  # todo: replace /system/bin/sh with /bin/sh when libcrystax will be ready
+  def write_create_symlinks_script(symlinks)
+    File.open(SYMLINKS_SCRIPT, 'w') do |f|
+      f.puts '#!/system/bin/sh'
+      f.puts ''
+      f.puts 'cd $(dirname $0)'
+      f.puts ''
+      f.puts "single_file_binaries=\"#{symlinks.join(' ')}\""
+      f.puts ''
+      f.puts 'for i in $single_file_binaries; do'
+      f.puts 'ln -s coreutils $i;'
+      f.puts 'done'
+      f.puts ''
+      f.puts 'cd -'
+    end
+    FileUtils.chmod '+x', SYMLINKS_SCRIPT
   end
 
   # def copy_to_deb_data_dir(package_dir, data_dir, abi, deb_type = :bin)
