@@ -50,20 +50,18 @@ class Coreutils < Package
     end
   end
 
-  # todo: replace /system/bin/sh with /bin/sh when libcrystax will be ready
   def write_create_symlinks_script(symlinks)
     File.open(SYMLINKS_SCRIPT, 'w') do |f|
-      f.puts '#!/system/bin/sh'
+      f.puts '#!/bin/sh'
       f.puts ''
       f.puts 'cd $(dirname $0)'
       f.puts ''
-      f.puts "single_file_binaries=\"#{symlinks.join(' ')}\""
-      f.puts ''
-      f.puts 'for i in $single_file_binaries; do'
-      f.puts 'ln -s coreutils $i;'
+      f.puts "for i in #{symlinks.join(' ')}; do"
+      f.puts '  rm -f $i || exit 1'
+      f.puts '  ln -s coreutils $i || exit 1'
       f.puts 'done'
       f.puts ''
-      f.puts 'cd -'
+      f.puts 'exit 0'
     end
     FileUtils.chmod '+x', SYMLINKS_SCRIPT
   end
