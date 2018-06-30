@@ -102,7 +102,8 @@ module Utils
     FileUtils.mkdir_p File.dirname(archive)
     dirs << '.' if dirs.empty?
     # gnu tar and bsd tar use different options to  derefence symlinks
-    args  = (['tar', 'gtar'].include?(tar_prog)) ? ['--dereference'] : ['-L']
+    args = []
+    #args << (['tar', 'gtar'].include?(tar_prog)) ? '--dereference' : '-L'
     args += ['-C', indir, '-Jcf', archive] + dirs
     run_command(tar_prog, *args)
   end
