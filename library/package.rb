@@ -147,7 +147,11 @@ class Package < TargetBase
         st_base_dir = "#{build_base_dir}/#{arch.name}-toolchain"
         build_log_puts "  making standalone toolchain with packages: #{st_packages}"
         toolchain = Toolchain::Standalone.new(arch, st_base_dir, Toolchain::DEFAULT_GCC, Toolchain::DEFAULT_LLVM, st_packages, self)
-        toolchain.remove_dynamic_libcrystax if build_options[:use_static_libcrystax]
+        if build_options[:use_static_libcrystax]
+          toolchain.remove_dynamic_libcrystax
+        else
+          toolchain.remove_static_libcrystax
+        end
       end
       arch.abis_to_build.each do |abi|
         build_log_puts "  building for abi: #{abi}"

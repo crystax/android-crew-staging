@@ -257,5 +257,9 @@ module Toolchain
     def remove_dynamic_libcrystax
       FileUtils.rm "#{@base_dir}/#{@arch.host}/lib/libcrystax.so"
     end
+
+    def remove_static_libcrystax
+      FileUtils.rm "#{@base_dir}/#{@arch.host}/lib/libcrystax.a"
+    end
   end
 end
