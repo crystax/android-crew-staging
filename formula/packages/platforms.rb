@@ -217,7 +217,7 @@ class Platforms < BasePackage
 
   # todo:
   # def copy_samples
-  #   puts "= coping samples"
+  #   puts "= copying samples"
   #   FileUtils.cp_r "#{Global::NDK_DIR}/samples", install_dir
   #   copy_src_directory 'samples', 'samples'
   #   Build::API_LEVELS.each { |api_level| copy_src_directory "platforms/android-#{api_level}/samples", samples

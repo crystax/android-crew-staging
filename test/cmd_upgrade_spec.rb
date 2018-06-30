@@ -633,7 +633,7 @@ describe "crew upgrade" do
                                        "Finishing RUBY upgrade process",
                                        "= Removing old binary files",
                                        "= Removing old directories",
-                                       "= Coping new files",
+                                       "= Copying new files",
                                        "= Cleaning up"
                                       ])
         expect(pkg_cache_in?(:host, 'libarchive', libarchive_new_rel.version, libarchive_new_rel.crystax_version)).to eq(true)
@@ -974,7 +974,7 @@ describe "crew upgrade" do
                                        "Finishing RUBY upgrade process",
                                        "= Removing old binary files",
                                        "= Removing old directories",
-                                       "= Coping new files",
+                                       "= Copying new files",
                                        "= Cleaning up"
                                       ])
         expect(pkg_cache_in?(:host, 'libarchive', libarchive_new_rel.version, libarchive_new_rel.crystax_version)).to eq(true)

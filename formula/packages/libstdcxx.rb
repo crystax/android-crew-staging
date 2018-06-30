@@ -62,7 +62,7 @@ class Libstdcxx < BasePackage
       puts "= building for architecture: #{arch.name}"
       arch_build_dir = File.join(build_base_dir, arch.name)
       sysroot = File.join(arch_build_dir, 'sysroot')
-      puts "  coping sysroot into #{sysroot}"
+      puts "  copying sysroot into #{sysroot}"
       copy_sysroot arch, sysroot
       arch.abis_to_build.each do |abi|
         puts "  building for abi: #{abi}"
@@ -247,7 +247,7 @@ class Libstdcxx < BasePackage
       when 'x86', 'arm64-v8a'
         FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"], "#{usr_dir}/lib/"
       else
-        raise "coping sysroot for unsupported abi #{abi}"
+        raise "copying sysroot for unsupported abi #{abi}"
       end
     end
   end

@@ -224,7 +224,7 @@ class HostBase < Formula
         end
       end
       f.puts
-      f.puts "echo = Coping new files"
+      f.puts "echo = Copying new files"
       src_dir = "#{postpone_dir}/prebuilt"
       if Global::OS != 'windows'
         f.puts "cp -r #{src_dir} #{Global::NDK_DIR}"

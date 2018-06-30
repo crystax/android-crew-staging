@@ -64,7 +64,7 @@ module Crew
     FileUtils.rm_rf top_dir
     FileUtils.mkdir_p top_dir
 
-    puts "coping formulas:"
+    puts "copying formulas:"
     (packages + dependencies).each do |formula|
       release = formula.releases.last
       puts "  #{formula.name}:#{release}"

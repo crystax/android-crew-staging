@@ -160,7 +160,7 @@ module Build
   #     when 'x86', 'arm64-v8a'
   #       FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"], "#{usr_dir}/lib/"
   #     else
-  #       raise "coping sysroot for unsupported abi #{abi}"
+  #       raise "copying sysroot for unsupported abi #{abi}"
   #     end
   #   end
   # end
