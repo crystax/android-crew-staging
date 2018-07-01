@@ -195,9 +195,19 @@ class Formula
       @urls << [url, block]
     end
 
-    def release(r)
-      raise ":version key not present in the release"         unless r.has_key?(:version)
-      raise ":crystax_version key not present in the release" unless r.has_key?(:crystax_version)
+    def release(*args)
+      r = args.extract_options!
+      r[:version] = args.shift unless r.has_key?(:version) || args.empty?
+      r[:crystax_version] = r.delete(:crystax) unless r.has_key?(:crystax_version) || !r.has_key?(:crystax)
+      r[:crystax_version] = 1 unless r.has_key?(:crystax_version)
+
+      raise ArgumentError unless args.empty?
+
+      raise "Release version is not specified" unless r.has_key?(:version)
+
+      raise "Wrong crystax version: #{r[:crystax_version].inspect}" \
+        unless r[:crystax_version].is_a?(Integer) && r[:crystax_version] > 0
+
       @releases = [] if !@releases
       raise "more than one version #{r[:version]}" if @releases.any? { |rel| rel.version == r[:version] }
       @releases << Release.new(r[:version], r[:crystax_version])

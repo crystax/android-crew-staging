@@ -1,5 +1,6 @@
 require 'pathname'
 require 'rugged'
+require_relative 'addons'
 require_relative 'exceptions.rb'
 require_relative 'github.rb'
 
