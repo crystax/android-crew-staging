@@ -3,7 +3,7 @@ class ProcpsNg < Package
   name 'procps-ng'
   desc 'Command line and full screen utilities for browsing procfs'
   homepage 'https://gitlab.com/procps-ng/procps'
-  url "https://gitlab.com/procps-ng/procps.git|git_tag:v${version}"
+  url "https://gitlab.com/procps-ng/procps.git|tag:v${version}"
 
   release '3.3.12', crystax: 6
 

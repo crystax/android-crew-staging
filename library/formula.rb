@@ -322,15 +322,29 @@ class Formula
           # puts "git_url:  #{git_url}"
           # puts "git_ref:  #{git_ref}"
           # puts "ref_type: #{ref_type}"
+
           repo = Rugged::Repository.clone_at(git_url, src_dir, credentials: Utils.make_git_credentials(git_url))
-          case ref_type
-          when :commit
-            repo.checkout git_ref, strategy: :force
-          when :tag
-            repo.checkout_tree repo.tags[git_ref].peel, strategy: :force
-          else
-            raise "unknown ref type: #{ref_type}"
-          end
+
+          sha1 = case ref_type
+                 when :commit
+                   git_ref
+                 when :tag
+                   repo.tags[git_ref].peel
+                 when :ref
+                   object = repo.lookup(repo.rev_parse_oid(git_ref))
+                   case object
+                   when Rugged::Tag, Rugged::Tag::Annotation
+                     repo.tags[object.name].peel
+                   when Rugged::Commit
+                     object.oid
+                   else
+                     raise "unsupported ref type: #{object.class}"
+                   end
+                 else
+                   raise "unsupported ref type: #{ref_type}"
+                 end
+
+          repo.checkout sha1, strategy: :force
           repo.close
           FileUtils.rm_rf File.join(src_dir, '.git')
         else
@@ -376,17 +390,15 @@ class Formula
   end
 
   def git_repo_spec?(uri)
-    uri =~ /\|git_.*:/
+    uri =~ /\|(commit|tag|ref):/
   end
 
   def parse_git_url(uri)
     url, ref = uri.split('|')
     type, ref = ref.split(':')
     case type
-    when 'git_commit'
-      type = :commit
-    when 'git_tag'
-      type = :tag
+    when 'commit', 'tag', 'ref'
+      type = type.to_sym
     else
       raise "unsupported git ref type: #{type}"
     end

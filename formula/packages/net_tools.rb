@@ -3,7 +3,7 @@ class NetTools < Package
   name 'net-tools'
   desc 'A collection of programs that form the base set of the NET-3 networking distribution for the Linux operating system'
   homepage 'https://github.com/giftnuss/net-tools'
-  url 'https://github.com/giftnuss/net-tools.git|git_commit:9446c4dd69fe5bc1c1de403039b9565fca9e4273'
+  url 'https://github.com/giftnuss/net-tools.git|commit:9446c4dd69fe5bc1c1de403039b9565fca9e4273'
 
   release '1.60', crystax: 2
 

@@ -2,7 +2,7 @@ class X264 < Package
 
   desc "H.264/AVC encoder"
   homepage "https://www.videolan.org/developers/x264.html"
-  url "https://git.videolan.org/git/x264.git|git_commit:90a61ec76424778c050524f682a33f115024be96"
+  url "https://git.videolan.org/git/x264.git|commit:90a61ec76424778c050524f682a33f115024be96"
 
   release 'r2762', crystax: 4
 

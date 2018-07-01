@@ -3,7 +3,7 @@ class Libobjc2 < Package
   desc 'GNUstep Objective-C Runtime'
   homepage 'https://github.com/gnustep/libobjc2'
   # todo: use commit? tag? something else?
-  url 'https://github.com/crystax/android-vendor-libobjc2.git|git_commit:36d73233f25183d7f371176e0417ca1c94c43c6f'
+  url 'https://github.com/crystax/android-vendor-libobjc2.git|commit:36d73233f25183d7f371176e0417ca1c94c43c6f'
 
   release '1.8.1', crystax: 3
 
