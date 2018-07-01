@@ -44,7 +44,7 @@ module Crew
           working_dir = "#{base_dir}/#{abi}/tmp"
           FileUtils.rm_rf working_dir
           FileUtils.mkdir_p working_dir
-          puts "  #{Deb.file_name(formula.name, release, abi)}.deb"
+          puts "  #{Deb.file_name(formula.name, release, abi)}"
           Deb.make_bin_package package_dir, working_dir, abi, options.deb_repo_base, formula, release
           #Deb.make_deb_dev_package  if formula.deb_has_dev?
           FileUtils.mv Dir["#{working_dir}/*.deb"], formula.build_base_dir

@@ -54,19 +54,22 @@ class TargetBase < Formula
   end
 
   def copy_to_deb_data_dir(package_dir, data_dir, abi, deb_type = :bin)
+    # WARNING! We're using rsync instead of FileUtils to preserve symlinks.
+    # Unfortunately, FileUtils.cp dereferences symlinks, and there is no easy way to
+    # prevent it from doing it
     case deb_type
     when :bin
       bin_dir_list(package_dir).each do |dir|
         unless BIN_PACKAGE_DIRS.include? dir
-          dst_dir = (dir == 'share') ? "#{data_dir}/usr" : data_dir
+          dst_dir = File.join((dir == 'share') ? "#{data_dir}/usr" : data_dir, dir)
           FileUtils.mkdir_p dst_dir
-          FileUtils.cp_r "#{package_dir}/#{dir}", dst_dir
+          Utils.run_command :rsync, '-a', '--delete', "#{package_dir}/#{dir}/", "#{dst_dir}/"
         else
           sub_dir = (dir == 'libs') ? 'lib' : dir
           sub_dir = "usr/#{sub_dir}" unless package_info[:root_dir].include?(dir)
           dst_dir = "#{data_dir}/#{sub_dir}"
           FileUtils.mkdir_p dst_dir
-          FileUtils.cp_r Dir["#{package_dir}/#{dir}/#{abi}/*"], dst_dir
+          Utils.run_command :rsync, '-a', '--delete', "#{package_dir}/#{dir}/#{abi}/", "#{dst_dir}/"
           FileUtils.rm Dir["#{dst_dir}/**/*.a"] if dir == 'libs'
         end
       end

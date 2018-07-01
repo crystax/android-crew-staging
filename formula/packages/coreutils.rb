@@ -46,28 +46,10 @@ class Coreutils < Package
     FileUtils.cd("#{install_dir}/bin") do
       symlinks = Dir['*'] - ['coreutils']
       FileUtils.rm symlinks
-      write_create_symlinks_script symlinks
+      symlinks.each do |f|
+        FileUtils.ln_s 'coreutils', f
+      end
     end
   end
 
-  def write_create_symlinks_script(symlinks)
-    File.open(SYMLINKS_SCRIPT, 'w') do |f|
-      f.puts '#!/bin/sh'
-      f.puts ''
-      f.puts 'cd $(dirname $0)'
-      f.puts ''
-      f.puts "for i in #{symlinks.join(' ')}; do"
-      f.puts '  rm -f $i || exit 1'
-      f.puts '  ln -s coreutils $i || exit 1'
-      f.puts 'done'
-      f.puts ''
-      f.puts 'exit 0'
-    end
-    FileUtils.chmod '+x', SYMLINKS_SCRIPT
-  end
-
-  # def copy_to_deb_data_dir(package_dir, data_dir, abi, deb_type = :bin)
-  #   super package_dir, data_dir, abi, deb_type
-  #   FileUtils.mv Dir["#{data_dir}/usr/bin/coreutils*"], "#{data_dir}/bin"
-  # end
 end

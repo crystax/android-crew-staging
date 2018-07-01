@@ -134,11 +134,9 @@ module Crew
     File.open("#{top_dir}/etc/bashrc", 'w') { |f| f.puts ETC_BASHRC_STR }
     File.open("#{top_dir}/.bash_profile", 'w') { |f| f.puts ROOT_BASH_PROFILE_STR }
 
-    Dir.chdir(File.join(top_dir, 'bin')) do
-      system('bash coreutils-create-symlinks.sh')
-      FileUtils.rm 'coreutils-create-symlinks.sh'
-
-      FileUtils.ln_s 'bash', 'sh' unless File.exists?('sh')
+    Dir.chdir(top_dir) do
+      FileUtils.ln_s 'bash', 'bin/sh'
+      FileUtils.ln_s 'vim',  'usr/bin/vi'
     end
 
     Dir.chdir(top_dir) do
