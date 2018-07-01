@@ -50,7 +50,7 @@ class Vim < Package
     build_env['vim_cv_toupper_broken']          = 'no'
     build_env['vim_cv_tty_group']               = 'world'
     build_env['vim_cv_tgetent']                 = 'zero'
- end
+  end
 
   def unset_vim_cv
     build_env.delete('vim_cv_bcopy_handles_overlap')
