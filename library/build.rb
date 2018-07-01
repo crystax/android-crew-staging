@@ -84,6 +84,10 @@ module Build
     "#{Global::NDK_DIR}/platforms/android-#{arch.min_api_level}/arch-#{arch.name}"
   end
 
+  def self.crystax_incdir
+    "#{Global::NDK_DIR}/sources/crystax/include"
+  end
+
   def self.add_dyld_library_path(configure_script, lib_dir)
     lines = File.readlines(configure_script)
     first = lines.delete(0)
@@ -195,9 +199,6 @@ module Build
   def self.gen_compiler_wrapper(wrapper, compiler, toolchain, options, cflags = '', ldflags = nil)
     ruby = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'])
     helper = File.join(File.dirname(__FILE__), 'compiler_wrapper_helper.rb')
-
-    crystax_incdir = File.join(Global::NDK_DIR, 'sources', 'crystax', 'include')
-
     # todo: check ldflags value?
     ldflags = 'Hash.new("")' unless ldflags
     File.open(wrapper, "w") do |f|
@@ -208,7 +209,7 @@ module Build
       f.puts "compiler = '#{compiler}'"
       f.puts "stl_lib_name = '#{toolchain.stl_lib_name}'"
       f.puts "options = #{options}"
-      f.puts "cflags = '-I#{crystax_incdir} #{cflags}'"
+      f.puts "cflags = '#{cflags}'"
       f.puts "ldflags = #{ldflags}"
       f.puts
       f.puts "compiler, args = process_compiler_args(compiler, options, stl_lib_name, cflags, ldflags)"

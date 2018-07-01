@@ -225,9 +225,9 @@ class Package < TargetBase
     c_comp = toolchain.c_compiler(arch, abi)
 
     if build_options[:sysroot_in_cflags]
-      cflags += " --sysroot=#{Build.sysroot(abi)}"
+      cflags += " --sysroot=#{Build.sysroot(abi)} -I#{Build.crystax_incdir}"
     else
-      c_comp += " --sysroot=#{Build.sysroot(abi)}"
+      c_comp += " --sysroot=#{Build.sysroot(abi)} -I#{Build.crystax_incdir}"
     end
 
     if not build_options[:c_wrapper]
