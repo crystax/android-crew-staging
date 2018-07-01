@@ -4,7 +4,7 @@ class Libpcre < Package
   homepage 'https://www.pcre.org'
   url 'https://ftp.pcre.org/pub/pcre/pcre2-${version}.tar.gz'
 
-  release version: '10.31', crystax_version: 1
+  release '10.31'
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'include', 'lib']

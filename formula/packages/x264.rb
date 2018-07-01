@@ -4,7 +4,7 @@ class X264 < Package
   homepage "https://www.videolan.org/developers/x264.html"
   url "https://git.videolan.org/git/x264.git|git_commit:90a61ec76424778c050524f682a33f115024be96"
 
-  release version: 'r2762', crystax_version: 4
+  release 'r2762', crystax: 4
 
   build_copy 'COPYING'
   build_libs 'libx264'

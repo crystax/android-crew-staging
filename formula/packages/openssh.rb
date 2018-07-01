@@ -5,7 +5,7 @@ class Openssh < Package
   url 'git@git.crystax.net:android/vendor-openssh.git|git_commit:4de3053e9b9caffa66ac31bcb3e4f324ef8b12ce'
   url 'https://github.com/crystax/android-vendor-openssh.git|git_commit:4de3053e9b9caffa66ac31bcb3e4f324ef8b12ce'
 
-  release version: '7.7p1', crystax_version: 1
+  release '7.7p1'
 
   depends_on 'openssl'
 

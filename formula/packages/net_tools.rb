@@ -5,7 +5,7 @@ class NetTools < Package
   homepage 'https://github.com/giftnuss/net-tools'
   url 'https://github.com/giftnuss/net-tools.git|git_commit:9446c4dd69fe5bc1c1de403039b9565fca9e4273'
 
-  release version: '1.60', crystax_version: 2
+  release '1.60', crystax: 2
 
   build_copy 'COPYING'
   build_options sysroot_in_cflags:    false,

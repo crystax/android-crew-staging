@@ -4,7 +4,7 @@ class Diffutils < Package
   homepage 'https://www.gnu.org/software/diffutils/'
   url 'https://ftp.gnu.org/gnu/diffutils/diffutils-${version}.tar.xz'
 
-  release version: '3.6', crystax_version: 2
+  release '3.6', crystax: 2
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin'],

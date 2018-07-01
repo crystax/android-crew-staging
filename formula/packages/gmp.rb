@@ -4,7 +4,7 @@ class Gmp < Package
   homepage "https://gmplib.org/"
   url "https://gmplib.org/download/gmp/gmp-${version}.tar.xz"
 
-  release version: '6.1.2', crystax_version: 1
+  release '6.1.2'
 
   build_options use_cxx:              true,
                 ldflags_in_c_wrapper: true

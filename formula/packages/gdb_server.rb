@@ -8,7 +8,7 @@ class GdbServer < BasePackage
   #homepage ""
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release version: '7.10', crystax_version: 3
+  release '7.10', crystax: 3
 
   # todo:
   #build_depends_on default_compiler

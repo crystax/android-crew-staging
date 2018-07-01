@@ -4,7 +4,7 @@ class NdkDepends < Utility
   name 'ndk-depends'
   homepage ""
 
-  release version: '1', crystax_version: 3
+  release '1', crystax: 3
 
   def prepare_source_code(release, dir, src_name, log_prefix)
   end

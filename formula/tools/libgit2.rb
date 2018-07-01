@@ -4,7 +4,7 @@ class Libgit2 < Utility
   homepage 'https://libgit2.github.com/'
   url 'https://github.com/libgit2/libgit2/archive/v${version}.tar.gz'
 
-  release version: '0.27.0', crystax_version: 1
+  release '0.27.0'
 
   depends_on 'zlib'
   depends_on 'openssl'

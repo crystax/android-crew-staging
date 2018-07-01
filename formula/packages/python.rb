@@ -4,8 +4,8 @@ class Python < Package
   homepage "https://www.python.org"
   url "https://www.python.org/ftp/python/${version}/Python-${version}.tgz"
 
-  release version: '2.7.11', crystax_version: 2
-  release version: '3.5.1',  crystax_version: 2
+  release '2.7.11', crystax: 2
+  release '3.5.1',  crystax: 2
 
   depends_on 'sqlite'
   depends_on 'openssl', version: /^1\.0/

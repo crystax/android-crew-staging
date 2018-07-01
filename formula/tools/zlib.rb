@@ -5,7 +5,7 @@ class Zlib < Utility
   url 'http://zlib.net/zlib-${version}.tar.xz'
   url 'https://github.com/madler/zlib/archive/v${version}.tar.gz'
 
-  release version: '1.2.11', crystax_version: 4
+  release '1.2.11', crystax: 4
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)

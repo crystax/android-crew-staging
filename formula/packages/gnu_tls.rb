@@ -5,7 +5,7 @@ class GnuTls < Package
   homepage "https://www.gnutls.org"
   url "https://www.gnupg.org/ftp/gcrypt/gnutls/v${block}/gnutls-${version}.tar.xz" do |r| r.version.split('.').first(2).join('.') end
 
-  release version: '3.5.18', crystax_version: 4
+  release '3.5.18', crystax: 4
 
   depends_on 'gmp'
   depends_on 'libffi'

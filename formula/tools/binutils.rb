@@ -4,7 +4,7 @@ class Binutils < Utility
   homepage 'https://www.gnu.org/software/binutils/'
   url 'https://mirror.freedif.org/GNU/binutils/binutils-${version}.tar.xz'
 
-  release version: '2.30', crystax_version: 1
+  release '2.30'
 
   depends_on 'zlib'
 

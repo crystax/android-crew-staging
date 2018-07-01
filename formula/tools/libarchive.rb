@@ -5,7 +5,7 @@ class Libarchive < Utility
   url 'http://www.libarchive.org/downloads/libarchive-${version}.tar.gz'
 
   # 3.3.2 fails to build for windows
-  release version: '3.3.1', crystax_version: 5
+  release '3.3.1', crystax: 5
 
   build_depends_on 'xz'
 

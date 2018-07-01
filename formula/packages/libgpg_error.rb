@@ -5,7 +5,7 @@ class LibgpgError < Package
   homepage "https://www.gnupg.org/software/libgpg-error/"
   url "https://www.gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${version}.tar.bz2"
 
-  release version: '1.31', crystax_version: 1
+  release '1.31'
 
   build_copy 'COPYING','COPYING.LIB'
   build_libs 'libgpg-error'

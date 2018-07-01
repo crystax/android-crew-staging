@@ -4,7 +4,7 @@ class Wget < Package
   homepage "https://www.gnu.org/software/wget/"
   url "http://ftp.gnu.org/gnu/wget/wget-${version}.tar.gz"
 
-  release version: '1.19.5', crystax_version: 2
+  release '1.19.5', crystax: 2
 
   depends_on 'openssl'
   depends_on 'libunistring'

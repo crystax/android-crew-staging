@@ -6,9 +6,9 @@ class Llvm < Tool
   homepage "http://llvm.org/"
   url "toolchain/llvm-${version}"
 
-  release version: '3.6', crystax_version: 3
-  release version: '3.7', crystax_version: 3
-  release version: '3.8', crystax_version: 3
+  release '3.6', crystax: 3
+  release '3.7', crystax: 3
+  release '3.8', crystax: 3
 
   build_depends_on 'libedit'
   depends_on 'python'

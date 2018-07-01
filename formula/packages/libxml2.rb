@@ -4,7 +4,7 @@ class Libxml2 < Package
   homepage "http://www.xmlsoft.org"
   url "ftp://xmlsoft.org/libxml2/libxml2-${version}.tar.gz"
 
-  release version: '2.9.8', crystax_version: 1
+  release '2.9.8'
 
   depends_on 'xz'
 

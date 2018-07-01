@@ -4,7 +4,7 @@ class Libffi < Package
   homepage 'https://github.com/libffi/libffi'
   url 'https://github.com/libffi/libffi/archive/v${version}.tar.gz'
 
-  release version: '3.2.1', crystax_version: 2
+  release '3.2.1', crystax: 2
 
   build_copy 'LICENSE'
 

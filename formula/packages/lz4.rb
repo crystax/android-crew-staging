@@ -4,7 +4,7 @@ class Lz4 < Package
   homepage "http://lz4.github.io/lz4/"
   url "https://github.com/lz4/lz4/archive/v${version}.tar.gz"
 
-  release version: '1.8.1.2', crystax_version: 2
+  release '1.8.1.2', crystax: 2
 
   build_copy 'LICENSE'
   build_options copy_installed_dirs: ['bin', 'include', 'lib']

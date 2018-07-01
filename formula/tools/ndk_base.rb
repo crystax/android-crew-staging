@@ -4,7 +4,7 @@ class NdkBase < HostBase
   name 'ndk-base'
   homepage "https://www.crystax.net"
 
-  release version: '11', crystax_version: 14
+  release '11', crystax: 14
 
   def install_archive(release, archive, platform_name)
     # disable warnings since ndk-base archive contains symlinks

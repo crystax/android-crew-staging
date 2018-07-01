@@ -6,9 +6,9 @@ class Libcxx < BasePackage
   #homepage ""
   #url ""
 
-  release version: '3.6', crystax_version: 4
-  release version: '3.7', crystax_version: 4
-  release version: '3.8', crystax_version: 4
+  release '3.6', crystax: 4
+  release '3.7', crystax: 4
+  release '3.8', crystax: 4
 
   build_depends_on 'platforms'
   build_depends_on 'libcrystax'

@@ -4,7 +4,7 @@ class Libssh2 < Package
   homepage 'http://www.libssh2.org/'
   url 'http://www.libssh2.org/download/libssh2-${version}.tar.gz'
 
-  release version: '1.8.0', crystax_version: 4
+  release '1.8.0', crystax: 4
 
   depends_on 'openssl'
 

@@ -4,7 +4,7 @@ class Nettle < Package
   homepage "https://www.lysator.liu.se/~nisse/nettle/"
   url "https://ftp.gnu.org/gnu/nettle/nettle-${version}.tar.gz"
 
-  release version: '3.4', crystax_version: 1
+  release '3.4'
 
   depends_on 'openssl'
   depends_on 'gmp'

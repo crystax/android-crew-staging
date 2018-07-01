@@ -4,7 +4,7 @@ class Libassuan < Package
   homepage "https://www.gnupg.org/software/libassuan/index.html"
   url "https://www.gnupg.org/ftp/gcrypt/libassuan/libassuan-${version}.tar.bz2"
 
-  release version: '2.5.1', crystax_version: 1
+  release '2.5.1'
 
   depends_on 'libgpg-error'
 

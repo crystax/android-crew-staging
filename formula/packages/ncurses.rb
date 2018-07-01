@@ -4,7 +4,7 @@ class Ncurses < Package
   homepage "https://www.gnu.org/software/ncurses/"
   url "https://github.com/mirror/ncurses/archive/v${version}.tar.gz"
 
-  release version: '6.0', crystax_version: 5
+  release '6.0', crystax: 5
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'lib', 'include', 'share'],

@@ -6,9 +6,9 @@ class Gcc < Tool
   homepage "https://gcc.gnu.org"
   url "toolchain/gcc"
 
-  release version: '4.9', crystax_version: 3
-  release version: '5',   crystax_version: 3
-  release version: '6',   crystax_version: 3
+  release '4.9', crystax: 3
+  release '5',   crystax: 3
+  release '6',   crystax: 3
 
   build_depends_on 'gmp'
   build_depends_on 'isl'
