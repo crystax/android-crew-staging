@@ -3,49 +3,99 @@ require_relative '../formulary.rb'
 require_relative 'make_posix_env_options.rb'
 
 
-ETC_ENVIRONMENT_FILE_STR = <<-EOS
+ETC_ENVIRONMENT_FILE_STR = %q(# The most important environment variables
+
 # This file MUST be sourced before starting to use Crystax POSIX environment
 top_dir=$(dirname $(dirname ${BASH_SOURCE[0]}))
 #echo "top_dir=$top_dir"
 
 PATH=$top_dir/bin:$top_dir/usr/bin:$top_dir/sbin:$PATH
-LD_LIBRARY_PATH=$top_dir/lib:$top_dir/usr/lib
-TERMINFO=$top_dir/usr/share/terminfo
-CRYSTAX_POSIX_BASE=$top_dir
-DPKG_ADMINDIR=$top_dir/var/lib/dpkg
-
 export PATH
+
+LD_LIBRARY_PATH=$top_dir/lib:$top_dir/usr/lib
 export LD_LIBRARY_PATH
-export TERMINFO
+
+CRYSTAX_POSIX_BASE=$top_dir
 export CRYSTAX_POSIX_BASE
+
+DPKG_ADMINDIR=$top_dir/var/lib/dpkg
 export DPKG_ADMINDIR
 
-PS1='\\s-\\v \\w $ '
-export PS1
+TERMINFO=$top_dir/usr/share/terminfo
+export TERMINFO
 
 unset top_dir
-EOS
+)
 
-ETC_BASH_PROFILE_STR = <<-EOS
-etcdir34b728476740cc8e8aec68a96df0b5ac=$(dirname ${BASH_SOURCE[0]})
-test -e $etcdir34b728476740cc8e8aec68a96df0b5ac/environment && source $etcdir34b728476740cc8e8aec68a96df0b5ac/environment
-test -e $etcdir34b728476740cc8e8aec68a96df0b5ac/bashrc && source $etcdir34b728476740cc8e8aec68a96df0b5ac/bashrc
-unset etcdir34b728476740cc8e8aec68a96df0b5ac
-EOS
+ETC_BASH_PROFILE_STR = %q(# Common bash_profile
 
-ETC_BASHRC_STR = <<-EOS
+test -n "$BASH" && export SHELL=$BASH
+
+etcdir34b728476740cc8e8=$(dirname ${BASH_SOURCE[0]})
+test -e $etcdir34b728476740cc8e8/environment && source $etcdir34b728476740cc8e8/environment
+
+shopt -s checkwinsize
+shopt -s cmdhist
+shopt -s cdspell
+shopt -s progcomp
+shopt -s histappend
+
+export HISTCONTROL=ignoreboth:erasedups
+
+BLACK='\[\033[01;30m\]'
+GREEN='\[\033[01;32m\]'
+RED='\[\033[01;31m\]'
+YELLOW='\[\033[01;33m\]'
+BLUE='\[\033[01;34m\]'
+BOLD='\[\033[01;39m\]'
+CYAN='\[\033[01;36m\]'
+MAGENTA='\[\033[01;35m\]'
+DARKMAGENTA='\[\033[00;35m\]'
+NORM='\[\033[00m\]'
+
+SHELLNAME=$(basename $SHELL)
+OS=$(uname -o | tr '[a-z]' '[A-Z]')
+
+PS1="${YELLOW}${SHELLNAME}${NORM} [${GREEN}\u@\h ${DARKMAGENTA}${OS} ${CYAN}\t ${BLUE}\w${NORM}]$ "
+export PS1
+
+unset SHELLNAME
+unset OS
+
+unset BLACK
+unset GREEN
+unset RED
+unset YELLOW
+unset BLUE
+unset BOLD
+unset CYAN
+unset MAGENTA
+unset DARKMAGENTA
+unset NORM
+
+test -e $etcdir34b728476740cc8e8/bashrc && source $etcdir34b728476740cc8e8/bashrc
+
+unset etcdir34b728476740cc8e8
+)
+
+ETC_BASHRC_STR = %q(# Common bashrc
 umask 002
-alias ll='ls -FAl --color=auto'
-EOS
 
-ROOT_BASH_PROFILE_STR = <<-EOS
-source $(dirname ${BASH_SOURCE[0]})/etc/bash_profile
-EOS
+alias mv='mv -i'
+alias cp='cp -i'
+alias ll='ls --color=auto -FAl'
+alias tf='tail -F'
+alias pg='ps auxw | grep -v grep | grep'
+)
+
+ROOT_BASH_PROFILE_STR = %q(source $(dirname ${BASH_SOURCE[0]})/etc/bash_profile)
 
 
 module Crew
 
-  DEF_PACKAGES  = ['libcrystax', 'bash', 'coreutils', 'gnu-grep', 'gnu-sed', 'gnu-which', 'gnu-tar', 'gzip', 'findutils', 'less', 'xz']
+  DEF_PACKAGES = %w[
+    libcrystax bash coreutils gnu-grep gnu-sed gnu-which gnu-tar gzip findutils less xz
+  ]
 
   ENVIRONMENT_FILE = 'environment'
 
