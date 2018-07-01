@@ -34,6 +34,7 @@ unset etcdir34b728476740cc8e8aec68a96df0b5ac
 EOS
 
 ETC_BASHRC_STR = <<-EOS
+umask 002
 alias ll='ls -FAl --color=auto'
 EOS
 
