@@ -195,6 +195,9 @@ module Build
   def self.gen_compiler_wrapper(wrapper, compiler, toolchain, options, cflags = '', ldflags = nil)
     ruby = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'])
     helper = File.join(File.dirname(__FILE__), 'compiler_wrapper_helper.rb')
+
+    crystax_incdir = File.join(Global::NDK_DIR, 'sources', 'crystax', 'include')
+
     # todo: check ldflags value?
     ldflags = 'Hash.new("")' unless ldflags
     File.open(wrapper, "w") do |f|
@@ -205,7 +208,7 @@ module Build
       f.puts "compiler = '#{compiler}'"
       f.puts "stl_lib_name = '#{toolchain.stl_lib_name}'"
       f.puts "options = #{options}"
-      f.puts "cflags = '#{cflags}'"
+      f.puts "cflags = '-I#{crystax_incdir} #{cflags}'"
       f.puts "ldflags = #{ldflags}"
       f.puts
       f.puts "compiler, args = process_compiler_args(compiler, options, stl_lib_name, cflags, ldflags)"
