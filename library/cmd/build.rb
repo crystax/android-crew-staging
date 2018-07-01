@@ -2,6 +2,7 @@ require_relative '../exceptions.rb'
 require_relative '../release.rb'
 require_relative '../formulary.rb'
 require_relative 'build_options.rb'
+require_relative 'source.rb'
 
 
 module Crew
@@ -20,7 +21,12 @@ module Crew
       item, ver = n.split(':')
       formula = formulary[item]
       release = formula.find_release(Release.new(ver))
-      raise "source code not installed for #{formula.name}:#{release}" if (formula.namespace == :target) and !formula.source_installed?(release)
+
+      # Automatically install sources if not yet installed
+      if (formula.namespace == :target && !formula.source_installed?(release))
+        sargs = [options.all_versions? ? '--all-version' : nil, *args].compact
+        self.source(sargs)
+      end
 
       # todo: check that (build) dependencies installed for all required platforms
       deps = formula.dependencies + formula.build_dependencies
