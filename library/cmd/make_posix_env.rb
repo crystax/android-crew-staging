@@ -170,8 +170,15 @@ module Crew
   end
 
   def self.packages_formulas(formulary, package_names)
-    packages = package_names.map { |n| "target/#{n}" }.map { |n| formulary[n] }
-    deps = packages.reduce([]) { |acc, f| acc + formulary.dependencies(f) }.uniq(&:name).sort { |f1, f2| f1.name <=> f2.name }
+    packages = package_names.map { |n| "target/#{n}" }
+      .map { |n| formulary[n] }
+      .sort { |a,b| a.name <=> b.name }
+      .uniq(&:name)
+
+    deps = packages.reduce([]) { |acc, f| acc + formulary.dependencies(f) }
+      .sort { |a, b| a.name <=> b.name }
+      .uniq(&:name)
+
     [packages, deps - packages]
   end
 
