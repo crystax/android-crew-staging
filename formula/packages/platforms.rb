@@ -4,7 +4,7 @@ class Platforms < BasePackage
 
   desc "Android platforms headers and libraries"
 
-  release '24', crystax: 7
+  release '24', crystax: 8
 
   # todo:
   #build_depends_on default_compiler
