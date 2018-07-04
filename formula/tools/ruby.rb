@@ -4,14 +4,14 @@ class Ruby < Utility
   homepage 'https://www.ruby-lang.org/'
   url 'https://cache.ruby-lang.org/pub/ruby/${block}/ruby-${version}.tar.gz' do |r| r.version.split('.').slice(0, 2).join('.') end
 
-  release '2.5.1'
+  release '2.5.1', crystax: 2
 
   depends_on 'zlib'
   depends_on 'openssl'
   depends_on 'libssh2'
   depends_on 'libgit2'
 
-  RSPEC_VERSION = '3.7.0'
+  GEMS = {'rspec' => '3.7.0', 'minitar' => '0.6.1'}
 
   def wrapper_script_lines(_exe, platform_name)
     platform_name.start_with?('windows') ? ['set GEM_HOME=', 'set GEM_PATH='] : ['unset GEM_HOME', 'unset GEM_PATH']
@@ -150,10 +150,10 @@ class Ruby < Utility
     FileUtils.rm_rf File.join(install_dir, 'share')
 
     gem = gem_path(release, platform, install_dir)
-    install_gem gem, install_dir, 'rspec', release
+    GEMS.each_pair { |name, version| install_gem gem, install_dir, name, version, release }
   end
 
-  def install_gem(gem, install_dir, name, release)
+  def install_gem(gem, install_dir, name, version, release)
     ver = release.version.split('.')
     ver[2] = '0'
     ruby_ver = ver.join('.')
@@ -166,10 +166,9 @@ class Ruby < Utility
     args = ['-V',
             '--no-document',
             '--backtrace',
-            "--bindir #{install_dir}/bin"
+            "--bindir #{install_dir}/bin",
+            "--version #{version}"
            ]
-
-    args << "--version #{RSPEC_VERSION}" if name == 'rspec'
 
     system gem, 'install', *args, name
   end
@@ -196,18 +195,7 @@ class Ruby < Utility
     end
   end
 
-  # todo: fix: remove dirs that do not have respective (dev or non-dev) files
   def split_file_list(list, platform_name)
-    # put binary files to bin list
-    dev_list, bin_list = list.partition { |e| e =~ /(.*\.h)|(.*\.a)$/ }
-    # add directories to bin list
-    dirs = []
-    dev_list.each do |f|
-      ds = File.dirname(f).split('/')
-      dirs += (1..ds.size).map { |e| ds.first(e).join('/') }
-    end
-    dev_list += dirs.sort.uniq
-
-    [bin_list.sort, dev_list.sort]
+    split_file_list_by_static_libs_and_includes(list, platform_name)
   end
 end
