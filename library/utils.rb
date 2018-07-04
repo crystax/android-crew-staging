@@ -190,7 +190,7 @@ module Utils
     # gnu tar and bsd tar use different options to  derefence symlinks
     args = []
     #args << (['tar', 'gtar'].include?(tar_prog)) ? '--dereference' : '-L'
-    args += ['-C', indir, '-Jcf', archive] + dirs
+    args += ['--format', 'ustar', '-C', indir, '-Jcf', archive] + dirs
     run_command(tar_prog, *args)
   end
 
