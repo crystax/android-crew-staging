@@ -293,4 +293,37 @@ class HostBase < Formula
 
     [bin_list.sort, dev_list.sort]
   end
+
+  # generic implementation to be used by utilities that are have binaries like xz
+  def split_file_list_by_static_libs_and_includes(list, platform_name)
+    dev_list, bin_list = list.partition { |e| e =~ /(.*\.h)|(.*\.a)$/ }
+    bin_list = bin_list.select { |e| not File.directory?(e) }
+
+    [bin_list, dev_list].each do |l|
+      dirs = []
+      l.each do |f|
+        ds = File.dirname(f).split('/')
+        dirs += (1..ds.size).map { |e| ds.first(e).join('/') }
+      end
+      l << dirs.sort.uniq
+      l.flatten!
+    end
+
+    [bin_list.sort, dev_list.sort]
+  end
+
+  def clean_install_dir(platform_name, release, *types)
+    FileUtils.cd(install_dir_for_platform(platform_name, release)) do
+      types.each do |type|
+        case type
+        when :lib
+          FileUtils.rm_rf ['lib/pkgconfig'] + Dir['lib/**/*.la']
+        when :share
+          FileUtils.rm_rf 'share'
+        else
+          raise "unknown type to cleanup: #{type}"
+        end
+      end
+    end
+  end
 end
