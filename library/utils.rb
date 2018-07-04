@@ -12,15 +12,14 @@ module Utils
   @@tar_prog  = nil
   @@xz_prog   = nil
 
-  @@crew_md5sum_prog = 'md5sum'
-  @@crew_ar_prog     = File.join(Global::TOOLS_DIR, 'bin', "ar#{Global::EXE_EXT}")
-  @@crew_tar_prog    = File.join(Global::TOOLS_DIR, 'bin', "bsdtar#{Global::EXE_EXT}")
-  @@crew_xz_prog     = File.join(Global::TOOLS_DIR, 'bin', "xz#{Global::EXE_EXT}")
+  @@crew_ar_prog      = File.join(Global::TOOLS_DIR, 'bin', "ar#{Global::EXE_EXT}")
+  @@crew_tar_prog     = File.join(Global::TOOLS_DIR, 'bin', "bsdtar#{Global::EXE_EXT}")
+  @@crew_xz_prog      = File.join(Global::TOOLS_DIR, 'bin', "xz#{Global::EXE_EXT}")
+  @@crew_xz_copy_prog = File.join(Global::TOOLS_DIR, 'bin', "xz-copy#{Global::EXE_EXT}")
 
-  @@system_tar       = (Global::OS == 'darwin') ? 'gtar' : 'tar'
-
-  @@patch_prog = '/usr/bin/patch'
-  @@unzip_prog = '/usr/bin/unzip'
+  @@patch_prog  = '/usr/bin/patch'
+  @@unzip_prog  = '/usr/bin/unzip'
+  @@md5sum_prog = 'md5sum'
 
   # returns [file_name, release_str, platform_name]
   # for target archives platform will be 'android'
@@ -70,7 +69,7 @@ module Utils
   end
 
   def self.run_md5sum(*args)
-    run_command @@crew_md5sum_prog, *args
+    run_command @@md5sum_prog, *args
   end
 
   def self.download(url, outpath)
@@ -235,16 +234,28 @@ module Utils
   end
 
   def self.tar_prog
-    # we use bsdtar when respective package is built and installed, otherwise we use system tar;
-    # on linux systems gnu tar is installed as 'tar', on darwin systems we use gnu tar from brew (gtar)
-    @@tar_prog = File.exist?(@@crew_tar_prog) ? @@crew_tar_prog : @@system_tar
+    @@tar_prog = File.exist?(@@crew_tar_prog) ? @@crew_tar_prog : 'tar'
   end
 
   def self.xz_prog
-    @@xz_prog = File.exist?(@@crew_xz_prog) ? @@crew_xz_prog : 'xz'
+    @@xz_prog ||= File.exist?(@@crew_xz_prog) ? @@crew_xz_prog : 'xz'
   end
 
-  def self.to_cmd_s(*args)
+  def self.use_xz_copy_prog
+    if not File.exist? @@crew_xz_prog
+      @@xz_prog = nil
+    else
+      FileUtils.cp @@crew_xz_prog, @@crew_xz_copy_prog
+      @@xz_prog = @@crew_xz_copy_prog
+    end
+  end
+
+  def self.reset_xz_prog
+    @@xz_prog = nil
+    FileUtils.rm_f @@crew_xz_copy_prog
+  end
+
+   def self.to_cmd_s(*args)
     # todo: escape '(' and ')' too
     args.map { |a| a.to_s.gsub " ", "\\ " }.join(" ")
   end

@@ -32,7 +32,6 @@ class HostBase < Formula
         end
       end
     end
-    #releases.each { |r| r.update get_properties(release_directory(r, Global::PLATFORM_NAME)) }
   end
 
   def release_directory(release, platform_name)
@@ -41,6 +40,10 @@ class HostBase < Formula
 
   def upgrading_ruby?(platform_name)
     (name == 'ruby') and (Global::PLATFORM_NAME == platform_name)
+  end
+
+  def upgrading_xz?(platform_name)
+    (name == 'xz') and (Global::PLATFORM_NAME == platform_name)
   end
 
   def postpone_dir
@@ -90,7 +93,11 @@ class HostBase < Formula
     FileUtils.mkdir_p rel_dir
 
     target_dir = (upgrading_ruby?(platform_name) and File.exist?(ruby_upgrade_script)) ? postpone_dir : Global::NDK_DIR
+
+    Utils.use_xz_copy_prog           if upgrading_xz?(platform_name)
     Utils.unpack archive, target_dir
+    Utils.reset_xz_prog              if upgrading_xz?(platform_name)
+
     bin_list_file = File.join(target_dir, BIN_LIST_FILE)
     dev_list_file = File.join(target_dir, DEV_LIST_FILE)
     FileUtils.mv bin_list_file, rel_dir
