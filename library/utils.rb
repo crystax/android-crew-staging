@@ -1,6 +1,8 @@
 require 'open3'
 require 'uri'
 require 'rugged'
+require 'tempfile'
+require 'minitar'
 require_relative 'global.rb'
 require_relative 'exceptions.rb'
 
@@ -8,10 +10,13 @@ module Utils
 
   @@curl_prog = nil
   @@tar_prog  = nil
+  @@xz_prog   = nil
 
   @@crew_md5sum_prog = 'md5sum'
   @@crew_ar_prog     = File.join(Global::TOOLS_DIR, 'bin', "ar#{Global::EXE_EXT}")
   @@crew_tar_prog    = File.join(Global::TOOLS_DIR, 'bin', "bsdtar#{Global::EXE_EXT}")
+  @@crew_xz_prog     = File.join(Global::TOOLS_DIR, 'bin', "xz#{Global::EXE_EXT}")
+
   @@system_tar       = (Global::OS == 'darwin') ? 'gtar' : 'tar'
 
   @@patch_prog = '/usr/bin/patch'
@@ -86,15 +91,97 @@ module Utils
     FileUtils.mkdir_p outdir unless Dir.exists? outdir
     case File.extname(archive)
     when '.zip'
-      args = [archive, "-d", outdir]
-      prog = unzip_prog
+      run_command unzip_prog, archive, "-d", outdir
+    when '.xz'
+      # we use our custom untar to handle symlinks in crew's own archive;
+      # since we do not support building crew packages on windows hosts
+      # we do not care about symlinks in other archive types (gz, bz2, etc)
+      options = (Global::OS == 'windows') ? { dereference: true } : {}
+      untar archive, outdir, options
     else
-      # todo: remove
-      #add_path_to_archivers
-      args = ["-C", outdir, "-xf", archive]
-      prog = tar_prog
+      run_command tar_prog, "-C", outdir, "-xf", archive
     end
-    run_command(prog, *args)
+  end
+
+  def self.untar(file, to_dir, options)
+    tempfile = Tempfile.new([File.basename(file), '.tar'])
+
+    begin
+      tempfile.close
+      tar_file = tempfile.path
+      xz_cmd = "#{xz_prog} -dc #{file} > #{tar_file}"
+      `#{xz_cmd}`
+      raise "xz failed: #{xz_cmd}" unless $? == 0
+      File.open(tar_file, 'r') do |f|
+        f.set_encoding Encoding::ASCII_8BIT
+        Minitar::Reader.open(f) do |tar|
+          entries = []
+          symlinks = {}
+          tar.each do |entry|
+
+            class << entry
+              def symlink?
+                typeflag == '2'
+              end
+              alias symlink symlink?
+            end
+
+            dst = File.join(to_dir, entry.full_name)
+            FileUtils.mkdir_p File.dirname(dst)
+
+            if entry.directory?
+              FileUtils.mkdir_p dst
+            elsif entry.file?
+              File.open(dst, 'wb') do |wf|
+                wf.set_encoding Encoding::ASCII_8BIT
+                while buf = entry.read(4194304)
+                  wf.write buf
+                end
+              end
+            elsif entry.symlink?
+              if options[:dereference]
+                symlinks[dst] = entry.linkname
+              else
+                FileUtils.rm_f dst
+                FileUtils.ln_s entry.linkname, dst
+              end
+            else
+              raise "unsupported tar entry: #{entry.inspect}"
+            end
+
+            if File.exists?(dst)
+              FileUtils.chmod entry.mode, dst
+            end
+
+            entries << dst
+          end
+
+          while !symlinks.empty?
+            old_size = symlinks.size
+            symlinks.keys.each do |dst|
+              linkname = symlinks[dst]
+              src = File.expand_path(linkname, File.dirname(dst))
+
+              next unless File.exists?(src)
+
+              FileUtils.rm_f dst
+              FileUtils.mkdir_p File.dirname(dst)
+              src = File.expand_path(linkname, File.dirname(dst))
+              FileUtils.cp_r src, dst
+
+              stat = File.stat(src)
+              FileUtils.chmod stat.mode, dst
+
+              symlinks.delete(dst)
+            end
+
+            raise "tar file has dangling symlinks and --derefence options was specified: #{hash}" if old_size == symlinks.size
+          end
+        end
+      end
+    ensure
+      tempfile.unlink
+    end
   end
 
   def self.pack(archive, indir, *dirs)
@@ -148,9 +235,13 @@ module Utils
   end
 
   def self.tar_prog
-    # we use bsdtar when respective package is built and installed, otherwise we use system tar
+    # we use bsdtar when respective package is built and installed, otherwise we use system tar;
     # on linux systems gnu tar is installed as 'tar', on darwin systems we use gnu tar from brew (gtar)
     @@tar_prog = File.exist?(@@crew_tar_prog) ? @@crew_tar_prog : @@system_tar
+  end
+
+  def self.xz_prog
+    @@xz_prog = File.exist?(@@crew_xz_prog) ? @@crew_xz_prog : 'xz'
   end
 
   def self.to_cmd_s(*args)
