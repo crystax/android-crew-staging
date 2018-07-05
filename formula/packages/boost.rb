@@ -343,4 +343,53 @@ class Boost < Package
     v = ver.split('.')
     "#{v[0]}.#{v[1]}"
   end
+
+  def sonames_translation_table(release)
+    v = release.version
+    {
+      "libboost_atomic.so.#{v}"                => "libboost_atomic",
+      "libboost_chrono.so.#{v}"                => "libboost_chrono",
+      "libboost_container.so.#{v}"             => "libboost_container",
+      "libboost_context.so.#{v}"               => "libboost_context",
+      "libboost_contract.so.#{v}"              => "libboost_contract",
+      "libboost_coroutine.so.#{v}"             => "libboost_coroutine",
+      "libboost_date_time.so.#{v}"             => "libboost_date_time",
+      "libboost_filesystem.so.#{v}"            => "libboost_filesystem",
+      "libboost_graph.so.#{v}"                 => "libboost_graph",
+      "libboost_graph_parallel.so.#{v}"        => "libboost_graph_parallel",
+      "libboost_iostreams.so.#{v}"             => "libboost_iostreams",
+      "libboost_locale.so.#{v}"                => "libboost_locale",
+      "libboost_log.so.#{v}"                   => "libboost_log",
+      "libboost_log_setup.so.#{v}"             => "libboost_log_setup",
+      "libboost_math_c99.so.#{v}"              => "libboost_math_c99",
+      "libboost_math_c99f.so.#{v}"             => "libboost_math_c99f",
+      "libboost_math_c99l.so.#{v}"             => "libboost_math_c99l",
+      "libboost_math_tr1.so.#{v}"              => "libboost_math_tr1",
+      "libboost_math_tr1f.so.#{v}"             => "libboost_math_tr1f",
+      "libboost_math_tr1l.so.#{v}"             => "libboost_math_tr1l",
+      "libboost_mpi_python-py27.so.#{v}"       => "libboost_mpi_python-py27",
+      "libboost_mpi_python-py34.so.#{v}"       => "libboost_mpi_python-py34",
+      "libboost_mpi_python.so.#{v}"            => "libboost_mpi_python",
+      "libboost_mpi.so.#{v}"                   => "libboost_mpi",
+      "libboost_prg_exec_monitor.so.#{v}"      => "libboost_prg_exec_monitor",
+      "libboost_program_options.so.#{v}"       => "libboost_program_options",
+      "libboost_python-py27.so.#{v}"           => "libboost_python-py27",
+      "libboost_python-py34.so.#{v}"           => "libboost_python-py34",
+      "libboost_python.so.#{v}"                => "libboost_python",
+      "libboost_random.so.#{v}"                => "libboost_random",
+      "libboost_regex.so.#{v}"                 => "libboost_regex",
+      "libboost_serialization.so.#{v}"         => "libboost_serialization",
+      "libboost_signals.so.#{v}"               => "libboost_signals",
+      "libboost_stacktrace_basic.so.#{v}"      => "libboost_stacktrace_basic",
+      "libboost_stacktrace_noop.so.#{v}"       => "libboost_stacktrace_noop",
+      "libboost_system.so.#{v}"                => "libboost_system",
+      "libboost_thread.so.#{v}"                => "libboost_thread",
+      "libboost_timer.so.#{v}"                 => "libboost_timer",
+      "libboost_type_erasure.so.#{v}"          => "libboost_type_erasure",
+      "libboost_unit_test_framework.so.#{v}"   => "libboost_unit_test_framework",
+      "libboost_wave.so.#{v}"                  => "libboost_wave",
+      "libboost_wserialization.so.#{v}"        => "libboost_wserialization"
+    }
+  end
+
 end
