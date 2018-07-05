@@ -133,13 +133,19 @@ LIST_HELP = <<-EOS
 
 The LIST command supports the following options:
 
-Filters:
-
   --packages     list only packages, t.i. formulas with
                  'target' namespace
 
   --tools        list only tools, t.i. formulas with
                  'host' namespace
+
+  --no-title     do not output 'Tools:' and/or 'Packages'
+
+  --names-only   output only formula names
+
+  --buildable-order
+                 output formulas in buldable order, otherwise
+                 formulas will be sorted by their names
 EOS
 
 INFO_HELP = <<-EOS
