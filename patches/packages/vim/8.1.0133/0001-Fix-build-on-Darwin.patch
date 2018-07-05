@@ -1,0 +1,44 @@
+From f1a04b30839f6917bda22b9a3c4f50206ac2cc50 Mon Sep 17 00:00:00 2001
+From: Dmitry Moskalchuk <dm@crystax.net>
+Date: Thu, 5 Jul 2018 08:42:51 +0300
+Subject: [PATCH] Fix build on Darwin
+
+Signed-off-by: Dmitry Moskalchuk <dm@crystax.net>
+---
+ src/auto/configure | 4 ++--
+ src/configure.ac   | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/auto/configure b/src/auto/configure
+index 1628b94..676f1b0 100755
+--- a/src/auto/configure
++++ b/src/auto/configure
+@@ -4555,8 +4555,8 @@ $as_echo_n "checking for Darwin (Mac OS X)... " >&6; }
+ if test "`(uname) 2>/dev/null`" = Darwin; then
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+ $as_echo "yes" >&6; }
+-  MACOS_X=yes
+-  CPPFLAGS="$CPPFLAGS -DMACOS_X"
++  #MACOS_X=yes
++  #CPPFLAGS="$CPPFLAGS -DMACOS_X"
+ 
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking --disable-darwin argument" >&5
+ $as_echo_n "checking --disable-darwin argument... " >&6; }
+diff --git a/src/configure.ac b/src/configure.ac
+index 107c170..4b3ccde 100644
+--- a/src/configure.ac
++++ b/src/configure.ac
+@@ -167,8 +167,8 @@ dnl are a lot of other things we need to change besides GUI stuff
+ AC_MSG_CHECKING([for Darwin (Mac OS X)])
+ if test "`(uname) 2>/dev/null`" = Darwin; then
+   AC_MSG_RESULT(yes)
+-  MACOS_X=yes
+-  CPPFLAGS="$CPPFLAGS -DMACOS_X"
++  dnl MACOS_X=yes
++  dnl CPPFLAGS="$CPPFLAGS -DMACOS_X"
+ 
+   AC_MSG_CHECKING(--disable-darwin argument)
+   AC_ARG_ENABLE(darwin,
+-- 
+2.18.0
+
