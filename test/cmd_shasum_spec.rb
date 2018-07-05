@@ -26,7 +26,7 @@ describe "crew shasum" do
           lines = Crew::Test::ALL_TOOLS.map { |e| "host/#{e.name} .* #{Global::PLATFORM_NAME}:.*#{Global::PKG_CACHE_DIR}/tools/#{e.filename}.*" }
           crew 'shasum', '--check'
           got = out.split("\n")
-          expect(:ok).to eq(result)
+          expect(result).to eq(:ok)
           expect(got.size).to eq(lines.size)
           got.each_with_index { |g, i| expect(g).to match(lines[i]) }
         end
