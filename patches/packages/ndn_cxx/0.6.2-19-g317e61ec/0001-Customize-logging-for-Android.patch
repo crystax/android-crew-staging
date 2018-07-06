@@ -1,518 +1,68 @@
-From 1733a352e0cc0f26f5ae9b56f3ac469f48865190 Mon Sep 17 00:00:00 2001
+From c99bce61277ba53642e423c365e6ee84c1afa6aa Mon Sep 17 00:00:00 2001
 From: Alexander Afanasyev <aa@cs.fiu.edu>
 Date: Thu, 5 Jul 2018 10:01:44 -0400
 Subject: [PATCH] Customize logging for Android
 
 Change-Id: I6206d0096d0e2dd729fade35f6acc9d5adeaf75a
 ---
- src/common.hpp                      |   2 +
- src/util/ndn-cxx-custom-logger.cpp  |  88 +++++++++++++++++++
- src/util/ndn-cxx-custom-logger.hpp  | 122 +++++++++++++++++++++++++++
- src/util/ndn-cxx-custom-logging.cpp | 109 ++++++++++++++++++++++++
- src/util/ndn-cxx-custom-logging.hpp | 126 ++++++++++++++++++++++++++++
- wscript                             |   3 +-
- 6 files changed, 449 insertions(+), 1 deletion(-)
- create mode 100644 src/util/ndn-cxx-custom-logger.cpp
- create mode 100644 src/util/ndn-cxx-custom-logger.hpp
- create mode 100644 src/util/ndn-cxx-custom-logging.cpp
- create mode 100644 src/util/ndn-cxx-custom-logging.hpp
+ src/util/logger.hpp | 18 +++++++-----------
+ 1 file changed, 7 insertions(+), 11 deletions(-)
 
-diff --git a/src/common.hpp b/src/common.hpp
-index d990d94e..706e4ba3 100644
---- a/src/common.hpp
-+++ b/src/common.hpp
-@@ -30,6 +30,8 @@
- 
- #include "ndn-cxx-config.hpp"
- 
-+#define HAVE_NDN_CXX_CUSTOM_LOGGER 1
-+
- // ndn-cxx specific macros declared in this and other headers must have NDN_CXX_ prefix
- // to avoid conflicts with other projects that include ndn-cxx headers.
- #ifdef NDN_CXX_HAVE_TESTS
-diff --git a/src/util/ndn-cxx-custom-logger.cpp b/src/util/ndn-cxx-custom-logger.cpp
-new file mode 100644
-index 00000000..41cae15d
---- /dev/null
-+++ b/src/util/ndn-cxx-custom-logger.cpp
-@@ -0,0 +1,88 @@
-+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-+/**
-+ * Copyright (c) 2013-2016 Regents of the University of California.
-+ *
-+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
-+ *
-+ * ndn-cxx library is free software: you can redistribute it and/or modify it under the
-+ * terms of the GNU Lesser General Public License as published by the Free Software
-+ * Foundation, either version 3 of the License, or (at your option) any later version.
-+ *
-+ * ndn-cxx library is distributed in the hope that it will be useful, but WITHOUT ANY
-+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
-+ *
-+ * You should have received copies of the GNU General Public License and GNU Lesser
-+ * General Public License along with ndn-cxx, e.g., in COPYING.md file.  If not, see
-+ * <http://www.gnu.org/licenses/>.
-+ *
-+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
-+ */
-+
-+#include "ndn-cxx-custom-logger.hpp"
-+#include "ndn-cxx-custom-logging.hpp"
-+
-+#include <cinttypes>
-+#include <stdio.h>
-+#include <type_traits>
-+
-+namespace ndn {
-+namespace util {
-+
-+std::ostream&
-+operator<<(std::ostream& os, LogLevel level)
-+{
-+  switch (level) {
-+  case LogLevel::FATAL:
-+    return os << "FATAL";
-+  case LogLevel::NONE:
-+    return os << "NONE";
-+  case LogLevel::ERROR:
-+    return os << "ERROR";
-+  case LogLevel::WARN:
-+    return os << "WARN";
-+  case LogLevel::INFO:
-+    return os << "INFO";
-+  case LogLevel::DEBUG:
-+    return os << "DEBUG";
-+  case LogLevel::TRACE:
-+    return os << "TRACE";
-+  case LogLevel::ALL:
-+    return os << "ALL";
-+  }
-+
-+  BOOST_THROW_EXCEPTION(std::invalid_argument("unknown log level " + to_string(static_cast<int>(level))));
-+}
-+
-+LogLevel
-+parseLogLevel(const std::string& s)
-+{
-+  if (s == "FATAL")
-+    return LogLevel::FATAL;
-+  else if (s == "NONE")
-+    return LogLevel::NONE;
-+  else if (s == "ERROR")
-+    return LogLevel::ERROR;
-+  else if (s == "WARN")
-+    return LogLevel::WARN;
-+  else if (s == "INFO")
-+    return LogLevel::INFO;
-+  else if (s == "DEBUG")
-+    return LogLevel::DEBUG;
-+  else if (s == "TRACE")
-+    return LogLevel::TRACE;
-+  else if (s == "ALL")
-+    return LogLevel::ALL;
-+
-+  BOOST_THROW_EXCEPTION(std::invalid_argument("unrecognized log level '" + s + "'"));
-+}
-+
-+Logger::Logger(const std::string& name)
-+  : m_moduleName(name)
-+{
-+  this->setLevel(LogLevel::NONE);
-+  Logging::addLogger(*this);
-+}
-+
-+} // namespace util
-+} // namespace ndn
-diff --git a/src/util/ndn-cxx-custom-logger.hpp b/src/util/ndn-cxx-custom-logger.hpp
-new file mode 100644
-index 00000000..c8595feb
---- /dev/null
-+++ b/src/util/ndn-cxx-custom-logger.hpp
-@@ -0,0 +1,122 @@
-+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-+/**
-+ * Copyright (c) 2013-2017 Regents of the University of California.
-+ *
-+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
-+ *
-+ * ndn-cxx library is free software: you can redistribute it and/or modify it under the
-+ * terms of the GNU Lesser General Public License as published by the Free Software
-+ * Foundation, either version 3 of the License, or (at your option) any later version.
-+ *
-+ * ndn-cxx library is distributed in the hope that it will be useful, but WITHOUT ANY
-+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
-+ *
-+ * You should have received copies of the GNU General Public License and GNU Lesser
-+ * General Public License along with ndn-cxx, e.g., in COPYING.md file.  If not, see
-+ * <http://www.gnu.org/licenses/>.
-+ *
-+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
-+ */
-+
-+#ifndef NFD_ANDROID_NDN_CXX_ANDROID_NDN_CXX_CUSTOM_LOGGER_HPP
-+#define NFD_ANDROID_NDN_CXX_ANDROID_NDN_CXX_CUSTOM_LOGGER_HPP
-+
-+#include "common.hpp"
-+#include <sstream>
-+#include <atomic>
+diff --git a/src/util/logger.hpp b/src/util/logger.hpp
+index 75d86b44..3a698942 100644
+--- a/src/util/logger.hpp
++++ b/src/util/logger.hpp
+@@ -31,6 +31,7 @@
+ #include <boost/log/common.hpp>
+ #include <boost/log/sources/logger.hpp>
+ #include <atomic>
 +#include <android/log.h>
-+
-+namespace ndn {
-+namespace util {
-+
-+/** \brief indicates the severity level of a log message
-+ */
-+enum class LogLevel {
-+  FATAL   = -1,   ///< fatal (will be logged unconditionally)
-+  NONE    = 0,    ///< no messages
-+  ERROR   = 1,    ///< serious error messages
-+  WARN    = 2,    ///< warning messages
-+  INFO    = 3,    ///< informational messages
-+  DEBUG   = 4,    ///< debug messages
-+  TRACE   = 5,    ///< trace messages (most verbose)
-+  ALL     = 255   ///< all messages
-+};
-+
-+/** \brief output LogLevel as string
-+ *  \throw std::invalid_argument unknown \p level
-+ */
-+std::ostream&
-+operator<<(std::ostream& os, LogLevel level);
-+
-+/** \brief parse LogLevel from string
-+ *  \throw std::invalid_argument unknown level name
-+ */
-+LogLevel
-+parseLogLevel(const std::string& s);
-+
-+/** \brief represents a logger in logging facility
-+ *  \note User should declare a new logger with \p NDN_LOG_INIT macro.
-+ */
-+class Logger
-+{
-+public:
-+  explicit
-+  Logger(const std::string& name);
-+
-+  const std::string&
-+  getModuleName() const
-+  {
-+    return m_moduleName;
-+  }
-+
-+  bool
-+  isLevelEnabled(LogLevel level) const
-+  {
-+    return m_currentLevel.load(std::memory_order_relaxed) >= level;
-+  }
-+
-+  void
-+  setLevel(LogLevel level)
-+  {
-+    m_currentLevel.store(level, std::memory_order_relaxed);
-+  }
-+
-+private:
-+  const std::string m_moduleName;
-+  std::atomic<LogLevel> m_currentLevel;
-+};
-+
-+/** \brief declare a log module
-+ */
-+#define NDN_LOG_INIT(name) \
-+  namespace { \
-+    inline ::ndn::util::Logger& getNdnCxxLogger() \
-+    { \
-+      static ::ndn::util::Logger logger(BOOST_STRINGIZE(name)); \
-+      return logger; \
-+    } \
-+  } \
-+  struct ndn_cxx__allow_trailing_semicolon
-+
-+#define NDN_LOG(level, androidLevel, msg, expression)   \
-+  do { \
-+      if (getNdnCxxLogger().isLevelEnabled(::ndn::util::LogLevel::level)) {           \
+ 
+ namespace ndn {
+ namespace util {
+@@ -233,20 +234,15 @@ using ArgumentType = typename ExtractArgument<T>::type;
+   struct ndn_cxx_allow_trailing_semicolon
+ 
+ /** \cond */
+-#if BOOST_VERSION == 105900
+-// workaround Boost bug 11549
+-#define NDN_BOOST_LOG(x) BOOST_LOG(x) << ""
+-#else
+-#define NDN_BOOST_LOG(x) BOOST_LOG(x)
+-#endif
+ 
+ // implementation detail
+ #define NDN_LOG_INTERNAL(lvl, lvlstr, expression) \
+   do { \
+     if (ndn_cxx_getLogger().isLevelEnabled(::ndn::util::LogLevel::lvl)) { \
+-      NDN_BOOST_LOG(ndn_cxx_getLogger()) << ::ndn::util::detail::LoggerTimestamp{} \
+-        << " " BOOST_STRINGIZE(lvlstr) ": [" << ndn_cxx_getLogger().getModuleName() << "] " \
+-        << expression; \
 +      std::ostringstream os;                                              \
 +      os << expression;                                                   \
-+      __android_log_print(ANDROID_LOG_##androidLevel,                     \
-+                          getNdnCxxLogger().getModuleName().c_str(), "%s", os.str().c_str()); \
-+    }                                                                     \
-+  } while (false)
-+
-+#define NDN_LOG_TRACE(expression) NDN_LOG(TRACE, VERBOSE, TRACE, expression)
-+#define NDN_LOG_DEBUG(expression) NDN_LOG(DEBUG, DEBUG, DEBUG,   expression)
-+#define NDN_LOG_INFO(expression)  NDN_LOG(INFO,  INFO,  INFO,    expression)
-+#define NDN_LOG_WARN(expression)  NDN_LOG(WARN,  WARN,  WARNING, expression)
-+#define NDN_LOG_ERROR(expression) NDN_LOG(ERROR, ERROR, ERROR,   expression)
-+#define NDN_LOG_FATAL(expression) NDN_LOG(FATAL, FATAL, FATAL,   expression)
-+
-+} // namespace util
-+} // namespace ndn
-+
-+#endif // NFD_ANDROID_NDN_CXX_ANDROID_NDN_CXX_CUSTOM_LOGGER_HPP
-diff --git a/src/util/ndn-cxx-custom-logging.cpp b/src/util/ndn-cxx-custom-logging.cpp
-new file mode 100644
-index 00000000..845d4125
---- /dev/null
-+++ b/src/util/ndn-cxx-custom-logging.cpp
-@@ -0,0 +1,109 @@
-+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-+/**
-+ * Copyright (c) 2013-2016 Regents of the University of California.
-+ *
-+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
-+ *
-+ * ndn-cxx library is free software: you can redistribute it and/or modify it under the
-+ * terms of the GNU Lesser General Public License as published by the Free Software
-+ * Foundation, either version 3 of the License, or (at your option) any later version.
-+ *
-+ * ndn-cxx library is distributed in the hope that it will be useful, but WITHOUT ANY
-+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
-+ *
-+ * You should have received copies of the GNU General Public License and GNU Lesser
-+ * General Public License along with ndn-cxx, e.g., in COPYING.md file.  If not, see
-+ * <http://www.gnu.org/licenses/>.
-+ *
-+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
-+ */
-+
-+#include "ndn-cxx-custom-logging.hpp"
-+#include "ndn-cxx-custom-logger.hpp"
-+
-+#include <cstdlib>
-+#include <sstream>
-+
-+namespace ndn {
-+namespace util {
-+
-+static const LogLevel INITIAL_DEFAULT_LEVEL = LogLevel::NONE;
-+
-+Logging&
-+Logging::get()
-+{
-+  // Initialization of block-scope variables with static storage duration is thread-safe.
-+  // See ISO C++ standard [stmt.dcl]/4
-+  static Logging instance;
-+  return instance;
-+}
-+
-+Logging::Logging()
-+{
-+}
-+
-+void
-+Logging::addLoggerImpl(Logger& logger)
-+{
-+  std::lock_guard<std::mutex> lock(m_mutex);
-+
-+  const std::string& moduleName = logger.getModuleName();
-+  m_loggers.insert({moduleName, &logger});
-+
-+  auto levelIt = m_enabledLevel.find(moduleName);
-+  if (levelIt == m_enabledLevel.end()) {
-+    levelIt = m_enabledLevel.find("*");
-+  }
-+  LogLevel level = levelIt == m_enabledLevel.end() ? INITIAL_DEFAULT_LEVEL : levelIt->second;
-+  logger.setLevel(level);
-+}
-+
-+void
-+Logging::setLevelImpl(const std::string& moduleName, LogLevel level)
-+{
-+  std::lock_guard<std::mutex> lock(m_mutex);
-+
-+  if (moduleName == "*") {
-+    this->setDefaultLevel(level);
-+    return;
-+  }
-+
-+  m_enabledLevel[moduleName] = level;
-+  auto range = m_loggers.equal_range(moduleName);
-+  for (auto i = range.first; i != range.second; ++i) {
-+    i->second->setLevel(level);
-+  }
-+}
-+
-+void
-+Logging::setDefaultLevel(LogLevel level)
-+{
-+  m_enabledLevel.clear();
-+  m_enabledLevel["*"] = level;
-+
-+  for (auto i = m_loggers.begin(); i != m_loggers.end(); ++i) {
-+    i->second->setLevel(level);
-+  }
-+}
-+
-+void
-+Logging::setLevelImpl(const std::string& config)
-+{
-+  std::stringstream ss(config);
-+  std::string configModule;
-+  while (std::getline(ss, configModule, ':')) {
-+    size_t ind = configModule.find('=');
-+    if (ind == std::string::npos) {
-+      BOOST_THROW_EXCEPTION(std::invalid_argument("malformed logging config: '=' is missing"));
-+    }
-+
-+    std::string moduleName = configModule.substr(0, ind);
-+    LogLevel level = parseLogLevel(configModule.substr(ind+1));
-+
-+    this->setLevelImpl(moduleName, level);
-+  }
-+}
-+
-+} // namespace util
-+} // namespace ndn
-diff --git a/src/util/ndn-cxx-custom-logging.hpp b/src/util/ndn-cxx-custom-logging.hpp
-new file mode 100644
-index 00000000..b59b9279
---- /dev/null
-+++ b/src/util/ndn-cxx-custom-logging.hpp
-@@ -0,0 +1,126 @@
-+/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-+/**
-+ * Copyright (c) 2013-2016 Regents of the University of California.
-+ *
-+ * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
-+ *
-+ * ndn-cxx library is free software: you can redistribute it and/or modify it under the
-+ * terms of the GNU Lesser General Public License as published by the Free Software
-+ * Foundation, either version 3 of the License, or (at your option) any later version.
-+ *
-+ * ndn-cxx library is distributed in the hope that it will be useful, but WITHOUT ANY
-+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
-+ *
-+ * You should have received copies of the GNU General Public License and GNU Lesser
-+ * General Public License along with ndn-cxx, e.g., in COPYING.md file.  If not, see
-+ * <http://www.gnu.org/licenses/>.
-+ *
-+ * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
-+ */
-+
-+#ifndef NFD_ANDROID_NDN_CXX_ANDROID_NDN_CXX_CUSTOM_LOGGING_HPP
-+#define NFD_ANDROID_NDN_CXX_ANDROID_NDN_CXX_CUSTOM_LOGGING_HPP
-+
-+#include "common.hpp"
-+
-+#include <mutex>
-+#include <unordered_map>
-+
-+namespace ndn {
-+namespace util {
-+
-+enum class LogLevel;
-+class Logger;
-+
-+/** \brief controls the logging facility
-+ *
-+ *  \note Public static methods are thread safe.
-+ *        Non-public methods are not guaranteed to be thread safe.
-+ */
-+class Logging : noncopyable
-+{
-+public:
-+  /** \brief register a new logger
-+   *  \note App should declare a new logger with \p NDN_LOG_INIT macro.
-+   */
-+  static void
-+  addLogger(Logger& logger);
-+
-+  /** \brief set severity level
-+   *  \param moduleName logger name, or "*" for default level
-+   *  \param level minimum severity level
-+   *
-+   *  Log messages are output only if its severity is greater than the set minimum severity level.
-+   *  Initial default severity level is \p LogLevel::NONE which enables FATAL only.
-+   *
-+   *  Changing the default level overwrites individual settings.
-+   */
-+  static void
-+  setLevel(const std::string& moduleName, LogLevel level);
-+
-+  /** \brief set severity levels with a config string
-+   *  \param config colon-separate key=value pairs
-+   *  \throw std::invalid_argument config string is malformed
-+   *
-+   *  \code
-+   *  Logging::setSeverityLevels("*=INFO:Face=DEBUG:NfdController=WARN");
-+   *  \endcode
-+   *  is equivalent to
-+   *  \code
-+   *  Logging::setSeverityLevel("*", LogLevel::INFO);
-+   *  Logging::setSeverityLevel("Face", LogLevel::DEBUG);
-+   *  Logging::setSeverityLevel("NfdController", LogLevel::WARN);
-+   *  \endcode
-+   */
-+  static void
-+  setLevel(const std::string& config);
-+
-+private:
-+  Logging();
-+
-+  void
-+  addLoggerImpl(Logger& logger);
-+
-+  void
-+  setLevelImpl(const std::string& moduleName, LogLevel level);
-+
-+  void
-+  setDefaultLevel(LogLevel level);
-+
-+  void
-+  setLevelImpl(const std::string& config);
-+
-+NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PRIVATE:
-+  static Logging&
-+  get();
-+
-+private:
-+  std::mutex m_mutex;
-+  std::unordered_map<std::string, LogLevel> m_enabledLevel; ///< moduleName => minimum level
-+  std::unordered_multimap<std::string, Logger*> m_loggers; ///< moduleName => logger
-+};
-+
-+inline void
-+Logging::addLogger(Logger& logger)
-+{
-+  get().addLoggerImpl(logger);
-+}
-+
-+inline void
-+Logging::setLevel(const std::string& moduleName, LogLevel level)
-+{
-+  get().setLevelImpl(moduleName, level);
-+}
-+
-+inline void
-+Logging::setLevel(const std::string& config)
-+{
-+  get().setLevelImpl(config);
-+}
-+
-+
-+} // namespace util
-+} // namespace ndn
-+
-+#endif // NFD_ANDROID_NDN_CXX_ANDROID_NDN_CXX_CUSTOM_LOGGING_HPP
-diff --git a/wscript b/wscript
-index 23cb71e8..7faab37b 100644
---- a/wscript
-+++ b/wscript
-@@ -171,7 +171,8 @@ def build(bld):
-         source=bld.path.ant_glob('src/**/*.cpp',
-                                  excl=['src/**/*-osx.cpp',
-                                        'src/**/*-rtnl.cpp',
--                                       'src/**/*-sqlite3.cpp']),
-+                                       'src/**/*-sqlite3.cpp',
-+                                       'src/util/logger.cpp', 'src/util/logging.cpp']),
-         features='pch',
-         headers='src/common-pch.hpp',
-         use='version ndn-cxx-mm BOOST OPENSSL SQLITE3 RT PTHREAD',
++      __android_log_print(ANDROID_LOG_##lvlstr,                           \
++                          ndn_cxx_getLogger().getModuleName().c_str(), "%s", os.str().c_str()); \
+     } \
+   } while (false)
+ /** \endcond */
+@@ -254,7 +250,7 @@ using ArgumentType = typename ExtractArgument<T>::type;
+ /** \brief Log at TRACE level.
+  *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
+  */
+-#define NDN_LOG_TRACE(expression) NDN_LOG_INTERNAL(TRACE, TRACE, expression)
++#define NDN_LOG_TRACE(expression) NDN_LOG_INTERNAL(TRACE, VERBOSE, expression)
+ 
+ /** \brief Log at DEBUG level.
+  *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
+@@ -269,7 +265,7 @@ using ArgumentType = typename ExtractArgument<T>::type;
+ /** \brief Log at WARN level.
+  *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
+  */
+-#define NDN_LOG_WARN(expression) NDN_LOG_INTERNAL(WARN, WARNING, expression)
++#define NDN_LOG_WARN(expression) NDN_LOG_INTERNAL(WARN, WARN, expression)
+ 
+ /** \brief Log at ERROR level.
+  *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
 -- 
 2.17.0
 

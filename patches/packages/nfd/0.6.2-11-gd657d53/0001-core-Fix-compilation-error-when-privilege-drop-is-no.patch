@@ -1,0 +1,42 @@
+From b57cfe16d25a7d63cd5923b85d9fbeb2e09ba842 Mon Sep 17 00:00:00 2001
+From: Alexander Afanasyev <aa@cs.fiu.edu>
+Date: Thu, 5 Jul 2018 15:32:12 -0400
+Subject: [PATCH 1/2] core: Fix compilation error when privilege drop is not
+ supported
+
+Change-Id: I2ccc80b31eb5642d66b28e205143243e006f18ca
+---
+ core/privilege-helper.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/core/privilege-helper.cpp b/core/privilege-helper.cpp
+index 923efa44..a1a35a9c 100644
+--- a/core/privilege-helper.cpp
++++ b/core/privilege-helper.cpp
+@@ -123,10 +123,10 @@ PrivilegeHelper::initialize(const std::string& userName, const std::string& grou
+ void
+ PrivilegeHelper::drop()
+ {
++#ifdef HAVE_PRIVILEGE_DROP_AND_ELEVATE
+   if (::geteuid() == s_normalUid && ::getegid() == s_normalGid)
+     return;
+ 
+-#ifdef HAVE_PRIVILEGE_DROP_AND_ELEVATE
+   NFD_LOG_TRACE("dropping to effective gid=" << s_normalGid);
+   if (::setegid(s_normalGid) != 0)
+     throw Error("Failed to drop to effective gid=" + to_string(s_normalGid));
+@@ -144,10 +144,10 @@ PrivilegeHelper::drop()
+ void
+ PrivilegeHelper::raise()
+ {
++#ifdef HAVE_PRIVILEGE_DROP_AND_ELEVATE
+   if (::geteuid() == s_privilegedUid && ::getegid() == s_privilegedGid)
+     return;
+ 
+-#ifdef HAVE_PRIVILEGE_DROP_AND_ELEVATE
+   NFD_LOG_TRACE("elevating to effective uid=" << s_privilegedUid);
+   if (::seteuid(s_privilegedUid) != 0)
+     throw Error("Failed to elevate to effective uid=" + to_string(s_privilegedUid));
+-- 
+2.17.0
+
