@@ -1,28 +1,38 @@
-From bf7a93ed68c54ac6920c8e14946e73babba8344c Mon Sep 17 00:00:00 2001
+From edfe96100ef2c9caf9e1331d361df83b05e3d1a7 Mon Sep 17 00:00:00 2001
 From: Alexander Afanasyev <aa@cs.fiu.edu>
 Date: Thu, 5 Jul 2018 12:22:17 -0400
 Subject: [PATCH 2/2] Build patches
 
 Change-Id: I094bb7a474610c0fb33698edc826656dbd1bbb5c
 ---
- tools/wscript |  6 ++++--
- wscript       | 26 ++++++++++++++++++++------
- 2 files changed, 24 insertions(+), 8 deletions(-)
+ tools/wscript | 11 +++++++++--
+ wscript       | 28 ++++++++++++++++++++++------
+ 2 files changed, 31 insertions(+), 8 deletions(-)
 
 diff --git a/tools/wscript b/tools/wscript
-index 7f4ff7f6..759c1422 100644
+index 7f4ff7f6..629e6493 100644
 --- a/tools/wscript
 +++ b/tools/wscript
-@@ -36,7 +36,7 @@ def build(bld):
+@@ -28,6 +28,7 @@ top = '..'
+ from waflib import Context, Utils
+ 
+ def build(bld):
++    VERSION_BASE = Context.g_module.VERSION_BASE
+     commonDeps = 'core-objects NDN_CXX BOOST LIBRESOLV'
+ 
+     # Single object tools:
+@@ -36,7 +37,9 @@ def build(bld):
      # These tools cannot be unit-tested.
      for tool in bld.path.ant_glob('*.cpp'):
          name = tool.change_ext('').path_from(bld.path.get_bld())
 -        bld.program(name=name,
 +        bld.shlib(name=name,
++                  vnum=VERSION_BASE,
++                  cnum=VERSION_BASE,
                      target='../bin/%s' % name,
                      source=[tool],
                      use=commonDeps)
-@@ -52,6 +52,8 @@ def build(bld):
+@@ -52,6 +55,8 @@ def build(bld):
              continue # not a C++ tool
  
          name = subdir.path_from(bld.path)
@@ -31,17 +41,19 @@ index 7f4ff7f6..759c1422 100644
          srcFiles = subdir.ant_glob('**/*.cpp', excl=['main.cpp'])
          srcObjects = ''
          if srcFiles:
-@@ -62,7 +64,7 @@ def build(bld):
+@@ -62,7 +67,9 @@ def build(bld):
                          includes=name)
              testableObjects.append(srcObjects)
  
 -        bld.program(name=name,
 +        bld.shlib(name=name,
++                  vnum=VERSION_BASE,
++                  cnum=VERSION_BASE,
                      target='../bin/%s' % name,
                      source=[mainFile],
                      use=commonDeps + ' ' + srcObjects,
 diff --git a/wscript b/wscript
-index d4da8c4b..4e246acc 100644
+index d4da8c4b..c38b72ab 100644
 --- a/wscript
 +++ b/wscript
 @@ -89,10 +89,13 @@ def configure(conf):
@@ -71,16 +83,18 @@ index d4da8c4b..4e246acc 100644
      if conf.options.with_tests or conf.options.with_other_tests:
          boost_libs += ' unit_test_framework'
  
-@@ -198,7 +201,7 @@ def build(bld):
+@@ -198,7 +201,9 @@ def build(bld):
                  source=bld.path.ant_glob('rib/**/*.cpp'),
                  use='core-objects')
  
 -    bld.program(name='nfd',
 +    bld.shlib(name='nfd',
++              vnum=VERSION_BASE,
++              cnum=VERSION_BASE,
                  target='bin/nfd',
                  source='daemon/main.cpp',
                  use='daemon-objects rib-objects')
-@@ -213,6 +216,17 @@ def build(bld):
+@@ -213,6 +218,17 @@ def build(bld):
          IF_HAVE_LIBPCAP='' if bld.env.HAVE_LIBPCAP else '; ',
          IF_HAVE_WEBSOCKET='' if bld.env.HAVE_WEBSOCKET else '; ')
  

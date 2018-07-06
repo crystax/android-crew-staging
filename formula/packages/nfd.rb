@@ -6,7 +6,7 @@ class Nfd < Package
   # rugged doesn't support recursive clone of submodules, needed for websockets
   url "https://named-data.net/downloads/nfd-${version}.tar.bz2"
 
-  release version: '0.6.2-11-gd657d53', crystax_version: 1
+  release version: '0.6.2-11-gd657d53', crystax_version: 2
 
   depends_on 'boost'
   depends_on 'ndn_cxx'
@@ -158,6 +158,18 @@ class Nfd < Package
   def import_module_path(path)
     v = path.split('/')
     "#{v[v.size-2]}/#{v[v.size-1]}"
+  end
+
+  def sonames_translation_table(release)
+    v = release.version.split('-')[0]
+    puts "version for soname: #{v}"
+    {
+      "libnfd.so.#{v}" => "libnfd",
+      "libnfd-autoreg.so.#{v}" => "libnfd-autoreg",
+      "libnfdc.so.#{v}" => "libnfdc",
+      "libndn-autoconfig.so.#{v}" => "libndn-autoconfig",
+      "libndn-autoconfig-server.so.#{v}" => "libndn-autoconfig-server",
+    }
   end
 
 end
