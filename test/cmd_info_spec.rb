@@ -74,7 +74,7 @@ describe "crew info" do
                                      "Class:              libarchive",
                                      "Releases:           #{libarchive_rel.version} #{libarchive_rel.crystax_version} (*)",
                                      "Dependencies:       none",
-                                     "Build dependencies: xz",
+                                     "Build dependencies: xz (*)",
                                      "",
                                      "Name:               ruby",
                                      "Namespace:          host",

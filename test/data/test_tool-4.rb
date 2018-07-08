@@ -7,10 +7,10 @@ class TestTool < Tool
   desc 'Test Tool'
   url ''
 
-  release version: '1.0.0', crystax_version: 1
-  release version: '2.0.0', crystax_version: 1
-  release version: '3.0.0', crystax_version: 1
-  release version: '4.0.0', crystax_version: 1
+  release '1.0.0'
+  release '2.0.0'
+  release '3.0.0'
+  release '4.0.0'
 
   include TestToolMethods
 end

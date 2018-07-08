@@ -47,7 +47,7 @@ require_relative '../library/formulary.rb'
 include Properties
 
 
-RELEASE_REGEXP = /^[[:space:]]*release[[:space:]]+version/
+RELEASE_REGEXP = /^[[:space:]]*release[[:space:]]'/
 END_REGEXP = /^end/
 
 def replace_releases(formula, releases)
@@ -60,7 +60,7 @@ def replace_releases(formula, releases)
     when END_REGEXP
       # output new release lines before line with 'end'
       releases.each do |r|
-        lines << "  release version: '#{r.version}', crystax_version: #{r.crystax_version}"
+        lines << "  release '#{r.version}', crystax: #{r.crystax_version}"
       end
       lines << ''
       lines << l

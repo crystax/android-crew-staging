@@ -383,10 +383,19 @@ module Spec
     def formula_most_recent_release(filename)
       lines = []
       path = "#{Crew::Test::DATA_DIR}/#{filename}.rb"
-      File.foreach(path) { |l| lines << l if l =~ /^[[:space:]]*release[[:space:]]+version/ }
+      File.foreach(path) { |l| lines << l if l =~ /^[[:space:]]*release[[:space:]]'/ }
       raise "bad formulas syntax #{filename}: no release lines" if lines.empty?
-      _, _, ver, _, cxver = lines.last.gsub(':', ' ').gsub('\'', '').gsub(',', '').split(' ')
-
+      rl = lines.last.split(' ')
+      ver = rl[1][1..-1].chop
+      case rl.size
+      when 2
+        cxver = 1
+      when 4
+        ver.chop!
+        cxver = rl[3]
+      else
+        raise "bad release line in #{filename}: #{rl}"
+      end
       Release.new(ver, cxver.to_i)
     end
 

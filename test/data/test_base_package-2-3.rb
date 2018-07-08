@@ -6,9 +6,9 @@ class TestBasePackage < BasePackage
 
   desc "Test Base Package"
 
-  release version: '1', crystax_version: 1
-  release version: '2', crystax_version: 2
-  release version: '3', crystax_version: 2
+  release '1', crystax: 1
+  release '2', crystax: 2
+  release '3', crystax: 2
 
   include TestBasePackageMethods
 end

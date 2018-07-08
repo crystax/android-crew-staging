@@ -3,5 +3,5 @@ class Simple < Formula
   desc "Simple Formula"
   homepage "http://www.simple.formula.org"
 
-  release version: '1.0.0', crystax_version: 1
+  release '1.0.0'
 end

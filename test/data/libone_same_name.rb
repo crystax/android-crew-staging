@@ -4,5 +4,5 @@ class LiboneSameName < Package
   homepage "http://www.libone.org"
   name 'libone'
 
-  release version: '1.0', crystax_version: 1
+  release '1.0'
 end

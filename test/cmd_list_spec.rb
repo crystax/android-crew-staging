@@ -22,7 +22,7 @@ describe "crew list" do
       it "outputs error message" do
         crew 'list', 'a', 'b', 'c'
         expect(exitstatus).to_not be_zero
-        expect(err.split("\n")[0]).to eq('error: bad command syntax; try ./crew help list')
+        expect(err.split("\n")[0]).to match(/error: .*/)
         expect(out).to eq('')
       end
     end
@@ -31,7 +31,7 @@ describe "crew list" do
       it "outputs error message" do
         crew 'list', 'a', 'b'
         expect(exitstatus).to_not be_zero
-        expect(err.split("\n")[0]).to eq('error: bad command syntax; try ./crew help list')
+        expect(err.split("\n")[0]).to match(/error: .*/)
         expect(out).to eq('')
       end
     end
@@ -40,17 +40,25 @@ describe "crew list" do
       it "outputs error message" do
         crew 'list', 'a'
         expect(exitstatus).to_not be_zero
-        expect(err.split("\n")[0]).to eq('error: bad command syntax; try ./crew help list')
+        expect(err.split("\n")[0]).to match(/error: .*/)
         expect(out).to eq('')
       end
     end
   end
 
-  context "with libs argument" do
+  context "with --packages argument" do
 
     context "no formulas and empty hold" do
-      it "outputs nothing" do
+      it "outputs 'Packages:' title" do
         crew 'list', '--packages'
+        expect(result).to eq(:ok)
+        expect(out.split("\n")[0]).to eq('Packages:')
+      end
+    end
+
+    context "no formulas and empty hold and --no-title option" do
+      it "outputs nothing" do
+        crew 'list', '--packages', '--no-title'
         expect(result).to eq(:ok)
         expect(out).to eq('')
       end
@@ -59,7 +67,7 @@ describe "crew list" do
     context "empty hold, one formula with one release" do
       it "outputs info about one not installed release" do
         copy_packages_formulas 'libone.rb'
-        crew 'list', '--packages'
+        crew 'list', '--packages', '--no-title'
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["   libone  1.0.0  1"])
       end
@@ -68,7 +76,7 @@ describe "crew list" do
     context "empty hold, one formula with three releases" do
       it "outputs info about three not installed releases" do
         copy_packages_formulas 'libthree.rb'
-        crew 'list', '--packages'
+        crew 'list', '--packages', '--no-title'
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["   libthree  1.1.1  1",
                                        "   libthree  2.2.2  1",
