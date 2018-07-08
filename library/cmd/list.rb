@@ -69,7 +69,7 @@ module Crew
     end
 
     Element = Struct.new(:name, :version, :crystax_version, :installed_sign, :installed_source) do
-      def initialize(name, version, cversion, iflag, sflag)
+      def initialize(name, version, crystax_version, iflag, sflag)
         super name, version, crystax_version, (iflag ? '*' : ' '), (sflag ? '  source' : '')
       end
 
