@@ -87,7 +87,7 @@ describe "crew list" do
     context "empty hold, three formulas with one, two and three releases" do
       it "outputs info about all available releases" do
         copy_packages_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb'
-        crew 'list', '--packages'
+        crew 'list', '--packages', '--no-title'
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["   libone    1.0.0  1",
                                        "   libthree  1.1.1  1",
@@ -102,7 +102,7 @@ describe "crew list" do
       it "outputs info about one existing release and marks it as installed" do
         pkg_cache_add_package_with_formula 'libone'
         crew_checked 'install', 'libone'
-        crew 'list', '--packages'
+        crew 'list', '--packages', '--no-title'
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq([" * libone  1.0.0  1"])
       end
@@ -112,7 +112,7 @@ describe "crew list" do
       it "outputs info about 4 releases and marks one as installed" do
         pkg_cache_add_package_with_formula 'libfour'
         crew_checked 'install', 'libfour:4.4.4'
-        crew 'list', '--packages'
+        crew 'list', '--packages', '--no-title'
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["   libfour  1.1.1  1",
                                        "   libfour  2.2.2  2",
@@ -127,7 +127,7 @@ describe "crew list" do
         pkg_cache_add_package_with_formula 'libtwo',   update: true, release: Release.new('1.1.0', 1)
         pkg_cache_add_package_with_formula 'libthree', update: true, release: Release.new('1.1.1', 1)
         crew_checked 'install', 'libone', 'libtwo:1.1.0', 'libthree:1.1.1'
-        crew 'list', '--packages'
+        crew 'list', '--packages', '--no-title'
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq([" * libone    1.0.0  1",
                                        " * libthree  1.1.1  1",
@@ -145,7 +145,7 @@ describe "crew list" do
         pkg_cache_add_package_with_formula 'libthree'
         pkg_cache_add_package_with_formula 'libfour'
         crew_checked 'install', 'libone', 'libtwo', 'libthree', 'libfour'
-        crew 'list', '--packages'
+        crew 'list', '--packages', '--no-title'
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["   libfour   1.1.1  1",
                                        "   libfour   2.2.2  2",
@@ -165,7 +165,7 @@ describe "crew list" do
 
     context "when there is one release of every utility" do
       it "outputs info about installed utilities" do
-        crew 'list', '--tools'
+        crew 'list', '--tools', '--no-title'
         expect(result).to eq(:ok)
         got = out.split("\n")
         exp = [/   cloog\s+\d+\.\d+\.\d+\s+\d+/,
@@ -192,7 +192,7 @@ describe "crew list" do
                /   ppl\s+\d+\.\d+\s+\d+/,
                / \* python\s+\d+\.\d+\.\d+\s+\d+/,
                / \* ruby  \s+#{Crew::Test::UTILS_RELEASES['ruby'][0].version}\s+#{Crew::Test::UTILS_RELEASES['ruby'][0].crystax_version}/,
-               /   xz\s+\d+\.\d+\.\d+\s+\d+/,
+               / \* xz\s+\d+\.\d+\.\d+\s+\d+/,
                / \* yasm\s+\d+\.\d+\.\d+\s+\d+/,
                / \* zlib\s+\d+\.\d+\.\d+\s+\d+/
               ]
@@ -243,7 +243,7 @@ describe "crew list" do
                /   ppl\s+\d+\.\d+\s+\d+/,
                / \* python\s+\d+\.\d+\.\d+\s+\d+/,
                / \* ruby  \s+#{Crew::Test::UTILS_RELEASES['ruby'][0].version}\s+#{Crew::Test::UTILS_RELEASES['ruby'][0].crystax_version}/,
-               /   xz\s+\d+\.\d+\.\d+\s+\d+/,
+               / \* xz\s+\d+\.\d+\.\d+\s+\d+/,
                / \* yasm\s+\d+\.\d+\.\d+\s+\d+/,
                / \* zlib\s+\d+\.\d+\.\d+\s+\d+/,
                "Packages:",
