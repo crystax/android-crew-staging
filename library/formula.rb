@@ -377,6 +377,7 @@ class Formula
         warning "failed to handle #{eurl}; reason: #{e}"
       else
         # here is the point of the normal exit
+        FileUtils.touch Dir["#{src_dir}/**/*"], mtime: Time.now
         return
       end
     end
