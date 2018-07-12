@@ -91,6 +91,19 @@ class Formulary
     @formulary.each_value(&block)
   end
 
+  def packages_formulas_with_dependencies(package_names)
+    packages = package_names.map { |n| "target/#{n}" }
+      .map { |n| self[n] }
+      .sort { |a,b| a.name <=> b.name }
+      .uniq(&:name)
+
+    deps = packages.reduce([]) { |acc, f| acc + dependencies(f) }
+      .sort { |a, b| a.name <=> b.name }
+      .uniq(&:name)
+
+    [packages, deps - packages]
+  end
+
   def self.factory(path)
     Formulary.klass(path).new(path)
   end

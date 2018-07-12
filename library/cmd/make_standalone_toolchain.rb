@@ -15,17 +15,16 @@ module Crew
 
     # check that specified packages are available and set release if one was not specified
     formulary = Formulary.new
-    dependencies = []
+    _, dependencies = formulary.packages_formulas_with_dependencies(options.with_packages.map(&:name))
     options.with_packages.each do |package|
       formula = formulary["target/#{package.name}"]
       package.release = package.release ? formula.find_release(package.release) : formula.highest_installed_release
       raise "package #{package} is not installed; please, install it and repeat the command" unless formula.installed?(package.release)
       package.formula = formula
-      dependencies += formulary.dependencies(formula)
     end
 
     # handle dependecies
-    dependencies.uniq.each do |formula|
+    dependencies.each do |formula|
       package = PackageInfo.new(formula.name, formula.highest_installed_release, formula)
       options.with_packages << package
     end

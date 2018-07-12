@@ -104,7 +104,7 @@ module Crew
 
     formulary = Formulary.new
     package_names = DEF_PACKAGES + options.with_packages
-    packages, dependencies = packages_formulas(formulary, package_names)
+    packages, dependencies = formulary.packages_formulas_with_dependencies(package_names)
 
     puts "create POSIX environment in: #{options.top_dir}"
     puts "for ABI:                     #{options.abi}"
@@ -167,18 +167,18 @@ module Crew
     end
   end
 
-  def self.packages_formulas(formulary, package_names)
-    packages = package_names.map { |n| "target/#{n}" }
-      .map { |n| formulary[n] }
-      .sort { |a,b| a.name <=> b.name }
-      .uniq(&:name)
+  # def self.packages_formulas(formulary, package_names)
+  #   packages = package_names.map { |n| "target/#{n}" }
+  #     .map { |n| formulary[n] }
+  #     .sort { |a,b| a.name <=> b.name }
+  #     .uniq(&:name)
 
-    deps = packages.reduce([]) { |acc, f| acc + formulary.dependencies(f) }
-      .sort { |a, b| a.name <=> b.name }
-      .uniq(&:name)
+  #   deps = packages.reduce([]) { |acc, f| acc + formulary.dependencies(f) }
+  #     .sort { |a, b| a.name <=> b.name }
+  #     .uniq(&:name)
 
-    [packages, deps - packages]
-  end
+  #   [packages, deps - packages]
+  # end
 
   def self.make_deb_archive(name, version, options)
     cmd_with_args = ["#{Global::BASE_DIR}/crew", 'make-deb', "--abis=#{options.abi}"]
