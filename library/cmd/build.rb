@@ -24,7 +24,7 @@ module Crew
 
       # Automatically install sources if not yet installed
       if (formula.namespace == :target && !formula.source_installed?(release))
-        sargs = [options.all_versions? ? '--all-version' : nil, *args].compact
+        sargs = [options.all_versions? ? '--all-versions' : nil, *args].compact
         self.source(sargs)
       end
 
