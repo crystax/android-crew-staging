@@ -161,7 +161,7 @@ class Boost < Package
       @lib_deps = Hash.new([])
       Dir["#{prefix_dir}/lib/*.so"].each do |lib|
         name = File.basename(lib).split('.')[0].sub('libboost_', '')
-        abi_deps = toolchain.find_so_needs(lib, arch).select { |l| l.start_with? 'libboost_' }.map { |l| l.split('_')[1].split('.')[0] }.sort
+        abi_deps = toolchain.find_so_needs(lib, arch).select { |l| l.start_with? 'libboost_' }.map { |l| l.gsub(/^libboost_/, '') }.sort
         if @lib_deps[name] == []
           @lib_deps[name] = abi_deps
         elsif @lib_deps[name] != abi_deps
@@ -239,16 +239,22 @@ class Boost < Package
     File.open("#{dir}/project-config.jam", 'w') do |f|
       f.puts "import option ;"
       f.puts "import feature ;"
+      f.puts "import os ;"
+
+      f.puts "cxxflags = [ os.environ CXXFLAGS ] ;"
+      f.puts "linkflags = [ os.environ LDFLAGS ] ;"
+      f.puts "linkflags += [ os.environ LIBS ] ;"
+
       unless python_data[:ver] == :none
         #f.puts "import python ;" unless python_data[:ver] =~ /^2\..*/
         f.puts "using python : #{python_data[:abi]} : #{python_data[:dir]} : #{python_data[:inc_dir]} : #{python_data[:lib_dir]} : <target-os>android ;"
       end
       case stl_name
       when /^gnu-/
-        f.puts "using gcc : #{arch.name} : #{build_env['CXX']} : <archiver>\"#{build_env['AR']}\" <ranlib>\"#{build_env['RANLIB']}\" <cxxflags>\"-std=c++14\" ;"
+        f.puts "using gcc : #{arch.name} : #{build_env['CXX']} : <archiver>\"#{build_env['AR']}\" <ranlib>\"#{build_env['RANLIB']}\" <cxxflags>\"-std=c++14 $(cxxflags) \" <linkflags>$(linkflags) ;"
         f.puts "project : default-build <toolset>gcc ;"
       when /^llvm/
-        f.puts "using clang-linux : #{arch.name} : #{build_env['CXX']} : <archiver>\"#{build_env['AR']}\" <ranlib>\"#{build_env['RANLIB']}\" <cxxflags>\"-std=c++14\" ;"
+        f.puts "using clang-linux : #{arch.name} : #{build_env['CXX']} : <archiver>\"#{build_env['AR']}\" <ranlib>\"#{build_env['RANLIB']}\" <cxxflags>\"-std=c++14 $(cxxflags) \" <linkflags>$(linkflags) ;"
         f.puts "project : default-build <toolset>clang-linux ;"
       else
         raise "unsupported C++ standard library: #{stl_name}"

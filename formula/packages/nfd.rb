@@ -97,7 +97,7 @@ class Nfd < Package
       @lib_deps = Hash.new([])
       Dir["#{prefix_dir}/lib/*.so"].each do |lib|
         name = File.basename(lib).split('.')[0]
-        abi_deps = toolchain.find_so_needs(lib, arch).select { |l| l.start_with? 'libboost_' }.map { |l| l.split('_')[1].split('.')[0] }.sort
+        abi_deps = toolchain.find_so_needs(lib, arch).select { |l| l.start_with? 'libboost_' }.map { |l| l.gsub(/^libboost_/, '') }.sort
         if @lib_deps[name] == []
           @lib_deps[name] = abi_deps
         elsif @lib_deps[name] != abi_deps

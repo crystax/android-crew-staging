@@ -249,28 +249,29 @@ module Toolchain
     end
 
     def cflags(abi)
-      f = ''
+      # f = ''
       # f = '-fPIC -fPIE -fno-integrated-as'
-      # case abi
-      # when 'x86'
-      #   f += ' -m32'
-      # when 'x86_64'
-      #   f += ' -m64'
-      # when 'armeabi-v7a'
-      #   f += ' -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp'
-      # end
+      f = ' -ffunction-sections -funwind-tables -fstack-protector-strong -fPIC -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -no-canonical-prefixes -g -fexceptions -frtti -DANDROID -D__ANDROID_API__=23 '
+      case abi
+      when 'x86'
+        f += ' -m32 '
+      when 'x86_64'
+        f += ' -m64 '
+      when 'armeabi-v7a'
+        f += ' -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp '
+      end
       f
     end
 
     def ldflags(abi)
-      f = ''
-      # f = "-pie"
-      # case abi
-      # when 'armeabi-v7a'
-      #   f += ' -Wl,--fix-cortex-a8'
-      # when 'armeabi-v7a-hard'
-      #   f += ' -Wl,--fix-cortex-a8 -Wl,--no-warn-mismatch'
-      # end
+      # f = ''
+      f = ' -pie -Wl,--exclude-libs,libgcc.a -Wl,--exclude-libs,libunwind.a '
+      case abi
+      when 'armeabi-v7a'
+        f += ' -Wl,--fix-cortex-a8 '
+      when 'armeabi-v7a-hard'
+        f += ' -Wl,--fix-cortex-a8 -Wl,--no-warn-mismatch '
+      end
       f
     end
 
