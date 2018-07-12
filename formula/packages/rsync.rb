@@ -4,10 +4,11 @@ class Rsync < Package
   homepage "https://rsync.samba.org/"
   url "https://download.samba.org/pub/rsync/src/rsync-${version}.tar.gz"
 
-  release '3.1.3'
+  release '3.1.3', crystax: 2
 
   build_copy 'COPYING'
-  build_options copy_installed_dirs: ['bin']
+  build_options build_outside_source_tree: true,
+                copy_installed_dirs: ['bin']
 
   def build_for_abi(abi, _toolchain,  release, _host_dep_dirs, _target_dep_dirs, _options)
     install_dir = install_dir_for_abi(abi)
