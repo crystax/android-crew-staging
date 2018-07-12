@@ -424,6 +424,8 @@ The command supports the following options:
   --with-packages=LIST
                  specify names of the packages that should be added
                  to posix environment
+
+  --minimize     strip all elf files before coping
 EOS
 
 
