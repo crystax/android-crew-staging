@@ -53,6 +53,13 @@ class Python < Package
     gen_android_mk pkg_dir, release
   end
 
+  # if build dir is on case insensitive filesystem then python executable will have an '.exe' extension
+  def python_for_build_name(dir)
+    name = "#{pre_build_result}/python.exe"
+    name.delete_suffix!('.exe') unless File.exist?(name)
+    name
+  end
+
   attr_reader :install_include_dir, :install_frozen_include_dir
   attr_reader :pybin_install_shared_dir, :pybin_install_shared_libs_dir, :pybin_install_shared_modules_dir
   attr_reader :pybin_install_static_libs_dir, :pybin_install_static_bin_dir
@@ -85,7 +92,7 @@ class Python < Package
     config_site = "#{build_config_dir}/config.site"
     gen_config_site config_site, major_ver
 
-    python_for_build = "#{pre_build_result}/python"
+    python_for_build = python_for_build_name(pre_build_result)
     build_env['CONFIG_SITE'] = config_site
     build_env['PYTHON_FOR_BUILD'] = python_for_build
     #build_env['PGEN_FOR_BUILD'] = "#{pre_build_result}/Parser/pgen"
