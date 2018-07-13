@@ -4,7 +4,7 @@ class Ncurses < Package
   homepage "https://www.gnu.org/software/ncurses/"
   url "https://github.com/mirror/ncurses/archive/v${version}.tar.gz"
 
-  release '6.0', crystax: 5
+  release '6.0', crystax: 6
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'lib', 'include', 'share'],
@@ -85,4 +85,12 @@ class Ncurses < Package
       "libtinfow.so.#{v}"   => 'libtinfow'
     }
   end
+
+  def copy_to_deb_data_dir(package_dir, data_dir, abi, deb_type = :bin)
+    super package_dir, data_dir, abi, deb_type
+
+    # remove dangling symlink
+    FileUtils.rm "#{data_dir}/usr/lib/terminfo"
+  end
+
 end
