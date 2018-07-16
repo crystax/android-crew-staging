@@ -2,11 +2,9 @@ class Apt < Package
 
   desc "apt is the main commandline package manager for Debian and its derivatives"
   homepage "https://github.com/Debian/apt"
-  #url "https://github.com/Debian/apt/archive/${version}.tar.gz"
-  url "http://http.debian.net/debian/pool/main/a/apt/apt_${version}.tar.xz"
+  url "https://salsa.debian.org/apt-team/apt.git|tag:${version}"
 
-  #release '1.5.1'
-  release '1.6.1'
+  release '1.6.3'
 
   depends_on 'xz'
   depends_on 'lz4'
