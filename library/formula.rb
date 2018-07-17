@@ -290,15 +290,19 @@ class Formula
   end
 
   def self.src_cache_file(formula_name, release, url)
-    url_file = File.basename(URI.parse(url).path)
-    a = url_file.split('.')
-    if a.size == 1
-      ext = ''
+    if git_repo_spec? url
+      ext = 'tar.xz'
     else
-      ext = a[-1]
-      ext = 'tar.' + ext if a[-2] == 'tar'
+      url_file = File.basename(URI.parse(url).path)
+      a = url_file.split('.')
+      if a.size == 1
+        ext = ''
+      else
+        ext = a[-1]
+        ext = 'tar.' + ext if a[-2] == 'tar'
+      end
     end
-    file = "#{formula_name}-#{release.version}.#{ext}"
+    file = "#{src_base_file_name(formula_name, release)}.#{ext}"
     File.join(Global::SRC_CACHE_DIR, file)
   end
 
@@ -310,59 +314,53 @@ class Formula
     urls.each do |url|
       begin
         eurl = expand_url(url, release)
+        archive = src_cache_file(release, eurl)
         src_dir = File.join(dir, src_name)
-        if git_repo_spec? eurl
-          git_url, git_ref, ref_type = parse_git_url(eurl)
-          # puts "git_url:  #{git_url}"
-          # puts "git_ref:  #{git_ref}"
-          # puts "ref_type: #{ref_type}"
 
-          repo = Rugged::Repository.clone_at(git_url, src_dir, credentials: Utils.make_git_credentials(git_url))
-
-          sha1 = case ref_type
-                 when :commit
-                   git_ref
-                 when :tag
-                   repo.tags[git_ref].peel
-                 when :ref
-                   object = repo.lookup(repo.rev_parse_oid(git_ref))
-                   case object
-                   when Rugged::Tag, Rugged::Tag::Annotation
-                     repo.tags[object.name].peel
-                   when Rugged::Commit
-                     object.oid
-                   else
-                     raise "unsupported ref type: #{object.class}"
-                   end
-                 else
-                   raise "unsupported ref type: #{ref_type}"
-                 end
-
-          repo.checkout sha1, strategy: :force
-          repo.close
-          FileUtils.rm_rf File.join(src_dir, '.git')
+        if File.exist? archive
+          puts "#{log_prefix} using cached file #{archive}"
+          unpack_cached_source_code archive, src_dir, log_prefix
         else
-          archive = src_cache_file(release, eurl)
-          if File.exist? archive
-            puts "#{log_prefix} using cached file #{archive}"
-          else
+          unless git_repo_spec?(eurl)
             puts "#{log_prefix} downloading #{eurl}"
             Utils.download(eurl, archive)
-          end
-
-          if build_options[:source_archive_without_top_dir]
-            FileUtils.mkdir_p src_dir
-            puts "#{log_prefix} unpacking #{File.basename(archive)} into #{src_dir}"
-            Utils.unpack(archive, src_dir)
+            unpack_cached_source_code archive, src_dir, log_prefix
           else
-            mask = File.join(dir, '*')
-            old_dir = Dir[mask]
-            puts "#{log_prefix} unpacking #{File.basename(archive)} into #{dir}"
-            Utils.unpack(archive, dir)
-            new_dir = Dir[mask]
-            diff = old_dir.empty? ? new_dir : new_dir - old_dir
-            raise "source archive does not have top directory, diff: #{diff}" if diff.count != 1
-            FileUtils.cd(dir) { FileUtils.mv diff[0], src_name }
+            puts "#{log_prefix} accessing repository #{eurl}"
+            git_url, git_ref, ref_type = parse_git_url(eurl)
+            # puts "git_url:  #{git_url}"
+            # puts "git_ref:  #{git_ref}"
+            # puts "ref_type: #{ref_type}"
+
+            repo = Rugged::Repository.clone_at(git_url, src_dir, credentials: Utils.make_git_credentials(git_url))
+
+            sha1 = case ref_type
+                   when :commit
+                     git_ref
+                   when :tag
+                     repo.tags[git_ref].peel
+                   when :ref
+                     object = repo.lookup(repo.rev_parse_oid(git_ref))
+                     case object
+                     when Rugged::Tag, Rugged::Tag::Annotation
+                       repo.tags[object.name].peel
+                     when Rugged::Commit
+                       object.oid
+                     else
+                       raise "unsupported ref type: #{object.class}"
+                     end
+                   else
+                     raise "unsupported ref type: #{ref_type}"
+                   end
+
+            repo.checkout sha1, strategy: :force
+            repo.close
+            FileUtils.rm_rf File.join(src_dir, '.git')
+            puts "#{log_prefix} caching sources into #{archive}"
+            src_cache_name = Formula.src_base_file_name(file_name, release)
+            FileUtils.cd(dir) { FileUtils.mv src_name, src_cache_name }
+            Utils.pack archive, dir, src_cache_name
+            FileUtils.cd(dir) { FileUtils.mv src_cache_name, src_name }
           end
         end
 
@@ -375,6 +373,8 @@ class Formula
         end
       rescue Exception => e
         warning "failed to handle #{eurl}; reason: #{e}"
+        # debug
+        STDERR.puts e.backtrace if Global.backtrace?
       else
         # here is the point of the normal exit
         FileUtils.touch Dir["#{src_dir}/**/*"], mtime: Time.now
@@ -384,8 +384,34 @@ class Formula
     raise
   end
 
-  def git_repo_spec?(uri)
+  def unpack_cached_source_code(archive, src_dir, log_prefix)
+    if build_options[:source_archive_without_top_dir]
+      FileUtils.mkdir_p src_dir
+      puts "#{log_prefix} unpacking #{File.basename(archive)} into #{src_dir}"
+      Utils.unpack(archive, src_dir)
+    else
+      dir = File.dirname(src_dir)
+      mask = File.join(dir, '*')
+      old_dir = Dir[mask]
+      puts "#{log_prefix} unpacking #{File.basename(archive)} into #{dir}"
+      Utils.unpack(archive, dir)
+      new_dir = Dir[mask]
+      diff = old_dir.empty? ? new_dir : new_dir - old_dir
+      raise "source archive does not have top directory, diff: #{diff}" if diff.count != 1
+      FileUtils.cd(dir) { FileUtils.mv diff[0], File.basename(src_dir) }
+    end
+  end
+
+  def self.src_base_file_name(formula_name, release)
+    "#{formula_name}-#{release.version}"
+  end
+
+  def self.git_repo_spec?(uri)
     uri =~ /\|(commit|tag|ref):/
+  end
+
+  def git_repo_spec?(uri)
+    Formula.git_repo_spec? uri
   end
 
   def parse_git_url(uri)
