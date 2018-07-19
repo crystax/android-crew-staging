@@ -4,10 +4,19 @@ require_relative 'arch.rb'
 
 module Toolchain
 
+  module Type
+    def standalone?
+      @standalone
+    end
+  end
+
   class GCC
+    include Type
+
     attr_reader :type, :version, :name
 
     def initialize(version)
+      @standalone = false
       @type = 'gcc'
       @version = version
       @name = "#{type}-#{version}"
@@ -64,7 +73,7 @@ module Toolchain
       when 'armeabi-v7a'
         f += ' -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp'
       when 'armeabi-v7a-hard'
-        f += ' -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mhard-float'
+        f += ' -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mhard-float -Wl,--no-warn-mismatch'
       end
       f
     end
@@ -94,9 +103,12 @@ module Toolchain
 
 
   class LLVM
+    include Type
+
     attr_reader :type, :version, :name, :gcc_toolchain
 
     def initialize(version, gcc_toolchain)
+      @standalone = false
       @type = 'llvm'
       @version = version
       @gcc_toolchain = gcc_toolchain
@@ -207,14 +219,17 @@ module Toolchain
 
 
   class Standalone
+    include Type
+
     attr_reader :base_dir, :sysroot_dir
 
     def initialize(arch, base_dir, gcc_toolchain, llvm_toolchain, with_packages, formula)
-      @arch     = arch
+      @standalone = true
+      @arch = arch
       @base_dir = base_dir
       @gcc_toolchain = gcc_toolchain
       @llvm_toolchain = llvm_toolchain
-      @bin_dir     = "#{base_dir}/bin"
+      @bin_dir = "#{base_dir}/bin"
       @sysroot_dir = "#{base_dir}/sysroot"
 
       args = ["#{Global::BASE_DIR}/crew",

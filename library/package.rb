@@ -127,7 +127,6 @@ class Package < TargetBase
     @num_jobs = options.num_jobs
 
     build_env.clear
-    build_options[:setup_env] = false if build_options[:use_standalone_toolchain]
     raise "static libcrystax can be used only with standalone toolchain" if build_options[:use_static_libcrystax] and not build_options[:use_standalone_toolchain]
 
     if self.respond_to? :pre_build
@@ -143,6 +142,7 @@ class Package < TargetBase
     arch_list.each do |arch|
       build_log_puts "= building for architecture: #{arch.name}"
       if build_options[:use_standalone_toolchain]
+        warning "build option 'cflags_in_c_wrapper=true' ignored for standalone toolchains" if build_options[:cflags_in_c_wrapper]
         st_packages = target_dep_dirs.keys
         st_base_dir = "#{build_base_dir}/#{arch.name}-toolchain"
         build_log_puts "  making standalone toolchain with packages: #{st_packages}"
@@ -218,26 +218,34 @@ class Package < TargetBase
   end
 
   def setup_build_env(abi, toolchain)
-    cflags  = toolchain.cflags(abi)
-    ldflags = toolchain.ldflags(abi)
-
     arch = Build.arch_for_abi(abi)
-    c_comp = toolchain.c_compiler(arch, abi)
 
-    if build_options[:sysroot_in_cflags]
-      cflags += " --sysroot=#{Build.sysroot(abi)}"
+    if toolchain.standalone?
+      lib = (abi == 'mips64') ? 'lib64' : 'lib'
+      cflags  = toolchain.gcc_cflags(abi) + " --sysroot=#{toolchain.sysroot_dir}"   # -I#{toolchain.sysroot_dir}/usr/include"
+      ldflags = toolchain.gcc_ldflags(abi) + " --sysroot=#{toolchain.sysroot_dir}"  # -L#{toolchain.sysroot_dir}/usr/#{lib}"
+      cc      = toolchain.gcc
     else
-      c_comp += " --sysroot=#{Build.sysroot(abi)}"
-    end
+      cflags  = toolchain.cflags(abi)
+      ldflags = toolchain.ldflags(abi)
 
-    if not build_options[:c_wrapper]
-      cc = c_comp
-    else
-      cc = build_options[:c_wrapper] == true ? toolchain.c_compiler_name : build_options[:c_wrapper]
-      cc = "#{build_dir_for_abi(abi)}/#{cc}"
-      c_comp += ' ' + cflags if build_options[:cflags_in_c_wrapper]
-      ldflags_wrapper_arg = build_options[:ldflags_in_c_wrapper] ? { before: ldflags, after: '' } : nil
-      Build.gen_compiler_wrapper cc, c_comp, toolchain, build_options, '', ldflags_wrapper_arg
+      c_comp = toolchain.c_compiler(arch, abi)
+
+      if build_options[:sysroot_in_cflags]
+        cflags += " --sysroot=#{Build.sysroot(abi)}"
+      else
+        c_comp += " --sysroot=#{Build.sysroot(abi)}"
+      end
+
+      if not build_options[:c_wrapper]
+        cc = c_comp
+      else
+        cc = build_options[:c_wrapper] == true ? toolchain.c_compiler_name : build_options[:c_wrapper]
+        cc = "#{build_dir_for_abi(abi)}/#{cc}"
+        c_comp += ' ' + cflags if build_options[:cflags_in_c_wrapper]
+        ldflags_wrapper_arg = build_options[:ldflags_in_c_wrapper] ? { before: ldflags, after: '' } : nil
+        Build.gen_compiler_wrapper cc, c_comp, toolchain, build_options, '', ldflags_wrapper_arg
+      end
     end
 
     @build_env = {'LC_MESSAGES' => 'C',
@@ -252,20 +260,25 @@ class Package < TargetBase
                  }
 
     if build_options[:use_cxx]
-      cxx_comp = toolchain.cxx_compiler(arch, abi)
-      cxx_comp += " --sysroot=#{Build.sysroot(abi)}" unless build_options[:sysroot_in_cflags]
-      ldflags += ' ' + toolchain.search_path_for_stl_libs(abi)
-
-      if not build_options[:cxx_wrapper]
-        cxx = cxx_comp
+      if toolchain.standalone?
+        cxx = toolchain.gxx
+        cxxflags = cflags
       else
-        cxx = build_options[:cxx_wrapper] == true ? toolchain.cxx_compiler_name : build_options[:cxx_wrapper]
-        cxx = "#{build_dir_for_abi(abi)}/#{cxx}"
-        ldflags_wrapper_arg = build_options[:ldflags_in_c_wrapper] ? { before: ldflags, after: '' } : nil
-        Build.gen_compiler_wrapper cxx, cxx_comp, toolchain, build_options, '', ldflags_wrapper_arg
-      end
+        cxx_comp = toolchain.cxx_compiler(arch, abi)
+        cxx_comp += " --sysroot=#{Build.sysroot(abi)}" unless build_options[:sysroot_in_cflags]
+        ldflags += ' ' + toolchain.search_path_for_stl_libs(abi)
 
-      cxxflags = cflags + ' ' + toolchain.search_path_for_stl_includes(abi)
+        if not build_options[:cxx_wrapper]
+          cxx = cxx_comp
+        else
+          cxx = build_options[:cxx_wrapper] == true ? toolchain.cxx_compiler_name : build_options[:cxx_wrapper]
+          cxx = "#{build_dir_for_abi(abi)}/#{cxx}"
+          ldflags_wrapper_arg = build_options[:ldflags_in_c_wrapper] ? { before: ldflags, after: '' } : nil
+          Build.gen_compiler_wrapper cxx, cxx_comp, toolchain, build_options, '', ldflags_wrapper_arg
+        end
+
+        cxxflags = cflags + ' ' + toolchain.search_path_for_stl_includes(abi)
+      end
 
       @build_env['CXX']      = cxx
       @build_env['CXXCPP']   = "#{cxx} #{cxxflags} -E"
