@@ -4,7 +4,7 @@ class Apt < Package
   homepage "https://github.com/Debian/apt"
   url "https://salsa.debian.org/apt-team/apt.git|tag:${version}"
 
-  release '1.6.3'
+  release '1.6.3', crystax: 2
 
   depends_on 'xz'
   depends_on 'lz4'
@@ -36,7 +36,6 @@ class Apt < Package
     cc = toolchain.gcc
     cxx = toolchain.gxx
     cflags = toolchain.gcc_cflags(abi)
-    cflags += ' -Wl,--no-warn-mismatch' if abi == 'armeabi-v7a-hard'
     cxxflags = cflags
     ldflags = toolchain.gcc_ldflags(abi)
 
