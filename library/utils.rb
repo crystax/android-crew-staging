@@ -12,10 +12,11 @@ module Utils
   @@tar_prog  = nil
   @@xz_prog   = nil
 
-  @@crew_ar_prog      = File.join(Global::TOOLS_DIR, 'bin', "ar#{Global::EXE_EXT}")
-  @@crew_tar_prog     = File.join(Global::TOOLS_DIR, 'bin', "bsdtar#{Global::EXE_EXT}")
-  @@crew_xz_prog      = File.join(Global::TOOLS_DIR, 'bin', "xz#{Global::EXE_EXT}")
-  @@crew_xz_copy_prog = File.join(Global::TOOLS_DIR, 'bin', "xz-copy#{Global::EXE_EXT}")
+  @@crew_ar_prog       = File.join(Global::TOOLS_DIR, 'bin', "ar#{Global::EXE_EXT}")
+  @@crew_tar_prog      = File.join(Global::TOOLS_DIR, 'bin', "bsdtar#{Global::EXE_EXT}")
+  @@crew_tar_copy_prog = File.join(Global::TOOLS_DIR, 'bin', "bsdtar-copy#{Global::EXE_EXT}")
+  @@crew_xz_prog       = File.join(Global::TOOLS_DIR, 'bin', "xz#{Global::EXE_EXT}")
+  @@crew_xz_copy_prog  = File.join(Global::TOOLS_DIR, 'bin', "xz-copy#{Global::EXE_EXT}")
 
   @@patch_prog  = '/usr/bin/patch'
   @@unzip_prog  = '/usr/bin/unzip'
@@ -92,11 +93,14 @@ module Utils
     when '.zip'
       run_command unzip_prog, archive, "-d", outdir
     when '.xz'
-      # we use our custom untar to handle symlinks in crew's own archive;
+      # we use our custom untar to handle symlinks in crew's own archives on windows;
       # since we do not support building crew packages on windows hosts
       # we do not care about symlinks in other archive types (gz, bz2, etc)
-      options = (Global::OS == 'windows') ? { dereference: true } : {}
-      untar archive, outdir, options
+      if (Global::OS == 'windows')
+        untar archive, outdir, dereference: true
+      else
+        run_command tar_prog, "-C", outdir, "-xf", archive
+      end
     else
       run_command tar_prog, "-C", outdir, "-xf", archive
     end
@@ -235,6 +239,20 @@ module Utils
 
   def self.tar_prog
     @@tar_prog = File.exist?(@@crew_tar_prog) ? @@crew_tar_prog : 'tar'
+  end
+
+  def self.use_tar_copy_prog
+    if not File.exist? @@crew_tar_prog
+      @@tar_prog = nil
+    else
+      FileUtils.cp @@crew_tar_prog, @@crew_tar_copy_prog
+      @@tar_prog = @@crew_tar_copy_prog
+    end
+  end
+
+  def self.reset_tar_prog
+    @@tar_prog = nil
+    FileUtils.rm_f @@crew_tar_copy_prog
   end
 
   def self.xz_prog

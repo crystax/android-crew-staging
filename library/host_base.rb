@@ -46,6 +46,10 @@ class HostBase < Formula
     (name == 'xz') and (Global::PLATFORM_NAME == platform_name)
   end
 
+  def upgrading_tar?(platform_name)
+    (name == 'tar') and (Global::PLATFORM_NAME == platform_name)
+  end
+
   def postpone_dir
     "#{Global::NDK_DIR}/postpone"
   end
@@ -94,9 +98,19 @@ class HostBase < Formula
 
     target_dir = (upgrading_ruby?(platform_name) and File.exist?(ruby_upgrade_script)) ? postpone_dir : Global::NDK_DIR
 
-    Utils.use_xz_copy_prog           if upgrading_xz?(platform_name)
+    if (Global::OS == 'windows') && upgrading_xz?(platform_name)
+      Utils.use_xz_copy_prog
+    elsif upgrading_tar?(platform_name)
+      Utils.use_tar_copy_prog
+    end
+
     Utils.unpack archive, target_dir
-    Utils.reset_xz_prog              if upgrading_xz?(platform_name)
+
+    if (Global::OS == 'windows') && upgrading_xz?(platform_name)
+      Utils.reset_xz_prog
+    elsif upgrading_tar?(platform_name)
+      Utils.reset_tar_prog
+    end
 
     bin_list_file = File.join(target_dir, BIN_LIST_FILE)
     dev_list_file = File.join(target_dir, DEV_LIST_FILE)
