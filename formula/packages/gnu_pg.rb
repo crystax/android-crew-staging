@@ -5,7 +5,7 @@ class GnuPg < Package
   homepage "https://www.gnupg.org"
   url "https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-${version}.tar.bz2"
 
-  release '2.2.7', crystax: 2
+  release '2.2.7', crystax: 3
 
   depends_on 'sqlite'
   depends_on 'npth'
@@ -38,27 +38,11 @@ class GnuPg < Package
     build_env['KSBA_VERSION']      = Formulary.new['target/libksba'].highest_installed_release.version
     build_env['LIBGCRYPT_VERSION'] = Formulary.new['target/libksba'].highest_installed_release.version
 
-    lib = (abi == 'mips64') ? 'lib64' : 'lib'
-    cflags  = toolchain.gcc_cflags(abi) + " -I#{toolchain.sysroot_dir}/usr/include"
-    ldflags = toolchain.gcc_ldflags(abi) + " -L#{toolchain.sysroot_dir}/usr/#{lib}"
-    cflags += ' -Wl,--no-warn-mismatch' if abi == 'armeabi-v7a-hard'
-
-    arch = Build.arch_for_abi(abi)
-
     gnupg_libs  = '-lgcrypt -lksba -lassuan -lgpg-error'
-    gnutls_libs = '-lgnutls -lp11-kit -lidn2 -lunistring -lnettle -lhogweed -lffi -lgmp -lz'  #Build::BAD_ABIS.include?(abi) ? '  ' : ' '
+    gnutls_libs = '-lgnutls -lp11-kit -lidn2 -lunistring -lnettle -lhogweed -lffi -lgmp -lz'
 
-    build_env['CFLAGS']      = cflags
-    build_env['LDFLAGS']     = ldflags
     build_env['LIBS']        = gnupg_libs + ' '  + gnutls_libs + ' -lreadline -lncursesw -lnpth -lsqlite3'
     build_env['PATH']        = Build.path
-    build_env['LC_MESSAGES'] = 'C'
-    build_env['CC']          = toolchain.gcc
-    build_env['CPP']         = "#{toolchain.gcc} #{cflags} -E"
-    build_env['AR']          = toolchain.tool(arch, 'ar')
-    build_env['RANLIB']      = toolchain.tool(arch, 'ranlib')
-    build_env['READELF']     = toolchain.tool(arch, 'readelf')
-    build_env['STRIP']       = toolchain.tool(arch, 'strip')
 
     args =  [ "--prefix=#{install_dir}",
               "--host=#{host_for_abi(abi)}",
