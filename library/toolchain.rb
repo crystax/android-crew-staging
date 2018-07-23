@@ -245,33 +245,43 @@ module Toolchain
     end
 
     def search_path_for_stl_libs(abi)
+      "-L#{Global::NDK_DIR}/platforms/android-23/arch-#{abi}/usr/lib "
       "-L#{Global::NDK_DIR}/sources/cxx-stl/llvm-libc++/libs/#{abi}"
     end
 
     def cflags(abi)
-      # f = ''
-      # f = '-fPIC -fPIE -fno-integrated-as'
-      f = ' -ffunction-sections -funwind-tables -fstack-protector-strong -fPIC -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -no-canonical-prefixes -g -fexceptions -frtti -DANDROID -D__ANDROID_API__=23 '
+      f = " -ffunction-sections -funwind-tables -fstack-protector-strong -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -no-canonical-prefixes "
       case abi
+      when /^armeabi-v7a/
+        f += " -fpic  -march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -mthumb "
+      when 'arm64-v8a'
+        f += " -fpic "
       when 'x86'
-        f += ' -m32 '
+        f += " -fPIC -mstackrealign "
       when 'x86_64'
-        f += ' -m64 '
-      when 'armeabi-v7a'
-        f += ' -mthumb -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp '
+        f += " -fPIC "
       end
+
+      f += " -O0 -UNDEBUG -fno-limit-debug-info "
+      f += " -g -fexceptions -frtti -DANDROID -D__ANDROID_API__=23 "
+      f += " -Wa,--noexecstack -Wformat -Werror=format-security "
       f
     end
 
     def ldflags(abi)
-      # f = ''
-      f = ' -pie -Wl,--exclude-libs,libgcc.a -Wl,--exclude-libs,libunwind.a '
+      f = ''
       case abi
-      when 'armeabi-v7a'
-        f += ' -Wl,--fix-cortex-a8 '
-      when 'armeabi-v7a-hard'
-        f += ' -Wl,--fix-cortex-a8 -Wl,--no-warn-mismatch '
+      when /^armeabi-v7a/
+        f += " #{Global::NDK_DIR}/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a/libunwind.a -Wl,--exclude-libs,libunwind.a -Wl,--fix-cortex-a8 "
+      when 'arm64-v8a'
+        f += "  "
+      when 'x86'
+        f += "  "
+      when 'x86_64'
+        f += "  "
       end
+      f += " -no-canonical-prefixes -Wl,--build-id -nostdlib++ -Wl,--no-undefined -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -Wl,--warn-shared-textrel -Wl,--fatal-warnings "
+      f += " -lgcc -Wl,--exclude-libs,libgcc.a -latomic -Wl,--exclude-libs,libatomic.a "
       f
     end
 
@@ -287,7 +297,7 @@ module Toolchain
     def target(abi)
       case abi
       when /^armeabi-v7a/
-        'armv7-none-linux-androideabi'
+        'armv7-none-linux-androideabi23'
       when 'arm64-v8a'
         'aarch64-none-linux-android'
       when 'x86'

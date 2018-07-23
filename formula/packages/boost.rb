@@ -111,7 +111,7 @@ class Boost < Package
       host_tc_dir = "#{work_dir}/host-bin"
       FileUtils.mkdir_p host_tc_dir
       host_cc = "#{host_tc_dir}/cc"
-      Build.gen_host_compiler_wrapper host_cc, 'gcc'
+      # Build.gen_host_compiler_wrapper host_cc, 'gcc'
 
       build_env['PATH'] = "#{work_dir}:#{ENV['PATH']}"
       system './bootstrap.sh',  "--with-toolset=cc"

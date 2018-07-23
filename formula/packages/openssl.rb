@@ -4,10 +4,12 @@ class Openssl < Package
   homepage "https://openssl.org/"
   url 'https://openssl.org/source/openssl-${version}.tar.gz'
 
-  release version: '1.0.2o', crystax_version: 1
-  release version: '1.1.0h', crystax_version: 1
+  # release version: '1.0.2o', crystax_version: 1
+  # release version: '1.1.0h', crystax_version: 1
+  release version: '1.1.1-pre8', crystax_version: 1
 
-  build_options copy_installed_dirs: ['bin', 'include', 'lib']
+  build_options copy_installed_dirs:  ['bin', 'include', 'lib']
+
   build_copy 'LICENSE'
   build_libs 'libcrypto', 'libssl'
 
@@ -18,11 +20,12 @@ class Openssl < Package
 
 
     args = ["--prefix=#{install_dir}",
+            "no-asm",
             "shared",
             "zlib-dynamic",
-            target(abi),
-            build_env['CFLAGS'],
-            build_env['LDFLAGS'],
+            target(abi)
+            # build_env['CFLAGS'],
+            # build_env['LDFLAGS'],
            ]
 
     # 1.1.* uses engine/name for engine sonames
