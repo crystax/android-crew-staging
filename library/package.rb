@@ -4,6 +4,7 @@ require_relative 'build.rb'
 require_relative 'deb.rb'
 require_relative 'cmd/build_options.rb'
 require_relative 'target_base.rb'
+require_relative 'properties.rb'
 
 
 class Package < TargetBase
@@ -12,6 +13,7 @@ class Package < TargetBase
 
   DEF_BUILD_OPTIONS = { source_archive_without_top_dir: false,
                         build_outside_source_tree:      false,
+                        need_git_data:                  false,
                         c_wrapper:                      'cc',
                         sysroot_in_cflags:              true,
                         cflags_in_c_wrapper:            false,
@@ -54,12 +56,12 @@ class Package < TargetBase
     FileUtils.rm_rf binary_files(rel_dir)
     Utils.unpack archive, rel_dir
 
+    update_pc_files release
     # todo:
     #update_root_android_mk release
 
     prop = get_properties(rel_dir)
     prop[:installed] = true
-    prop[:source_installed] = release.source_installed?
     prop[:installed_crystax_version] = release.crystax_version
     save_properties prop, rel_dir
 
@@ -88,6 +90,7 @@ class Package < TargetBase
     puts "installing source code for #{name}:#{release}"
     rel_dir = release_directory(release)
     prop = get_properties(rel_dir)
+
     if prop[:installed_crystax_version] == nil
       prop[:installed_crystax_version] = release.crystax_version
       FileUtils.mkdir_p rel_dir
@@ -97,6 +100,7 @@ class Package < TargetBase
 
     release.source_installed = release.crystax_version
     prop[:source_installed] = true
+
     save_properties prop, rel_dir
   end
 
@@ -420,7 +424,7 @@ class Package < TargetBase
   private
 
   def binary_files(rel_dir)
-    Dir["#{rel_dir}/*"].select{ |a| File.basename(a) != SRC_DIR_BASENAME }
+    Dir["#{rel_dir}/*"].select { |a| ![SRC_DIR_BASENAME, Properties::FILE].include? File.basename(a) }
   end
 
   def package_dir
@@ -441,5 +445,11 @@ class Package < TargetBase
 
   def host_for_abi(abi)
     Build.arch_for_abi(abi).host
+  end
+
+  def update_pc_files(release)
+    Dir["#{release_directory(release)}/**/*.pc"].each do |file|
+      replace_lines_in_file(file) { |line| line.sub(/\${ndk_dir}/, Global::NDK_DIR) }
+    end
   end
 end
