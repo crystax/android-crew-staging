@@ -253,7 +253,7 @@ class Formula
     File.read(file).split("\n").each do |l1|
       l2 = yield(l1)
       replaced += 1 if l1 != l2
-      content << l2
+      content << l2 unless l2 == nil
     end
 
     raise "no  line was replaced in #{file}" unless replaced > 0
@@ -355,7 +355,7 @@ class Formula
 
             repo.checkout sha1, strategy: :force
             repo.close
-            FileUtils.rm_rf File.join(src_dir, '.git')
+            FileUtils.rm_rf File.join(src_dir, '.git') unless build_options[:need_git_data]
             puts "#{log_prefix} caching sources into #{archive}"
             src_cache_name = Formula.src_base_file_name(file_name, release)
             FileUtils.cd(dir) { FileUtils.mv src_name, src_cache_name }
