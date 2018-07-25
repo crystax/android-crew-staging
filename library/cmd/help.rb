@@ -84,6 +84,8 @@ COMMAND is one of the following:
                   formulas must be from a 'target' namespace
   #{MAKE_POSIX_ENV_SYNTAX}
                   create a tarball with a 'POSIX environment'a
+  depends-on name
+                  show packages that depend on the given package
 EOS
 
 
