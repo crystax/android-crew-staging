@@ -270,11 +270,11 @@ module Toolchain
     end
 
     def remove_dynamic_libcrystax
-      FileUtils.rm "#{@base_dir}/#{@arch.host}/lib/libcrystax.so"
+      FileUtils.rm_f Dir.glob(File.join(@base_dir, @arch.host, '**', 'libcrystax.so'))
     end
 
     def remove_static_libcrystax
-      FileUtils.rm "#{@base_dir}/#{@arch.host}/lib/libcrystax.a"
+      FileUtils.rm_f Dir.glob(File.join(@base_dir, @arch.host, '**', 'libcrystax.a'))
     end
   end
 end
