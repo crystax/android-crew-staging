@@ -6,7 +6,8 @@ require_relative 'make_posix_env_options.rb'
 ETC_ENVIRONMENT_FILE_STR = %q(# The most important environment variables
 
 # This file MUST be sourced before starting to use Crystax POSIX environment
-top_dir=$(dirname $(dirname ${BASH_SOURCE[0]}))
+#top_dir=$(dirname $(dirname ${BASH_SOURCE[0]}))
+top_dir=${BASH_SOURCE[0]%/*/*}
 #echo "top_dir=$top_dir"
 
 PATH=$top_dir/bin:$top_dir/usr/bin:$top_dir/sbin:$PATH
@@ -31,7 +32,7 @@ ETC_BASH_PROFILE_STR = %q(# Common bash_profile
 
 test -n "$BASH" && export SHELL=$BASH
 
-etcdir34b728476740cc8e8=$(dirname ${BASH_SOURCE[0]})
+etcdir34b728476740cc8e8=${BASH_SOURCE[0]%/*}
 test -e $etcdir34b728476740cc8e8/environment && source $etcdir34b728476740cc8e8/environment
 
 shopt -s checkwinsize
@@ -42,35 +43,27 @@ shopt -s histappend
 
 export HISTCONTROL=ignoreboth:erasedups
 
-BLACK='\[\033[01;30m\]'
-GREEN='\[\033[01;32m\]'
-RED='\[\033[01;31m\]'
-YELLOW='\[\033[01;33m\]'
-BLUE='\[\033[01;34m\]'
-BOLD='\[\033[01;39m\]'
-CYAN='\[\033[01;36m\]'
-MAGENTA='\[\033[01;35m\]'
-DARKMAGENTA='\[\033[00;35m\]'
+GREEN='\[\033[01;92m\]'
+YELLOW='\[\033[01;93m\]'
+BLUE='\[\033[01;94m\]'
+CYAN='\[\033[01;96m\]'
+MAGENTA='\[\033[01;95m\]'
 NORM='\[\033[00m\]'
 
-SHELLNAME=$(basename $SHELL)
+SHELLNAME=${SHELL##*/}
 OS=$(uname -o | tr '[a-z]' '[A-Z]')
 
-PS1="${YELLOW}${SHELLNAME}${NORM} [${GREEN}\u@\h ${DARKMAGENTA}${OS} ${CYAN}\t ${BLUE}\w${NORM}]$ "
+PS1="${YELLOW}${SHELLNAME}${NORM} [${GREEN}\u@\h ${MAGENTA}${OS} ${CYAN}\t ${BLUE}\w${NORM}]$ "
 export PS1
 
 unset SHELLNAME
 unset OS
 
-unset BLACK
 unset GREEN
-unset RED
 unset YELLOW
 unset BLUE
-unset BOLD
 unset CYAN
 unset MAGENTA
-unset DARKMAGENTA
 unset NORM
 
 test -e $etcdir34b728476740cc8e8/bashrc && source $etcdir34b728476740cc8e8/bashrc
@@ -88,7 +81,7 @@ alias tf='tail -F'
 alias pg='ps auxw | grep -v grep | grep'
 )
 
-ROOT_BASH_PROFILE_STR = %q(source $(dirname ${BASH_SOURCE[0]})/etc/bash_profile)
+ROOT_BASH_PROFILE_STR = %q(source ${BASH_SOURCE[0]%/*}/etc/bash_profile)
 
 
 module Crew
