@@ -23,8 +23,6 @@ class Libassuan < Package
               "--with-sysroot"
             ]
 
-    build_env['LDFLAGS'] += ' -lgpg-error'
-
     configure *args
     make
     make 'install'
