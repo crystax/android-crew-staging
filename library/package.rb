@@ -12,8 +12,11 @@ class Package < TargetBase
   SRC_DIR_BASENAME = 'src'
 
   DEF_BUILD_OPTIONS = { source_archive_without_top_dir: false,
-                        build_outside_source_tree:      false,
+                        build_outside_source_tree:      true,
                         need_git_data:                  false,
+                        support_pkgconfig:              false,
+                        add_deps_to_cflags:             false,
+                        add_deps_to_ldflags:            false,
                         c_wrapper:                      'cc',
                         sysroot_in_cflags:              true,
                         cflags_in_c_wrapper:            false,
@@ -123,6 +126,9 @@ class Package < TargetBase
     FileUtils.rm_rf base_dir
     FileUtils.mkdir_p base_dir
     @log_file = build_log_file
+    @build_release = release
+    @host_dep_dirs = host_dep_dirs
+    @target_dep_dirs = target_dep_dirs
 
     arch_list = Build.abis_to_arch_list(options.abis)
     build_log_puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
@@ -172,8 +178,10 @@ class Package < TargetBase
         end
         #
         setup_build_env abi, toolchain if build_options[:setup_env]
-        FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, host_dep_dirs, target_dep_dirs, options }
-        Build.check_sonames install_dir_for_abi(abi), arch if build_options[:check_sonames]
+        FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, options }
+        install_dir = install_dir_for_abi(abi)
+        Dir["#{install_dir}/**/*.pc"].each { |file| pc_edit_file file, release, abi unless File.symlink? file }
+        Build.check_sonames install_dir, arch if build_options[:check_sonames]
         copy_installed_files abi
         FileUtils.rm_rf base_dir_for_abi(abi) unless options.no_clean?
       end
@@ -223,6 +231,7 @@ class Package < TargetBase
 
   def setup_build_env(abi, toolchain)
     arch = Build.arch_for_abi(abi)
+    @build_env = {}
 
     if toolchain.standalone?
       lib = (abi == 'mips64') ? 'lib64' : 'lib'
@@ -232,6 +241,29 @@ class Package < TargetBase
     else
       cflags  = toolchain.cflags(abi)
       ldflags = toolchain.ldflags(abi)
+
+      if build_options[:support_pkgconfig]
+        pc_deps_a, deps_a = @target_dep_dirs.partition { |dn, _| Dir.exist? "#{target_dep_pkgconfig_dir(dn, abi)}" }
+        pc_deps = pc_deps.to_h
+        deps = deps_a.to_h
+      else
+        pc_deps = {}
+        deps = @target_dep_dirs
+      end
+
+      unless pc_deps.empty?
+        @build_env['PKG_CONFIG_DIR'] = nil
+        @build_env['PKG_CONFIG_SYSROOT_DIR'] = nil
+        @build_env['PKG_CONFIG_LIBDIR'] = pc_deps.keys.map { |n| target_dep_pkgconfig_dir(n, abi) }.join(':')
+      end
+
+      if build_options[:add_deps_to_cflags]
+        cflags += ' ' + deps.keys.map { |n| "-I#{target_dep_include_dir(n)}" }.join(' ')
+      end
+
+      if build_options[:add_deps_to_ldflags]
+        ldflags += ' ' + deps.keys.map { |n| "-L#{target_dep_lib_dir(n, abi)}" }.join(' ')
+      end
 
       c_comp = toolchain.c_compiler(arch, abi)
 
@@ -252,16 +284,15 @@ class Package < TargetBase
       end
     end
 
-    @build_env = {'LC_MESSAGES' => 'C',
-                  'CC'          => cc,
-                  'CPP'         => "#{cc} #{cflags} -E",
-                  'AR'          => toolchain.tool(arch, 'ar'),
-                  'RANLIB'      => toolchain.tool(arch, 'ranlib'),
-                  'READELF'     => toolchain.tool(arch, 'readelf'),
-                  'STRIP'       => toolchain.tool(arch, 'strip'),
-                  'CFLAGS'      => cflags,
-                  'LDFLAGS'     => ldflags
-                 }
+    build_env['LC_MESSAGES'] = 'C'
+    build_env['CC']          = cc
+    build_env['CPP']         = "#{cc} #{cflags} -E"
+    build_env['AR']          = toolchain.tool(arch, 'ar')
+    build_env['RANLIB']      = toolchain.tool(arch, 'ranlib')
+    build_env['READELF']     = toolchain.tool(arch, 'readelf')
+    build_env['STRIP']       = toolchain.tool(arch, 'strip')
+    build_env['CFLAGS']      = cflags
+    build_env['LDFLAGS']     = ldflags
 
     if build_options[:use_cxx]
       if toolchain.standalone?
@@ -391,34 +422,67 @@ class Package < TargetBase
     end
   end
 
-  def clean_install_dir(abi, *types)
+  def clean_install_dir(abi)
     FileUtils.cd(install_dir_for_abi(abi)) do
-      types.each do |type|
-        case type
-        when :lib
-          FileUtils.rm_rf ['lib/pkgconfig'] + Dir['lib/**/*.la']
-          Dir['lib/**/*.so', 'lib/**/*.so.*'].each { |f| FileUtils.rm f if File.symlink?(f) }
-        else
-          raise "unknown type to cleanup: #{type}"
-        end
+      FileUtils.rm_rf Dir['lib/**/*.la']
+      Dir['lib/**/*.a', 'lib/**/*.so', 'lib/**/*.so.*'].each { |f| FileUtils.rm f if File.symlink?(f) }
+    end
+  end
+
+  def target_dep_include_dir(dep_name)
+    raise "no such depency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
+    "#{@target_dep_dirs[dep_name]}/include"
+  end
+
+  def target_dep_lib_dir(dep_name, abi)
+    raise "no such depency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
+    "#{@target_dep_dirs[dep_name]}/libs/#{abi}"
+  end
+
+  def target_dep_pkgconfig_dir(dep_name, abi)
+    "#{target_dep_lib_dir(dep_name, abi)}/pkgconfig"
+  end
+
+  # def target_dep_all_include_dirs(dirs)
+  #   dirs.values.inject('') { |acc, dir| "#{acc} #{target_dep_include_dir(dir)}" }
+  # end
+
+  # def target_dep_all_lib_dirs(dirs, abi)
+  #   dirs.values.inject('') { |acc, dir| "#{acc} #{target_dep_lib_dir(dir, abi)}" }
+  # end
+
+  def pc_prefix_template(release)
+    "prefix=${ndk_dir}/packages/#{file_name}/#{release.version}"
+  end
+
+  def pc_libdir_template(abi)
+    "libdir=${prefix}/libs/#{abi}"
+  end
+
+  def pc_includedir_template
+    'includedir=${prefix}/include'
+  end
+
+  def pc_edit_file(file, release, abi)
+    replace_lines_in_file(file) do |line|
+      case line
+      when /^prefix[ ]*=/      then pc_prefix_template(release)
+      when /^libdir[ ]*=/      then pc_libdir_template(abi)
+      when /^includedir[ ]*=/  then pc_includedir_template
+      else
+        line
       end
     end
   end
 
-  def target_dep_include_dir(dir)
-    "-I#{dir}/include"
+  def configure(*args)
+    src_dir = build_options[:build_outside_source_tree] ? source_directory(@build_release) : '.'
+    system "#{src_dir}/configure", *args
   end
 
-  def target_dep_lib_dir(dir, abi)
-    "-L#{dir}/libs/#{abi}"
-  end
-
-  def target_dep_all_include_dirs(dirs)
-    dirs.values.inject('') { |acc, dir| "#{acc} #{target_dep_include_dir(dir)}" }
-  end
-
-  def target_dep_all_lib_dirs(dirs, abi)
-    dirs.values.inject('') { |acc, dir| "#{acc} #{target_dep_lib_dir(dir, abi)}" }
+  def make(*args)
+    args = ['-j', num_jobs] + args unless args.include?('install')
+    system 'make', *args
   end
 
   private
@@ -449,7 +513,9 @@ class Package < TargetBase
 
   def update_pc_files(release)
     Dir["#{release_directory(release)}/**/*.pc"].each do |file|
-      replace_lines_in_file(file) { |line| line.sub(/\${ndk_dir}/, Global::NDK_DIR) }
+      unless File.symlink? file
+        replace_lines_in_file(file) { |line| line.sub(/\${ndk_dir}/, Global::NDK_DIR) }
+      end
     end
   end
 end
