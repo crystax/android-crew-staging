@@ -24,8 +24,6 @@ class Libgcrypt < Package
             ]
     args << '--disable-asm' if ['x86', 'x86_64'].include? Build.arch_for_abi(abi).name
 
-    build_env['LDFLAGS'] += ' -lgpg-error'
-
     configure *args
     make
     make 'install'
