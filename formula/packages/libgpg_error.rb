@@ -5,12 +5,13 @@ class LibgpgError < Package
   homepage "https://www.gnupg.org/software/libgpg-error/"
   url "https://www.gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${version}.tar.bz2"
 
-  release '1.31'
+  release '1.32'
 
   build_copy 'COPYING','COPYING.LIB'
   build_libs 'libgpg-error'
+  build_options build_outside_source_tree: false
 
-  def build_for_abi(abi, _toolchain,  _release, _host_dep_dirs, _target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain,  _release, _options)
     install_dir = install_dir_for_abi(abi)
 
     args =  [ "--prefix=#{install_dir}",
@@ -27,7 +28,7 @@ class LibgpgError < Package
               "--with-sysroot"
             ]
 
-    system './configure', *args
+    configure *args
 
     set_pthread_in_use_detection_hard 'config.h'
     FileUtils.cd('src/syscfg') do
@@ -46,9 +47,9 @@ class LibgpgError < Package
       end
     end
 
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    make
+    make 'install'
 
-    clean_install_dir abi, :lib
+    clean_install_dir abi
   end
 end
