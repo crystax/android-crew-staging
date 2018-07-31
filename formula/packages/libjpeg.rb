@@ -4,25 +4,24 @@ class Libjpeg < Package
   homepage "http://www.ijg.org"
   url "http://www.ijg.org/files/jpegsrc.v${version}.tar.gz"
 
-  release '9b', crystax: 3
+  release '9c'
 
   build_copy 'README'
 
-  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, _target_dep_dirs, _options)
-    install_dir = install_dir_for_abi(abi)
-    args =  [ "--prefix=#{install_dir}",
+  def build_for_abi(abi, _toolchain, _release, _options)
+    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
+              "--disable-silent-rules",
               "--enable-shared",
               "--enable-static",
               "--with-pic",
               "--disable-ld-version-script"
             ]
 
-    system './configure', *args
-    system 'make', '-j', num_jobs, 'V=1'
-    system 'make', 'install'
+    configure *args
+    make
+    make 'install'
 
-    # remove unneeded files
-    FileUtils.rm Dir["#{install_dir}/lib/*.la"]
+    clean_install_dir abi
   end
 end
