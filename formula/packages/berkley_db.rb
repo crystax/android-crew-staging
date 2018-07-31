@@ -5,13 +5,14 @@ class BerkleyDb < Package
   homepage 'http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/'
   url 'http://download.oracle.com/berkeley-db/db-6.2.32.tar.gz'
 
-  release '6.2.32', crystax: 2
+  release '6.2.32', crystax: 3
 
   build_copy 'LICENSE'
   build_options use_cxx: true,
+                build_outside_source_tree: false,
                 copy_installed_dirs: ['bin', 'include', 'lib']
 
-  def build_for_abi(abi, _toolchain,  release, _host_dep_dirs, _target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain,  release, _options)
     install_dir = install_dir_for_abi(abi)
 
     args =  [ "--prefix=#{install_dir}",
@@ -28,11 +29,11 @@ class BerkleyDb < Package
 
     FileUtils.cd('build_android') do
       system '../dist/configure', *args
-      system 'make', '-j', num_jobs
-      system 'make', 'install'
+      make
+      make 'install'
     end
 
-    clean_install_dir abi, :lib
+    clean_install_dir abi
 
     FileUtils.cd("#{install_dir}/lib") do
       v = release.major_point_minor
