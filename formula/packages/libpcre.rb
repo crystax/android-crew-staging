@@ -6,14 +6,12 @@ class Libpcre < Package
 
   release '10.31'
 
+  build_libs 'libpcre2-8', 'libpcre2-posix'
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'include', 'lib']
-  build_libs 'libpcre2-8', 'libpcre2-posix'
 
-  def build_for_abi(abi, _toolchain, release, _host_dep_dirs, _target_dep_dirs, _options)
-    install_dir = install_dir_for_abi(abi)
-
-    args =  [ "--prefix=#{install_dir}",
+  def build_for_abi(abi, _toolchain, release, _options)
+    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
               "--disable-silent-rules",
               "--enable-shared",
@@ -22,10 +20,10 @@ class Libpcre < Package
               "--with-sysroot"
             ]
 
-    system './configure', *args
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    configure *args
+    make
+    make 'install'
 
-    clean_install_dir abi, :lib
+    clean_install_dir abi
   end
 end
