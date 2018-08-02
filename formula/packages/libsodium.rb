@@ -4,22 +4,20 @@ class Libsodium < Package
   homepage "https://github.com/jedisct1/libsodium/"
   url "https://github.com/jedisct1/libsodium/releases/download/${version}/libsodium-${version}.tar.gz"
 
-  release '1.0.13', crystax: 2
+  release '1.0.16'
 
   build_copy 'LICENSE'
 
-  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, _target_dep_dirs, _options)
-    install_dir = install_dir_for_abi(abi)
-    args =  [ "--prefix=#{install_dir}",
+  def build_for_abi(abi, _toolchain, _release, _options)
+    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
+              "--disable-silent-rules",
               "--with-pic"
             ]
 
-    system './configure', *args
-    system 'make', '-j', num_jobs, 'V=1'
-    system 'make', 'install'
-
-    # remove unneeded files
-    FileUtils.cd("#{install_dir}/lib") { FileUtils.rm_rf Dir['*.la'] + ['pkgconfig'] }
+    configure *args
+    make
+    make 'install'
+    clean_install_dir abi
   end
 end
