@@ -4,24 +4,18 @@ class Readline < Package
   homepage "https://tiswww.case.edu/php/chet/readline/rltop.html"
   url "https://ftp.gnu.org/gnu/readline/readline-${version}.tar.gz"
 
-  release '7.0', crystax: 2
+  release '7.0', crystax: 3
 
   depends_on 'ncurses'
 
   build_copy 'COPYING'
   build_libs 'libhistory', 'libreadline'
-  build_options sysroot_in_cflags: false
+  build_options sysroot_in_cflags: false,
+                add_deps_to_cflags: true,
+                add_deps_to_ldflags: true
 
-  def build_for_abi(abi, _toolchain,  release, _host_dep_dirs, target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain,  release, _options)
     install_dir = install_dir_for_abi(abi)
-    ncurses_dir = target_dep_dirs['ncurses']
-
-    build_env['CFLAGS']  += " -I#{ncurses_dir}/include"
-    build_env['LDFLAGS'] += " -L#{ncurses_dir}/libs/#{abi}"
-    build_env['LIBS']     = '-lncursesw'
-
-    build_env['bash_cv_wcwidth_broken'] = 'no'
-
     args =  [ "--prefix=#{install_dir}",
               "--host=#{host_for_abi(abi)}",
               "--enable-multibyte",
@@ -30,11 +24,13 @@ class Readline < Package
               "--with-curses"
             ]
 
-    system './configure', *args
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    build_env['bash_cv_wcwidth_broken'] = 'no'
 
-    clean_install_dir abi, :lib
+    configure *args
+    make
+    make 'install'
+
+    clean_install_dir abi
 
     FileUtils.cd("#{install_dir}/lib") do
       v = release.major_point_minor
