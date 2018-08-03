@@ -2,14 +2,18 @@ class Sqlite < Package
 
   desc "SQLite library"
   homepage "https://sqlite.org/"
-  url "https://sqlite.org/2017/sqlite-amalgamation-${block}.zip" do |r| ('%s%-2s%-2s00' % r.version.split('.')).gsub(' ', '0') end
+  #url "https://sqlite.org/2017/sqlite-amalgamation-${block}.zip" do |r| ('%s%-2s%-2s00' % r.version.split('.')).gsub(' ', '0') end
+  url "https://sqlite.org/2018/sqlite-amalgamation-${block}.zip" do |r| ('%s%-2s%-2s00' % r.version.split('.')).gsub(' ', '0') end
 
-  release '3.18.0', crystax: 3
+  #release '3.18.0', crystax: 3
+  release '3.24.0'
 
-  build_options setup_env: false
   build_libs 'libsqlite3'
+  build_options build_outside_source_tree: false,
+                setup_env: false
 
-  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, _target_dep_dirs, _options)
+
+  def build_for_abi(abi, _toolchain, _release, _options)
     cwd = Dir.pwd
     ['static', 'shared'].each do |libtype|
       FileUtils.mkdir_p "#{cwd}/#{libtype}/jni"
