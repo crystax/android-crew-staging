@@ -13,9 +13,6 @@ class Libssh2 < Package
                 add_deps_to_ldflags: true
 
   def build_for_abi(abi, _toolchain, _release, _options)
-    # install_dir =
-    # openssl_dir = target_dep_dirs['openssl']
-
     args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
               "--disable-silent-rules",
@@ -24,11 +21,7 @@ class Libssh2 < Package
               "--enable-static",
               "--with-openssl",
               "--with-libz"
-              #"--with-libssl-prefix=#{openssl_dir}"
             ]
-
-    # build_env['CFLAGS']  += " -I#{openssl_dir}/include"
-    # build_env['LDFLAGS'] += " -L#{openssl_dir}/libs/#{abi}"
 
     configure *args
 
