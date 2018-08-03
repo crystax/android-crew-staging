@@ -4,27 +4,26 @@ class Erlang < Package
   homepage "https://www.erlang.org/"
   url "https://github.com/erlang/otp/archive/OTP-${version}.tar.gz"
 
-  release '20.3.6'
+  release '20.3.8.4'
 
   depends_on 'ncurses'
   depends_on 'openssl'
 
   # ldflags_in_c_wrapper: true,
-  build_options setup_env:           false,
-                copy_installed_dirs: [],
-                check_sonames:       false,
-                gen_android_mk:      false
+  build_options build_outside_source_tree: false,
+                setup_env:                 false,
+                copy_installed_dirs:       [],
+                check_sonames:             false,
+                gen_android_mk:            false
 
   build_copy 'LICENSE.txt'
 
   # todo: support interface with java?
 
-  def build_for_abi(abi, toolchain,  _release, _host_dep_dirs, target_dep_dirs, _options)
+  def build_for_abi(abi, toolchain,  _release, _options)
     install_dir = install_dir_for_abi(abi)
-    ncurses_dir = target_dep_dirs['ncurses']
-    openssl_dir = target_dep_dirs['openssl']
 
-    xcomp_file = gen_xcomp_file(abi, toolchain, ncurses_dir, openssl_dir)
+    xcomp_file = gen_xcomp_file(abi, toolchain)
 
     build_env.clear
 
@@ -38,7 +37,7 @@ class Erlang < Package
     system './otp_build', 'tests'
 
     erl = "#{Dir.pwd}/bootstrap/bin/erl"
-    xcomp_file = gen_xcomp_file(abi, toolchain, ncurses_dir, openssl_dir, true)
+    xcomp_file = gen_xcomp_file(abi, toolchain, true)
     FileUtils.cd('release/tests/test_server') do
       # we do not support interface with java
       FileUtils.rm_rf ['../ic_test', '../jinterface_test']
@@ -53,13 +52,16 @@ class Erlang < Package
     FileUtils.cp_r "#{install_dir}/#{abi}", package_dir
     FileUtils.cp_r "release/tests", "#{package_dir}/#{abi}/releases/tests"
 
+    # todo: remove when libcrysax will support /bin/sh
     replace_shell_in "#{package_dir}/#{abi}"
   end
 
-  def gen_xcomp_file(abi, toolchain, ncurses_dir, openssl_dir, ldflags_in_cc = false)
+  def gen_xcomp_file(abi, toolchain, ldflags_in_cc = false)
     arch = Build.arch_for_abi(abi)
     sysroot = "--sysroot=#{Build.sysroot(abi)}"
-    crystax_libs_dir = "#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
+    openssl_include_dir = target_dep_include_dir('openssl')
+    openssl_lib_dir = target_dep_lib_dir('openssl', abi)
+    crystax_lib_dir = "#{Global::NDK_DIR}/sources/crystax/libs/#{abi}"
 
     cc     = toolchain.c_compiler(arch, abi) + ' ' + sysroot
     cxx    = toolchain.cxx_compiler(arch, abi) + ' ' + sysroot
@@ -70,9 +72,9 @@ class Erlang < Package
 
     cflags   = toolchain.cflags(abi)
     cflags  += ' -mthumb' if abi =~ /^armeabi/
-    cppflags = "-I#{ncurses_dir}/include -I#{openssl_dir}/include"
-    ldflags  = toolchain.ldflags(abi) + " -fPIE -pie -L#{ncurses_dir}/libs/#{abi} -L#{openssl_dir}/libs/#{abi}"
-    ded_ldflags = toolchain.ldflags(abi) + " -shared -Wl,-Bsymbolic -L#{openssl_dir}/libs/#{abi} -L#{crystax_libs_dir}"
+    cppflags = "-I#{target_dep_include_dir('ncurses')}/include -I#{openssl_include_dir}/include"
+    ldflags  = toolchain.ldflags(abi) + " -fPIE -pie -L#{target_dep_lib_dir('ncurses', abi)} -L#{openssl_lib_dir}"
+    ded_ldflags = toolchain.ldflags(abi) + " -shared -Wl,-Bsymbolic -L#{openssl_lib_dir} -L#{crystax_lib_dir}"
 
     # ldflags in cc and cxx are required to build tests
     if ldflags_in_cc
@@ -84,7 +86,7 @@ class Erlang < Package
                  "--without-javac",
                  "--disable-dynamic-ssl-lib",
                  "--disable-silent-rules",
-                 "--with-ssl=#{openssl_dir}"
+                 "--with-ssl=#{File.dirname(openssl_include_dir)}"
                 ]
 
     file = "#{Dir.pwd}/xcomp-crystax-#{abi}.conf"
