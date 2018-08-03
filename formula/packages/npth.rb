@@ -5,15 +5,13 @@ class Npth < Package
   homepage "https://github.com/gpg/npth"
   url "https://www.gnupg.org/ftp/gcrypt/npth/npth-${version}.tar.bz2"
 
-  release '1.5'
+  release '1.6'
 
   build_copy 'COPYING.LIB'
   build_libs 'libnpth'
 
-  def build_for_abi(abi, _toolchain,  _release, _host_dep_dirs, _target_dep_dirs, _options)
-    install_dir = install_dir_for_abi(abi)
-
-    args =  [ "--prefix=#{install_dir}",
+  def build_for_abi(abi, _toolchain,  _release, _options)
+    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
               "--disable-silent-rules",
               "--enable-shared",
@@ -22,10 +20,10 @@ class Npth < Package
               "--with-sysroot"
             ]
 
-    system './configure', *args
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    configure *args
+    make
+    make 'install'
 
-    clean_install_dir abi, :lib
+    clean_install_dir abi
   end
 end
