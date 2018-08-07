@@ -4,18 +4,20 @@ class Vim < Package
   homepage 'https://github.com/vim/vim'
   url 'https://github.com/vim/vim/archive/v${version}.tar.gz'
 
-  release '8.1.0133'
+  release '8.1.0242'
 
   depends_on 'ncurses'
 
   build_copy 'README.txt'
-  build_options sysroot_in_cflags:   false,
+  build_options build_outside_source_tree: false,
+                sysroot_in_cflags:   false,
+                add_deps_to_cflags:  true,
+                add_deps_to_ldflags: true,
                 copy_installed_dirs: ['bin', 'share'],
                 gen_android_mk:      false
 
-  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain, _release, _options)
     install_dir = install_dir_for_abi(abi)
-    ncurses_dir = target_dep_dirs['ncurses']
 
     args =  ["--prefix=#{install_dir}",
              "--host=#{host_for_abi(abi)}",
@@ -25,18 +27,13 @@ class Vim < Package
              "--with-tlib=ncurses"
             ]
 
-    build_env['CFLAGS']  += " -I#{ncurses_dir}/include"
-    build_env['LDFLAGS'] += " -L#{ncurses_dir}/libs/#{abi}"
-    build_env['LIBS']     = '-lncursesw'
-
     set_vim_cv
-    system './configure', *args
+    configure *args
     unset_vim_cv
 
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    make
+    make 'install'
 
-    # remove unneeded files
     FileUtils.rm_rf "#{install_dir}/share/man"
   end
 
