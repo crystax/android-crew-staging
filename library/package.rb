@@ -244,17 +244,24 @@ class Package < TargetBase
 
       if build_options[:support_pkgconfig]
         pc_deps_a, deps_a = @target_dep_dirs.partition { |dn, _| Dir.exist? "#{target_dep_pkgconfig_dir(dn, abi)}" }
-        pc_deps = pc_deps.to_h
+        pc_deps = pc_deps_a.to_h
         deps = deps_a.to_h
       else
         pc_deps = {}
         deps = @target_dep_dirs
       end
 
+      #debug
+      # puts "deps:          #{deps}"
+      # puts "pc deps:       #{pc_deps}"
+      # puts "pc_deps.empty: #{pc_deps.empty?}"
+      # exit
+
       unless pc_deps.empty?
         @build_env['PKG_CONFIG_DIR'] = nil
         @build_env['PKG_CONFIG_SYSROOT_DIR'] = nil
         @build_env['PKG_CONFIG_LIBDIR'] = pc_deps.keys.map { |n| target_dep_pkgconfig_dir(n, abi) }.join(':')
+        # @build_env['PKG_CONFIG_PATH'] = @build_env['PKG_CONFIG_LIBDIR']
       end
 
       if build_options[:add_deps_to_cflags]
@@ -512,7 +519,7 @@ class Package < TargetBase
   end
 
   def update_pc_files(release)
-    Dir["#{release_directory(release)}/**/*.pc"].each do |file|
+    Dir["#{release_directory(release)}/libs/**/*.pc"].each do |file|
       unless File.symlink? file
         replace_lines_in_file(file) { |line| line.sub(/\${ndk_dir}/, Global::NDK_DIR) }
       end
