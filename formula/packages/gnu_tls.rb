@@ -15,6 +15,7 @@ class GnuTls < Package
   depends_on 'p11-kit'
 
   build_copy 'LICENSE'
+  build_libs 'libgnutls', 'libgnutlsxx'
   build_options use_cxx: true,
                 copy_installed_dirs: ['bin', 'include', 'lib']
 
