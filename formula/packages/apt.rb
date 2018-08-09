@@ -4,7 +4,7 @@ class Apt < Package
   homepage "https://github.com/Debian/apt"
   url "https://salsa.debian.org/apt-team/apt.git|tag:${version}"
 
-  release '1.6.3', crystax: 2
+  release '1.6.3', crystax: 3
 
   depends_on 'xz'
   depends_on 'lz4'
@@ -23,7 +23,7 @@ class Apt < Package
   depends_on 'curl'
   depends_on 'gnu-tls'
 
-  def build_for_abi(abi, toolchain,  release, _host_dep_dirs, _target_dep_dirs, _options)
+  def build_for_abi(abi, toolchain,  release, _options)
     install_dir = install_dir_for_abi(abi)
     src_dir = source_directory(release)
 
@@ -95,10 +95,10 @@ class Apt < Package
     # todo: hack, remove when libcrystax is fixed
     fix_crystax_resolv_h toolchain.sysroot_dir
 
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    make
+    make 'install'
 
-    clean_install_dir abi, :lib
+    clean_install_dir abi
     FileUtils.cd(install_dir) do
       if Global::OS == 'linux'
         FileUtils.mv 'lib', 'libexec'
