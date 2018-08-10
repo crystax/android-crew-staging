@@ -1,0 +1,48 @@
+From f79194b55e98f3552c30767c28b7666dea840f0c Mon Sep 17 00:00:00 2001
+From: Alexander Afanasyev <aa@cs.fiu.edu>
+Date: Sat, 11 Aug 2018 19:05:55 -0400
+Subject: [PATCH] Build patches
+
+---
+ wscript | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/wscript b/wscript
+index 8c789fc..d010f0d 100644
+--- a/wscript
++++ b/wscript
+@@ -23,12 +23,17 @@ def configure(conf):
+                'boost', 'default-compiler-flags', 'sqlite3',
+                'doxygen', 'sphinx_build'])
+ 
+-    if 'PKG_CONFIG_PATH' not in os.environ:
+-        os.environ['PKG_CONFIG_PATH'] = Utils.subst_vars('${LIBDIR}/pkgconfig', conf.env)
+-    conf.check_cfg(package='libndn-cxx', args=['--cflags', '--libs'],
+-                   uselib_store='NDN_CXX', mandatory=True)
++    # if 'PKG_CONFIG_PATH' not in os.environ:
++    #     os.environ['PKG_CONFIG_PATH'] = Utils.subst_vars('${LIBDIR}/pkgconfig', conf.env)
++    # conf.check_cfg(package='libndn-cxx', args=['--cflags', '--libs'],
++    #                uselib_store='NDN_CXX', mandatory=True)
++    conf.add_os_flags("LIB_NDN_CXX")
++    conf.add_os_flags("CXXFLAGS_NDN_CXX")
++    conf.add_os_flags("LINKFLAGS_NDN_CXX")
+ 
+-    USED_BOOST_LIBS = ['system', 'filesystem', 'iostreams',
++    conf.check_sqlite3()
++
++    USED_BOOST_LIBS = ['system', 'atomic', 'regex', 'filesystem', 'date_time', 'chrono', 'iostreams',
+                        'program_options', 'thread', 'log', 'log_setup']
+ 
+     conf.env['WITH_TESTS'] = conf.options.with_tests
+@@ -66,7 +71,7 @@ def build(bld):
+         source =  bld.path.ant_glob(['src/**/*.cpp']),
+         vnum = VERSION,
+         cnum = VERSION,
+-        use = 'NDN_CXX BOOST',
++        use = 'NDN_CXX BOOST SQLITE3',
+         includes = ['src'],
+         export_includes=['src'],
+         install_path='${LIBDIR}'
+-- 
+2.18.0
+
