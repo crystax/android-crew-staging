@@ -1,0 +1,17 @@
+diff -Naurw a/libavformat/os_support.h b/libavformat/os_support.h
+--- a/libavformat/os_support.h	2018-07-18 16:52:02.000000000 +0300
++++ b/libavformat/os_support.h	2018-08-10 19:29:34.512062295 +0300
+@@ -61,11 +61,13 @@
+ #  if HAVE_UNISTD_H
+ #    include <unistd.h>
+ #  endif
++#  ifndef __LIBCRYSTAX__
+ #  ifdef lseek
+ #   undef lseek
+ #  endif
+ #  define lseek(f,p,w) lseek64((f), (p), (w))
+ #endif
++#endif
+ 
+ static inline int is_dos_path(const char *path)
+ {
