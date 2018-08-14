@@ -103,6 +103,7 @@ class TargetBase < Formula
            else
              ["lib"]
            end
+    dirs << 'lib/pkgconfig'
 
     FileUtils.cd(target_dir) { FileUtils.mkdir_p dirs }
   end

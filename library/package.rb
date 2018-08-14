@@ -21,6 +21,7 @@ class Package < TargetBase
                         sysroot_in_cflags:              true,
                         cflags_in_c_wrapper:            false,
                         ldflags_in_c_wrapper:           false,
+                        ldflags_no_pie:                 false,
                         use_cxx:                        false,
                         cxx_wrapper:                    'c++',
                         setup_env:                      true,
@@ -237,7 +238,10 @@ class Package < TargetBase
       lib = (abi == 'mips64') ? 'lib64' : 'lib'
       cflags  = toolchain.gcc_cflags(abi) + " --sysroot=#{toolchain.sysroot_dir}"   # -I#{toolchain.sysroot_dir}/usr/include"
       ldflags = toolchain.gcc_ldflags(abi) + " --sysroot=#{toolchain.sysroot_dir}"  # -L#{toolchain.sysroot_dir}/usr/#{lib}"
-      cc      = toolchain.gcc
+      cc = toolchain.gcc
+      @build_env['PKG_CONFIG_PATH'] = nil
+      @build_env['PKG_CONFIG_SYSROOT_DIR'] = nil
+      @build_env['PKG_CONFIG_LIBDIR'] = toolchain.pkgconfig_dir
     else
       cflags  = toolchain.cflags(abi)
       ldflags = toolchain.ldflags(abi)
@@ -290,6 +294,8 @@ class Package < TargetBase
         Build.gen_compiler_wrapper cc, c_comp, toolchain, build_options, '', ldflags_wrapper_arg
       end
     end
+
+    ldflags.gsub!(/[ ]*-pie/, '') if build_options[:ldflags_no_pie]
 
     build_env['LC_MESSAGES'] = 'C'
     build_env['CC']          = cc
@@ -397,6 +403,7 @@ class Package < TargetBase
 
     case arch.name
     when 'arm'
+      pkgconfig_src_base_dir = "#{src_lib_dir}/armeabi-v7a"
       # todo: it seems clang can't find required libs so we copy armveabi-v7a libs to a place where armeabi libs were
       #       gcc works fine without those copies
       FileUtils.cp_r toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/"
@@ -407,14 +414,38 @@ class Package < TargetBase
       FileUtils.cp_r toolchain_libs(src_lib_dir, 'armeabi-v7a-hard'), "#{target_lib_dir}/lib/armv7-a/hard/"
       FileUtils.cp_r toolchain_libs(src_lib_dir, 'armeabi-v7a-hard'), "#{target_lib_dir}/lib/armv7-a/thumb/hard/"
     when 'mips64', 'x86_64'
+      pkgconfig_src_base_dir = "#{src_lib_dir}/#{arch.abis[0]}"
       FileUtils.cp_r toolchain_libs(src_lib_dir, arch.abis[0]), "#{target_lib_dir}/lib64/"
     else
+      pkgconfig_src_base_dir = "#{src_lib_dir}/#{arch.abis[0]}"
       FileUtils.cp_r toolchain_libs(src_lib_dir, arch.abis[0]), "#{target_lib_dir}/lib/"
+    end
+
+    pkgconfig_dst_dir = "#{target_lib_dir}/lib/pkgconfig"
+    Dir["#{pkgconfig_src_base_dir}/pkgconfig/*.pc"].each do |src_file|
+      dst_file = "#{pkgconfig_dst_dir}/#{File.basename(src_file)}"
+      FileUtils.cp src_file, dst_file
+      update_standalone_pc_file dst_file
     end
   end
 
   def toolchain_libs(dir, abi)
     Dir["#{dir}/#{abi}/*"]
+  end
+
+  def update_standalone_pc_file(file)
+    prefix_dir = File.dirname(File.dirname(File.dirname(file)))
+    lib_dir = "${prefix}/lib"
+    replace_lines_in_file(file) do |line|
+      case line
+      when /^prefix[ ]*=/
+        "prefix=#{prefix_dir}"
+      when /^libdir[ ]*=/
+        "libdir=#{lib_dir}"
+      else
+        line
+      end
+    end
   end
 
   # some libraries use pthread_cancel to check whether pthread is in use
