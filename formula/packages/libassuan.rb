@@ -4,13 +4,13 @@ class Libassuan < Package
   homepage "https://www.gnupg.org/software/libassuan/index.html"
   url "https://www.gnupg.org/ftp/gcrypt/libassuan/libassuan-${version}.tar.bz2"
 
-  release '2.5.1', crystax: 2
+  release '2.5.1', crystax: 3
 
   depends_on 'libgpg-error'
 
   build_copy 'COPYING','COPYING.LIB'
-  build_options add_deps_to_cflags: true,
-                add_deps_to_ldflags: true
+  # build_options add_deps_to_cflags: true,
+  #               add_deps_to_ldflags: true
 
   def build_for_abi(abi, _toolchain,  _release, _options)
     args =  [ "--prefix=#{install_dir_for_abi(abi)}",
@@ -22,6 +22,9 @@ class Libassuan < Package
               "--with-pic",
               "--with-sysroot"
             ]
+
+    build_env['GPG_ERROR_CFLAGS'] = "-I#{target_dep_include_dir('libgpg-error')}"
+    build_env['GPG_ERROR_LIBS']   = "-L#{target_dep_include_dir('libgpg-error')} -lgpg-error"
 
     configure *args
     make
