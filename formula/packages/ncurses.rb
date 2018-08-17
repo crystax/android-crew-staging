@@ -5,17 +5,16 @@ class Ncurses < Package
   #url "https://github.com/mirror/ncurses/archive/v${version}.tar.gz"
   url "http://ftp.gnu.org/gnu/ncurses/ncurses-${version}.tar.gz"
 
-  #release '6.0', crystax: 6
   release '6.1'
 
   build_copy 'COPYING'
-  build_options copy_installed_dirs: ['bin', 'lib', 'include', 'share'],
-                gen_android_mk:      false
+  build_options copy_installed_dirs:       ['bin', 'lib', 'include', 'share'],
+                gen_android_mk:            false
 
   def build_for_abi(abi, _toolchain, release, _options)
     install_dir = install_dir_for_abi(abi)
 
-    # todo: --with-pthread, --enable-reentrant
+    # todo: --with-pthread, --enable-reentrant, --disable-stripping?
     args = [ "--prefix=#{install_dir}",
              "--host=#{host_for_abi(abi)}",
              "--without-ada",
@@ -32,10 +31,6 @@ class Ncurses < Package
              "--enable-ext-colors",
              "--without-develop"
            ]
-
-
-    # build fails (at least on darwin) if configure run without full path
-    #configure = Pathname.new('./configure').realpath.to_s
 
     # first, build without wide character support
     configure *(args << '--disable-widec')

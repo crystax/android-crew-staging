@@ -1,0 +1,12 @@
+diff -Naurw a/configure b/configure
+--- a/configure	2018-01-20 02:27:18.000000000 +0200
++++ b/configure	2018-08-17 23:58:21.868653724 +0300
+@@ -13716,7 +13716,7 @@
+ 
+ if test "$with_stripping" = yes
+ then
+-	INSTALL_OPT_S="-s"
++	INSTALL_OPT_S="-s --strip-program=$STRIP"
+ else
+ 	INSTALL_OPT_S=
+ fi
