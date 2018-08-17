@@ -23,6 +23,9 @@ class Libksba < Package
               "--with-sysroot"
             ]
 
+    build_env['GPG_ERROR_CFLAGS'] = "-I#{target_dep_include_dir('libgpg-error')}"
+    build_env['GPG_ERROR_LIBS']   = "-L#{target_dep_lib_dir('libgpg-error', abi)} -lgpg-error"
+
     configure *args
     make
     make 'install'
