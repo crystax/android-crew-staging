@@ -9,8 +9,6 @@ class Libassuan < Package
   depends_on 'libgpg-error'
 
   build_copy 'COPYING','COPYING.LIB'
-  # build_options add_deps_to_cflags: true,
-  #               add_deps_to_ldflags: true
 
   def build_for_abi(abi, _toolchain,  _release, _options)
     args =  [ "--prefix=#{install_dir_for_abi(abi)}",
