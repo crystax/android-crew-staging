@@ -4,15 +4,13 @@ class Curl < Package
   homepage 'http://curl.haxx.se/'
   url 'https://curl.haxx.se/download/curl-${version}.tar.bz2'
 
-  #release '7.58.0', crystax: 4
-  release '7.61.0'
+  release '7.61.0', crystax: 2
 
   depends_on 'openssl'
   depends_on 'libssh2'
 
   build_copy 'COPYING'
-  build_options add_deps_to_cflags: true,
-                add_deps_to_ldflags: true,
+  build_options support_pkgconfig: false,
                 copy_installed_dirs: ['bin', 'include', 'lib']
 
   def build_for_abi(abi, _toolchain,  _release, _options)
