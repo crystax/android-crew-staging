@@ -22,11 +22,8 @@ module Crew
       formula = formulary[item]
       release = formula.find_release(Release.new(ver))
 
-      # Automatically install sources if not yet installed
-      if (formula.namespace == :target && !formula.source_installed?(release))
-        sargs = [options.all_versions? ? '--all-versions' : nil, *args].compact
-        self.source(sargs)
-      end
+      # automatically install sources if not yet installed
+      self.source ["#{formula.name}:#{release.version}"] if (formula.namespace == :target && !formula.source_installed?(release))
 
       # todo: check that (build) dependencies installed for all required platforms
       deps = formula.dependencies + formula.build_dependencies
