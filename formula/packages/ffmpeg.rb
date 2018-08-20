@@ -23,6 +23,7 @@ class Ffmpeg < Package
     install_dir = install_dir_for_abi(abi)
 
     arch, cpu = target_arch_and_cpu_for_abi(abi)
+    pkg_config = Global::OS == 'darwin' ? '/usr/local/bin/pkg-config' : '/usr/bin/pkg-config'
 
     args =  [ "--prefix=#{install_dir}",
 	      "--enable-cross-compile",
@@ -44,7 +45,7 @@ class Ffmpeg < Package
               "--enable-cross-compile",
               "--cc=#{build_env['CC']}",
               "--cxx=#{build_env['CXX']}",
-              "--pkg-config=/usr/local/bin/pkg-config", # todo:
+              "--pkg-config=#{pkg_config}",
               "--extra-ldexeflags=-pie"
             ]
 
