@@ -4,7 +4,7 @@ class Openssl < Utility
   homepage "https://openssl.org/"
   url 'https://www.openssl.org/source/openssl-${version}.tar.gz'
 
-  release '1.1.0h'
+  release '1.1.0i'
 
   depends_on 'zlib'
 
