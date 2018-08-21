@@ -4,23 +4,14 @@ class Libassuan < Package
   homepage "https://www.gnupg.org/software/libassuan/index.html"
   url "https://www.gnupg.org/ftp/gcrypt/libassuan/libassuan-${version}.tar.bz2"
 
-  release '2.5.1'
+  release '2.5.1', crystax: 3
 
   depends_on 'libgpg-error'
 
   build_copy 'COPYING','COPYING.LIB'
 
-  def build_for_abi(abi, _toolchain,  _release, _host_dep_dirs, target_dep_dirs, _options)
-    install_dir = install_dir_for_abi(abi)
-    libgpg_error_dir = target_dep_dirs['libgpg-error']
-
-    build_env['GPG_ERROR_CFLAGS'] = target_dep_include_dir(libgpg_error_dir)
-    build_env['GPG_ERROR_LIBS']   = target_dep_lib_dir(libgpg_error_dir, abi) + ' ' + '-lgpg-error'
-
-    build_env['CFLAGS']  += ' ' + build_env['GPG_ERROR_CFLAGS']
-    build_env['LDFLAGS'] += ' ' + build_env['GPG_ERROR_LIBS']
-
-    args =  [ "--prefix=#{install_dir}",
+  def build_for_abi(abi, _toolchain,  _release, _options)
+    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
               "--disable-silent-rules",
               "--enable-shared",
@@ -30,10 +21,13 @@ class Libassuan < Package
               "--with-sysroot"
             ]
 
-    system './configure', *args
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    build_env['GPG_ERROR_CFLAGS'] = "-I#{target_dep_include_dir('libgpg-error')}"
+    build_env['GPG_ERROR_LIBS']   = "-L#{target_dep_lib_dir('libgpg-error', abi)} -lgpg-error"
 
-    clean_install_dir abi, :lib
+    configure *args
+    make
+    make 'install'
+
+    clean_install_dir abi
   end
 end

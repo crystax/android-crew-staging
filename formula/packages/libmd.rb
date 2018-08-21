@@ -4,14 +4,12 @@ class Libmd < Package
   homepage "https://www.hadrons.org/software/libmd/"
   url "https://archive.hadrons.org/software/libmd/libmd-${version}.tar.xz"
 
-  release '1.0.0'
+  release '1.0.0', crystax: 2
 
   build_copy 'COPYING'
 
-  def build_for_abi(abi, _toolchain, release, _host_dep_dirs, _target_dep_dirs, _options)
-    install_dir = install_dir_for_abi(abi)
-
-    args =  [ "--prefix=#{install_dir}",
+  def build_for_abi(abi, _toolchain, release, _options)
+    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
               "--disable-silent-rules",
               "--enable-shared",
@@ -20,10 +18,10 @@ class Libmd < Package
               "--with-sysroot"
             ]
 
-    system './configure', *args
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    configure *args
+    make
+    make 'install'
 
-    clean_install_dir abi, :lib
+    clean_install_dir abi
   end
 end

@@ -2,18 +2,19 @@ class Ncurses < Package
 
   desc "The ncurses library is a free software emulation of curses in System V Release 4.0 (SVr4)"
   homepage "https://www.gnu.org/software/ncurses/"
-  url "https://github.com/mirror/ncurses/archive/v${version}.tar.gz"
+  #url "https://github.com/mirror/ncurses/archive/v${version}.tar.gz"
+  url "http://ftp.gnu.org/gnu/ncurses/ncurses-${version}.tar.gz"
 
-  release '6.0', crystax: 6
+  release '6.1'
 
   build_copy 'COPYING'
-  build_options copy_installed_dirs: ['bin', 'lib', 'include', 'share'],
-                gen_android_mk:      false
+  build_options copy_installed_dirs:       ['bin', 'lib', 'include', 'share'],
+                gen_android_mk:            false
 
-  def build_for_abi(abi, _toolchain, release, _host_dep_dirs, _target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain, release, _options)
     install_dir = install_dir_for_abi(abi)
 
-    # todo: --with-pthread, --enable-reentrant
+    # todo: --with-pthread, --enable-reentrant, --disable-stripping?
     args = [ "--prefix=#{install_dir}",
              "--host=#{host_for_abi(abi)}",
              "--without-ada",
@@ -31,21 +32,17 @@ class Ncurses < Package
              "--without-develop"
            ]
 
-
-    # build fails (at least on darwin) if configure run without full path
-    configure = Pathname.new('./configure').realpath.to_s
-
     # first, build without wide character support
-    system configure, *(args << '--disable-widec')
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    configure *(args << '--disable-widec')
+    make
+    make 'install'
 
     # second, build with wide character support
-    system configure, *(args << '--enable-widec')
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    configure *(args << '--enable-widec')
+    make
+    make 'install'
 
-    clean_install_dir abi, :lib
+    clean_install_dir abi
 
     FileUtils.cd("#{install_dir}/lib") do
       suffix = ".#{release.major_point_minor}"
@@ -92,5 +89,4 @@ class Ncurses < Package
     # remove dangling symlink
     FileUtils.rm "#{data_dir}/usr/lib/terminfo"
   end
-
 end

@@ -5,21 +5,20 @@ class NetTools < Package
   homepage 'https://github.com/giftnuss/net-tools'
   url 'https://github.com/giftnuss/net-tools.git|commit:9446c4dd69fe5bc1c1de403039b9565fca9e4273'
 
-  release '1.60', crystax: 2
+  release '1.60', crystax: 3
 
   build_copy 'COPYING'
-  build_options sysroot_in_cflags:    false,
+  build_options build_outside_source_tree: false,
+                sysroot_in_cflags:    false,
                 cflags_in_c_wrapper:  true,
                 ldflags_in_c_wrapper: true,
                 copy_installed_dirs:  ['bin', 'sbin'],
                 gen_android_mk:       false
 
-  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, _target_dep_dirs, _options)
-    install_dir = install_dir_for_abi(abi)
+  def build_for_abi(abi, _toolchain, _release, _options)
+    build_env['BASEDIR'] = install_dir_for_abi(abi)
 
-    build_env['BASEDIR'] = install_dir
-
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    make
+    make 'install'
   end
 end

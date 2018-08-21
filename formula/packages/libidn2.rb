@@ -4,21 +4,17 @@ class Libidn2 < Package
   homepage "https://www.gnu.org/software/libidn/#libidn2"
   url "https://ftp.gnu.org/gnu/libidn/libidn2-${version}.tar.gz"
 
-  release '2.0.5'
+  release '2.0.5', crystax: 2
 
   depends_on 'libunistring'
 
   build_copy 'COPYING', 'COPYING.LESSERv3', 'COPYING.unicode', 'COPYINGv2'
-  build_options copy_installed_dirs: ['bin', 'include', 'lib']
+  build_options add_deps_to_cflags: true,
+                add_deps_to_ldflags: true,
+                copy_installed_dirs: ['bin', 'include', 'lib']
 
-  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs, _options)
-    install_dir = install_dir_for_abi(abi)
-    libunistring_dir = target_dep_dirs['libunistring']
-
-    build_env['CFLAGS']  += " -I#{libunistring_dir}/include"
-    build_env['LDFLAGS'] += " -L#{libunistring_dir}/libs/#{abi}"
-
-    args =  [ "--prefix=#{install_dir}",
+  def build_for_abi(abi, _toolchain, release, _options)
+    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
               "--disable-silent-rules",
               "--enable-shared",
@@ -29,10 +25,22 @@ class Libidn2 < Package
               "--with-sysroot"
             ]
 
-    system './configure', *args
-    system 'make', '-j', num_jobs, 'V=1'
-    system 'make', 'install'
+    configure *args
+    make
+    make 'install'
 
-    clean_install_dir abi, :lib
+    clean_install_dir abi
+  end
+
+  def pc_edit_file(file, release, abi)
+    super file, release, abi
+
+    replace_lines_in_file(file) do |line|
+      if line =~ /^Libs.private: /
+        'Libs.private: -lunistring'
+      else
+        line
+      end
+    end
   end
 end

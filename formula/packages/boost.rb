@@ -4,16 +4,17 @@ class Boost < Package
   homepage "http://www.boost.org"
   url "https://downloads.sourceforge.net/project/boost/boost/${version}/boost_${block}.tar.bz2" do |r| r.version.gsub('.', '_') end
 
-  release '1.64.0', crystax: 3
+  release '1.64.0', crystax: 4
 
   # todo: add versions, like this: python:2.7.*, python:3.*.*
   depends_on 'python'
 
-  build_options setup_env:            false,
-                copy_installed_dirs:  [],
-                gen_android_mk:       false,
-                wrapper_remove_args:  ['-m32', '-m64', '-single_module', '-lpthread', '-lutil'],
-                wrapper_replace_args: { '-dynamiclib' => '-shared', '-undefined' => '-u' }
+  build_options build_outside_source_tree: false,
+                setup_env:                 false,
+                copy_installed_dirs:       [],
+                gen_android_mk:            false,
+                wrapper_remove_args:       ['-m32', '-m64', '-single_module', '-lpthread', '-lutil'],
+                wrapper_replace_args:      { '-dynamiclib' => '-shared', '-undefined' => '-u' }
 
   build_copy 'LICENSE_1_0.txt'
   # todo: build libs list automatically?
@@ -69,7 +70,7 @@ class Boost < Package
     nil
   end
 
-  def build_for_abi(abi, _toolchain, release, _host_dep_dirs, _target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain, release, _options)
     args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
               "--enable-shared",

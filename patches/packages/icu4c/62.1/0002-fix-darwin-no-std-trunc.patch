@@ -1,0 +1,15 @@
+diff -Naur a/source/i18n/decimfmt.cpp b/source/i18n/decimfmt.cpp
+--- a/source/i18n/decimfmt.cpp	2018-06-21 12:38:50.000000000 +0300
++++ b/source/i18n/decimfmt.cpp	2018-07-30 17:52:25.806507201 +0300
+@@ -1333,7 +1333,11 @@
+         return false;
+     }
+     if (std::isnan(input)
++#ifdef __APPLE__
++            || trunc(input) != input
++#else
+             || std::trunc(input) != input
++#endif
+             || input <= INT32_MIN
+             || input > INT32_MAX) {
+         return false;

@@ -4,13 +4,14 @@ class Icu4c < Package
   homepage "http://site.icu-project.org/"
   url "https://ssl.icu-project.org/files/icu4c/${version}/icu4c-${block}-src.tgz" do |r| r.version.gsub('.', '_') end
 
-  release '61.1', crystax: 2
+  release '62.1'
 
   # this libs were in 57.1: 'libicule'
   # todo: 'libiculx' requires harfbuzz
   build_libs 'libicudata', 'libicui18n', 'libicuio', 'libicutest', 'libicutu', 'libicuuc'
   build_copy 'license.html'
-  build_options use_cxx: true
+  build_options use_cxx: true,
+                build_outside_source_tree: false
 
   def pre_build(src_dir, _release)
     base_dir = build_base_dir
@@ -32,7 +33,7 @@ class Icu4c < Package
     build_dir
   end
 
-  def build_for_abi(abi, _toolchain, release, _host_dep_dirs, _target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain, release, _options)
     native_build_dir = pre_build_result
     install_dir = install_dir_for_abi(abi)
     args = [ "--prefix=#{install_dir}",
@@ -53,10 +54,10 @@ class Icu4c < Package
     build_env['ICULEHB_LIBS']   = ' '
 
     system './source/configure', *args
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    make
+    make 'install'
 
-    clean_install_dir abi, :lib
+    clean_install_dir abi
     FileUtils.cd("#{install_dir}/lib") do
       FileUtils.rm_rf ['icu'] + Dir['libiculx.*']
       build_libs.each { |f| FileUtils.mv "#{f}.so.#{release.version}", "#{f}.so" }

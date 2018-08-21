@@ -1,0 +1,25 @@
+diff -Naurw a/configure b/configure
+--- a/configure	2018-07-18 16:51:59.000000000 +0300
++++ b/configure	2018-08-10 19:33:45.402563798 +0300
+@@ -4770,6 +4770,12 @@
+                     ;;
+                 esac
+             ;;
++            mips32r6)
++                enable mips32r6
++            ;;
++            mips64r6)
++                enable mips64r6
++            ;;
+             *)
+                 # Unknown CPU. Disable everything.
+                 warn "unknown CPU. Disabling all MIPS optimizations."
+@@ -5358,6 +5364,8 @@
+         eval ${pfx}libc_type=klibc
+     elif test_${pfx}cpp_condition sys/cdefs.h "defined __BIONIC__"; then
+         eval ${pfx}libc_type=bionic
++    elif check_${pfx}cpp_condition sys/cdefs.h "defined __LIBCRYSTAX__"; then
++        eval ${pfx}libc_type=crystax
+     elif test_${pfx}cpp_condition sys/brand.h "defined LABELED_BRAND_NAME"; then
+         eval ${pfx}libc_type=solaris
+         add_${pfx}cppflags -D__EXTENSIONS__ -D_XOPEN_SOURCE=600

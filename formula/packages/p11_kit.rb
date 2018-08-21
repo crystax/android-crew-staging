@@ -2,10 +2,10 @@ class P11Kit < Package
 
   name 'p11-kit'
   desc 'Provides a way to load and enumerate PKCS#11 modules'
-  homepage 'https://p11-glue.github.io/p11-glue/p11-kit.html/'
-  url 'https://github.com/p11-glue/p11-kit/releases/download/0.23.9/p11-kit-${version}.tar.gz'
+  homepage 'https://p11-glue.github.io/p11-glue/p11-kit.html'
+  url 'https://github.com/p11-glue/p11-kit/releases/download/${version}/p11-kit-${version}.tar.gz'
 
-  release '0.23.9', crystax: 3
+  release '0.23.12'
 
   depends_on 'libffi'
 
@@ -13,14 +13,8 @@ class P11Kit < Package
   build_options copy_installed_dirs: ['bin', 'etc', 'include', 'lib', 'libexec'],
                 gen_android_mk:      false
 
-  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs, _options)
-    install_dir = install_dir_for_abi(abi)
-    libffi_dir = target_dep_dirs['libffi']
-
-    build_env['LIBFFI_CFLAGS'] = " -I#{libffi_dir}/include"
-    build_env['LIBFFI_LIBS']   = " -L#{libffi_dir}/libs/#{abi} -lffi"
-
-    args =  [ "--prefix=#{install_dir}",
+  def build_for_abi(abi, _toolchain, _release, _options)
+    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
               "--disable-silent-rules",
               "--enable-shared",
@@ -31,10 +25,13 @@ class P11Kit < Package
               "--without-libtasn1"
             ]
 
-    system './configure', *args
-    system 'make', '-j', num_jobs, 'V=1'
-    system 'make', 'install'
+    build_env['LIBFFI_CFLAGS'] = "-I#{target_dep_include_dir('libffi')}"
+    build_env['LIBFFI_LIBS']   = "-L#{target_dep_lib_dir('libffi', abi)} -lffi"
 
-    clean_install_dir abi, :lib
+    configure *args
+    make
+    make 'install'
+
+    clean_install_dir abi
   end
 end

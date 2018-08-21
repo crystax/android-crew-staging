@@ -221,7 +221,7 @@ module Toolchain
   class Standalone
     include Type
 
-    attr_reader :base_dir, :sysroot_dir
+    attr_reader :base_dir, :sysroot_dir, :bin_dir
 
     def initialize(arch, base_dir, gcc_toolchain, llvm_toolchain, with_packages, formula)
       @standalone = true
@@ -267,6 +267,10 @@ module Toolchain
 
     def tool_prefix
       "#{@bin_dir}/#{@arch.host}"
+    end
+
+    def pkgconfig_dir
+      "#{@sysroot_dir}/usr/lib/pkgconfig"
     end
 
     def remove_dynamic_libcrystax

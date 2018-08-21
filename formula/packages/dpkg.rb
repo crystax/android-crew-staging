@@ -4,7 +4,7 @@ class Dpkg < Package
   homepage "https://wiki.debian.org/Teams/Dpkg"
   url "http://http.debian.net/debian/pool/main/d/dpkg/dpkg_${version}.tar.xz"
 
-  release '1.19.0.5', crystax: 5
+  release '1.19.0.5', crystax: 6
 
   depends_on 'libmd'
   depends_on 'xz'
@@ -14,11 +14,8 @@ class Dpkg < Package
                 copy_installed_dirs: ['bin', 'etc', 'include', 'lib', 'share', 'var'],
                 gen_android_mk: false
 
-  def build_for_abi(abi, _toolchain,  _release, _host_dep_dirs, target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain,  _release, _options)
     install_dir = install_dir_for_abi(abi)
-    libmd_dir = target_dep_dirs['libmd']
-    xz_dir = target_dep_dirs['xz']
-    ncurses_dir = target_dep_dirs['ncurses']
 
     args =  [ "--prefix=#{install_dir}",
               "--host=#{host_for_abi(abi)}",
@@ -37,20 +34,23 @@ class Dpkg < Package
               "--with-liblzma"
             ]
 
-    build_env['CPPFLAGS']  = "-I#{libmd_dir}/include -I#{xz_dir}/include -I#{ncurses_dir}/include"
+    libmd_lib_dir = target_dep_lib_dir('libmd', abi)
+    xz_lib_dir = target_dep_lib_dir('xz', abi)
+
+    build_env['CPPFLAGS']  = "-I#{target_dep_include_dir('libmd')} -I#{target_dep_include_dir('xz')}"
     build_env['CPPFLAGS'] += " -USYNC_FILE_RANGE_WRITE" if abi == 'arm64-v8a'
-    build_env['LDFLAGS']  += " -L#{libmd_dir}/libs/#{abi} -L#{xz_dir}/libs/#{abi} -L#{ncurses_dir}/libs/#{abi}"
-    build_env['MD_LIBS']   = "-L#{libmd_dir}/libs/#{abi} -lmd"
-    build_env['LZMA_LIBS'] = "-L#{xz_dir}/libs/#{abi} -llzma"
+    build_env['LDFLAGS']  += " -L#{libmd_lib_dir} -L#{xz_lib_dir}"
+    build_env['MD_LIBS']   = "-L#{libmd_lib_dir} -lmd"
+    build_env['LZMA_LIBS'] = "-L#{xz_lib_dir} -llzma"
 
     build_env['ac_dpkg_arch'] = Deb.arch_for_abi(abi)
 
-    system './configure', *args
+    configure *args
     fix_tar_name if Global::OS == 'darwin'
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    make
+    make 'install'
 
-    clean_install_dir abi, :lib
+    clean_install_dir abi
     perl_dir = "#{install_dir}/share/perl5"
     FileUtils.mkdir_p "#{install_dir}/share/perl5"
     FileUtils.mv Dir["#{install_dir}/Dpkg*"], perl_dir

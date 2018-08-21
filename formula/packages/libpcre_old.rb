@@ -1,14 +1,16 @@
-class Libpcre < Package
+class LibpcreOld < Package
 
+  name 'libpcre-old'
   desc 'Perl Compatible Regular Expressions'
   homepage 'https://www.pcre.org'
-  url 'https://ftp.pcre.org/pub/pcre/pcre2-${version}.tar.gz'
+  url 'https://ftp.pcre.org/pub/pcre/pcre-${version}.tar.gz'
 
-  release '10.31'
+  release '8.42'
 
-  build_libs 'libpcre2-8', 'libpcre2-posix'
+  build_libs 'libpcre', 'libpcrecpp', 'libpcreposix'
   build_copy 'LICENCE'
-  build_options copy_installed_dirs: ['bin', 'include', 'lib']
+  build_options use_cxx: true,
+                copy_installed_dirs: ['bin', 'include', 'lib']
 
   def build_for_abi(abi, _toolchain, release, _options)
     args =  [ "--prefix=#{install_dir_for_abi(abi)}",
@@ -16,9 +18,12 @@ class Libpcre < Package
               "--disable-silent-rules",
               "--enable-shared",
               "--enable-static",
+              "--enable-utf",
               "--with-pic",
               "--with-sysroot"
             ]
+
+    build_env['LDFLAGS'] += ' -lgnustl_shared'
 
     configure *args
     make

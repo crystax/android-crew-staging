@@ -5,25 +5,21 @@ class Gperf < Package
   homepage "https://www.gnu.org/software/gperf/"
   url "http://ftp.gnu.org/pub/gnu/gperf/gperf-${version}.tar.gz"
 
-  release '3.1', crystax: 2
+  release '3.1', crystax: 3
 
   build_copy 'COPYING'
-  build_options use_cxx: true, copy_installed_dirs: ['bin']
+  build_options use_cxx: true,
+                copy_installed_dirs: ['bin']
 
-  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs, _options)
-    install_dir = install_dir_for_abi(abi)
-
-    build_env['CXXFLAGS'] += ' -lgnustl_shared'
-
-    args =  [ "--prefix=#{install_dir}",
+  def build_for_abi(abi, _toolchain, _release, _options)
+    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}"
             ]
 
-    system './configure', *args
-    system 'make', '-j', num_jobs, 'V=1'
-    system 'make', 'install'
+    build_env['CXXFLAGS'] += ' -lgnustl_shared'
 
-    # remove unneeded files
-    FileUtils.rm_rf "#{install_dir}/share"
+    configure *args
+    make
+    make 'install'
   end
 end

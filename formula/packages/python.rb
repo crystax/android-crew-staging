@@ -11,7 +11,8 @@ class Python < Package
   depends_on 'openssl', version: /^1\.0/
 
   build_copy 'LICENSE'
-  build_options sysroot_in_cflags:   false,
+  build_options build_outside_source_tree: false,
+                sysroot_in_cflags:   false,
                 copy_installed_dirs: [],
                 gen_android_mk:      false
 
@@ -42,8 +43,8 @@ class Python < Package
     end
 
     FileUtils.cd(build_dir) do
-      system './configure'
-      system 'make', '-j', num_jobs
+      configure
+      make
     end
 
     build_dir
@@ -66,7 +67,7 @@ class Python < Package
   attr_reader :support_dir
   attr_reader :major_ver, :python_abi
 
-  def build_for_abi(abi, toolchain, release, _host_dep_dirs, target_dep_dirs, _options)
+  def build_for_abi(abi, toolchain, release, _options)
     src_dir = build_dir_for_abi(abi)
     build_dir = "#{src_dir}/build"
 
@@ -228,8 +229,8 @@ class Python < Package
     # Step 6: build python modules
     #
     FileUtils.mkdir_p pybin_install_shared_modules_dir
-    openssl_dir = import_module_path(target_dep_dirs['openssl'])
-    sqlite_dir = import_module_path(target_dep_dirs['sqlite'])
+    openssl_dir = import_module_path(File.dirname(target_dep_include_dir('openssl')))
+    sqlite_dir = import_module_path(File.dirname(target_dep_include_dir('sqlite')))
     #
     build_module_ctypes          src_dir, build_dir, abi
     build_module_multiprocessing src_dir, build_dir, abi

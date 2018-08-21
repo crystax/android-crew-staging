@@ -1,0 +1,11 @@
+diff -Naurw a/lib/liblz4.pc.in b/lib/liblz4.pc.in
+--- a/lib/liblz4.pc.in	2018-01-14 11:21:43.000000000 +0300
++++ b/lib/liblz4.pc.in	2018-08-02 21:57:21.480544560 +0300
+@@ -10,5 +10,5 @@
+ Description: extremely fast lossless compression algorithm library
+ URL: http://www.lz4.org/
+ Version: @VERSION@
+-Libs: -L@LIBDIR@ -llz4
+-Cflags: -I@INCLUDEDIR@
++Libs: -L${libdir} -llz4
++Cflags: -I${includedir}

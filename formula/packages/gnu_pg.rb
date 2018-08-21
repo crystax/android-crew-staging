@@ -5,7 +5,7 @@ class GnuPg < Package
   homepage "https://www.gnupg.org"
   url "https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-${version}.tar.bz2"
 
-  release '2.2.7', crystax: 3
+  release '2.2.7', crystax: 4
 
   depends_on 'sqlite'
   depends_on 'npth'
@@ -20,12 +20,25 @@ class GnuPg < Package
 
   build_copy 'COPYING'
   build_options use_standalone_toolchain: true,
+                add_deps_to_cflags: false,
+                add_deps_to_ldflags: false,
+                support_pkgconfig: false,
                 copy_installed_dirs: ['bin', 'libexec', 'sbin', 'share'],
                 gen_android_mk:      false
 
 
-  def build_for_abi(abi, toolchain,  _release, _host_dep_dirs, target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain,  _release, _options)
     install_dir = install_dir_for_abi(abi)
+
+    args =  [ "--prefix=#{install_dir}",
+              "--host=#{host_for_abi(abi)}",
+              "--disable-silent-rules",
+              "--disable-doc",
+              "--enable-tofu",
+              "--disable-ldap",
+              "--disable-rpath",
+              "--disable-nls",
+            ]
 
     build_env['NPTH_VERSION']     = Formulary.new['target/npth'].highest_installed_release.version
     build_env['SQLITE3_CFLAGS']   = ' '
@@ -44,19 +57,9 @@ class GnuPg < Package
     build_env['LIBS']        = gnupg_libs + ' '  + gnutls_libs + ' -lreadline -lncursesw -lnpth -lsqlite3'
     build_env['PATH']        = Build.path
 
-    args =  [ "--prefix=#{install_dir}",
-              "--host=#{host_for_abi(abi)}",
-              "--disable-silent-rules",
-              "--disable-doc",
-              "--enable-tofu",
-              "--disable-ldap",
-              "--disable-rpath",
-              "--disable-nls",
-            ]
-
-    system './configure', *args
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    configure *args
+    make
+    make 'install'
 
     FileUtils.cd(install_dir) { FileUtils.rm_rf 'share/doc' }
   end

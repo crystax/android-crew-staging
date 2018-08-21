@@ -2,14 +2,14 @@ class Libobjc2 < Package
 
   desc 'GNUstep Objective-C Runtime'
   homepage 'https://github.com/gnustep/libobjc2'
-  # todo: use commit? tag? something else?
   url 'https://github.com/crystax/android-vendor-libobjc2.git|commit:36d73233f25183d7f371176e0417ca1c94c43c6f'
 
-  release '1.8.1', crystax: 3
+  release '1.8.1', crystax: 4
 
-  build_options setup_env: false
+  build_options build_outside_source_tree: false,
+                setup_env: false
 
-  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain, _release, _options)
     install_dir = install_dir_for_abi(abi)
 
     args = ["-DWITH_TESTS=NO",
@@ -23,7 +23,7 @@ class Libobjc2 < Package
 
     # cmake (on linux) is built with curl
     # this should prevent system cmake using our libcurl or any other libs from prebuilt/*/lib
-    build_env['LD_LIBRARY_PATH'] = nil
+    build_env['LD_LIBRARY_PATH'] = nil if Global::OS == 'linux'
 
     system 'cmake', *args
     system 'make', '-j', num_jobs

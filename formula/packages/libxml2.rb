@@ -4,17 +4,15 @@ class Libxml2 < Package
   homepage "http://www.xmlsoft.org"
   url "ftp://xmlsoft.org/libxml2/libxml2-${version}.tar.gz"
 
-  release '2.9.8'
+  release '2.9.8', crystax: 2
 
   depends_on 'xz'
 
-  # build_options use_cxx: true
-  # build_copy 'COPYING.LESSERv3', 'COPYINGv2', 'COPYINGv3'
-  # build_libs 'libhogweed', 'libnettle'
+  build_copy 'COPYING'
+  build_options support_pkgconfig: true
 
-  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain, _release, _options)
     install_dir = install_dir_for_abi(abi)
-    xz_dir = target_dep_dirs['xz']
 
     args =  [ "--prefix=#{install_dir}",
               "--host=#{host_for_abi(abi)}",
@@ -27,18 +25,23 @@ class Libxml2 < Package
               "--without-python"
             ]
 
-    build_env['LZMA_CFLAGS'] = target_dep_include_dir(xz_dir)
-    build_env['LZMA_LIBS']   = target_dep_lib_dir(xz_dir, abi) + ' -llzma'
+    configure *args
+    make
+    make 'install'
 
-    build_env['CFLAGS']  += ' ' + build_env['LZMA_CFLAGS']
-    build_env['LDFLAGS'] += ' ' + build_env['LZMA_LIBS']
-
-
-    system './configure', *args
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
-
-    clean_install_dir abi, :lib
+    clean_install_dir abi
     FileUtils.cd("#{install_dir}/lib") { FileUtils.rm 'xml2Conf.sh' }
+  end
+
+  def pc_edit_file(file, release, abi)
+    super file, release, abi
+
+    replace_lines_in_file(file) do |line|
+      if line =~ /^Libs.private:/
+        'Libs.private: -lz -llzma -lm'
+      else
+        line
+      end
+    end
   end
 end

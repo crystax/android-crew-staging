@@ -4,8 +4,7 @@ class Curl < Utility
   homepage 'http://curl.haxx.se/'
   url 'https://curl.haxx.se/download/curl-${version}.tar.bz2'
 
-  #release '7.55.1', crystax: 3
-  release '7.58.0'
+  release '7.61.0'
 
   depends_on 'zlib'
   depends_on 'openssl'

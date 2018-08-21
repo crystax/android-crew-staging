@@ -4,60 +4,43 @@ class Libssh2 < Package
   homepage 'http://www.libssh2.org/'
   url 'http://www.libssh2.org/download/libssh2-${version}.tar.gz'
 
-  release '1.8.0', crystax: 4
+  release '1.8.0', crystax: 5
 
   depends_on 'openssl'
 
-  #build_copy 'README'
+  build_copy 'COPYING'
+  build_options add_deps_to_cflags: true,
+                add_deps_to_ldflags: true
 
-  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs, _options)
-    install_dir = install_dir_for_abi(abi)
-    openssl_dir = target_dep_dirs['openssl']
-
-    args =  [ "--prefix=#{install_dir}",
+  def build_for_abi(abi, _toolchain, _release, _options)
+    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}",
               "--disable-silent-rules",
               "--disable-examples-build",
               "--enable-shared",
               "--enable-static",
               "--with-openssl",
-              "--with-libz",
-              "--with-libssl-prefix=#{openssl_dir}"
+              "--with-libz"
             ]
 
-    build_env['CFLAGS']  += " -I#{openssl_dir}/include"
-    build_env['LDFLAGS'] += " -L#{openssl_dir}/libs/#{abi}"
-
-    system './configure', *args
+    configure *args
 
     # for some reason libtool for some abis does not handle dependency libs
     fix_tests_makefile if ['mips', 'arm64-v8a', 'mips64'].include? abi
 
-    system 'make', '-j', num_jobs, 'V=1'
-    system 'make', 'install'
+    make
+    make 'install'
 
-    # remove unneeded files
-    FileUtils.cd(install_dir) do
-      FileUtils.rm_rf ['share', 'lib/pkgconfig']
-      FileUtils.rm Dir["lib/*.la"]
-    end
+    clean_install_dir abi
   end
 
   def fix_tests_makefile
-    makefile = 'tests/Makefile'
-    lines = []
-    replaced = false
-    File.foreach(makefile) do |l|
-      if not l =~ /^LIBS =[ \t]*/
-        lines << l
+    replace_lines_in_file('tests/Makefile') do |line|
+      if line =~ /^LIBS =[ \t]*/
+        line.gsub('LIBS =', 'LIBS = -lssl -lcrypto -lz ')
       else
-        lines << l.gsub('LIBS =', 'LIBS = -lssl -lcrypto -lz ')
-        replaced = true
+        line
       end
     end
-
-    raise "not found 'LIBS =' line in #{makefile}" unless replaced
-
-    File.open(makefile, 'w') { |f| f.puts lines }
   end
 end

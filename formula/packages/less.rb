@@ -4,30 +4,25 @@ class Less < Package
   homepage "https://www.gnu.org/software/less/"
   url "https://ftp.gnu.org/gnu/less/less-530.tar.gz"
 
-  release '530', crystax: 3
+  release '530', crystax: 4
 
   depends_on 'ncurses'
 
   build_copy 'COPYING', 'LICENSE'
-  build_options copy_installed_dirs: ['bin'],
+  build_options add_deps_to_cflags: true,
+                add_deps_to_ldflags: true,
                 sysroot_in_cflags: false,
+                copy_installed_dirs: ['bin'],
                 gen_android_mk: false
 
 
-  def build_for_abi(abi, _toolchain,  _release, _host_dep_dirs, target_dep_dirs, _options)
-    install_dir = install_dir_for_abi(abi)
-    ncurses_dir = target_dep_dirs['ncurses']
-
-    args =  [ "--prefix=#{install_dir}",
+  def build_for_abi(abi, _toolchain,  _release, _options)
+    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
               "--host=#{host_for_abi(abi)}"
             ]
 
-    build_env['CFLAGS']  += " -I#{ncurses_dir}/include"
-    build_env['LDFLAGS'] += " -L#{ncurses_dir}/libs/#{abi}"
-    build_env['LIBS']    = "-lncurses"
-
-    system './configure', *args
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    configure *args
+    make
+    make 'install'
   end
 end

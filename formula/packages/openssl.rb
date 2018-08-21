@@ -4,18 +4,18 @@ class Openssl < Package
   homepage "https://openssl.org/"
   url 'https://openssl.org/source/openssl-${version}.tar.gz'
 
-  release '1.0.2o'
-  release '1.1.0h'
+  release '1.0.2o', crystax: 2
+  release '1.1.0h', crystax: 2
 
-  build_options copy_installed_dirs: ['bin', 'include', 'lib']
   build_copy 'LICENSE'
   build_libs 'libcrypto', 'libssl'
+  build_options build_outside_source_tree: false,
+                copy_installed_dirs: ['bin', 'include', 'lib']
 
-  def build_for_abi(abi, toolchain, release, _host_dep_dirs, _target_dep_dirs, options)
+  def build_for_abi(abi, toolchain, release, options)
     ssl_ver = release.major_point_minor
     install_dir = install_dir_for_abi(abi)
     build_env['CFLAGS'] << ' -DOPENSSL_NO_DEPRECATED'
-
 
     args = ["--prefix=#{install_dir}",
             "shared",
@@ -39,9 +39,9 @@ class Openssl < Package
     fix_ccgost_makefile build_dir_for_abi(abi), toolchain.ldflags(abi) if ssl_ver == '1.0'
     fix_make_depend if release.version == '1.0.2o'
 
-    system 'make', 'depend'
-    system 'make', '-j', num_jobs
-    system "make install"
+    make 'depend'
+    make
+    make 'install'
 
     # prepare installed files for packaging
     FileUtils.rm_rf File.join("#{install_dir}/lib/pkgconfig")

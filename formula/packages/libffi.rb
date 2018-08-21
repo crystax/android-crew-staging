@@ -4,11 +4,11 @@ class Libffi < Package
   homepage 'https://github.com/libffi/libffi'
   url 'https://github.com/libffi/libffi/archive/v${version}.tar.gz'
 
-  release '3.2.1', crystax: 2
+  release '3.2.1', crystax: 3
 
   build_copy 'LICENSE'
 
-  def build_for_abi(abi, _toolchain, release, _host_dep_dirs, _target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain, release, _options)
     install_dir = install_dir_for_abi(abi)
     args =  [ "--prefix=#{install_dir}",
               "--host=#{host_for_abi(abi)}",
@@ -19,10 +19,10 @@ class Libffi < Package
               "--includedir=#{install_dir}/include"
             ]
 
-    system './autogen.sh'
-    system './configure', *args
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    FileUtils.cd(source_directory(release)) { system './autogen.sh' }
+    configure *args
+    make
+    make 'install'
 
     FileUtils.cd(install_dir) do
       if Dir.exist?('lib64')
@@ -31,6 +31,11 @@ class Libffi < Package
       end
     end
 
-    clean_install_dir abi, :lib
+    clean_install_dir abi
   end
+
+  def pc_edit_file(file, release, abi)
+    super file, release, abi
+    replace_lines_in_file(file) { |line| line.sub(/-L\${toolexeclibdir}/, '-L\${libdir}') }
+    end
 end

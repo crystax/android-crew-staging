@@ -5,28 +5,25 @@ class ProcpsNg < Package
   homepage 'https://gitlab.com/procps-ng/procps'
   url "https://gitlab.com/procps-ng/procps.git|tag:v${version}"
 
-  release '3.3.12', crystax: 6
+  release '3.3.12', crystax: 7
 
   depends_on 'ncurses'
 
   build_copy 'COPYING'
-  build_options copy_installed_dirs:  ['bin', 'include', 'lib', 'sbin'],
+  build_options build_outside_source_tree: false,
+                add_deps_to_cflags:   false,
+                add_deps_to_ldflags:  false,
+                copy_installed_dirs:  ['bin', 'include', 'lib', 'sbin'],
                 gen_android_mk:       false
 
-  def build_for_abi(abi, _toolchain, _release, _host_dep_dirs, target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain, release, _options)
     install_dir = install_dir_for_abi(abi)
-    ncurses_dir = target_dep_dirs['ncurses']
 
     # todo: remove HOST_NAME_MAX when libcrystax is fixed
-    build_env['CFLAGS']  += " -I#{ncurses_dir}/include -I#{ncurses_dir}/include/ncursesw -DHOST_NAME_MAX=255 -D_GNU_SOURCE -D_DEFAULT_SOURCE"
-    build_env['LDFLAGS'] += " -L#{ncurses_dir}/libs/#{abi}"
+    inc_dir = target_dep_include_dir('ncurses')
+    build_env['CFLAGS']  += " -I#{inc_dir} -I#{inc_dir}/ncursesw -DHOST_NAME_MAX=255 -D_GNU_SOURCE -D_DEFAULT_SOURCE"
+    build_env['LDFLAGS'] += " -L#{target_dep_lib_dir('ncurses', abi)}"
     build_env['LIBS']     = '-lncursesw'
-
-    # these are needed to overwrite pkg-config found values
-    build_env['NCURSES_CFLAGS']  = ' '
-    build_env['NCURSES_LIBS']    = ' '
-    build_env['NCURSESW_CFLAGS'] = ' '
-    build_env['NCURSESW_LIBS']   = ' '
 
      if Global::OS == 'darwin'
        build_env['PATH'] = "/usr/local/opt/gettext/bin:#{ENV['PATH']}"
@@ -48,12 +45,12 @@ class ProcpsNg < Package
 
     system './autogen.sh'
     set_ac_cv
-    system './configure', *args
+    configure *args
     unset_ac_cv
-    system 'make', '-j', num_jobs
-    system 'make', 'install'
+    make
+    make 'install'
 
-    clean_install_dir abi, :lib
+    clean_install_dir abi
   end
 
   def fix_autogen_sh

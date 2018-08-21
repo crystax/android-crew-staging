@@ -4,30 +4,19 @@ class Lz4 < Package
   homepage "http://lz4.github.io/lz4/"
   url "https://github.com/lz4/lz4/archive/v${version}.tar.gz"
 
-  release '1.8.1.2', crystax: 2
+  release '1.8.1.2', crystax: 3
 
   build_copy 'LICENSE'
-  build_options copy_installed_dirs: ['bin', 'include', 'lib']
+  build_options build_outside_source_tree: false,
+                copy_installed_dirs: ['bin', 'include', 'lib']
 
-  def build_for_abi(abi, _toolchain,  release, _host_dep_dirs, _target_dep_dirs, _options)
+  def build_for_abi(abi, _toolchain,  release, _options)
     install_dir = install_dir_for_abi(abi)
 
-    # args =  [ "--prefix=#{install_dir}",
-    #           "--host=#{host_for_abi(abi)}",
-    #           "--disable-silent-rules",
-    #           "--disable-nls",
-    #           "--disable-doc",
-    #           "--disable-lzma-links",
-    #           "--enable-shared",
-    #           "--enable-static",
-    #           "--with-pic",
-    #           "--with-sysroot"
-    #         ]
+    make
+    make "prefix=#{install_dir}", 'install'
 
-    system 'make', '-j', num_jobs
-    system 'make', "prefix=#{install_dir}", 'install'
-
-    clean_install_dir abi, :lib
+    clean_install_dir abi
     FileUtils.cd("#{install_dir}/lib") do
       v = release.version.split('.').first(3).join('.')
       FileUtils.mv "liblz4.so.#{v}", "liblz4.so"
