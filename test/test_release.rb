@@ -6,27 +6,30 @@ class TestRelease < MiniTest::Test
   def test_initialize
     # empty ctor
     r = Release.new
-    assert_equal(nil,   r.version)
-    assert_equal(nil,   r.crystax_version)
-    assert_equal(nil,   r.installed_crystax_version)
-    assert_equal(nil,   r.installed?)
-    assert_equal(nil,   r.source_installed?)
+    assert_nil(r.version)
+    assert_nil(r.crystax_version)
+    assert_nil(r.installed_crystax_version)
+    assert_nil(r.installed?)
+    assert_nil(r.source_installed?)
+    assert_nil(r.obsolete?)
 
     # one argument
     r = Release.new('1.2.3')
     assert_equal('1.2.3', r.version)
-    assert_equal(nil,     r.crystax_version)
-    assert_equal(nil,     r.installed_crystax_version)
-    assert_equal(nil,     r.installed?)
-    assert_equal(nil,     r.source_installed?)
+    assert_nil(r.crystax_version)
+    assert_nil(r.installed_crystax_version)
+    assert_nil(r.installed?)
+    assert_nil(r.source_installed?)
+    assert_nil(r.obsolete?)
 
     # two arguments
     r = Release.new('4.5.0', 7)
     assert_equal('4.5.0', r.version)
-    assert_equal(7,       r.crystax_version)
-    assert_equal(nil,     r.installed_crystax_version)
-    assert_equal(nil,     r.installed?)
-    assert_equal(nil,     r.source_installed?)
+    assert_equal(7, r.crystax_version)
+    assert_nil(r.installed_crystax_version)
+    assert_nil(r.installed?)
+    assert_nil(r.source_installed?)
+    assert_nil(r.obsolete?)
   end
 
   def test_installed_set
@@ -90,6 +93,25 @@ class TestRelease < MiniTest::Test
     assert_equal('3', r3.version)
     assert_equal(3,   r3.crystax_version)
     assert_equal(2,   r3.installed_crystax_version)
+  end
+
+  def test_obsolete
+    r = Release.new
+
+    r.obsolete = true
+    assert_equal(true, r.obsolete?)
+
+    r.obsolete = false
+    assert_nil(r.obsolete?)
+
+    r.obsolete = nil
+    assert_nil(r.obsolete?)
+
+    r.obsolete = 'obsolete'
+    assert_equal(true, r.obsolete?)
+
+    r.obsolete = 5
+    assert_equal(true, r.obsolete?)
   end
 
   def test_match

@@ -49,6 +49,16 @@ describe "crew info" do
     end
   end
 
+  context "about curl, obsolete release installed, versions only" do
+    it "outputs info about new version" do
+      repository_add_formula :host, 'curl-4.rb:curl.rb'
+      crew_checked 'update'
+      crew 'info', '--versions-only', 'curl'
+      expect(result).to eq(:ok)
+      expect(out.strip).to eq("#{Crew::Test::UTILS_RELEASES['curl'][3]}")
+    end
+  end
+
   context "about all crew utilities, all utilities with one release each" do
     it "outputs info about crew utilities" do
       crew 'info', 'curl', 'libarchive','ruby'
