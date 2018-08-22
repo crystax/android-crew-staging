@@ -20,7 +20,10 @@ module Utils
 
   @@patch_prog  = '/usr/bin/patch'
   @@unzip_prog  = '/usr/bin/unzip'
-  @@md5sum_prog = 'md5sum'
+  @@md5sum_prog = (Global::OS == 'darwin') ? '/usr/local/bin/md5sum' : '/usr/bin/md5sum'
+
+  @@system_curl = 'curl'
+  @@system_tar  = 'tar'
 
   # returns [file_name, release_str, platform_name]
   # for target archives platform will be 'android'
@@ -61,9 +64,20 @@ module Utils
   end
 
   def self.run_command(prog, *args)
-    cmd = ([prog.to_s.strip] + args).map { |e| to_cmd_s(e) }
+    prog = prog.to_s.strip
+    cmd = ([prog] + args).map { |e| to_cmd_s(e) }
+    env = {}
+    if prog == @@system_curl
+      case Global::OS
+      when 'linux'
+        env['LD_LIBRARY_PATH'] = nil
+      when 'darwin'
+        env['DYLD_LIBRARY_PATH'] = nil
+      end
+    end
     #puts "cmd: #{cmd.join(' ')}"
-    outstr, errstr, status = Open3.capture3(*cmd)
+    #puts "env: #{env}"
+    outstr, errstr, status = Open3.capture3(env, *cmd)
     raise ErrorDuringExecution.new(cmd.join(' '), status.exitstatus, errstr) unless status.success?
 
     outstr
@@ -234,7 +248,7 @@ module Utils
     @@curl_prog ||= Pathname.new(cp).realpath
   rescue
     warning "not found 'curl' program at the expected path: #{cp}"
-    @@curl_prog = 'curl'
+    @@curl_prog = @@system_curl
   end
 
   def self.tar_prog
