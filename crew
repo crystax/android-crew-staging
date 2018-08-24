@@ -5,7 +5,7 @@ crew_file_dir=$(cd $(dirname $0); pwd)
 if [[ -z $CREW_NDK_DIR ]]; then
     dev_ndk_dir="$(dirname $crew_file_dir)/platform/ndk"
     if [[ -d $dev_ndk_dir ]]; then
-        CREW_NDK_DIR=$dev_ndk_dir
+        CREW_NDK_DIR=$HOME/crystax-ndk-dev
     elif [[ $(basename $crew_file_dir) == "crew.dir" ]]; then
         CREW_NDK_DIR=$(cd $(dirname $crew_file_dir); pwd)
     else
