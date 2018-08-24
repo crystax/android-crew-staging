@@ -4,7 +4,7 @@ class Platforms < BasePackage
 
   desc "Android platforms headers and libraries"
 
-  release '24', crystax: 8
+  release '24', crystax: 9
 
   # todo:
   #build_depends_on default_compiler
@@ -228,7 +228,7 @@ class Platforms < BasePackage
     puts "= patching sysroot"
     build_env.clear
     build_env['CREW_NDK_DIR'] = install_dir
-    system "#{Global::NDK_DIR}/sources/crystax/bin/patch-sysroot", '--verbose', '--headers', '--libraries', '--no-crystax-libraries'
+    system "#{Build::NDK_SRC_DIR}/sources/crystax/bin/patch-sysroot", '--verbose', '--headers', '--libraries', '--no-crystax-libraries'
   end
 
   def copy_src_directory(src, dst)
