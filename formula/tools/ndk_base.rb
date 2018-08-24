@@ -4,7 +4,7 @@ class NdkBase < HostBase
   name 'ndk-base'
   homepage "https://www.crystax.net"
 
-  release '11', crystax: 15
+  release '11', crystax: 16
 
   def install_archive(release, archive, platform_name)
     # disable warnings since ndk-base archive contains symlinks
@@ -16,8 +16,8 @@ class NdkBase < HostBase
   #       and remove unneeded files
   def prepare_source_code
     commit = nil
-    FileUtils.cd(Global::NDK_DIR) { commit = Utils.run_command('git', 'log', '-1', '--format=format:%H%n').strip }
-    system 'git', 'clone', Global::NDK_DIR, src_dir
+    FileUtils.cd(Build::NDK_SRC_DIR) { commit = Utils.run_command('git', 'log', '-1', '--format=format:%H%n').strip }
+    system 'git', 'clone', Build::NDK_SRC_DIR, src_dir
     FileUtils.cd(src_dir) do
       system 'git', 'checkout', commit
       FileUtils.rm_rf '.git'
