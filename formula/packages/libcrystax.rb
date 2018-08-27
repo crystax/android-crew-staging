@@ -5,7 +5,7 @@ class Libcrystax < BasePackage
   desc "Crystax Library, the Heart of the Crystax NDK"
   name 'libcrystax'
 
-  release '1.0.0'
+  release '1.0.0', crystax: 2
 
   package_info root_dir: ['libs']
 
@@ -14,7 +14,11 @@ class Libcrystax < BasePackage
   #build_depends_on default_gcc_compiler
 
   def release_directory(_release = nil, _platform_ndk = nil)
-    "#{Global::NDK_DIR}/#{archive_sub_dir}"
+    "#{Global::NDK_DIR}/#{archive_sub_dir}/libs"
+  end
+
+  def source_directory(_release = nil)
+    "#{Build::NDK_SRC_DIR}/#{archive_sub_dir}"
   end
 
   # todo: move method to the BasePackage class?
@@ -43,7 +47,7 @@ class Libcrystax < BasePackage
     @log_file = build_log_file
     @num_jobs = options.num_jobs
 
-    dst_dir = "#{package_dir}/#{File.dirname(archive_sub_dir)}"
+    dst_dir = "#{package_dir}/#{archive_sub_dir}"
     FileUtils.mkdir_p dst_dir
 
     #recreate_symlinks_to_vendor_and_test_dirs
@@ -58,7 +62,7 @@ class Libcrystax < BasePackage
         FileUtils.cd(build_dir) do
           [:static, :shared].each do |lt|
             build_for_abi abi, release, lib_type: lt
-            FileUtils.cp_r release_directory, dst_dir unless options.build_only?
+            FileUtils.cp_r "#{source_directory}/libs", dst_dir unless options.build_only?
           end
         end
       end
@@ -89,7 +93,7 @@ class Libcrystax < BasePackage
     lib_type = options[:lib_type]
     build_dir = File.join(Dir.pwd, lib_type.to_s)
     FileUtils.mkdir build_dir
-    crystax_dir = File.dirname(release_directory)
+    crystax_dir = "#{Build::NDK_SRC_DIR}/#{archive_sub_dir}"
 
     # todo: why strictly gcc 4.9 must be used?
     args = [lib_type,
@@ -101,15 +105,15 @@ class Libcrystax < BasePackage
            ]
 
     FileUtils.cd(build_dir) do
-      system 'make', '-C', crystax_dir, 'clean'
-      system 'make', '-C', crystax_dir, '-j', num_jobs, *args
+      system 'make', '-C', crystax_dir, "NDK=#{Global::NDK_DIR}", 'clean'
+      system 'make', '-C', crystax_dir, "NDK=#{Global::NDK_DIR}", '-j', num_jobs, *args
     end
   end
 
   def copy_to_standalone_toolchain(_release, arch, _target_include_dir, target_lib_dir, _options)
     make_target_lib_dirs(arch, target_lib_dir)
 
-    crystax_libs_dir = archive_sub_dir
+    crystax_libs_dir = "#{archive_sub_dir}/libs"
 
     case arch.name
     when 'arm'
@@ -155,7 +159,7 @@ class Libcrystax < BasePackage
   end
 
   def archive_sub_dir
-    "sources/crystax/libs"
+    "sources/crystax"
   end
 
   # def recreate_symlinks_to_vendor_and_test_dirs
