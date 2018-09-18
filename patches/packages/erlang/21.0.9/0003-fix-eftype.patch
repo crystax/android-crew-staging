@@ -1,0 +1,16 @@
+diff -Naurw a/erts/emulator/beam/erl_posix_str.c b/erts/emulator/beam/erl_posix_str.c
+--- a/erts/emulator/beam/erl_posix_str.c	2018-09-11 17:57:05.000000000 +0300
++++ b/erts/emulator/beam/erl_posix_str.c	2018-09-17 21:28:18.807503847 +0300
+@@ -156,9 +156,12 @@
+ #ifdef EFAULT
+     case EFAULT: return "efault";
+ #endif
++        /* todo: remove when lbcrystax will have EFTYPE */
++#ifndef __CRYSTAX__
+ #ifdef EFTYPE
+     case EFTYPE: return "eftype";
+ #endif
++#endif
+ #ifdef EFBIG
+     case EFBIG: return "efbig";
+ #endif

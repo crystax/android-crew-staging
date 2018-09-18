@@ -4,7 +4,7 @@ class Erlang < Package
   homepage "https://www.erlang.org/"
   url "https://github.com/erlang/otp/archive/OTP-${version}.tar.gz"
 
-  release '20.3.8.4'
+  release '21.0.9'
 
   depends_on 'ncurses'
   depends_on 'openssl'
