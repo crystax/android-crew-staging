@@ -176,7 +176,7 @@ module Build
 
   def self.gen_host_compiler_wrapper(wrapper, compiler, *opts)
     # todo: we do not have platform/prebuilts in NDK distribution
-    ndk_root_dir = Pathname.new(Global::NDK_DIR).realpath.dirname.dirname.to_s
+    ndk_root_dir = Pathname.new(Build::NDK_SRC_DIR).realpath.dirname.dirname.to_s
     case Global::OS
     when 'darwin'
       sysroot_dir = "#{ndk_root_dir}/platform/prebuilts/sysroot/darwin-x86/MacOSX10.6.sdk"
