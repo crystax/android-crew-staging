@@ -56,7 +56,7 @@ if [[ $status != 0 ]]; then
 fi
 
 if [[ -f "$crew_file_dir/crew.new" ]]; then
-    exec "$crew_file_dir/bin/update-crew-script.sh $crew_file_dir"
+    exec "$crew_file_dir/bin/update-crew-script.sh" "$crew_file_dir"
 fi
 
 if [[ -d "$CREW_NDK_DIR/postpone" ]]; then
