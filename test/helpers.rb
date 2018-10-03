@@ -225,31 +225,37 @@ module Spec
       end
     end
 
-    def pkg_cache_add_tool(filename, options = { release: nil, update: true })
+    def pkg_cache_add_tool(filename, opts = {})
+      options = { release: nil, update: true }
+      options.update opts
       options[:release] ||= Crew::Test::UTILS_RELEASES[filename][0]
       pkg_cache_add_file :host, filename, options[:release]
       crew_checked 'shasum', '--update', filename if options[:update]
       options[:release]
     end
 
-    def pkg_cache_add_with_formula(type, filename, options)
+    def pkg_cache_add_with_formula(type, filename, opts)
+      options = { release: nil, update: true, delete: false }
+      options.update opts
       options[:release] ||= formula_most_recent_release(filename)
       copy_formulas type, "#{filename}.rb"
       pkg_cache_add_file type, filename, options[:release]
-      crew_checked 'shasum', '--update', filename             if options[:update]
+      crew_checked 'shasum', '--update', filename          if options[:update]
       pkg_cache_del_file type, filename, options[:release] if options[:delete]
       options[:release]
     end
 
-    def pkg_cache_add_package_with_formula(filename, options = { release: nil, update: true, delete: false })
+    def pkg_cache_add_package_with_formula(filename, options = {})
       pkg_cache_add_with_formula :target, filename, options
     end
 
-    def pkg_cache_add_tool_with_formula(filename, options = { release: nil, update: true, delete: false })
+    def pkg_cache_add_tool_with_formula(filename, options = {})
       pkg_cache_add_with_formula :host, filename, options
     end
 
-    def pkg_cache_add_all_tools(options = { update: true })
+    def pkg_cache_add_all_tools(opts = {})
+      options = { update: true }
+      options.update opts
       FileUtils.cp Dir["#{Crew::Test::DOCROOT_DIR}/#{Global::NS_DIR[:host]}/*"], "#{Global::PKG_CACHE_DIR}/#{Global::NS_DIR[:host]}"
       crew_checked 'shasum', '--update' if options[:update]
     end
