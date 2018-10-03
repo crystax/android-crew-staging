@@ -5,6 +5,16 @@ require_relative '../library/github.rb'
 
 
 describe "crew install" do
+
+  def install_message(name, url, file)
+    ["calculating dependencies for #{name}:",
+     "dependencies to install:",
+     "downloading #{url}",
+     "checking integrity of the archive file #{file}",
+     "unpacking archive"
+    ]
+  end
+
   before(:all) do
     environment_init
     ndk_init
@@ -36,7 +46,7 @@ describe "crew install" do
     end
   end
 
-  context "existing formula with one release and bad sha256 sum of the downloaded file" do
+  context "existing formula with bad sha256 sum of the downloaded file" do
     it "outputs error message" do
       rel = pkg_cache_add_package_with_formula('libbad')
       pkg_cache_corrupt_file :target, 'libbad', rel
@@ -50,60 +60,67 @@ describe "crew install" do
     end
   end
 
-  context "existing formula with one release, no dependencies, specifing only name" do
-    it "outputs info about installing existing release" do
-      rel = pkg_cache_add_package_with_formula('libone', update: true, delete: true)
-      file = package_archive_name('libone', rel)
-      url = "#{Global::DOWNLOAD_BASE}/packages/#{file}"
-      crew 'install', 'libone'
-      expect(result).to eq(:ok)
-      expect(out).to eq("calculating dependencies for libone: \n"          \
-                        "  dependencies to install: \n"                    \
-                        "downloading #{url}\n"                             \
-                        "checking integrity of the archive file #{file}\n" \
-                        "unpacking archive\n")
-      expect(pkg_cache_has_package?('libone', rel)).to eq(true)
-    end
-  end
+  context "existing formula with one release and no dependencies" do
 
-  context "existing formula with one release, no dependencies, specifing name and version" do
-    it "outputs info about installing existing release" do
-      rel = pkg_cache_add_package_with_formula('libone', update: true, delete: true)
-      file = package_archive_name('libone', rel)
-      url = "#{Global::DOWNLOAD_BASE}/packages/#{file}"
-      crew 'install', 'libone:1.0.0'
-      expect(result).to eq(:ok)
-      expect(out).to eq("calculating dependencies for libone: \n"          \
-                        "  dependencies to install: \n"                    \
-                        "downloading #{url}\n"                             \
-                        "checking integrity of the archive file #{file}\n" \
-                        "unpacking archive\n")
-      expect(pkg_cache_has_package?('libone', rel)).to eq(true)
+    context "specifing only name" do
+      it "outputs info about installing existing release" do
+        rel = pkg_cache_add_package_with_formula('libone', delete: true)
+        file = package_archive_name('libone', rel)
+        url = "#{Global::DOWNLOAD_BASE}/packages/#{file}"
+        crew 'install', 'libone'
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(install_message('libone', url, file))
+        expect(pkg_cache_has_package?('libone', rel)).to eq(true)
+      end
     end
-  end
 
-  context "existing formula with one release, no dependencies, specifing full release info" do
-    it "outputs info about installing existing release" do
-      rel = pkg_cache_add_package_with_formula('libone', update: true, delete: true)
-      file = package_archive_name('libone', rel)
-      url = "#{Global::DOWNLOAD_BASE}/packages/#{file}"
-      crew 'install', 'libone:1.0.0:1'
-      expect(result).to eq(:ok)
-      expect(out).to eq("calculating dependencies for libone: \n"          \
-                        "  dependencies to install: \n"                    \
-                        "downloading #{url}\n"                             \
-                        "checking integrity of the archive file #{file}\n" \
-                        "unpacking archive\n")
-      expect(pkg_cache_has_package?('libone', rel)).to eq(true)
+    context "specifing name and version" do
+      it "outputs info about installing existing release" do
+        rel = pkg_cache_add_package_with_formula('libone', delete: true)
+        file = package_archive_name('libone', rel)
+        url = "#{Global::DOWNLOAD_BASE}/packages/#{file}"
+        crew 'install', 'libone:1.0.0'
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(install_message('libone', url, file))
+        expect(pkg_cache_has_package?('libone', rel)).to eq(true)
+      end
     end
-  end
 
-  context "existing formula with one release, no dependencies, specifing non existing version" do
-    it "outputs info about installing existing release" do
-      copy_packages_formulas 'libone.rb'
-      crew 'install', 'libone:2.0.0'
-      expect(exitstatus).to_not be_zero
-      expect(err.split("\n")[0]).to eq('error: libone has no release with version 2.0.0')
+    context "specifing full release info" do
+      it "outputs info about installing existing release" do
+        rel = pkg_cache_add_package_with_formula('libone', delete: true)
+        file = package_archive_name('libone', rel)
+        url = "#{Global::DOWNLOAD_BASE}/packages/#{file}"
+        crew 'install', 'libone:1.0.0:1'
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(install_message('libone', url, file))
+        expect(pkg_cache_has_package?('libone', rel)).to eq(true)
+      end
+    end
+
+    context "specifing non existing version" do
+      it "outputs info about installing existing release" do
+        copy_packages_formulas 'libone.rb'
+        crew 'install', 'libone:2.0.0'
+        expect(exitstatus).to_not be_zero
+        expect(err.split("\n")[0]).to eq('error: libone has no release with version 2.0.0')
+      end
+    end
+
+    context "from the cache" do
+      it "outputs info about using cached file" do
+        rel = pkg_cache_add_package_with_formula('libone')
+        file = package_archive_name('libone', rel)
+        crew 'install', 'libone'
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(["calculating dependencies for libone:",
+                                                    "dependencies to install:",
+                                                    "using cached file #{file}",
+                                                    "checking integrity of the archive file #{file}",
+                                                    "unpacking archive"
+                                                   ])
+        expect(pkg_cache_has_package?('libone', rel)).to eq(true)
+      end
     end
   end
 
@@ -117,16 +134,17 @@ describe "crew install" do
       resurl = "#{Global::DOWNLOAD_BASE}/packages/#{resfile}"
       crew 'install', 'libtwo'
       expect(result).to eq(:ok)
-      expect(out).to eq("calculating dependencies for libtwo: \n"             \
-                        "  dependencies to install: libone\n"                 \
-                        "installing dependencies for libtwo:\n"               \
-                        "downloading #{depurl}\n"                             \
-                        "checking integrity of the archive file #{depfile}\n" \
-                        "unpacking archive\n"                                 \
-                        "\n"                                                  \
-                        "downloading #{resurl}\n"                             \
-                        "checking integrity of the archive file #{resfile}\n" \
-                        "unpacking archive\n")
+      expect(out.split("\n").map(&:strip)).to eq(["calculating dependencies for libtwo:",
+                                                  "dependencies to install: libone",
+                                                  "installing dependencies for libtwo:",
+                                                  "downloading #{depurl}",
+                                                  "checking integrity of the archive file #{depfile}",
+                                                  "unpacking archive",
+                                                  "",
+                                                  "downloading #{resurl}",
+                                                  "checking integrity of the archive file #{resfile}",
+                                                  "unpacking archive"
+                                                 ])
       expect(pkg_cache_has_package?('libone', libone_rel)).to eq(true)
       expect(pkg_cache_has_package?('libtwo', libtwo_rel)).to eq(true)
     end
@@ -134,9 +152,9 @@ describe "crew install" do
 
   context "specific release of the existing formula with three releases and two dependencies" do
     it "outputs info about installing dependencies and the specified release" do
-      libone_rel   = pkg_cache_add_package_with_formula('libone',   update: true, delete: true)
-      libtwo_rel   = pkg_cache_add_package_with_formula('libtwo',   update: true, delete: true, release: Release.new('2.2.0', 1))
-      libthree_rel = pkg_cache_add_package_with_formula('libthree', update: true, delete: true, release: Release.new('2.2.2', 1))
+      libone_rel   = pkg_cache_add_package_with_formula('libone',   delete: true)
+      libtwo_rel   = pkg_cache_add_package_with_formula('libtwo',   delete: true, release: Release.new('2.2.0', 1))
+      libthree_rel = pkg_cache_add_package_with_formula('libthree', delete: true, release: Release.new('2.2.2', 1))
       depfile1 = package_archive_name('libone',   libone_rel)
       depfile2 = package_archive_name('libtwo',   libtwo_rel)
       resfile  = package_archive_name('libthree', libthree_rel)
@@ -145,37 +163,23 @@ describe "crew install" do
       resurl  = "#{Global::DOWNLOAD_BASE}/packages/#{resfile}"
       crew 'install', 'libthree:2.2.2:1'
       expect(result).to eq(:ok)
-      expect(out).to eq("calculating dependencies for libthree: \n"            \
-                        "  dependencies to install: libone, libtwo\n"          \
-                        "installing dependencies for libthree:\n"              \
-                        "downloading #{depurl1}\n"                             \
-                        "checking integrity of the archive file #{depfile1}\n" \
-                        "unpacking archive\n"                                  \
-                        "downloading #{depurl2}\n"                             \
-                        "checking integrity of the archive file #{depfile2}\n" \
-                        "unpacking archive\n"                                  \
-                        "\n"                                                   \
-                        "downloading #{resurl}\n"                              \
-                        "checking integrity of the archive file #{resfile}\n"  \
-                        "unpacking archive\n")
+      expect(out.split("\n").map(&:strip)).to eq(["calculating dependencies for libthree:",
+                                                  "dependencies to install: libone, libtwo",
+                                                  "installing dependencies for libthree:",
+                                                  "downloading #{depurl1}",
+                                                  "checking integrity of the archive file #{depfile1}",
+                                                  "unpacking archive",
+                                                  "downloading #{depurl2}",
+                                                  "checking integrity of the archive file #{depfile2}",
+                                                  "unpacking archive",
+                                                  "",
+                                                  "downloading #{resurl}",
+                                                  "checking integrity of the archive file #{resfile}",
+                                                  "unpacking archive"
+                                                 ])
       expect(pkg_cache_has_package?('libone',   libone_rel)).to   eq(true)
       expect(pkg_cache_has_package?('libtwo',   libtwo_rel)).to   eq(true)
       expect(pkg_cache_has_package?('libthree', libthree_rel)).to eq(true)
-    end
-  end
-
-  context "existing formula with one release from the cache" do
-    it "outputs info about using cached file" do
-      rel = pkg_cache_add_package_with_formula('libone')
-      file = package_archive_name('libone', rel)
-      crew 'install', 'libone'
-      expect(result).to eq(:ok)
-      expect(out).to eq("calculating dependencies for libone: \n"          \
-                        "  dependencies to install: \n"                    \
-                        "using cached file #{file}\n"                      \
-                        "checking integrity of the archive file #{file}\n" \
-                        "unpacking archive\n")
-      expect(pkg_cache_has_package?('libone', rel)).to eq(true)
     end
   end
 
@@ -186,11 +190,7 @@ describe "crew install" do
       url = "#{Global::DOWNLOAD_BASE}/packages/#{file}"
       crew 'install', 'libfour'
       expect(result).to eq(:ok)
-      expect(out).to eq("calculating dependencies for libfour: \n"         \
-                        "  dependencies to install: \n"                    \
-                        "downloading #{url}\n"                             \
-                        "checking integrity of the archive file #{file}\n" \
-                        "unpacking archive\n")
+      expect(out.split("\n").map(&:strip)).to eq(install_message('libfour', url, file))
       expect(pkg_cache_has_package?('libfour', rel)).to eq(true)
     end
   end
@@ -202,12 +202,20 @@ describe "crew install" do
       url = "#{Global::DOWNLOAD_BASE}/packages/#{file}"
       crew 'install', 'libfour:3.3.3'
       expect(result).to eq(:ok)
-      expect(out).to eq("calculating dependencies for libfour: \n"         \
-                        "  dependencies to install: \n"                    \
-                        "downloading #{url}\n"                             \
-                        "checking integrity of the archive file #{file}\n" \
-                        "unpacking archive\n")
+      expect(out.split("\n").map(&:strip)).to eq(install_message('libfour', url, file))
       expect(pkg_cache_has_package?('libfour', rel)).to eq(true)
+    end
+  end
+
+  context 'extisting formula with one dependecy and specific dependency version' do
+
+    context 'with no dependency installed' do
+    end
+
+    context 'with incorrrect verion installed' do
+    end
+
+    context 'with correct version installed' do
     end
   end
 
@@ -223,11 +231,7 @@ describe "crew install" do
         url = "#{out.strip}/packages.#{file}"
         crew 'install', 'test_package'
         expect(result).to eq(:ok)
-        expect(out).to eq("calculating dependencies for test_package: \n"    \
-                          "  dependencies to install: \n"                    \
-                          "downloading #{url}\n"                             \
-                          "checking integrity of the archive file #{file}\n" \
-                          "unpacking archive\n")
+        expect(out.split("\n").map(&:strip)).to eq(install_message('test_package', url, file))
         expect(pkg_cache_has_package?('test_package', rel)).to eq(true)
       end
     end
@@ -242,12 +246,7 @@ describe "crew install" do
         url = "#{out.strip}/tools.#{file}"
         crew 'install', 'test_tool:1.0.0'
         expect(result).to eq(:ok)
-        expect(out.split("\n")).to eq(["calculating dependencies for test_tool: ",
-                                       "  dependencies to install: ",
-                                       "downloading #{url}",
-                                       "checking integrity of the archive file #{file}",
-                                       "unpacking archive"
-                                      ])
+        expect(out.split("\n").map(&:strip)).to eq(install_message('test_tool', url, file))
         expect(pkg_cache_has_tool?('test_tool', rel)).to eq(true)
       end
     end
