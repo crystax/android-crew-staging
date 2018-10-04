@@ -300,7 +300,7 @@ module Spec
       end
     end
 
-    def copy_packages_formulas(*names)
+    def copy_package_formulas(*names)
       copy_formulas :target, *names
     end
 

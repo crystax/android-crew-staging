@@ -34,7 +34,7 @@ describe "crew depends-on" do
 
   context "repository contains package formula with no dependencies" do
     it "depends-on command outputs nothing" do
-      copy_packages_formulas 'libone.rb'
+      copy_package_formulas 'libone.rb'
       crew 'depends-on', 'libone'
       expect(exitstatus).to be_zero
       expect(out.strip).to eq('')
@@ -44,7 +44,7 @@ describe "crew depends-on" do
   context "repository contains package two formulas, one depends on another" do
 
     before do
-      copy_packages_formulas 'libone.rb', 'libtwo.rb'
+      copy_package_formulas 'libone.rb', 'libtwo.rb'
     end
 
     context 'check formula that has no dependant formulas' do

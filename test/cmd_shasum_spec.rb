@@ -166,7 +166,7 @@ describe "crew shasum" do
 
       context 'with package name' do
         it 'says that archive not found' do
-          copy_packages_formulas 'libone.rb'
+          copy_package_formulas 'libone.rb'
           rel = Release.new('1.0.0', 1)
           crew 'shasum', '--update', 'libone'
           expect(out.strip).to match("target/libone #{rel}: archive not found: #{Global::PKG_CACHE_DIR}/packages/libone-#{rel}.*")
@@ -175,7 +175,7 @@ describe "crew shasum" do
 
       context 'with no names' do
         it 'says that all archives for all installed formulas are not found' do
-          copy_packages_formulas 'libone.rb'
+          copy_package_formulas 'libone.rb'
           crew 'shasum', '--update'
           lines = Crew::Test::ALL_TOOLS.map { |e| "host/#{e.name} .* #{Global::PLATFORM_NAME}: archive not found: #{Global::PKG_CACHE_DIR}/tools/#{e.filename}-.*" }
           lines << "target/libone .*: archive not found: #{Global::PKG_CACHE_DIR}/packages/libone-.*"

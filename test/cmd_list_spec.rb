@@ -66,7 +66,7 @@ describe "crew list" do
 
     context "empty hold, one formula with one release" do
       it "outputs info about one not installed release" do
-        copy_packages_formulas 'libone.rb'
+        copy_package_formulas 'libone.rb'
         crew 'list', '--packages', '--no-title'
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["   libone  1.0.0  1"])
@@ -75,7 +75,7 @@ describe "crew list" do
 
     context "empty hold, one formula with three releases" do
       it "outputs info about three not installed releases" do
-        copy_packages_formulas 'libthree.rb'
+        copy_package_formulas 'libthree.rb'
         crew 'list', '--packages', '--no-title'
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["   libthree  1.1.1  1",
@@ -86,7 +86,7 @@ describe "crew list" do
 
     context "empty hold, three formulas with one, two and three releases" do
       it "outputs info about all available releases" do
-        copy_packages_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb'
+        copy_package_formulas 'libone.rb', 'libtwo.rb', 'libthree.rb'
         crew 'list', '--packages', '--no-title'
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["   libone    1.0.0  1",

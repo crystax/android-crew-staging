@@ -18,7 +18,7 @@ describe "common code" do
 
   context "repository contains formula with depricated symbol in a filename" do
     it "list command fails with an error" do
-      copy_packages_formulas 'bad-file-name.rb'
+      copy_package_formulas 'bad-file-name.rb'
       crew 'list'
       expect(exitstatus).to_not be_zero
       expect(err.split("\n")[0]).to match(/error: formula filename cannot contain symbol '-', use '_' instead/)
@@ -27,7 +27,7 @@ describe "common code" do
 
   context "repository contains two different formulas with the same name" do
     it "list command fails with an error" do
-      copy_packages_formulas 'libone.rb', 'libone_same_name.rb'
+      copy_package_formulas 'libone.rb', 'libone_same_name.rb'
       crew 'list'
       expect(exitstatus).to_not be_zero
       expect(err.split("\n")[0]).to match(/error: bad name \'libone\' in .*: already defined in/)
