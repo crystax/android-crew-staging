@@ -234,6 +234,14 @@ module Spec
       options[:release]
     end
 
+    def pkg_cache_add_package(filename, release, opts = {})
+      options = { update: true }
+      options.update opts
+      pkg_cache_add_file :target, filename, release
+      crew_checked 'shasum', '--update', filename if options[:update]
+      options[:release]
+    end
+
     def pkg_cache_add_with_formula(type, filename, opts)
       options = { release: nil, update: true, delete: false }
       options.update opts

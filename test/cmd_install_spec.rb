@@ -100,7 +100,7 @@ describe "crew install" do
 
     context "specifing non existing version" do
       it "outputs info about installing existing release" do
-        copy_packages_formulas 'libone.rb'
+        copy_package_formulas 'libone.rb'
         crew 'install', 'libone:2.0.0'
         expect(exitstatus).to_not be_zero
         expect(err.split("\n")[0]).to eq('error: libone has no release with version 2.0.0')
@@ -125,28 +125,45 @@ describe "crew install" do
   end
 
   context "existing formula with two versions and one dependency" do
-    it "outputs info about installing dependency and the latest version" do
-      libone_rel = pkg_cache_add_package_with_formula('libone', update: true, delete: true)
-      libtwo_rel = pkg_cache_add_package_with_formula('libtwo', update: true, delete: true)
-      depfile = package_archive_name('libone', libone_rel)
-      depurl = "#{Global::DOWNLOAD_BASE}/packages/#{depfile}"
-      resfile = package_archive_name('libtwo', libtwo_rel)
-      resurl = "#{Global::DOWNLOAD_BASE}/packages/#{resfile}"
-      crew 'install', 'libtwo'
-      expect(result).to eq(:ok)
-      expect(out.split("\n").map(&:strip)).to eq(["calculating dependencies for libtwo:",
-                                                  "dependencies to install: libone",
-                                                  "installing dependencies for libtwo:",
-                                                  "downloading #{depurl}",
-                                                  "checking integrity of the archive file #{depfile}",
-                                                  "unpacking archive",
-                                                  "",
-                                                  "downloading #{resurl}",
-                                                  "checking integrity of the archive file #{resfile}",
-                                                  "unpacking archive"
-                                                 ])
-      expect(pkg_cache_has_package?('libone', libone_rel)).to eq(true)
-      expect(pkg_cache_has_package?('libtwo', libtwo_rel)).to eq(true)
+
+    context 'dependency is not installed' do
+      it "outputs info about installing dependency and the latest version" do
+        libone_rel = pkg_cache_add_package_with_formula('libone', delete: true)
+        libtwo_rel = pkg_cache_add_package_with_formula('libtwo', delete: true)
+        depfile = package_archive_name('libone', libone_rel)
+        depurl = "#{Global::DOWNLOAD_BASE}/packages/#{depfile}"
+        resfile = package_archive_name('libtwo', libtwo_rel)
+        resurl = "#{Global::DOWNLOAD_BASE}/packages/#{resfile}"
+        crew 'install', 'libtwo'
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(["calculating dependencies for libtwo:",
+                                                    "dependencies to install: libone",
+                                                    "installing dependencies for libtwo:",
+                                                    "downloading #{depurl}",
+                                                    "checking integrity of the archive file #{depfile}",
+                                                    "unpacking archive",
+                                                    "",
+                                                    "downloading #{resurl}",
+                                                    "checking integrity of the archive file #{resfile}",
+                                                    "unpacking archive"
+                                                   ])
+        expect(pkg_cache_has_package?('libone', libone_rel)).to eq(true)
+        expect(pkg_cache_has_package?('libtwo', libtwo_rel)).to eq(true)
+      end
+    end
+
+    context 'dependency is installed' do
+      it "outputs info about installing the latest version" do
+        pkg_cache_add_package_with_formula('libone', delete: true)
+        crew_checked 'install', 'libone'
+        rel = pkg_cache_add_package_with_formula('libtwo', delete: true)
+        file = package_archive_name('libtwo', rel)
+        url = "#{Global::DOWNLOAD_BASE}/packages/#{file}"
+        crew 'install', 'libtwo'
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(install_message('libtwo', url, file))
+        expect(pkg_cache_has_package?('libtwo', rel)).to eq(true)
+      end
     end
   end
 
@@ -210,12 +227,72 @@ describe "crew install" do
   context 'extisting formula with one dependecy and specific dependency version' do
 
     context 'with no dependency installed' do
+      it 'outputs info about installing required dependency and target package' do
+        dep_rel = pkg_cache_add_package_with_formula('libfour', delete: true, release: Release.new('1.1.1', 1))
+        dep_file = package_archive_name('libfour', dep_rel)
+        dep_url = "#{Global::DOWNLOAD_BASE}/packages/#{dep_file}"
+        rel = pkg_cache_add_package_with_formula('libfive', delete: true)
+        file = package_archive_name('libfive', rel)
+        url = "#{Global::DOWNLOAD_BASE}/packages/#{file}"
+        crew 'install', 'libfive'
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(["calculating dependencies for libfive:",
+                                                    "dependencies to install: libfour",
+                                                    "installing dependencies for libfive:",
+                                                    "downloading #{dep_url}",
+                                                    "checking integrity of the archive file #{dep_file}",
+                                                    "unpacking archive",
+                                                    "",
+                                                    "downloading #{url}",
+                                                    "checking integrity of the archive file #{file}",
+                                                    "unpacking archive"
+                                                   ])
+        expect(pkg_cache_has_package?('libfive', rel)).to eq(true)
+      end
     end
 
     context 'with incorrrect verion installed' do
+      it 'outputs info about installing required dependency and target package' do
+        copy_package_formulas 'libfour.rb'
+        pkg_cache_add_package 'libfour', Release.new('1.1.1', 1)
+        pkg_cache_add_package 'libfour', Release.new('4.4.4', 4)
+        crew_checked 'install', 'libfour:4.4.4'
+        dep_file = package_archive_name('libfour', Release.new('1.1.1', 1))
+
+        rel = pkg_cache_add_package_with_formula('libfive', delete: true)
+        file = package_archive_name('libfive', rel)
+        url = "#{Global::DOWNLOAD_BASE}/packages/#{file}"
+        crew 'install', 'libfive'
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(["calculating dependencies for libfive:",
+                                                    "dependencies to install: libfour",
+                                                    "installing dependencies for libfive:",
+                                                    "using cached file #{dep_file}",
+                                                    "checking integrity of the archive file #{dep_file}",
+                                                    "unpacking archive",
+                                                    "",
+                                                    "downloading #{url}",
+                                                    "checking integrity of the archive file #{file}",
+                                                    "unpacking archive"
+                                                   ])
+        expect(pkg_cache_has_package?('libfive', rel)).to eq(true)
+      end
     end
 
     context 'with correct version installed' do
+      it 'outputs info about installing target package' do
+        copy_package_formulas 'libfour.rb'
+        pkg_cache_add_package 'libfour', Release.new('1.1.1', 1)
+        crew_checked 'install', 'libfour:1.1.1'
+
+        rel = pkg_cache_add_package_with_formula('libfive', delete: true)
+        file = package_archive_name('libfive', rel)
+        url = "#{Global::DOWNLOAD_BASE}/packages/#{file}"
+        crew 'install', 'libfive'
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(install_message('libfive', url, file))
+        expect(pkg_cache_has_package?('libfive', rel)).to eq(true)
+      end
     end
   end
 

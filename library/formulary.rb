@@ -23,6 +23,8 @@ class Formulary
         @formulary[formula.fqn] = formula
       end
     end
+
+    # todo: check that all dependencies refer to the existing formulas
   end
 
   def packages
@@ -76,12 +78,13 @@ class Formulary
     deps = formula.dependencies.dup
 
     while deps.size > 0
-      fqn = deps.shift.fqn
-      f = @formulary[fqn]
-      if not result.include? f
-        result << f
+      d = deps.shift
+      d.formula = @formulary[d.fqn]
+      d.release = d.formula.find_release(d.version)
+      unless result.find_index { |e|  e.fqn == d.fqn }
+        result << d
       end
-      deps += f.dependencies
+      deps += d.formula.dependencies
     end
 
     result

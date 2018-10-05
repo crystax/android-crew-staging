@@ -124,17 +124,17 @@ describe "crew list" do
     context "three formulas with one, two and three releases, one of each releases installed" do
       it "outputs info about six releases and marks three as installed" do
         pkg_cache_add_package_with_formula 'libone'
-        pkg_cache_add_package_with_formula 'libtwo',   update: true, release: Release.new('1.1.0', 1)
-        pkg_cache_add_package_with_formula 'libthree', update: true, release: Release.new('1.1.1', 1)
-        crew_checked 'install', 'libone', 'libtwo:1.1.0', 'libthree:1.1.1'
+        pkg_cache_add_package_with_formula 'libtwo'
+        pkg_cache_add_package_with_formula 'libthree', release: Release.new('1.1.1', 1)
+        crew_checked 'install', 'libone', 'libtwo', 'libthree:1.1.1'
         crew 'list', '--packages', '--no-title'
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq([" * libone    1.0.0  1",
                                        " * libthree  1.1.1  1",
                                        "   libthree  2.2.2  1",
                                        "   libthree  3.3.3  1",
-                                       " * libtwo    1.1.0  1",
-                                       "   libtwo    2.2.0  1"])
+                                       "   libtwo    1.1.0  1",
+                                       " * libtwo    2.2.0  1"])
       end
     end
 

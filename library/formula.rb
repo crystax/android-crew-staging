@@ -156,22 +156,18 @@ class Formula
 
   class Dependency
 
+    attr_reader :name, :namespace, :version, :options
+    attr_accessor :formula, :release
+
     def initialize(name, ns, options)
+      @name = name
+      @namespace = ns
+      @version = Regexp.new(options[:version]) if options[:version]
       @options = options
-      @options[:name] = name
-      @options[:ns] = ns
-    end
-
-    def name
-      @options[:name]
-    end
-
-    def namespace
-      @options[:ns]
     end
 
     def fqn
-      "#{@options[:ns]}/#{@options[:name]}"
+      "#{@namespace}/#{@name}"
     end
 
     def version
@@ -263,6 +259,9 @@ class Formula
     replaced
   end
 
+  def support_testing?
+    false
+  end
 
   private
 
@@ -434,6 +433,10 @@ class Formula
   def build_log_puts(msg)
     File.open(@log_file, "a") { |log| log.puts msg }
     puts msg
+  end
+
+  def test_log_puts(msg)
+    build_log_puts msg
   end
 
   public
