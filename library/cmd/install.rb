@@ -34,12 +34,12 @@ module Crew
 
         # todo: handle build dependencies too?
         puts "calculating dependencies for #{name}: "
-        deps = formulary.dependencies(formula).select { |d| not d.installed? }
+        deps = formulary.dependencies(formula).select { |d| not d.formula.installed?(d.release) }
         puts "  dependencies to install: #{(deps.map { |d| d.name }).join(', ')}"
 
         if deps.count > 0
           puts "installing dependencies for #{name}:"
-          deps.each { |d| d.install d.releases.last, options.as_hash }
+          deps.each { |d| d.formula.install d.release, options.as_hash }
           puts""
         end
 
