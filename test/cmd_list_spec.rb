@@ -115,6 +115,7 @@ describe "crew list" do
         crew 'list', '--packages', '--no-title'
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["   libfour  1.1.1  1",
+                                       "   libfour  1.1.2  2",
                                        "   libfour  2.2.2  2",
                                        "   libfour  3.3.3  3",
                                        " * libfour  4.4.4  4"])
@@ -148,6 +149,7 @@ describe "crew list" do
         crew 'list', '--packages', '--no-title'
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["   libfour   1.1.1  1",
+                                       "   libfour   1.1.2  2",
                                        "   libfour   2.2.2  2",
                                        "   libfour   3.3.3  3",
                                        " * libfour   4.4.4  4",
@@ -248,6 +250,7 @@ describe "crew list" do
                / \* zlib\s+\d+\.\d+\.\d+\s+\d+/,
                "Packages:",
                "   libfour   1.1.1  1",
+               "   libfour   1.1.2  2",
                "   libfour   2.2.2  2",
                "   libfour   3.3.3  3",
                " * libfour   4.4.4  4",

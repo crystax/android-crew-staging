@@ -34,7 +34,10 @@ module Crew
 
         # todo: handle build dependencies too?
         puts "calculating dependencies for #{name}: "
-        deps = formulary.dependencies(formula).select { |d| not d.formula.installed?(d.release) }
+        deps = formulary.dependencies(formula).select do |d|
+          not ( d.version ? d.matched_releases.any? { |e| d.formula.installed?(e) } : d.formula.installed? )
+        end
+
         puts "  dependencies to install: #{(deps.map { |d| d.name }).join(', ')}"
 
         if deps.count > 0

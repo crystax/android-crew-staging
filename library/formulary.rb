@@ -25,6 +25,7 @@ class Formulary
     end
 
     # todo: check that all dependencies refer to the existing formulas
+    #       check that if version specified for a dependency than at least one matching version exists
   end
 
   def packages
@@ -80,7 +81,10 @@ class Formulary
     while deps.size > 0
       d = deps.shift
       d.formula = @formulary[d.fqn]
-      d.release = d.formula.find_release(d.version)
+      if d.version
+        d.matched_releases = d.formula.find_matched_releases(d.version)
+        d.release = d.matched_releases.first
+      end
       unless result.find_index { |e|  e.fqn == d.fqn }
         result << d
       end

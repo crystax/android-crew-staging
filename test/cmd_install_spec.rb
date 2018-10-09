@@ -228,7 +228,7 @@ describe "crew install" do
 
     context 'with no dependency installed' do
       it 'outputs info about installing required dependency and target package' do
-        dep_rel = pkg_cache_add_package_with_formula('libfour', delete: true, release: Release.new('1.1.1', 1))
+        dep_rel = pkg_cache_add_package_with_formula('libfour', delete: true, release: Release.new('1.1.2', 2))
         dep_file = package_archive_name('libfour', dep_rel)
         dep_url = "#{Global::DOWNLOAD_BASE}/packages/#{dep_file}"
         rel = pkg_cache_add_package_with_formula('libfive', delete: true)
@@ -254,10 +254,10 @@ describe "crew install" do
     context 'with incorrrect verion installed' do
       it 'outputs info about installing required dependency and target package' do
         copy_package_formulas 'libfour.rb'
-        pkg_cache_add_package 'libfour', Release.new('1.1.1', 1)
+        pkg_cache_add_package 'libfour', Release.new('1.1.2', 2)
         pkg_cache_add_package 'libfour', Release.new('4.4.4', 4)
         crew_checked 'install', 'libfour:4.4.4'
-        dep_file = package_archive_name('libfour', Release.new('1.1.1', 1))
+        dep_file = package_archive_name('libfour', Release.new('1.1.2', 2))
 
         rel = pkg_cache_add_package_with_formula('libfive', delete: true)
         file = package_archive_name('libfive', rel)
@@ -279,11 +279,27 @@ describe "crew install" do
       end
     end
 
-    context 'with correct version installed' do
+    context 'with first correct version installed' do
       it 'outputs info about installing target package' do
         copy_package_formulas 'libfour.rb'
         pkg_cache_add_package 'libfour', Release.new('1.1.1', 1)
         crew_checked 'install', 'libfour:1.1.1'
+
+        rel = pkg_cache_add_package_with_formula('libfive', delete: true)
+        file = package_archive_name('libfive', rel)
+        url = "#{Global::DOWNLOAD_BASE}/packages/#{file}"
+        crew 'install', 'libfive'
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(install_message('libfive', url, file))
+        expect(pkg_cache_has_package?('libfive', rel)).to eq(true)
+      end
+    end
+
+    context 'with second correct version installed' do
+      it 'outputs info about installing target package' do
+        copy_package_formulas 'libfour.rb'
+        pkg_cache_add_package 'libfour', Release.new('1.1.2', 2)
+        crew_checked 'install', 'libfour:1.1.2'
 
         rel = pkg_cache_add_package_with_formula('libfive', delete: true)
         file = package_archive_name('libfive', rel)

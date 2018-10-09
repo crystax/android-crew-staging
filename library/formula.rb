@@ -144,6 +144,10 @@ class Formula
     rel
   end
 
+  def find_matched_releases(release)
+    releases.reverse_each.select { |r| r.match?(release) }
+  end
+
   def highest_installed_release
     rel = releases.select{ |r| r.installed? }.last
     raise "#{name} has no installed releases" if not rel
@@ -157,7 +161,7 @@ class Formula
   class Dependency
 
     attr_reader :name, :namespace, :version, :options
-    attr_accessor :formula, :release
+    attr_accessor :formula, :release, :matched_releases
 
     def initialize(name, ns, options)
       @name = name
