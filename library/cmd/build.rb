@@ -27,8 +27,19 @@ module Crew
 
       # todo: check that (build) dependencies installed for all required platforms
       deps = formula.dependencies + formula.build_dependencies
-      absent = deps.select { |d| not formulary[d.fqn].installed? }
-      raise "uninstalled dependencies: #{absent.map(&:fqn).join(',')}" unless absent.empty?
+      absent = deps.select { |d| not formulary[d.fqn].installed?(d.version) }
+      unless absent.empty?
+        uds = absent.map do |d|
+          unless d.version
+            d.fqn
+          else
+            f = formulary[d.fqn]
+            rs = f.find_matched_releases(d.version)
+            d.fqn + ':' + rs.join('|')
+          end
+        end
+        raise "uninstalled dependencies: #{uds.join(',')}"
+      end
 
       host_deps, target_deps = deps.partition { |d| d.namespace == :host }
 
