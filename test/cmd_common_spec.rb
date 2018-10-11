@@ -33,4 +33,22 @@ describe "common code" do
       expect(err.split("\n")[0]).to match(/error: bad name \'libone\' in .*: already defined in/)
     end
   end
+
+  context 'repository contains formula which depends on unknown formula' do
+    it 'outputs respective error message' do
+      copy_package_formulas 'bad_dependency.rb'
+      crew 'list'
+      expect(exitstatus).to_not be_zero
+      expect(err.split("\n")[0]).to eq('error: target/bad-dependency depends on unknown formula target/foo')
+    end
+  end
+
+  context 'repository contains formula which has a dependency with version that does not match any existing releases' do
+    it 'outputs respective error message' do
+      copy_package_formulas 'bad_dependency_version.rb', 'libtwo.rb'
+      crew 'list'
+      expect(exitstatus).to_not be_zero
+      expect(err.split("\n")[0]).to match(/error: could not find matching releases for target\/libtwo:/)
+    end
+  end
 end

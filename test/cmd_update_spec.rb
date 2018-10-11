@@ -58,14 +58,14 @@ describe "crew update" do
 
     context "when there is one modified formula and one new formula" do
       it "says about one modified and one new formula" do
-        repository_add_formula :target, 'libtwo-1.rb:libtwo.rb'
+        repository_add_formula :target, 'libone.rb', 'libtwo-1.rb:libtwo.rb'
         repository_clone
-        repository_add_formula :target, 'libone.rb', 'libtwo.rb'
+        repository_add_formula :target, 'libtwo.rb', 'libfour.rb'
         crew 'update'
         expect(result).to eq(:ok)
         expect(out).to match("Updated Crew from .* to .*.\n" \
                              "==> New Formulae\n"            \
-                             "libone\n"                      \
+                             "libfour\n"                     \
                              "==> Updated Formulae\n"        \
                              "libtwo\n")
       end
@@ -73,15 +73,15 @@ describe "crew update" do
 
     context "when there is one modified formula, one new formula and one deleted formula" do
       it "says about one modified and one new formula" do
-        repository_add_formula :target, 'libtwo-1.rb:libtwo.rb', 'libthree.rb'
+        repository_add_formula :target, 'libone.rb', 'libtwo-1.rb:libtwo.rb', 'libthree.rb'
         repository_clone
-        repository_add_formula :target, 'libone.rb', 'libtwo.rb'
+        repository_add_formula :target, 'libtwo.rb', 'libfour.rb'
         repository_del_formula :target, 'libthree.rb'
         crew 'update'
         expect(result).to eq(:ok)
         expect(out).to match("Updated Crew from .* to .*.\n" \
                              "==> New Formulae\n"            \
-                             "libone\n"                      \
+                             "libfour\n"                     \
                              "==> Updated Formulae\n"        \
                              "libtwo\n"                      \
                              "==> Deleted Formulae\n"        \
@@ -130,9 +130,9 @@ describe "crew update" do
 
     context "when there is one modified formula, one new formula, one deleted formula, and three updated utilities" do
       it "ouputs info about all changes" do
-        repository_add_formula :target, 'libtwo-1.rb:libtwo.rb', 'libthree.rb'
+        repository_add_formula :target, 'libone.rb', 'libtwo-1.rb:libtwo.rb', 'libthree.rb'
         repository_clone
-        repository_add_formula :target, 'libone.rb', 'libtwo.rb'
+        repository_add_formula :target, 'libtwo.rb', 'libfour.rb'
         repository_del_formula :target, 'libthree.rb'
         repository_add_formula :host, 'curl-2.rb:curl.rb', 'ruby-2.rb:ruby.rb'
         crew 'update'
@@ -141,7 +141,7 @@ describe "crew update" do
                              "==> Updated Utilities\n"       \
                              "curl, ruby\n"                  \
                              "==> New Formulae\n"            \
-                             "libone\n"                      \
+                             "libfour\n"                     \
                              "==> Updated Formulae\n"        \
                              "libtwo\n"                      \
                              "==> Deleted Formulae\n"        \

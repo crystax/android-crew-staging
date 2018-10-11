@@ -24,8 +24,16 @@ class Formulary
       end
     end
 
-    # todo: check that all dependencies refer to the existing formulas
-    #       check that if version specified for a dependency than at least one matching version exists
+    @formulary.each_value do |formula|
+      formula.dependencies.each do |dep|
+        df = @formulary[dep.fqn]
+        raise "#{formula.fqn} depends on unknown formula #{dep.fqn}" unless df
+        if dep.version
+          mr = df.find_matched_releases(dep.version)
+          raise "could not find matching releases for #{dep.fqn}:#{dep.version.inspect}" if mr.empty?
+        end
+      end
+    end
   end
 
   def packages
