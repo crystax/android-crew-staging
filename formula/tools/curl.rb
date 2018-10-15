@@ -4,7 +4,7 @@ class Curl < Utility
   homepage 'http://curl.haxx.se/'
   url 'https://curl.haxx.se/download/curl-${version}.tar.bz2'
 
-  release '7.61.0'
+  release '7.61.1'
 
   depends_on 'zlib'
   depends_on 'openssl'
@@ -23,7 +23,8 @@ class Curl < Utility
     args  = platform.configure_args +
             ["--prefix=#{install_dir}",
              "--disable-silent-rules",
-             "--disable-ldap"
+             "--disable-ldap",
+             "--without-libidn2"
             ]
     args += ['--disable-pthreads'] if platform.target_os == 'windows'
 
