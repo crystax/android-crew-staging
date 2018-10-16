@@ -4,7 +4,7 @@ class Curl < Utility
   homepage 'http://curl.haxx.se/'
   url 'https://curl.haxx.se/download/curl-${version}.tar.bz2'
 
-  release '7.61.1'
+  release '7.61.1', crystax: 2
 
   depends_on 'zlib'
   depends_on 'openssl'
@@ -24,7 +24,9 @@ class Curl < Utility
             ["--prefix=#{install_dir}",
              "--disable-silent-rules",
              "--disable-ldap",
-             "--without-libidn2"
+             "--without-libidn2",
+             "--with-ssl=#{tools_dir}",
+             "--with-libssh2=#{tools_dir}"
             ]
     args += ['--disable-pthreads'] if platform.target_os == 'windows'
 
