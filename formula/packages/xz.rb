@@ -4,10 +4,11 @@ class Xz < Package
   homepage "http://tukaani.org/xz/"
   url "http://tukaani.org/xz/xz-${version}.tar.xz"
 
-  release '5.2.4'
+  release '5.2.4', crystax: 2
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'include', 'lib']
+  build_libs 'liblzma'
 
   def build_for_abi(abi, _toolchain,  _release, _options)
     args =  [ "--prefix=#{install_dir_for_abi(abi)}",
