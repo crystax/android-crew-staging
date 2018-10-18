@@ -9,7 +9,8 @@ require_relative 'properties.rb'
 
 class Package < TargetBase
 
-  SRC_DIR_BASENAME = 'src'
+  SRC_DIR_BASENAME  = 'src'
+  TEST_DIR_BASENAME = 'tests'
 
   DEF_BUILD_OPTIONS = { source_archive_without_top_dir: false,
                         build_outside_source_tree:      true,
@@ -197,7 +198,7 @@ class Package < TargetBase
     end
 
     build_copy.each { |f| FileUtils.cp "#{src_dir}/#{f}", package_dir }
-    copy_tests
+    copy_tests release
 
     if options.build_only?
       build_log_puts "Build only, no packaging and installing"
@@ -226,8 +227,45 @@ class Package < TargetBase
     end
   end
 
+  def support_testing?
+    true
+  end
+
+  def test(release, options)
+    base_dir = test_base_dir
+    FileUtils.rm_rf base_dir
+    FileUtils.mkdir_p base_dir
+    @log_file = test_log_file
+
+    arch_list = Build.abis_to_arch_list(options.abis)
+    test_log_puts "Testing #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
+
+    @num_jobs = options.num_jobs
+
+    arch_list.each do |arch|
+      test_log_puts "= testing for architecture: #{arch.name}"
+
+      arch.abis_to_build.each do |abi|
+        test_log_puts "  building for abi: #{abi}"
+        test_dir = test_dir_for_abi(abi)
+        FileUtils.mkdir_p test_dir
+        Dir["#{test_directory(release)}/*"].each do |test|
+          test_name = File.basename(test)
+          raise "not directory in test directory: #{test}" unless File.directory?(test)
+          test_log_puts "    #{test_name}"
+          FileUtils.cp_r test, test_dir
+          ndk_build '-C', "#{test_dir}/#{test_name}", "APP_ABI=#{abi}", 'V=1'
+        end
+      end
+    end
+  end
+
   def source_directory(release)
     "#{release_directory(release)}/#{SRC_DIR_BASENAME}"
+  end
+
+  def test_directory(release)
+    "#{release_directory(release)}/#{TEST_DIR_BASENAME}"
   end
 
   def setup_build_env(abi, toolchain)
@@ -357,12 +395,20 @@ class Package < TargetBase
     end
   end
 
-  def copy_tests
+  def copy_tests(release)
     src_tests_dir = "#{Build::VENDOR_TESTS_DIR}/#{file_name}"
+    puts "tests dir: #{src_tests_dir}"
     if Dir.exists? src_tests_dir
-      dst_tests_dir = "#{package_dir}/tests"
+      puts "coping tests..."
+      dst_tests_dir = "#{package_dir}/#{TEST_DIR_BASENAME}"
       FileUtils.mkdir dst_tests_dir
       FileUtils.cp_r "#{src_tests_dir}/.", "#{dst_tests_dir}/"
+      Dir["#{dst_tests_dir}/*"].each do |dir|
+        android_mk_file = "#{dir}/jni/Android.mk"
+        File.exist?(android_mk_file) && replace_lines_in_file(android_mk_file) do |line|
+          line.gsub '${version}', release.version
+        end
+      end
     end
   end
 
@@ -523,6 +569,10 @@ class Package < TargetBase
     system 'make', *args
   end
 
+  def ndk_build(*args)
+    system "#{Global::NDK_DIR}/ndk-build", *args
+  end
+
   private
 
   def binary_files(rel_dir)
@@ -539,6 +589,10 @@ class Package < TargetBase
 
   def build_dir_for_abi(abi)
     "#{base_dir_for_abi(abi)}/build"
+  end
+
+  def test_dir_for_abi(abi)
+    "#{test_base_dir}/#{abi}"
   end
 
   def install_dir_for_abi(abi)

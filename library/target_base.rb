@@ -2,6 +2,7 @@ require_relative 'shasum.rb'
 require_relative 'release.rb'
 require_relative 'properties.rb'
 require_relative 'formula.rb'
+require_relative 'build.rb'
 
 
 class TargetBase < Formula
@@ -112,10 +113,18 @@ class TargetBase < Formula
     "#{Build::BASE_TARGET_DIR}/#{file_name}"
   end
 
+  def test_base_dir
+    "#{Build::BASE_TARGET_DIR}/#{file_name}/test"
+  end
+
   private
 
   def build_log_file
     "#{build_base_dir}/build.log"
+  end
+
+  def test_log_file
+    "#{test_base_dir}/test.log"
   end
 
   def bin_dir_list(dir)

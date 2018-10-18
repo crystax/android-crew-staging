@@ -16,6 +16,7 @@ SHASUM_SYNTAX                    = 'shasum [options] [name1 name2 ...]'.freeze
 MAKE_STANDALONE_TOOLCHAIN_SYNTAX = 'make-standalone-toolchain [options]'.freeze
 MAKE_DEB_SYNTAX                  = 'make-deb [options] [name1 name2 ...]'.freeze
 MAKE_POSIX_ENV_SYNTAX            = 'make-posix-env [options]'.freeze
+TEST_SYNTAX                      = 'test [options] name[:version] ...'.freeze
 
 NAME_RULES = <<-EOS
 Name for a formula can specified in two ways. First, it can be specified
@@ -86,6 +87,8 @@ COMMAND is one of the following:
                   create a tarball with a 'POSIX environment'a
   depends-on name
                   show packages that depend on the given package
+  #{TEST_SYNTAX}
+                  test the specified target formula(s)
 EOS
 
 
@@ -224,7 +227,7 @@ Common options:
   --update-shasum
                  calculate SHA256 sum of the package and update formula
 
-  --num-jobs=N   set number of jobs for a make commad;
+  --num-jobs=N   set number of jobs for a make command;
                  default value depends on the machine used
 
   --all-versions build all versions; by default, the command will build
@@ -430,6 +433,32 @@ The command supports the following options:
   --minimize     strip all elf files before coping
 EOS
 
+TEST_HELP = <<-EOS
+#{TEST_SYNTAX}
+
+Name for the target formula can be just name or name and version, separated by colon: 'name:version'.
+
+The TEST command supports the following options:
+
+  --all-versions build all versions; by default, the command will build
+                 only latest version
+
+  --num-jobs=N   set number of jobs for a make command;
+                 default value depends on the machine used;
+
+  --abis=LIST    the list of ABIs for which to test formulas;
+                 ABIs must be separated with comma;
+                 available ABIs are armeabi-v7a, armeabi-v7a-hard,
+                 x86, mips, arm64-v8a, x86_64, mips64
+                 by default the formula will be tested for all ABIs
+
+  --types=LIST   the list of test types that should be performed;
+                 types must be separated by comma;
+                 avaliable types are 'build', 'device' and 'own';
+                 by default command will execute all test types
+                 avaliable for a given formula
+EOS
+
 
 CMD_HELP = {
   'version'                   => NO_HELP,
@@ -448,7 +477,9 @@ CMD_HELP = {
   'shasum'                    => SHASUM_HELP,
   'make-standalone-toolchain' => MAKE_STANDALONE_TOOLCHAIN_HELP,
   'make-deb'                  => MAKE_DEB_HELP,
-  'make-posix-env'            => MAKE_POSIX_ENV_HELP
+  'make-posix-env'            => MAKE_POSIX_ENV_HELP,
+  'depends-on'                => NO_HELP,
+  'test'                      => TEST_HELP
 }
 
 
