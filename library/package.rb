@@ -198,7 +198,7 @@ class Package < TargetBase
     end
 
     build_copy.each { |f| FileUtils.cp "#{src_dir}/#{f}", package_dir }
-    copy_tests release
+    copy_tests release, target_dep_dirs
 
     if options.build_only?
       build_log_puts "Build only, no packaging and installing"
@@ -233,6 +233,7 @@ class Package < TargetBase
 
   def test(release, options)
     base_dir = test_base_dir
+    puts "removing directory: #{base_dir}"
     FileUtils.rm_rf base_dir
     FileUtils.mkdir_p base_dir
     @log_file = test_log_file
@@ -395,7 +396,7 @@ class Package < TargetBase
     end
   end
 
-  def copy_tests(release)
+  def copy_tests(release, target_dep_dirs)
     src_tests_dir = "#{Build::VENDOR_TESTS_DIR}/#{file_name}"
     puts "tests dir: #{src_tests_dir}"
     if Dir.exists? src_tests_dir
@@ -406,7 +407,15 @@ class Package < TargetBase
       Dir["#{dst_tests_dir}/*"].each do |dir|
         android_mk_file = "#{dir}/jni/Android.mk"
         File.exist?(android_mk_file) && replace_lines_in_file(android_mk_file) do |line|
-          line.gsub '${version}', release.version
+          case line
+          when /\${version}/
+            line.gsub '${version}', release.version
+          when /\${module_subdir\((.*)\)}/
+            dep_dir = target_dep_dirs[$1]
+            line.gsub /\${module_subdir.*}/, dep_dir.split(File::SEPARATOR)[-2..-1].join(File::SEPARATOR)
+          else
+            line
+          end
         end
       end
     end
