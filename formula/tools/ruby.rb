@@ -21,7 +21,7 @@ class Ruby < Utility
     super(release, dir, src_name, log_prefix)
 
     # todo: get installed libgit2 version and make rugged version out of it
-    rugged_ver = '0.27.0'
+    rugged_ver = '0.27.5'
 
     # download and unpack rugged sources
     rugged_url = "https://github.com/libgit2/rugged/archive/v#{rugged_ver}.tar.gz"
