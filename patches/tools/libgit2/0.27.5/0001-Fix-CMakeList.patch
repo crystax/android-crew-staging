@@ -1,25 +1,20 @@
-diff -Naur a/src/CMakeLists.txt b/src/CMakeLists.txt
---- a/src/CMakeLists.txt	2018-03-23 17:38:34.000000000 +0300
-+++ b/src/CMakeLists.txt	2018-04-02 19:49:17.676372112 +0300
-@@ -118,14 +118,11 @@
+diff -Naurw a/src/CMakeLists.txt b/src/CMakeLists.txt
+--- a/src/CMakeLists.txt	2018-10-05 20:32:10.000000000 +0300
++++ b/src/CMakeLists.txt	2018-10-25 13:41:59.831709766 +0300
+@@ -116,9 +116,9 @@
  	LIST(APPEND LIBGIT2_LIBS "rpcrt4" "crypt32" "ole32")
  	LIST(APPEND LIBGIT2_PC_LIBS "-lrpcrt4" "-lcrypt32" "-lole32")
  ELSE ()
 -	IF (CURL)
--		PKG_CHECK_MODULES(CURL libcurl)
+-		FIND_PKGLIBRARIES(CURL libcurl)
 -	ENDIF ()
--
 +        SET(CURL_FOUND TRUE)
 +        SET(CURL_LIBRARIES "${CREW_LIB_DIR}/libcurl.${CREW_SHARED_LIB_EXT}")
 +        SET(CURL_LDFLAGS "-lcurl")
  	IF (CURL_FOUND)
  		SET(GIT_CURL 1)
--		LIST(APPEND LIBGIT2_INCLUDES ${CURL_INCLUDE_DIRS})
--		LIST(APPEND LIBGIT2_LIBDIRS ${CURL_LIBRARY_DIRS})
- 		LIST(APPEND LIBGIT2_LIBS ${CURL_LIBRARIES})
- 		LIST(APPEND LIBGIT2_PC_LIBS ${CURL_LDFLAGS})
- 	ENDIF()
-@@ -258,16 +255,12 @@
+ 		LIST(APPEND LIBGIT2_INCLUDES ${CURL_INCLUDE_DIRS})
+@@ -254,16 +254,12 @@
  
  # Optional external dependency: zlib
  IF(NOT USE_BUNDLED_ZLIB)
@@ -40,12 +35,12 @@ diff -Naur a/src/CMakeLists.txt b/src/CMakeLists.txt
  		ADD_FEATURE_INFO(zlib ON "using system zlib")
  	ELSE()
  		MESSAGE(STATUS "zlib was not found; using bundled 3rd-party sources." )
-@@ -281,18 +274,16 @@
+@@ -277,16 +273,16 @@
  ENDIF()
  
  # Optional external dependency: libssh2
 -IF (USE_SSH)
--	PKG_CHECK_MODULES(LIBSSH2 libssh2)
+-	FIND_PKGLIBRARIES(LIBSSH2 libssh2)
 -ENDIF()
 +SET(LIBSSH2_FOUND TRUE)
 +SET(LIBSSH2_LIBRARIES "${CREW_LIB_DIR}/libssh2.${CREW_SHARED_LIB_EXT}")
@@ -55,9 +50,7 @@ diff -Naur a/src/CMakeLists.txt b/src/CMakeLists.txt
  	SET(GIT_SSH 1)
 -	LIST(APPEND LIBGIT2_INCLUDES ${LIBSSH2_INCLUDE_DIRS})
  	LIST(APPEND LIBGIT2_LIBS ${LIBSSH2_LIBRARIES})
--	LIST(APPEND LIBGIT2_LIBDIRS ${LIBSSH2_LIBRARY_DIRS})
  	LIST(APPEND LIBGIT2_PC_LIBS ${LIBSSH2_LDFLAGS})
--	#SET(LIBGIT2_PC_LIBS "${LIBGIT2_PC_LIBS} ${LIBSSH2_LDFLAGS}")
  
 -	CHECK_LIBRARY_EXISTS("${LIBSSH2_LIBRARIES}" libssh2_userauth_publickey_frommemory "${LIBSSH2_LIBRARY_DIRS}" HAVE_LIBSSH2_MEMORY_CREDENTIALS)
 +	CHECK_LIBRARY_EXISTS("${LIBSSH2_LIBRARIES}" libssh2_userauth_publickey_frommemory "${CREW_LIB_DIR}" HAVE_LIBSSH2_MEMORY_CREDENTIALS)
