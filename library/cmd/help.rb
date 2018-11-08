@@ -452,11 +452,12 @@ The TEST command supports the following options:
                  x86, mips, arm64-v8a, x86_64, mips64
                  by default the formula will be tested for all ABIs
 
-  --types=LIST   the list of test types that should be performed;
-                 types must be separated by comma;
-                 avaliable types are 'build', 'device' and 'own';
-                 by default command will execute all test types
-                 avaliable for a given formula
+  --toolchains=LIST
+                the list of toolchains to use to build tests;
+                toolchains must be separated by comma;
+                available toolchains are
+                #{(Toolchain::SUPPORTED_GCC+Toolchain::SUPPORTED_LLVM).join(', ')}
+                default value is '#{Toolchain::DEFAULT_GCC.version}'
 EOS
 
 
@@ -496,3 +497,21 @@ module Crew
     end
   end
 end
+
+
+  # todo: test types
+  # --types=LIST   the list of test types that should be performed;
+  #                types must be separated by comma;
+  #                avaliable types are 'build', 'device' and 'own';
+  #                by default command will execute all test types
+  #                avaliable for a given formula
+
+  # --cxx-runtimes=LIST
+  #               the list of C++ runtimes to use when building tests
+  #               written in C++ language; available values are
+  #               'gnustl' and 'c++'; by default tests will be built
+  #               with gnustl C++ runtime
+
+  # --cxx-runtime-types=LIST
+  #               the list of C++ runtime types separated by comma; available
+  #               values are 'shared', 'static'; default value is 'shared'

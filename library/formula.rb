@@ -256,7 +256,7 @@ class Formula
       content << l2 unless l2 == nil
     end
 
-    raise "no  line was replaced in #{file}" unless replaced > 0
+    raise "no line was replaced in #{file}" unless replaced > 0
 
     File.open(file, 'w') { |f| f.puts content }
 

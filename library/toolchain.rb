@@ -22,6 +22,10 @@ module Toolchain
       @name = "#{type}-#{version}"
     end
 
+    def to_s
+      "#{type}#{version}"
+    end
+
     def c_compiler(arch, _abi)
       "#{tc_prefix(arch)}/bin/#{arch.host}-#{c_compiler_name}"
     end
@@ -113,6 +117,10 @@ module Toolchain
       @version = version
       @gcc_toolchain = gcc_toolchain
       @name = "#{type}-#{version}"
+    end
+
+    def to_s
+      "clang#{version}"
     end
 
     def c_compiler(arch, abi)

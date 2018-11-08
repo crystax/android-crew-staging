@@ -248,17 +248,26 @@ class Package < TargetBase
 
       arch.abis_to_build.each do |abi|
         test_log_puts "  building for abi: #{abi}"
-        test_dir = test_dir_for_abi(abi)
-        FileUtils.mkdir_p test_dir
-        Dir["#{test_directory(release)}/*"].each do |test|
-          test_name = File.basename(test)
-          raise "not directory in test directory: #{test}" unless File.directory?(test)
-          test_log_puts "    #{test_name}"
-          FileUtils.cp_r test, test_dir
-          ndk_build '-C', "#{test_dir}/#{test_name}", "APP_ABI=#{abi}", 'V=1'
+
+        options.toolchains.each do |toolchain|
+          test_log_puts "    using toolchain: #{toolchain}"
+
+          test_dir = test_dir_for(abi, toolchain)
+          FileUtils.mkdir_p test_dir
+          Dir["#{test_directory(release)}/*"].each do |test|
+            test_name = File.basename(test)
+            raise "not directory in test directory: #{test}" unless File.directory?(test)
+            test_log_puts "      #{test_name}"
+            FileUtils.cp_r test, test_dir
+            build_test "#{test_dir}/#{test_name}", abi, toolchain
+          end
         end
       end
     end
+  end
+
+  def build_test(test_dir, abi, toolchain)
+    ndk_build '-C', test_dir, 'V=1', "APP_ABI=#{abi}", "NDK_TOOLCHAIN_VERSION=#{toolchain.gsub(/gcc/, '')}"
   end
 
   def source_directory(release)
@@ -600,8 +609,8 @@ class Package < TargetBase
     "#{base_dir_for_abi(abi)}/build"
   end
 
-  def test_dir_for_abi(abi)
-    "#{test_base_dir}/#{abi}"
+  def test_dir_for(abi, toolchain)
+    File.join(test_base_dir, abi, toolchain)
   end
 
   def install_dir_for_abi(abi)
