@@ -4,7 +4,7 @@ class Boost < Package
   homepage "http://www.boost.org"
   url "https://downloads.sourceforge.net/project/boost/boost/${version}/boost_${block}.tar.bz2" do |r| r.version.gsub('.', '_') end
 
-  release '1.64.0', crystax: 4
+  release '1.64.0', crystax: 5
 
   # todo: add versions, like this: python:2.7.*, python:3.*.*
   depends_on 'python'
@@ -358,5 +358,44 @@ class Boost < Package
   def python_abi(ver)
     v = ver.split('.')
     "#{v[0]}.#{v[1]}"
+  end
+
+  def build_test(test_dir, abi, toolchain)
+    test_name = File.basename(test_dir)
+    unless test_name == 'dependencies'
+      super test_dir, abi, toolchain
+    else
+      ['gnustl', 'c++'].each do |cxx_runtime|
+        test_log_puts "        C++ runtime: #{cxx_runtime}"
+
+        ['shared', 'static'].each do |cxx_runtime_type|
+          test_log_puts "          C++ runtime type: #{cxx_runtime_type}"
+          dir = "#{File.dirname(test_dir)}-#{cxx_runtime}-#{cxx_runtime_type}"
+          FileUtils.mkdir_p dir
+          FileUtils.cp_r test_dir, dir
+
+          cxx_test_dir = "#{dir}/#{test_name}"
+          replace_lines_in_file("#{cxx_test_dir}/jni/Android.mk") do |line|
+            case line
+            when /\${libtype}/
+              line.gsub '${libtype}', cxx_runtime_type
+            else
+              line
+            end
+          end
+
+          args = ["APP_ABI=#{abi}",
+                  "NDK_TOOLCHAIN_VERSION=#{toolchain.gsub(/gcc/, '')}",
+                  "APP_STL=#{cxx_runtime}_#{cxx_runtime_type}"
+                 ]
+          ndk_build '-C', cxx_test_dir, 'V=1', *args
+        end
+      end
+    end
+  end
+
+  def preprocess_test(dir, release, abi, toolchain, cxx_runtime, cxx_runtime_type)
+    super dir, release, abi, toolchain, cxx_runtime, cxx_runtime_type
+
   end
 end
