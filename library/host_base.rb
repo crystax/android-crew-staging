@@ -38,6 +38,14 @@ class HostBase < Formula
     File.join(Global::SERVICE_DIR, file_name, platform_name, release.version)
   end
 
+  def has_dev_files?
+    false
+  end
+
+  def dev_files_installed?(_release, _platform_name = Global::PLATFORM_NAME)
+    false
+  end
+
   def upgrading_ruby?(platform_name)
     (name == 'ruby') and (Global::PLATFORM_NAME == platform_name)
   end
@@ -171,7 +179,10 @@ class HostBase < Formula
       list = Dir.glob('**/*', File::FNM_DOTMATCH).delete_if { |e| e.end_with? ('.') }
       bin_list, dev_list = split_file_list(list, platform_name)
       File.open(BIN_LIST_FILE, 'w') { |f| bin_list.each { |l| f.puts l } }
-      File.open(DEV_LIST_FILE, 'w') { |f| dev_list.each { |l| f.puts l } } unless dev_list.empty?
+      unless dev_list.empty?
+        raise "'#{name}' is not supposed to have dev files: #{dev_list.join(',')}" unless has_dev_files?
+        File.open(DEV_LIST_FILE, 'w') { |f| dev_list.each { |l| f.puts l } }
+      end
     end
   end
 
