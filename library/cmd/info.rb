@@ -31,7 +31,15 @@ module Crew
   def self.print_info(formula, formulary)
     releases = []
     formula.releases.each do |r|
-      installed = formula.installed?(r) ? ' (*)' : ''
+      unless formula.installed?(r)
+        installed = ''
+      else
+        installed =  ' (*'
+        if formula.respond_to?(:has_dev_files?) && formula.has_dev_files?
+          installed += formula.dev_files_installed?(r) ? '/*' : '/'
+        end
+        installed += ')'
+      end
       releases << "#{r.version} #{r.crystax_version}#{installed}"
     end
 
@@ -44,6 +52,11 @@ module Crew
     puts "Releases:           #{releases.join(', ')}"
     puts "Dependencies:       #{format_dependencies(formula.dependencies, formulary)}"
     puts "Build dependencies: #{format_dependencies(formula.build_dependencies, formulary)}"
+
+    if formula.respond_to?(:has_dev_files?)
+      s = formula.has_dev_files? ? 'yes' : 'no'
+      puts "Has dev files:      #{s}"
+    end
   end
 
   def self.format_dependencies(deps, formulary)
