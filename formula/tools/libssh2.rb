@@ -1,10 +1,10 @@
-class Libssh2 < Utility
+class Libssh2 < Library
 
   desc "libssh2 is a client-side C library implementing the SSH2 protocol"
   homepage 'http://www.libssh2.org/'
   url 'http://www.libssh2.org/download/libssh2-${version}.tar.gz'
 
-  release '1.8.0', crystax: 4
+  release '1.8.0', crystax: 5
 
   depends_on 'zlib'
   depends_on 'openssl'
