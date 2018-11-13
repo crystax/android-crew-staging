@@ -35,7 +35,7 @@ module Crew
         installed = ''
       else
         installed =  ' (*'
-        if formula.respond_to?(:has_dev_files?) && formula.has_dev_files?
+        if formula.has_dev_files?
           installed += formula.dev_files_installed?(r) ? '/*' : '/'
         end
         installed += ')'
@@ -53,7 +53,7 @@ module Crew
     puts "Dependencies:       #{format_dependencies(formula.dependencies, formulary)}"
     puts "Build dependencies: #{format_dependencies(formula.build_dependencies, formulary)}"
 
-    if formula.respond_to?(:has_dev_files?)
+    if formula.support_dev_files?
       s = formula.has_dev_files? ? 'yes' : 'no'
       puts "Has dev files:      #{s}"
     end

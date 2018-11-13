@@ -21,14 +21,14 @@ module Crew
     end
 
     def execute
-      list('Tools:',    formulary.tools, :tools)       if options.list_tools?
-      list('Packages:', formulary.packages, :packages) if options.list_packages?
+      list('Tools:',    formulary.tools)    if options.list_tools?
+      list('Packages:', formulary.packages) if options.list_packages?
     end
 
     private
 
-    def list(title, formulas, type)
-      output(title, sort(formulas), type)
+    def list(title, formulas)
+      output(title, sort(formulas))
     end
 
     def sort(formulas)
@@ -75,9 +75,9 @@ module Crew
                  dev_files_not_installed: 'no dev files'
                }
 
-    Element = Struct.new(:name, :version, :crystax_version, :installed_sign, :flag) do
-      def initialize(name, version, crystax_version, iflag, flag)
-        super name, version, crystax_version, (iflag ? '*' : ' '), FLAG_MSG[flag]
+    Element = Struct.new(:name, :version, :crystax_version, :installed_sign, :dev_src_flag) do
+      def initialize(name, version, crystax_version, iflag, dev_src_flag)
+        super name, version, crystax_version, (iflag ? '*' : ' '), FLAG_MSG[dev_src_flag]
       end
 
       def <=>(e)
@@ -85,7 +85,7 @@ module Crew
       end
     end
 
-    def output(title, elements, type)
+    def output(title, elements)
       puts title unless options.no_title?
 
       if options.names_only?
@@ -107,28 +107,23 @@ module Crew
               end
             end
             max_cxver_len = cxver.to_s.size if cxver.to_s.size > max_cxver_len
-            flag = case type
-                   when :packages
+            flag = unless f.support_dev_files?
                      r.source_installed? ? :source : :no_source
-                   when :tools
-                     if !f.respond_to?(:has_dev_files?)
-                       :no_dev_files
-                     elsif !f.has_dev_files?
+                   else
+                     if !f.has_dev_files?
                        :no_dev_files
                      elsif f.dev_files_installed?(r)
                        :dev_files_installed
                      else
                        :dev_files_not_installed
                      end
-                   else
-                     raise "bad type #{type}"
                    end
             list << Element.new(f.name, ver, cxver, r.installed?, flag)
           end
         end
 
         list.each do |l|
-          printf " %s %-#{max_name_len}s  %-#{max_ver_len}s  %-#{max_cxver_len}s  %s\n", l.installed_sign, l.name, l.version, l.crystax_version, l.flag
+          printf " %s %-#{max_name_len}s  %-#{max_ver_len}s  %-#{max_cxver_len}s  %s\n", l.installed_sign, l.name, l.version, l.crystax_version, l.dev_src_flag
         end
       end
     end

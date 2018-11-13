@@ -38,11 +38,12 @@ class HostBase < Formula
     File.join(Global::SERVICE_DIR, file_name, platform_name, release.version)
   end
 
-  def has_dev_files?
-    false
+  def support_dev_files?
+    true
   end
 
   def dev_files_installed?(_release, _platform_name = Global::PLATFORM_NAME)
+    raise "'#{name} has no dev files" unless has_dev_files?
     false
   end
 

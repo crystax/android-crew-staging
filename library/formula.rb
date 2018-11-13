@@ -88,6 +88,14 @@ class Formula
     false
   end
 
+  def support_dev_files?
+    false
+  end
+
+  def has_dev_files?
+    false
+  end
+
   def merge_default_install_options(opts)
     { platform: Global::PLATFORM_NAME, check_shasum: true, cache_only: false }.merge(opts)
   end
