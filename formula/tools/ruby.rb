@@ -1,10 +1,10 @@
-class Ruby < Utility
+class Ruby < Library
 
   desc 'Powerful, clean, object-oriented scripting language'
   homepage 'https://www.ruby-lang.org/'
   url 'https://cache.ruby-lang.org/pub/ruby/${block}/ruby-${version}.tar.gz' do |r| r.version.split('.').slice(0, 2).join('.') end
 
-  release '2.5.3'
+  release '2.5.3', crystax: 2
 
   depends_on 'zlib'
   depends_on 'openssl'
