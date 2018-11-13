@@ -1,10 +1,12 @@
-class Libgit2 < Utility
+class Libgit2 < Library
 
   desc "A portable, pure C implementation of the Git core methods provided as a re-entrant linkable library with a solid API"
   homepage 'https://libgit2.github.com/'
   url 'https://github.com/libgit2/libgit2/archive/v${version}.tar.gz'
 
-  release '0.27.5'
+  # todo:
+  #release '0.27.7'
+  release '0.27.5', crystax: 2
 
   depends_on 'zlib'
   depends_on 'openssl'
