@@ -1,10 +1,10 @@
-class Curl < Utility
+class Curl < Library
 
   desc 'Get a file from an HTTP, HTTPS or FTP server'
   homepage 'http://curl.haxx.se/'
   url 'https://curl.haxx.se/download/curl-${version}.tar.bz2'
 
-  release '7.61.1', crystax: 2
+  release '7.62.0'
 
   depends_on 'zlib'
   depends_on 'openssl'
