@@ -1,9 +1,9 @@
-class Python < Utility
+class Python < Library
 
   desc "Interpreted, interactive, object-oriented programming language"
   homepage "https://www.python.org"
 
-  release '2.7.5', crystax: 3
+  release '2.7.5', crystax: 4
 
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in toolchain/python repository
@@ -87,5 +87,9 @@ class Python < Utility
         end
       end
     end
+  end
+
+  def split_file_list(list, platform_name)
+    split_file_list_by_static_libs_and_includes(list, platform_name)
   end
 end
