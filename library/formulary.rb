@@ -82,9 +82,10 @@ class Formulary
     list
   end
 
-  def dependencies(formula)
+  def dependencies(formula, options = {})
     result = []
     deps = formula.dependencies.dup
+    deps += formula.build_dependencies.dup if options[:with_build_deps]
 
     while deps.size > 0
       d = deps.shift

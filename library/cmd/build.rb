@@ -26,20 +26,30 @@ module Crew
       self.source ["#{formula.name}:#{release.version}"] if (formula.namespace == :target && !formula.source_installed?(release))
 
       # todo: check that (build) dependencies installed for all required platforms
-      deps = formula.dependencies + formula.build_dependencies
-      absent = deps.select { |d| not formulary[d.fqn].installed?(d.version) }
+      deps = formulary.dependencies(formula, with_build_deps: true)
+      absent = deps.select { |d| not d.formula.installed?(d.version) }
       unless absent.empty?
         uds = absent.map do |d|
           unless d.version
             d.fqn
           else
-            f = formulary[d.fqn]
-            rs = f.find_matched_releases(d.version)
+            rs = d.formula.find_matched_releases(d.version)
             d.fqn + ':' + rs.join('|')
           end
         end
         raise "uninstalled dependencies: #{uds.join(',')}"
       end
+
+      # check that dependencies installed with dev files
+      no_dev_files = deps.select do |d|
+        unless d.formula.has_dev_files?
+          false
+        else
+          rs = d.formula.find_matched_releases(d.version)
+          rs.any? { |r| r.installed? && !d.formula.dev_files_installed?(r) }
+        end
+      end
+      raise "dependencies with uninstalled dev files: #{no_dev_files.map(&:fqn).join(',')}" unless no_dev_files.empty?
 
       host_deps, target_deps = deps.partition { |d| d.namespace == :host }
 
