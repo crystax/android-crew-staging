@@ -14,6 +14,10 @@ describe "crew list" do
     clean_cache
     repository_init
     repository_clone
+    # make sure that tools installed without dev files
+    pkg_cache_add_tool 'curl', update: false
+    pkg_cache_add_tool 'ruby', update: false
+    crew_checked '-W install --no-check-shasum --cache-only --force curl ruby'
   end
 
   context "when given bad arguments" do
@@ -154,14 +158,14 @@ describe "crew list" do
 
   context "with --tools argument" do
 
-    context "when there is one release of every utility" do
+    context "when there is one release of every utility and no dev files installed" do
       it "outputs info about installed utilities" do
         crew 'list', '--tools', '--no-title'
         expect(result).to eq(:ok)
         got = out.split("\n")
         exp = [/   cloog\s+\d+\.\d+\.\d+\s+\d+/,
                /   cloog-old\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* curl  \s+#{Crew::Test::UTILS_RELEASES['curl'][0].version}\s+#{Crew::Test::UTILS_RELEASES['curl'][0].crystax_version}/,
+               / \* curl  \s+#{Crew::Test::UTILS_RELEASES['curl'][0].version}\s+#{Crew::Test::UTILS_RELEASES['curl'][0].crystax_version}\s+no dev files\s*$/,
                /   expat\s+\d+\.\d+\.\d+\s+\d+/,
                / [ \*] gcc\s+\d+\s+\d+/,
                /   gmp\s+\d+\.\d+\.\d+\s+\d+/,
@@ -169,8 +173,8 @@ describe "crew list" do
                /   isl-old\s+\d+\.\d+\.\d+\s+\d+/,
                / \* libarchive\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].version}\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].crystax_version}/,
                /   libedit\s+\d+-\d+\.\d+\s+\d+/,
-               / \* libgit2\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* libssh2\s+\d+\.\d+\.\d+\s+\d+/,
+               / \* libgit2\s+\d+\.\d+\.\d+\s+\d+\s+no dev files\s*$/,
+               / \* libssh2\s+\d+\.\d+\.\d+\s+\d+\s+no dev files\s*$/,
                / [ \*] llvm\s+\d+\.\d+\s+\d+/,
                / \* make\s+\d+\.\d+\s+\d+/,
                /   mpc\s+\d+\.\d+\.\d+\s+\d+/,
@@ -181,11 +185,51 @@ describe "crew list" do
                / \* ndk-stack\s+\d+\s+\d+/,
                / \* openssl\s+\d+\.\d+\.\d+[a-z]\s+\d+/,
                /   ppl\s+\d+\.\d+\s+\d+/,
-               / \* python\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* ruby  \s+#{Crew::Test::UTILS_RELEASES['ruby'][0].version}\s+#{Crew::Test::UTILS_RELEASES['ruby'][0].crystax_version}/,
+               / \* python\s+\d+\.\d+\.\d+\s+\d+\s+no dev files\s*$/,
+               / \* ruby  \s+#{Crew::Test::UTILS_RELEASES['ruby'][0].version}\s+#{Crew::Test::UTILS_RELEASES['ruby'][0].crystax_version}\s+no dev files\s*$/,
                / \* xz\s+\d+\.\d+\.\d+\s+\d+/,
                / \* yasm\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* zlib\s+\d+\.\d+\.\d+\s+\d+/
+               / \* zlib\s+\d+\.\d+\.\d+\s+\d+\s+no dev files\s*$/
+              ]
+        expect(got.size).to eq(exp.size)
+        got.each_with_index { |g, i| expect(g).to match(exp[i]) }
+      end
+    end
+
+    context "when there is one release of every utility and curl dev files installed" do
+      it "outputs info about installed utilities" do
+        pkg_cache_add_tool 'curl'
+        crew_checked '-W install --cache-only --with-dev-files --force curl'
+        crew 'list', '--tools', '--no-title'
+        expect(result).to eq(:ok)
+        got = out.split("\n")
+        exp = [/   cloog\s+\d+\.\d+\.\d+\s+\d+/,
+               /   cloog-old\s+\d+\.\d+\.\d+\s+\d+/,
+               / \* curl  \s+#{Crew::Test::UTILS_RELEASES['curl'][0].version}\s+#{Crew::Test::UTILS_RELEASES['curl'][0].crystax_version}\s+dev files\s*$/,
+               /   expat\s+\d+\.\d+\.\d+\s+\d+/,
+               / [ \*] gcc\s+\d+\s+\d+/,
+               /   gmp\s+\d+\.\d+\.\d+\s+\d+/,
+               /   isl\s+\d+\.\d+\s+\d+/,
+               /   isl-old\s+\d+\.\d+\.\d+\s+\d+/,
+               / \* libarchive\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].version}\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].crystax_version}/,
+               /   libedit\s+\d+-\d+\.\d+\s+\d+/,
+               / \* libgit2\s+\d+\.\d+\.\d+\s+\d+\s+no dev files\s*$/,
+               / \* libssh2\s+\d+\.\d+\.\d+\s+\d+\s+no dev files\s*$/,
+               / [ \*] llvm\s+\d+\.\d+\s+\d+/,
+               / \* make\s+\d+\.\d+\s+\d+/,
+               /   mpc\s+\d+\.\d+\.\d+\s+\d+/,
+               /   mpfr\s+\d+\.\d+\.\d+\s+\d+/,
+               / \* nawk\s+\d+\s+\d+/,
+               / \* ndk-base\s+\d+\s+\d+/,
+               / \* ndk-depends\s+\d+\s+\d+/,
+               / \* ndk-stack\s+\d+\s+\d+/,
+               / \* openssl\s+\d+\.\d+\.\d+[a-z]\s+\d+/,
+               /   ppl\s+\d+\.\d+\s+\d+/,
+               / \* python\s+\d+\.\d+\.\d+\s+\d+\s+no dev files\s*$/,
+               / \* ruby  \s+#{Crew::Test::UTILS_RELEASES['ruby'][0].version}\s+#{Crew::Test::UTILS_RELEASES['ruby'][0].crystax_version}\s+no dev files\s*$/,
+               / \* xz\s+\d+\.\d+\.\d+\s+\d+/,
+               / \* yasm\s+\d+\.\d+\.\d+\s+\d+/,
+               / \* zlib\s+\d+\.\d+\.\d+\s+\d+\s+no dev files\s*$/
               ]
         expect(got.size).to eq(exp.size)
         got.each_with_index { |g, i| expect(g).to match(exp[i]) }
@@ -212,7 +256,7 @@ describe "crew list" do
         exp = ["Tools:",
                /   cloog\s+\d+\.\d+\.\d+\s+\d+/,
                /   cloog-old\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* curl  \s+#{Crew::Test::UTILS_RELEASES['curl'][0].version}\s+#{Crew::Test::UTILS_RELEASES['curl'][0].crystax_version}/,
+               / \* curl  \s+#{Crew::Test::UTILS_RELEASES['curl'][0].version}\s+#{Crew::Test::UTILS_RELEASES['curl'][0].crystax_version}\s+no dev files\s*$/,
                /   expat\s+\d+\.\d+\.\d+\s+\d+/,
                / [ \*] gcc\s+\d+\s+\d+/,
                /   gmp\s+\d+\.\d+\.\d+\s+\d+/,
@@ -220,8 +264,8 @@ describe "crew list" do
                /   isl-old\s+\d+\.\d+\.\d+\s+\d+/,
                / \* libarchive\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].version}\s+#{Crew::Test::UTILS_RELEASES['libarchive'][0].crystax_version}/,
                /   libedit\s+\d+-\d+\.\d+\s+\d+/,
-               / \* libgit2\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* libssh2\s+\d+\.\d+\.\d+\s+\d+/,
+               / \* libgit2\s+\d+\.\d+\.\d+\s+\d+\s+no dev files\s*$/,
+               / \* libssh2\s+\d+\.\d+\.\d+\s+\d+\s+no dev files\s*$/,
                / [ \*] llvm\s+\d+\.\d+\s+\d+/,
                / \* make\s+\d+\.\d+\s+\d+/,
                /   mpc\s+\d+\.\d+\.\d+\s+\d+/,
@@ -232,11 +276,11 @@ describe "crew list" do
                / \* ndk-stack\s+\d+\s+\d+/,
                / \* openssl\s+\d+\.\d+\.\d+[a-z]\s+\d+/,
                /   ppl\s+\d+\.\d+\s+\d+/,
-               / \* python\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* ruby  \s+#{Crew::Test::UTILS_RELEASES['ruby'][0].version}\s+#{Crew::Test::UTILS_RELEASES['ruby'][0].crystax_version}/,
+               / \* python\s+\d+\.\d+\.\d+\s+\d+\s+no dev files/,
+               / \* ruby  \s+#{Crew::Test::UTILS_RELEASES['ruby'][0].version}\s+#{Crew::Test::UTILS_RELEASES['ruby'][0].crystax_version}\s+no dev files\s*$/,
                / \* xz\s+\d+\.\d+\.\d+\s+\d+/,
                / \* yasm\s+\d+\.\d+\.\d+\s+\d+/,
-               / \* zlib\s+\d+\.\d+\.\d+\s+\d+/,
+               / \* zlib\s+\d+\.\d+\.\d+\s+\d+\s+no dev files\s*$/,
                "Packages:",
                "   libfour   1.1.1  1",
                "   libfour   1.1.2  2",
