@@ -68,11 +68,11 @@ module Crew
       end
     end
 
-    FLAG_MSG = { source:                  'source',
+    FLAG_MSG = { source:                  '  source',
                  no_source:               '',
                  no_dev_files:            '',
-                 dev_files_installed:     'dev files',
-                 dev_files_not_installed: 'no dev files'
+                 dev_files_installed:     '  dev files',
+                 dev_files_not_installed: '  no dev files'
                }
 
     Element = Struct.new(:name, :version, :crystax_version, :installed_sign, :dev_src_flag) do
@@ -123,7 +123,7 @@ module Crew
         end
 
         list.each do |l|
-          printf " %s %-#{max_name_len}s  %-#{max_ver_len}s  %-#{max_cxver_len}s  %s\n", l.installed_sign, l.name, l.version, l.crystax_version, l.dev_src_flag
+          printf " %s %-#{max_name_len}s  %-#{max_ver_len}s  %-#{max_cxver_len}s%s\n", l.installed_sign, l.name, l.version, l.crystax_version, l.dev_src_flag
         end
       end
     end
