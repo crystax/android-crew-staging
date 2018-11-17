@@ -113,7 +113,7 @@ class Formulary
       .sort { |a,b| a.name <=> b.name }
       .uniq(&:name)
 
-    deps = packages.reduce([]) { |acc, f| acc + dependencies(f) }
+    deps = packages.reduce([]) { |acc, f| acc + dependencies(f).map(&:formula) }
       .sort { |a, b| a.name <=> b.name }
       .uniq(&:name)
 

@@ -1,10 +1,11 @@
 require_relative '../../global.rb'
+require_relative '../command.rb'
 require_relative '../../command_options.rb'
 
 
 module Crew
 
-  class List
+  class List < Command
 
     class Options
 

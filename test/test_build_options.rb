@@ -1,6 +1,6 @@
 require 'minitest/unit'
 require_relative '../library/utils.rb'
-require_relative '../library/cmd/build_options.rb'
+require_relative '../library/cmd/build/options.rb'
 
 class TestRelease < MiniTest::Test
 

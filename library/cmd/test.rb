@@ -1,6 +1,6 @@
 require_relative '../exceptions.rb'
 require_relative '../release.rb'
-require_relative '../formulary.rb'
+require_relative 'command.rb'
 require_relative 'test/options.rb'
 
 
@@ -10,13 +10,10 @@ module Crew
     Test.new(args).execute
   end
 
-  class Test
-
-    attr_reader :options, :formulary, :args
+  class Test < Command
 
     def initialize(args)
-      @formulary = Formulary.new
-      @options, @args = Options.parse_args(args)
+      super args, Options
     end
 
     def execute

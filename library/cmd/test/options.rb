@@ -1,11 +1,12 @@
 require_relative '../../arch.rb'
 require_relative '../../utils.rb'
+require_relative '../command.rb'
 require_relative '../../command_options.rb'
 
 
 module Crew
 
-  class Test
+  class Test < Command
 
     class Options
 

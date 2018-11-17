@@ -1,6 +1,6 @@
 require_relative '../exceptions.rb'
 require_relative '../release.rb'
-require_relative '../formulary.rb'
+require_relative 'command.rb'
 require_relative 'list/options.rb'
 
 
@@ -10,14 +10,11 @@ module Crew
     List.new(args).execute
   end
 
-  class List
-
-    attr_reader :options, :formulary
+  class List < Command
 
     def initialize(args)
-      @formulary = Formulary.new
-      @options, rest = Options.parse_args(args)
-      raise CommandRequresNoArguments if rest.size > 0
+      super args, Options
+      raise CommandRequresNoArguments if self.args.size > 0
     end
 
     def execute
