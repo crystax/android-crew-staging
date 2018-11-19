@@ -1,6 +1,5 @@
 require_relative '../exceptions.rb'
 require_relative 'command.rb'
-require_relative 'depends_on/options.rb'
 
 module Crew
 
@@ -11,8 +10,7 @@ module Crew
   class DependsOn < Command
 
     def initialize(args)
-      super args, Options
-
+      super args
       raise "command requires one argument" if self.args.count != 1
     end
 

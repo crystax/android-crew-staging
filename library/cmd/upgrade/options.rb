@@ -1,14 +1,11 @@
 require_relative '../command.rb'
-require_relative '../../command_options.rb'
 
 
 module Crew
 
   class Upgrade < Command
 
-    class Options
-
-      extend CommandOptions
+    class Options < Command::Options
 
       def initialize(opts)
         @check_shasum = true

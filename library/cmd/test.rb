@@ -14,6 +14,7 @@ module Crew
 
     def initialize(args)
       super args, Options
+      raise FormulaUnspecifiedError if self.args.count < 1
     end
 
     def execute

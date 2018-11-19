@@ -1,14 +1,13 @@
 require_relative '../../toolchain.rb'
 require_relative '../../release.rb'
 require_relative '../command.rb'
-require_relative '../../command_options.rb'
 
 
 module Crew
 
   class MakeStandaloneToolchain < Command
 
-    class Options
+    class Options < Command::Options
 
       PackageInfo = Struct.new(:name, :release, :formula) do
         def initialize(name, release = nil, formula = nil)
@@ -19,8 +18,6 @@ module Crew
           "#{name}:#{release}"
         end
       end
-
-      extend CommandOptions
 
       attr_reader :install_dir, :gcc, :llvm, :stl, :arch, :platform, :api_level, :with_packages
 

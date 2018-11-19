@@ -1,14 +1,11 @@
 require_relative '../command.rb'
-require_relative '../../command_options.rb'
 
 
 module Crew
 
   class Cleanup < Command
 
-    class Options
-
-      extend CommandOptions
+    class Options < Command::Options
 
       def initialize(opts)
         @dry_run = false

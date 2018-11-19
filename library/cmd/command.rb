@@ -5,19 +5,26 @@ module Crew
 
   class Command
 
-    # class Options
+    class Options
 
-    #   def parse_args(args)
-    #     [[], args]
-    #   end
-    # end
+      def self.parse_args(args)
+        # todo: use more sophisticated conditions to select options?
+        opts, args = args.partition { |a| a.start_with? '-' }
+        [self.new(opts), args]
+      end
+    end
 
     attr_reader :formulary, :options
     attr_accessor :args
 
-    def initialize(args, options)
+    def initialize(args, options = nil)
       @formulary = Formulary.new
-      @options, @args = options.parse_args(args)
+      if options
+        @options, @args = options.parse_args(args)
+      else
+        @options = nil
+        @args = args
+      end
     end
   end
 end

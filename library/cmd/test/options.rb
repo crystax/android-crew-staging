@@ -1,16 +1,13 @@
 require_relative '../../arch.rb'
 require_relative '../../utils.rb'
 require_relative '../command.rb'
-require_relative '../../command_options.rb'
 
 
 module Crew
 
   class Test < Command
 
-    class Options
-
-      extend CommandOptions
+    class Options < Command::Options
 
       TOOLCHAIN_NAMES       = (Toolchain::SUPPORTED_GCC + Toolchain::SUPPORTED_LLVM).map(&:to_s)
       TYPE_LIST             = %w[build run]

@@ -1,15 +1,12 @@
 require_relative '../../global.rb'
 require_relative '../command.rb'
-require_relative '../../command_options.rb'
 
 
 module Crew
 
   class List < Command
 
-    class Options
-
-      extend CommandOptions
+    class Options < Command::Options
 
       def initialize(opts)
         @list_tools = nil

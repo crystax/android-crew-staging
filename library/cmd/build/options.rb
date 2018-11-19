@@ -3,16 +3,13 @@ require_relative '../../utils.rb'
 require_relative '../../arch.rb'
 require_relative '../../platform.rb'
 require_relative '../command.rb'
-require_relative '../../command_options.rb'
 
 
 module Crew
 
   class Build < Command
 
-    class Options
-
-      extend CommandOptions
+    class Options < Command::Options
 
       attr_accessor :platforms, :abis, :num_jobs
       attr_writer :source_only, :build_only, :no_install, :no_clean, :update_shasum, :check

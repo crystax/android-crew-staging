@@ -1,15 +1,12 @@
 require_relative '../../global.rb'
 require_relative '../command.rb'
-require_relative '../../command_options.rb'
 
 
 module Crew
 
   class Install < Command
 
-    class Options
-
-      extend CommandOptions
+    class Options < Command::Options
 
       attr_accessor :platform
 

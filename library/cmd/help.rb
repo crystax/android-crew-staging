@@ -2,6 +2,7 @@ require_relative '../exceptions.rb'
 require_relative '../build.rb'
 require_relative '../arch.rb'
 require_relative '../platform.rb'
+require_relative 'command.rb'
 
 
 ENV_SYNTAX                       = 'env [options]'.freeze
@@ -485,14 +486,26 @@ CMD_HELP = {
 
 
 module Crew
+
   def self.help(args)
-    case args.size
-    when 0
-      puts CREW_HELP
-    else
-      args.each do |cmd|
-        raise "unknown command '#{cmd}'" unless CMD_HELP.keys.include? cmd
-        puts CMD_HELP[cmd]
+    Help.new(args).execute
+  end
+
+  class Help < Command
+
+    def initialize(args)
+      super args
+    end
+
+    def execute
+      case args.size
+      when 0
+        puts CREW_HELP
+      else
+        args.each do |cmd|
+          raise "unknown command '#{cmd}'" unless CMD_HELP.keys.include? cmd
+          puts CMD_HELP[cmd]
+        end
       end
     end
   end

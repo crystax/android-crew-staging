@@ -1,165 +1,174 @@
 require 'rugged'
 require_relative '../exceptions.rb'
 require_relative '../global.rb'
+require_relative 'command.rb'
 
 
 
 module Crew
 
   def self.update(args)
-    if args.length > 0
-      raise CommandRequresNoArguments
-    end
-
-    crew_script  = "#{Global::BASE_DIR}/crew"
-    crew_script += '.cmd' if Global::OS == 'windows'
-    crew_script_copy = "#{crew_script}.orig"
-    FileUtils.cp crew_script, crew_script_copy
-
-    updater = Updater.new
-    updater.pull!
-
-    report = Report.new
-    report.update(updater.report)
-
-    if updater.revision_unchanged?
-      puts "Already up-to-date."
-    else
-      puts "Updated Crew from #{updater.initial_revision[0,8]} to #{updater.current_revision[0,8]}."
-      if crew_script_unchanged?(crew_script_copy, crew_script)
-        FileUtils.rm_f crew_script_copy
-      else
-        FileUtils.mv crew_script, "#{crew_script}.new"
-        FileUtils.mv crew_script_copy, crew_script
-      end
-
-      report.dump unless report.empty?
-    end
+    Update.new(args).execute
   end
 
-  # private
+  class Update < Command
 
-  class Updater
-    attr_reader :initial_revision, :current_revision, :repository, :repository_path
-
-    def initialize
-      @repository = Rugged::Repository.new('.')
-      @repository_path = Pathname.new(Global::BASE_DIR)
+    def initialize(args)
+      super args
+      raise CommandRequresNoArguments if args.length > 0
     end
 
-    def revision_unchanged?
-      @initial_revision == @current_revision
+    def execute
+      crew_script  = "#{Global::BASE_DIR}/crew"
+      crew_script += '.cmd' if Global::OS == 'windows'
+      crew_script_copy = "#{crew_script}.orig"
+      FileUtils.cp crew_script, crew_script_copy
+
+      updater = Updater.new
+      updater.pull!
+
+      report = Report.new
+      report.update(updater.report)
+
+      if updater.revision_unchanged?
+        puts "Already up-to-date."
+      else
+        puts "Updated Crew from #{updater.initial_revision[0,8]} to #{updater.current_revision[0,8]}."
+        if crew_script_unchanged?(crew_script_copy, crew_script)
+          FileUtils.rm_f crew_script_copy
+        else
+          FileUtils.mv crew_script, "#{crew_script}.new"
+          FileUtils.mv crew_script_copy, crew_script
+        end
+
+        report.dump unless report.empty?
+      end
     end
 
-    def pull!
-      repository.checkout 'refs/remotes/origin/master'
-      @initial_revision = read_current_revision
+    private
 
-      begin
-        repository.fetch 'origin', credentials: make_creds
-        repository.checkout 'refs/remotes/origin/master'
-      rescue
-        repository.reset initial_revision, :hard
-        raise
+    class Updater
+      attr_reader :initial_revision, :current_revision, :repository, :repository_path
+
+      def initialize
+        @repository = Rugged::Repository.new('.')
+        @repository_path = Pathname.new(Global::BASE_DIR)
       end
 
-      @current_revision = read_current_revision
+      def revision_unchanged?
+        @initial_revision == @current_revision
+      end
+
+      def pull!
+        repository.checkout 'refs/remotes/origin/master'
+        @initial_revision = read_current_revision
+
+        begin
+          repository.fetch 'origin', credentials: make_creds
+          repository.checkout 'refs/remotes/origin/master'
+        rescue
+          repository.reset initial_revision, :hard
+          raise
+        end
+
+        @current_revision = read_current_revision
+      end
+
+      def report
+        map = { tools: Hash.new { |h,k| h[k] = [] }, packages: Hash.new { |h,k| h[k] = [] } }
+        formula_dir  = Global::FORMULA_DIR.basename.to_s
+        packages_dir = File.join(formula_dir, Global::NS_DIR[:target])
+        tools_dir    = File.join(formula_dir, Global::NS_DIR[:target])
+
+        if initial_revision and initial_revision != current_revision
+          diff.each_delta do |delta|
+            src = delta.old_file[:path]
+            dst = delta.new_file[:path]
+
+            next unless File.extname(dst) == ".rb"
+            next unless [src, dst].any? { |p| File.dirname(p).start_with?(formula_dir) }
+
+            status = delta.status_char.to_s
+            type = File.basename(File.dirname(src)).to_sym
+            case status
+            when "A", "M", "D"
+              map[type][status.to_sym] << repository_path.join(src)
+            when "R"
+              map[type][:D] << repository_path.join(src)
+              map[type][:A] << repository_path.join(dst)
+            end
+          end
+        end
+
+        map
+      end
+
+      private
+
+      def read_current_revision
+        # git rev-parse -q --verify HEAD"
+        repository.rev_parse_oid('HEAD')
+      end
+
+      def diff
+        # git diff-tree -r --name-status --diff-filter=AMDR -M85% initial_revision current_revision
+        init = repository.lookup(initial_revision)
+        curr = repository.lookup(current_revision)
+        init.diff(curr).find_similar!({ :rename_threshold => 85, :renames => true })
+      end
+
+      def make_creds
+        Utils.make_git_credentials repository.remotes['origin'].url
+      end
     end
 
-    def report
-      map = { tools: Hash.new { |h,k| h[k] = [] }, packages: Hash.new { |h,k| h[k] = [] } }
-      formula_dir  = Global::FORMULA_DIR.basename.to_s
-      packages_dir = File.join(formula_dir, Global::NS_DIR[:target])
-      tools_dir    = File.join(formula_dir, Global::NS_DIR[:target])
+    class Report
+      def initialize
+        @hash = { tools: {}, packages: {} }
+      end
 
-      if initial_revision and initial_revision != current_revision
-        diff.each_delta do |delta|
-          src = delta.old_file[:path]
-          dst = delta.new_file[:path]
+      def update(h)
+        @hash[:tools].update(h[:tools])
+        @hash[:packages].update(h[:packages])
+      end
 
-          next unless File.extname(dst) == ".rb"
-          next unless [src, dst].any? { |p| File.dirname(p).start_with?(formula_dir) }
+      def empty?
+        @hash[:tools].empty? and @hash[:packages].empty?
+      end
 
-          status = delta.status_char.to_s
-          type = File.basename(File.dirname(src)).to_sym
-          case status
-          when "A", "M", "D"
-            map[type][status.to_sym] << repository_path.join(src)
-          when "R"
-            map[type][:D] << repository_path.join(src)
-            map[type][:A] << repository_path.join(dst)
-          end
+      def dump
+        # Key Legend: Added (A), Copied (C), Deleted (D), Modified (M), Renamed (R)
+        dump_formula_report(:tools, :M, "Updated Utilities")
+        dump_formula_report(:tools, :A, "New Utilities")
+        dump_formula_report(:tools, :D, "Deleted Utilities")
+        dump_formula_report(:packages, :A, "New Formulae")
+        dump_formula_report(:packages, :M, "Updated Formulae")
+        dump_formula_report(:packages, :D, "Deleted Formulae")
+      end
+
+      private
+
+      def dump_formula_report(type, key, title)
+        formula = select_formula(type, key)
+        unless formula.empty?
+          puts "==> #{title}"
+          puts formula
         end
       end
 
-      map
-    end
+      def select_formula(type, key)
+        fetch(type, key, []).map do |path|
+          path.basename(".rb").to_s
+        end.sort.join(', ')
+      end
 
-    private
-
-    def read_current_revision
-      # git rev-parse -q --verify HEAD"
-      repository.rev_parse_oid('HEAD')
-    end
-
-    def diff
-      # git diff-tree -r --name-status --diff-filter=AMDR -M85% initial_revision current_revision
-      init = repository.lookup(initial_revision)
-      curr = repository.lookup(current_revision)
-      init.diff(curr).find_similar!({ :rename_threshold => 85, :renames => true })
-    end
-
-    def make_creds
-      Utils.make_git_credentials repository.remotes['origin'].url
-    end
-  end
-
-  class Report
-    def initialize
-      @hash = { tools: {}, packages: {} }
-    end
-
-    def update(h)
-      @hash[:tools].update(h[:tools])
-      @hash[:packages].update(h[:packages])
-    end
-
-    def empty?
-      @hash[:tools].empty? and @hash[:packages].empty?
-    end
-
-    def dump
-      # Key Legend: Added (A), Copied (C), Deleted (D), Modified (M), Renamed (R)
-      dump_formula_report(:tools, :M, "Updated Utilities")
-      dump_formula_report(:tools, :A, "New Utilities")
-      dump_formula_report(:tools, :D, "Deleted Utilities")
-      dump_formula_report(:packages, :A, "New Formulae")
-      dump_formula_report(:packages, :M, "Updated Formulae")
-      dump_formula_report(:packages, :D, "Deleted Formulae")
-    end
-
-    private
-
-    def dump_formula_report(type, key, title)
-      formula = select_formula(type, key)
-      unless formula.empty?
-        puts "==> #{title}"
-        puts formula
+      def fetch(type, *args)
+        @hash[type].fetch(*args)
       end
     end
 
-    def select_formula(type, key)
-      fetch(type, key, []).map do |path|
-          path.basename(".rb").to_s
-      end.sort.join(', ')
+    def crew_script_unchanged?(f1, f2)
+      File.read(f1) == File.read(f2)
     end
-
-    def fetch(type, *args)
-      @hash[type].fetch(*args)
-    end
-  end
-
-  def self.crew_script_unchanged?(f1, f2)
-    File.read(f1) == File.read(f2)
   end
 end
