@@ -12,7 +12,6 @@ module Crew
     class Options < Command::Options
 
       attr_accessor :platforms, :abis, :num_jobs
-      attr_writer :source_only, :build_only, :no_install, :no_clean, :update_shasum, :check
 
       def initialize(opts)
         @abis = Arch::ABI_LIST
