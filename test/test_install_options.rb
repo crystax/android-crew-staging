@@ -1,4 +1,5 @@
 require 'minitest/unit'
+require_relative '../library/exceptions.rb'
 require_relative '../library/global.rb'
 require_relative '../library/cmd/install/options.rb'
 
@@ -28,6 +29,6 @@ class TestInstallOptions < MiniTest::Test
     assert_equal(h,               v.as_hash)
 
     # unknown option
-    assert_raises(RuntimeError) { Crew::Install::Options.new(['--hello-world']) }
+    assert_raises(UnknownOption) { Crew::Install::Options.new(['--hello-world']) }
   end
 end

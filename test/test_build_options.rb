@@ -1,4 +1,5 @@
 require 'minitest/unit'
+require_relative '../library/exceptions.rb'
 require_relative '../library/arch.rb'
 require_relative '../library/platform.rb'
 require_relative '../library/utils.rb'
@@ -53,7 +54,7 @@ class TestBuildOptions < MiniTest::Test
     PLATFORMS.each { |p| assert_equal(p.target_os == Global::OS, v.check?(p)) }
 
     # unknown option
-    assert_raises(RuntimeError) { Crew::Build::Options.new(['--hello-world']) }
+    assert_raises(UnknownOption) { Crew::Build::Options.new(['--hello-world']) }
 
     # connected options: source-only -> no-clean
     v = Crew::Build::Options.new(['--source-only'])
