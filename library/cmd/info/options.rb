@@ -1,3 +1,4 @@
+require_relative '../../exceptions.rb'
 require_relative '../command.rb'
 
 
@@ -19,7 +20,7 @@ module Crew
           when '--path-only'
             @show_info = :path
           else
-            raise "unknow option: #{opt}"
+            raise UnknownOption, opt
           end
         end
       end

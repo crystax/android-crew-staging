@@ -1,3 +1,4 @@
+require_relative '../../exceptions.rb'
 require_relative '../command.rb'
 
 
@@ -18,7 +19,7 @@ module Crew
           when '-n', '--dry-run'
             @dry_run = true
           else
-            raise "unknow option: #{opt}"
+            raise UnknownOption, opt
           end
         end
       end

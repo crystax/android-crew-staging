@@ -1,3 +1,4 @@
+require_relative '../../exceptions.rb'
 require_relative '../../arch.rb'
 require_relative '../../utils.rb'
 require_relative '../command.rb'
@@ -34,7 +35,7 @@ module Crew
           when /^--toolchains=/
             @toolchains = opt.split('=')[1].split(',')
           else
-            raise "unknow option: #{opt}"
+            raise UnknownOption, opt
           end
         end
 

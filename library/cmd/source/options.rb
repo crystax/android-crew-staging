@@ -1,3 +1,4 @@
+require_relative '../../exceptions.rb'
 require_relative '../../global.rb'
 require_relative '../../utils.rb'
 require_relative '../../build.rb'
@@ -20,7 +21,7 @@ module Crew
           when '--all-versions'
             @all_versions = true
           else
-            raise "unknow option: #{opt}"
+            raise UnknownOption, opt
           end
         end
       end

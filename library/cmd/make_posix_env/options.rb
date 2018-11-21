@@ -1,3 +1,4 @@
+require_relative '../../exceptions.rb'
 require_relative '../../arch.rb'
 require_relative '../command.rb'
 
@@ -33,7 +34,7 @@ module Crew
           when '--minimize'
             @minimize = true
           else
-            raise "unknow option: #{opt}"
+            raise UnknownOption, opt
           end
         end
 

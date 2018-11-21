@@ -89,3 +89,9 @@ class UnsupportedOS < RuntimeError
     super "unsupported OS: #{os}"
   end
 end
+
+class UnknownOption < RuntimeError
+  def initialize(opt)
+    super "unknown option: #{opt}"
+  end
+end

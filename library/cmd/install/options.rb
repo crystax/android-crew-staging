@@ -1,3 +1,4 @@
+require_relative '../../exceptions.rb'
 require_relative '../../global.rb'
 require_relative '../command.rb'
 
@@ -33,7 +34,7 @@ module Crew
           when '--with-dev-files'
             @with_dev_files = true
           else
-            raise "unknow option: #{opt}"
+            raise UnknownOption, opt
           end
         end
       end

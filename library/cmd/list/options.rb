@@ -1,3 +1,4 @@
+require_relative '../../exceptions.rb'
 require_relative '../../global.rb'
 require_relative '../command.rb'
 
@@ -28,7 +29,7 @@ module Crew
           when '--buildable-order'
             @buildable_order = true
           else
-            raise "unknow option: #{opt}"
+            raise UnknownOption, opt
           end
         end
 

@@ -1,3 +1,4 @@
+require_relative '../../exceptions.rb'
 require_relative '../../toolchain.rb'
 require_relative '../../release.rb'
 require_relative '../command.rb'
@@ -59,7 +60,7 @@ module Crew
           when /^--with-packages=/
             package_names = opt.split('=')[1].split(',')
           else
-            raise "unknow option: #{opt}"
+            raise UnknownOption, opt
           end
         end
 
