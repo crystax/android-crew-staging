@@ -9,13 +9,12 @@ module Crew
 
       def initialize(opts)
         @dry_run = false
+        @clean_pkg_cache = false
+        @clean_src_cache = false
 
-        if opts.empty? or (opts.size == 1 and (opts[0] == '-n' or opts[0] == '--dry-run'))
+        if opts.empty? || (opts.size == 1 && (opts[0] == '-n' || opts[0] == '--dry-run'))
           @clean_pkg_cache = true
           @clean_src_cache = true
-        else
-          @clean_pkg_cache = false
-          @clean_pkg_cache = false
         end
 
         opts.each do |opt|
