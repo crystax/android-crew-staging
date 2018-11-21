@@ -13,6 +13,7 @@ FileUtils.mkdir_p File.join(Crew::Test::NDK_DIR, 'packages')
 
 require 'minitest/autorun'
 
+require_relative 'test_arch.rb'
 require_relative 'test_crew.rb'
 require_relative 'test_utils.rb'
 require_relative 'test_release.rb'
@@ -21,7 +22,7 @@ require_relative 'test_build_options.rb'
 require_relative 'test_cleanup_options.rb'
 require_relative 'test_info_options.rb'
 require_relative 'test_install_options.rb'
-require_relative 'test_arch.rb'
+require_relative 'test_list_options.rb'
 
 
 # cleanup

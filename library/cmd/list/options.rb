@@ -10,8 +10,8 @@ module Crew
     class Options < Command::Options
 
       def initialize(opts)
-        @list_tools = nil
-        @list_packages = nil
+        @list_tools = false
+        @list_packages = false
         @no_title = false
         @names_only = false
         @buildable_order = false
@@ -33,7 +33,7 @@ module Crew
           end
         end
 
-        if (@list_tools == nil) && (@list_packages == nil)
+        if !@list_tools && !@list_packages
           @list_tools = true
           @list_packages = true
         end
