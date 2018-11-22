@@ -26,6 +26,7 @@ module Crew
             @update = false
           when /^--platforms=/
             @platforms = opt.split('=')[1].split(',')
+            check_platform_names *@platforms
           else
             raise UnknownOption, opt
           end
