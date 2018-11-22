@@ -73,8 +73,9 @@ class DownloadError < RuntimeError
 end
 
 class UnknownAbi < RuntimeError
-  def initialize(abi)
-    super "unknown abi: #{abi}"
+  def initialize(*abis)
+    s = (abis.size > 1) ? 's' : ''
+    super "unknown abi#{s}: #{abis.join(', ')}"
   end
 end
 
