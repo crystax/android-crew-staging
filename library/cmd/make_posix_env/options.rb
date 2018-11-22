@@ -12,9 +12,9 @@ module Crew
       attr_accessor :top_dir, :abi, :with_packages
 
       def initialize(opts)
+        @with_packages = []
         @make_tarball = true
         @check_shasum = true
-        @with_packages = []
         @minimize = false
 
         package_names = []
@@ -24,7 +24,7 @@ module Crew
             @top_dir = opt.split('=')[1]
           when /^--abi=/
             @abi = opt.split('=')[1]
-            raise "unknown abi '#{@abi}'" unless Arch::ABI_LIST.include? @abi
+            check_abis @abi
           when '--no-tarball'
             @make_tarball = false
           when '--no-check-shasum'

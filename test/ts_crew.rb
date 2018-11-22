@@ -24,6 +24,8 @@ require_relative 'test_cleanup_options.rb'
 require_relative 'test_info_options.rb'
 require_relative 'test_install_options.rb'
 require_relative 'test_list_options.rb'
+require_relative 'test_make_deb_options.rb'
+require_relative 'test_make_posix_env_options.rb'
 
 
 # cleanup
