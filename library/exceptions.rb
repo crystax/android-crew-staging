@@ -79,6 +79,13 @@ class UnknownAbi < RuntimeError
   end
 end
 
+class UnknownPlatform < RuntimeError
+  def initialize(*names)
+    s = (names.size > 1) ? 's' : ''
+    super "unknown platform#{s}: #{names.join(', ')}"
+  end
+end
+
 class UnsupportedArch < RuntimeError
   def initialize(arch)
     super "unsupported architecture: #{arch}"

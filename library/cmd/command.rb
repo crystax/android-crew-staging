@@ -1,5 +1,6 @@
 require_relative '../exceptions.rb'
 require_relative '../arch.rb'
+require_relative '../platform.rb'
 require_relative '../formulary.rb'
 
 
@@ -21,6 +22,15 @@ module Crew
         else
           bad_abis = abis - Arch::ABI_LIST
           raise UnknownAbi.new(*bad_abis) unless bad_abis.empty?
+        end
+      end
+
+      def check_platform_names(*names)
+        if names.empty?
+          raise "no platform names was specified"
+        else
+          bad_names = names - Platform::NAMES
+          raise UnknownPlatform.new(*bad_names) unless bad_names.empty?
         end
       end
     end
