@@ -53,9 +53,6 @@ class TestBuildOptions < MiniTest::Test
 
     PLATFORMS.each { |p| assert_equal(p.target_os == Global::OS, v.check?(p)) }
 
-    # unknown option
-    assert_raises(UnknownOption) { Crew::Build::Options.new(['--hello-world']) }
-
     # connected options: source-only -> no-clean
     v = Crew::Build::Options.new(['--source-only'])
     assert_equal(true, v.source_only?)
@@ -75,5 +72,8 @@ class TestBuildOptions < MiniTest::Test
     v = Crew::Build::Options.new(['--num-jobs=100'])
     assert_equal(100,   v.num_jobs)
     assert_equal(false, v.num_jobs_default?)
+
+    # unknown option
+    assert_raises(UnknownOption) { Crew::Build::Options.new(['--hello-world']) }
   end
 end
