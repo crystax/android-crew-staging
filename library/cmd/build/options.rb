@@ -53,6 +53,7 @@ module Crew
             @all_versions = true
           when /^--abis=/
             @abis = opt.split('=')[1].split(',')
+            check_abis *@abis
           else
             raise UnknownOption, opt
           end
