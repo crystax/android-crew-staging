@@ -26,6 +26,7 @@ module Crew
             @all_versions = true
           when /^--abis=/
             @abis = opt.split('=')[1].split(',')
+            check_abis *@abis
           when '--no-clean'
             @clean = false
           when '--no-check-shasum'
