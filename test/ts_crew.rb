@@ -28,6 +28,7 @@ require_relative 'test_list_options.rb'
 require_relative 'test_make_deb_options.rb'
 require_relative 'test_make_posix_env_options.rb'
 require_relative 'test_shasum_options.rb'
+require_relative 'test_source_options.rb'
 
 
 # cleanup
