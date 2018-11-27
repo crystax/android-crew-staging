@@ -22,6 +22,10 @@ module Toolchain
       @name = "#{type}-#{version}"
     end
 
+    def ==(v)
+      self.version == v.version
+    end
+
     def to_s
       "#{type}#{version}"
     end
@@ -117,6 +121,10 @@ module Toolchain
       @version = version
       @gcc_toolchain = gcc_toolchain
       @name = "#{type}-#{version}"
+    end
+
+    def ==(v)
+      (self.version == v.version) && (self.gcc_toolchain == v.gcc_toolchain)
     end
 
     def to_s
