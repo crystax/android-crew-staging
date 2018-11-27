@@ -29,6 +29,8 @@ require_relative 'test_make_deb_options.rb'
 require_relative 'test_make_posix_env_options.rb'
 require_relative 'test_shasum_options.rb'
 require_relative 'test_source_options.rb'
+# todo: fails to run because name conflict between Minitest::Test and Crew::Test
+#require_relative 'test_test_options.rb'
 
 
 # cleanup
