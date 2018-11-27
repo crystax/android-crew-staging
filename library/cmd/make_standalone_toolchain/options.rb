@@ -20,7 +20,7 @@ module Crew
         end
       end
 
-      attr_reader :install_dir, :gcc, :llvm, :stl, :arch, :platform, :api_level, :with_packages
+      attr_reader :install_dir, :arch, :gcc, :llvm, :stl, :platform, :api_level, :with_packages
 
       def initialize(opts)
         @clean_install_dir = false
@@ -50,7 +50,7 @@ module Crew
           when /^--arch=/
             arch_name = opt.split('=')[1]
             raise "unsupported architecure #{arch_name}" unless Arch.supported? arch_name
-            @arch = Arch::LIST[arch_name.to_sym].dup
+            @arch = Arch::LIST[arch_name.to_sym]
           when /^--platform=/
             platform_name = opt.split('=')[1]
             raise "platform #{platform} unsupported on #{Global::OS}" unless Platform.default_names_for_host_os.include? platform_name
