@@ -48,11 +48,13 @@ class Openssl < Package
     # prepare installed files for packaging
     FileUtils.rm_rf File.join("#{install_dir}/lib/pkgconfig")
     FileUtils.cd("#{install_dir}/lib") do
-      FileUtils.mv "engines-#{ssl_ver}", 'engines' if ssl_ver == '1.1.0'
+      short_ver = release.major_point_minor
+      # todo: test if rename needed
+      #FileUtils.mv "engines-#{short_ver}", 'engines' if ssl_ver == '1.1.0'
       build_libs.each do |f|
         FileUtils.rm "#{f}.so"
         # 1.0.* uses 1.0.0 suffix for lib names
-        suffix =  (ssl_ver == '1.0.0') ? ssl_ver : release.major_point_minor
+        suffix =  (ssl_ver == '1.0.2') ? '1.0.0' : short_ver
         FileUtils.mv "#{f}.so.#{suffix}", "#{f}.so"
       end
     end
