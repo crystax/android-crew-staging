@@ -2,7 +2,7 @@ class Binutils < Utility
 
   desc 'The GNU Binutils are a collection of binary tools'
   homepage 'https://www.gnu.org/software/binutils/'
-  url 'https://mirror.freedif.org/GNU/binutils/binutils-${version}.tar.xz'
+  url 'https://ftpmirror.gnu.org/binutils/binutils-${version}.tar.xz'
 
   release '2.30'
 
