@@ -36,6 +36,7 @@ class Openssl < Library
     system './Configure',  *args
     system 'make', 'depend'
     system 'make', '-j', num_jobs
+    FileUtils.mkdir_p "#{install_dir}/bin" if platform.target_os == 'windows'
     system "make install"
 
     if options.check? platform
