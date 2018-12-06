@@ -387,11 +387,13 @@ Formula (no home directory)
                 Library
                 
                     Zlib       (f) 
+                    Openssl    (f) 
                     Libgit2    (f)
                     Libssh2    (f)
                     Curl       (f)
                     Python     (f)
                     Ruby       (f)
+                    Xz         (f)
                 
         BuildDependency (multi platform, single version)
         
