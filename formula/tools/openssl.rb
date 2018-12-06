@@ -1,10 +1,10 @@
-class Openssl < Utility
+class Openssl < Library
 
   desc "Cryptography and SSL/TLS Toolkit"
   homepage "https://openssl.org/"
   url 'https://www.openssl.org/source/openssl-${version}.tar.gz'
 
-  release '1.1.0i'
+  release '1.1.0j'
 
   depends_on 'zlib'
 
