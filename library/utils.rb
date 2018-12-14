@@ -255,39 +255,11 @@ module Utils
     @@tar_prog = File.exist?(@@crew_tar_prog) ? @@crew_tar_prog : 'tar'
   end
 
-  def self.use_tar_copy_prog
-    if not File.exist? @@crew_tar_prog
-      @@tar_prog = nil
-    else
-      FileUtils.cp @@crew_tar_prog, @@crew_tar_copy_prog
-      @@tar_prog = @@crew_tar_copy_prog
-    end
-  end
-
-  def self.reset_tar_prog
-    @@tar_prog = nil
-    FileUtils.rm_f @@crew_tar_copy_prog
-  end
-
   def self.xz_prog
     @@xz_prog ||= File.exist?(@@crew_xz_prog) ? @@crew_xz_prog : 'xz'
   end
 
-  def self.use_xz_copy_prog
-    if not File.exist? @@crew_xz_prog
-      @@xz_prog = nil
-    else
-      FileUtils.cp @@crew_xz_prog, @@crew_xz_copy_prog
-      @@xz_prog = @@crew_xz_copy_prog
-    end
-  end
-
-  def self.reset_xz_prog
-    @@xz_prog = nil
-    FileUtils.rm_f @@crew_xz_copy_prog
-  end
-
-   def self.to_cmd_s(*args)
+  def self.to_cmd_s(*args)
     # todo: escape '(' and ')' too
     args.map { |a| a.to_s.gsub " ", "\\ " }.join(" ")
   end
@@ -316,15 +288,4 @@ module Utils
       nil
     end
   end
-
-  # todo: remove
-  # def self.add_path_to_archivers
-  #   # todo: add paths to other archivers
-  #   xz_path = Pathname.new(Global.active_util_dir('xz')).realpath.to_s
-  #   path = ENV['PATH']
-  #   if not path.start_with?(xz_path)
-  #     sep = (Global::OS == 'windows') ? ';' : ':'
-  #     ENV['PATH'] = "#{xz_path}#{sep}#{path}"
-  #   end
-  # end
 end

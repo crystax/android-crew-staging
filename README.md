@@ -376,7 +376,8 @@ Formula (no home directory)
 
             Utility (multi platform, single version)
             
-                Libarchive (f)
+                Binutils   (f) postpone
+                Libarchive (f) postpone
                 Make       (f)
                 Nawk       (f)
                 NdkDepends (f)
@@ -386,14 +387,14 @@ Formula (no home directory)
                 
                 Library
                 
-                    Zlib       (f) 
-                    Openssl    (f) 
-                    Libgit2    (f)
-                    Libssh2    (f)
-                    Curl       (f)
+                    Zlib       (f) postpone
+                    Openssl    (f) postpone
+                    Libgit2    (f) postpone
+                    Libssh2    (f) postpone
+                    Curl       (f) postpone
                     Python     (f)
-                    Ruby       (f)
-                    Xz         (f)
+                    Ruby       (f) postpone
+                    Xz         (f) postpone, can be used during upgrade process
                 
         BuildDependency (multi platform, single version)
         

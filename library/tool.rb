@@ -49,6 +49,7 @@ class Tool < HostBase
 
       next if options.build_only?
       #
+      puts "= packaging for #{platform.name}"
       archive = cache_file(release, platform.name)
       Utils.pack archive, package_dir
       #
