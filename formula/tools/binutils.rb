@@ -4,9 +4,10 @@ class Binutils < Utility
   homepage 'https://www.gnu.org/software/binutils/'
   url 'https://ftpmirror.gnu.org/binutils/binutils-${version}.tar.xz'
 
-  release '2.30'
+  release '2.31'
 
   depends_on 'zlib'
+  postpone_install true
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     FileUtils.cp_r Dir["#{src_dir}/*"], '.'
