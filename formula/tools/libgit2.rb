@@ -4,13 +4,13 @@ class Libgit2 < Library
   homepage 'https://libgit2.github.com/'
   url 'https://github.com/libgit2/libgit2/archive/v${version}.tar.gz'
 
-  # todo:
-  #release '0.27.7'
-  release '0.27.5', crystax: 2
+  release '0.27.7'
 
   depends_on 'zlib'
   depends_on 'openssl'
   depends_on 'libssh2'
+
+  postpone_install true
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)
