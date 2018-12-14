@@ -7,6 +7,7 @@ class Openssl < Library
   release '1.1.0j'
 
   depends_on 'zlib'
+  postpone_install true
 
   def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)
