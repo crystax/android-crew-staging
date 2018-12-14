@@ -4,10 +4,12 @@ class Libssh2 < Library
   homepage 'http://www.libssh2.org/'
   url 'http://www.libssh2.org/download/libssh2-${version}.tar.gz'
 
-  release '1.8.0', crystax: 5
+  release '1.8.0', crystax: 6
 
   depends_on 'zlib'
   depends_on 'openssl'
+
+  postpone_install true
 
   def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)
