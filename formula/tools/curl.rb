@@ -4,11 +4,13 @@ class Curl < Library
   homepage 'http://curl.haxx.se/'
   url 'https://curl.haxx.se/download/curl-${version}.tar.bz2'
 
-  release '7.62.0'
+  release '7.63.0'
 
   depends_on 'zlib'
   depends_on 'openssl'
   depends_on 'libssh2'
+
+  postpone_install true
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)
