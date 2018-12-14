@@ -7,6 +7,7 @@ class Libarchive < Utility
   release '3.3.3'
 
   build_depends_on 'xz'
+  postpone_install true
 
   def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)
