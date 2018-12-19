@@ -1,15 +1,17 @@
-class Ruby < Utility
+class Ruby < Library
 
   desc 'Powerful, clean, object-oriented scripting language'
   homepage 'https://www.ruby-lang.org/'
   url 'https://cache.ruby-lang.org/pub/ruby/${block}/ruby-${version}.tar.gz' do |r| r.version.split('.').slice(0, 2).join('.') end
 
-  release '2.5.3'
+  release '2.5.3', crystax: 3
 
   depends_on 'zlib'
   depends_on 'openssl'
   depends_on 'libssh2'
   depends_on 'libgit2'
+
+  postpone_install true
 
   GEMS = {'rspec' => '3.7.0', 'minitar' => '0.6.1'}
 

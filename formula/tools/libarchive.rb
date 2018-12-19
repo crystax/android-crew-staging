@@ -4,10 +4,10 @@ class Libarchive < Utility
   homepage 'http://www.libarchive.org'
   url 'http://www.libarchive.org/downloads/libarchive-${version}.tar.gz'
 
-  # 3.3.2 fails to build for windows
-  release '3.3.1', crystax: 5
+  release '3.3.3'
 
   build_depends_on 'xz'
+  postpone_install true
 
   def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)
@@ -22,8 +22,12 @@ class Libarchive < Utility
             "--without-iconv",
             "--without-nettle",
             "--without-xml2",
+            "--without-cng",
             "--without-expat",
+            "--enable-bsdcat",
+            "--disable-bsdcpio",
             "--disable-silent-rules",
+            "--disable-rpath",
             "--with-sysroot"
            ]
 

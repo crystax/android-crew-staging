@@ -38,23 +38,32 @@ class HostBase < Formula
     File.join(Global::SERVICE_DIR, file_name, platform_name, release.version)
   end
 
-  def upgrading_ruby?(platform_name)
-    (name == 'ruby') and (Global::PLATFORM_NAME == platform_name)
+  def support_dev_files?
+    true
   end
 
-  def upgrading_xz?(platform_name)
-    (name == 'xz') and (Global::PLATFORM_NAME == platform_name)
+  def dev_files_installed?(_release, _platform_name = Global::PLATFORM_NAME)
+    raise "'#{name} has no dev files" unless has_dev_files?
+    false
   end
 
-  def upgrading_tar?(platform_name)
-    (name == 'tar') and (Global::PLATFORM_NAME == platform_name)
-  end
+  # def upgrading_ruby?(platform_name)
+  #   (name == 'ruby') and (Global::PLATFORM_NAME == platform_name)
+  # end
+
+  # def upgrading_xz?(platform_name)
+  #   (name == 'xz') and (Global::PLATFORM_NAME == platform_name)
+  # end
+
+  # def upgrading_tar?(platform_name)
+  #   (name == 'tar') and (Global::PLATFORM_NAME == platform_name)
+  # end
 
   def postpone_dir
     "#{Global::NDK_DIR}/postpone"
   end
 
-  def ruby_upgrade_script
+  def upgrade_script_filename
     ext = Global::OS == 'windows' ? 'cmd' :  'sh'
     "#{postpone_dir}/upgrade.#{ext}"
   end
@@ -78,8 +87,8 @@ class HostBase < Formula
   def uninstall_archive(release, platform_name)
     rel_dir = release_directory(release, platform_name)
     if Dir.exist? rel_dir
-      if upgrading_ruby?(platform_name)
-        gen_ruby_upgrade_script rel_dir
+      if postpone_install?(platform_name)
+        update_upgrade_script rel_dir
       else
         remove_archive_files rel_dir, platform_name
       end
@@ -96,21 +105,9 @@ class HostBase < Formula
     rel_dir = release_directory(release, platform_name)
     FileUtils.mkdir_p rel_dir
 
-    target_dir = (upgrading_ruby?(platform_name) and File.exist?(ruby_upgrade_script)) ? postpone_dir : Global::NDK_DIR
-
-    if (Global::OS == 'windows') && upgrading_xz?(platform_name)
-      Utils.use_xz_copy_prog
-    elsif upgrading_tar?(platform_name)
-      Utils.use_tar_copy_prog
-    end
+    target_dir = File.exist?(upgrade_script_filename) ? postpone_dir : Global::NDK_DIR
 
     Utils.unpack archive, target_dir
-
-    if (Global::OS == 'windows') && upgrading_xz?(platform_name)
-      Utils.reset_xz_prog
-    elsif upgrading_tar?(platform_name)
-      Utils.reset_tar_prog
-    end
 
     bin_list_file = File.join(target_dir, BIN_LIST_FILE)
     dev_list_file = File.join(target_dir, DEV_LIST_FILE)
@@ -171,7 +168,10 @@ class HostBase < Formula
       list = Dir.glob('**/*', File::FNM_DOTMATCH).delete_if { |e| e.end_with? ('.') }
       bin_list, dev_list = split_file_list(list, platform_name)
       File.open(BIN_LIST_FILE, 'w') { |f| bin_list.each { |l| f.puts l } }
-      File.open(DEV_LIST_FILE, 'w') { |f| dev_list.each { |l| f.puts l } } unless dev_list.empty?
+      unless dev_list.empty?
+        raise "'#{name}' is not supposed to have dev files: #{dev_list.join(',')}" unless has_dev_files?
+        File.open(DEV_LIST_FILE, 'w') { |f| dev_list.each { |l| f.puts l } }
+      end
     end
   end
 
@@ -187,75 +187,71 @@ class HostBase < Formula
     remove_files_from_list(dev_list_file, platform_name) if File.exist? dev_list_file
   end
 
-  def gen_ruby_upgrade_script rel_dir
+  def update_upgrade_script rel_dir
+    unless File.exist? upgrade_script_filename
+      FileUtils.mkdir_p File.dirname(upgrade_script_filename)
+      File.open(upgrade_script_filename, 'w') do |f|
+        ttl = 'This script is automatically generated to finish upgrade proccess of ruby'
+        if Global::OS != 'windows'
+          f.puts "\# #{ttl}"
+        else
+          f.puts '%echo off'
+          f.puts "rem #{ttl}"
+        end
+      end
+    end
+
     dirs = []
     files = []
     FileUtils.cd(Global::NDK_DIR) do
-      bin_dirs, bin_files = read_files_from_list(File.join(rel_dir, BIN_LIST_FILE))
-      dev_dirs, dev_files = read_files_from_list(File.join(rel_dir, DEV_LIST_FILE)) if File.exist?(DEV_LIST_FILE)
-      bin_dirs  ||= []
-      bin_files ||= []
-      dev_dirs  ||= []
-      dev_files ||= []
-      dirs  = bin_dirs + dev_dirs
-      files = bin_files + dev_files
-    end
-    FileUtils.mkdir_p postpone_dir
-    File.open(ruby_upgrade_script, 'w') do |f|
-      ttl = 'This script is automatically generated to finish upgrade proccess of ruby'
-      if Global::OS == 'windows'
-        f.puts '%echo off'
-        f.puts "rem #{ttl}"
-      else
-        f.puts "\# #{ttl}"
+      dirs, files = read_files_from_list(File.join(rel_dir, BIN_LIST_FILE))
+      if File.exist?(DEV_LIST_FILE)
+        dev_dirs, dev_files = read_files_from_list(File.join(rel_dir, DEV_LIST_FILE))
+        dirs  += dev_dirs
+        files += dev_files
       end
+    end
+
+    FileUtils.mkdir_p postpone_dir
+    File.open(upgrade_script_filename, 'a') do |f|
       f.puts
-      f.puts 'echo Finishing RUBY upgrade process'
+      f.puts "echo Finishing #{name.upcase} upgrade process"
       f.puts 'echo = Removing old binary files'
       f.puts
-      files.sort.uniq.reverse_each do |e|
-        dir = File.dirname(e)
-        if (dir.end_with?('/bin') and not dir.include?('/lib/')) or (dir.end_with?('/lib') and e.end_with?('.a'))
-          path = "#{Global::NDK_DIR}/#{e}".gsub('/', '\\')
+      files.sort.uniq.each do |file|
+        path = "#{Global::NDK_DIR}/#{file}"
+        if Global::OS != 'windows'
+          f.puts "rm -f #{path}"
+        else
+          f.puts "del /f/q #{path.gsub('/', '\\')}"
+        end
+      end
+      f.puts
+
+      f.puts "echo = Removing old directories"
+      dirs.sort.uniq.reverse_each do |dir|
+        if Dir.empty? dir
+          path = "#{Global::NDK_DIR}/#{dir}"
           if Global::OS != 'windows'
-            f.puts "rm -f #{path}"
+            f.puts "rmdir #{path}"
           else
-            f.puts "del /f/q #{path}"
+            f.puts "rmdir #{path.gsub('/', '\\')}"
           end
         end
       end
-      f.puts
-      lib_dir = "#{Global::TOOLS_DIR}/lib/ruby"
-      f.puts "echo = Removing old directories"
-      if Global::OS != 'windows'
-        f.puts "rm -rf #{lib_dir}"
-      else
-        lib_dir.gsub!('/', '\\')
-        f.puts "rd /q/s #{lib_dir}"
-      end
-      # there can be no include dir if ruby was not installed
-      inc_dir = dirs.select { |d| d =~ /\/include\/ruby-\d+\.\d+\.0$/ }[0]
-      if inc_dir
-        inc_dir = "#{Global::NDK_DIR}/#{inc_dir}"
-        if Global::OS != 'windows'
-          f.puts "rm -rf #{inc_dir}"
-        else
-          inc_dir.gsub!('/', '\\')
-          f.puts "rd /q/s #{inc_dir}"
-        end
-      end
-      f.puts
-      f.puts "echo = Copying new files"
-      src_dir = "#{postpone_dir}/prebuilt"
-      if Global::OS != 'windows'
-        f.puts "cp -r #{src_dir} #{Global::NDK_DIR}"
-      else
-        src_dir.gsub!('/', '\\')
-        dst_dir = "#{Global::NDK_DIR}/prebuilt".gsub('/', '\\')
-        f.puts "xcopy #{src_dir} #{dst_dir} /e/q"
-      end
+
+      # f.puts
+      # f.puts "echo = Copying new files"
+      # src_dir = "#{postpone_dir}/prebuilt"
+      # if Global::OS != 'windows'
+      #   f.puts "cp -r #{src_dir} #{Global::NDK_DIR}"
+      # else
+      #   src_dir.gsub!('/', '\\')
+      #   dst_dir = "#{Global::NDK_DIR}/prebuilt".gsub('/', '\\')
+      #   f.puts "xcopy #{src_dir} #{dst_dir} /e/q"
+      # end
     end
-    FileUtils.chmod 'a+x', ruby_upgrade_script
+    FileUtils.chmod 'a+x', upgrade_script_filename
   end
 
   def remove_files_from_list(file_list, platform_name)

@@ -1,14 +1,16 @@
-class Libgit2 < Utility
+class Libgit2 < Library
 
   desc "A portable, pure C implementation of the Git core methods provided as a re-entrant linkable library with a solid API"
   homepage 'https://libgit2.github.com/'
   url 'https://github.com/libgit2/libgit2/archive/v${version}.tar.gz'
 
-  release '0.27.5'
+  release '0.27.7'
 
   depends_on 'zlib'
   depends_on 'openssl'
   depends_on 'libssh2'
+
+  postpone_install true
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)

@@ -73,8 +73,16 @@ class DownloadError < RuntimeError
 end
 
 class UnknownAbi < RuntimeError
-  def initialize(abi)
-    super "unknown abi: #{abi}"
+  def initialize(*abis)
+    s = (abis.size > 1) ? 's' : ''
+    super "unknown abi#{s}: #{abis.join(', ')}"
+  end
+end
+
+class UnknownPlatform < RuntimeError
+  def initialize(*names)
+    s = (names.size > 1) ? 's' : ''
+    super "unknown platform#{s}: #{names.join(', ')}"
   end
 end
 
@@ -87,5 +95,11 @@ end
 class UnsupportedOS < RuntimeError
   def initialize(os)
     super "unsupported OS: #{os}"
+  end
+end
+
+class UnknownOption < RuntimeError
+  def initialize(opt)
+    super "unknown option: #{opt}"
   end
 end

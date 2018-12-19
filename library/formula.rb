@@ -88,6 +88,14 @@ class Formula
     false
   end
 
+  def support_dev_files?
+    false
+  end
+
+  def has_dev_files?
+    false
+  end
+
   def merge_default_install_options(opts)
     { platform: Global::PLATFORM_NAME, check_shasum: true, cache_only: false }.merge(opts)
   end
@@ -158,6 +166,10 @@ class Formula
     self.class.build_filelist
   end
 
+  def postpone_install?(platform_name)
+    self.class.postpone_install && (platform_name == Global::PLATFORM_NAME)
+  end
+
   class Dependency
 
     attr_reader :name, :namespace, :version, :options
@@ -181,13 +193,14 @@ class Formula
 
   class << self
 
-    attr_rw :name, :desc, :homepage, :namespace, :build_filelist
+    attr_rw :name, :desc, :homepage, :namespace, :build_filelist, :postpone_install
     attr_reader :urls, :releases, :dependencies, :build_dependencies
 
     # called when self inherited by subclass
     def inherited(subclass)
       subclass.namespace self.namespace
       subclass.build_filelist self.build_filelist
+      subclass.postpone_install self.postpone_install
     end
 
     def url(url, &block)

@@ -4,8 +4,9 @@ class Openssl < Package
   homepage "https://openssl.org/"
   url 'https://openssl.org/source/openssl-${version}.tar.gz'
 
-  release '1.0.2p'
-  release '1.1.0i'
+  release '1.0.2q'
+  release '1.1.0j'
+  release '1.1.1a'
 
   build_copy 'LICENSE'
   build_libs 'libcrypto', 'libssl'
@@ -13,7 +14,8 @@ class Openssl < Package
                 copy_installed_dirs: ['bin', 'include', 'lib']
 
   def build_for_abi(abi, toolchain, release, options)
-    ssl_ver = release.major_point_minor
+    # 1.0.2q -> 1.0.2
+    ssl_ver = release.version.gsub(/[^\d.]/, '')
     install_dir = install_dir_for_abi(abi)
     build_env['CFLAGS'] << ' -DOPENSSL_NO_DEPRECATED'
 
@@ -25,18 +27,18 @@ class Openssl < Package
             build_env['LDFLAGS'],
            ]
 
-    # 1.1.* uses engine/name for engine sonames
+    # 1.1.0 uses engine/name for engine sonames
     # todo: check if we can safely remove 'engine/' prefixes from engine's sonames
-    self.build_options[:check_sonames] = false if ssl_ver == '1.1'
+    self.build_options[:check_sonames] = false if (ssl_ver == '1.1.0') || (ssl_ver == '1.1.1')
 
     # parallel build seems to be broken on darwin
     # lets try parallell build with 1.1.*
-    self.num_jobs = 1 if ssl_ver == '1.0' and Global::OS == 'darwin' and options.num_jobs_default?
+    self.num_jobs = 1 if (ssl_ver == '1.0.2' || ssl_ver == '1.1.0') && (Global::OS == 'darwin') && options.num_jobs_default?
 
     system './Configure',  *args
 
     # 1.1* have no gost engine
-    fix_ccgost_makefile build_dir_for_abi(abi), toolchain.ldflags(abi) if ssl_ver == '1.0'
+    fix_ccgost_makefile build_dir_for_abi(abi), toolchain.ldflags(abi) if ssl_ver == '1.0.2'
     fix_make_depend if release.version == '1.0.2o'
 
     make 'depend'
@@ -46,11 +48,13 @@ class Openssl < Package
     # prepare installed files for packaging
     FileUtils.rm_rf File.join("#{install_dir}/lib/pkgconfig")
     FileUtils.cd("#{install_dir}/lib") do
-      FileUtils.mv "engines-#{ssl_ver}", 'engines' if ssl_ver == '1.1'
+      short_ver = release.major_point_minor
+      # todo: test if rename needed
+      #FileUtils.mv "engines-#{short_ver}", 'engines' if ssl_ver == '1.1.0'
       build_libs.each do |f|
         FileUtils.rm "#{f}.so"
         # 1.0.* uses 1.0.0 suffix for lib names
-        suffix =  (ssl_ver == '1.0') ? "#{ssl_ver}.0" : ssl_ver
+        suffix =  (ssl_ver == '1.0.2') ? '1.0.0' : short_ver
         FileUtils.mv "#{f}.so.#{suffix}", "#{f}.so"
       end
     end

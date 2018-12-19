@@ -1,6 +1,6 @@
 require_relative '../exceptions.rb'
 require_relative '../release.rb'
-require_relative '../formulary.rb'
+require_relative 'command.rb'
 require_relative 'list/options.rb'
 
 
@@ -10,14 +10,11 @@ module Crew
     List.new(args).execute
   end
 
-  class List
-
-    attr_reader :options, :formulary
+  class List < Command
 
     def initialize(args)
-      @formulary = Formulary.new
-      @options, rest = Options.parse_args(args)
-      raise CommandRequresNoArguments if rest.size > 0
+      super args, Options
+      raise CommandRequresNoArguments if self.args.size > 0
     end
 
     def execute
@@ -68,9 +65,16 @@ module Crew
       end
     end
 
-    Element = Struct.new(:name, :version, :crystax_version, :installed_sign, :installed_source) do
-      def initialize(name, version, crystax_version, iflag, sflag)
-        super name, version, crystax_version, (iflag ? '*' : ' '), (sflag ? '  source' : '')
+    FLAG_MSG = { source:                  '  source',
+                 no_source:               '',
+                 no_dev_files:            '',
+                 dev_files_installed:     '  dev files',
+                 dev_files_not_installed: '  no dev files'
+               }
+
+    Element = Struct.new(:name, :version, :crystax_version, :installed_sign, :dev_src_flag) do
+      def initialize(name, version, crystax_version, iflag, dev_src_flag)
+        super name, version, crystax_version, (iflag ? '*' : ' '), FLAG_MSG[dev_src_flag]
       end
 
       def <=>(e)
@@ -100,12 +104,23 @@ module Crew
               end
             end
             max_cxver_len = cxver.to_s.size if cxver.to_s.size > max_cxver_len
-            list << Element.new(f.name, ver, cxver, r.installed?, r.source_installed?)
+            flag = unless f.support_dev_files?
+                     r.source_installed? ? :source : :no_source
+                   else
+                     if !f.has_dev_files?
+                       :no_dev_files
+                     elsif f.dev_files_installed?(r)
+                       :dev_files_installed
+                     else
+                       :dev_files_not_installed
+                     end
+                   end
+            list << Element.new(f.name, ver, cxver, r.installed?, flag)
           end
         end
 
         list.each do |l|
-          printf " %s %-#{max_name_len}s  %-#{max_ver_len}s  %-#{max_cxver_len}s%s\n", l.installed_sign, l.name, l.version, l.crystax_version, l.installed_source
+          printf " %s %-#{max_name_len}s  %-#{max_ver_len}s  %-#{max_cxver_len}s%s\n", l.installed_sign, l.name, l.version, l.crystax_version, l.dev_src_flag
         end
       end
     end

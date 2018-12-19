@@ -47,5 +47,5 @@ class Arch
   MIPS64 = Arch.new(NAMES[:mips64], 64, MIN_64_API_LEVEL, 'lib64', 'mips64el-linux-android', 'mips64el-linux-android', ['mips64']).freeze
 
   LIST     = { arm: ARM, x86: X86, mips: MIPS, arm64: ARM64, x86_64: X86_64, mips64: MIPS64 }
-  ABI_LIST = LIST.values.map { |a| a.abis }.flatten
+  ABI_LIST = LIST.values.map(&:abis).flatten
 end

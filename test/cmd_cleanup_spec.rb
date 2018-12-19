@@ -29,7 +29,7 @@ describe "crew cleanup" do
     it "outputs error message" do
       crew 'cleanup', '--pkg-cashe'
       expect(exitstatus).to_not be_zero
-      expect(err.split("\n")[0]).to eq('error: unknow option: --pkg-cashe')
+      expect(err.split("\n")[0]).to eq('error: unknown option: --pkg-cashe')
     end
   end
 

@@ -1,10 +1,12 @@
-class Xz < Utility
+class Xz < Library
 
   desc "General-purpose data compression with high compression ratio"
   homepage "http://tukaani.org/xz/"
   url "http://tukaani.org/xz/xz-${version}.tar.xz"
 
-  release '5.2.4'
+  release '5.2.4', crystax: 3
+
+  postpone_install true
 
   def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)

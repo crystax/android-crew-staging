@@ -5,7 +5,7 @@ require_relative 'global.rb'
 require_relative 'formula.rb'
 require_relative 'base_package.rb'
 require_relative 'package.rb'
-require_relative 'utility.rb'
+require_relative 'library.rb'
 require_relative 'build_dependency.rb'
 require_relative 'toolchain.rb'
 require_relative 'arch.rb'
@@ -82,9 +82,10 @@ class Formulary
     list
   end
 
-  def dependencies(formula)
+  def dependencies(formula, options = {})
     result = []
     deps = formula.dependencies.dup
+    deps += formula.build_dependencies.dup if options[:with_build_deps]
 
     while deps.size > 0
       d = deps.shift
@@ -112,7 +113,7 @@ class Formulary
       .sort { |a,b| a.name <=> b.name }
       .uniq(&:name)
 
-    deps = packages.reduce([]) { |acc, f| acc + dependencies(f) }
+    deps = packages.reduce([]) { |acc, f| acc + dependencies(f).map(&:formula) }
       .sort { |a, b| a.name <=> b.name }
       .uniq(&:name)
 

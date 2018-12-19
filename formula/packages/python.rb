@@ -4,8 +4,8 @@ class Python < Package
   homepage "https://www.python.org"
   url "https://www.python.org/ftp/python/${version}/Python-${version}.tgz"
 
-  release '2.7.11', crystax: 3
-  release '3.5.1',  crystax: 3
+  release '2.7.11', crystax: 4
+  release '3.5.1',  crystax: 4
 
   depends_on 'sqlite'
   depends_on 'openssl', version: /^1\.0/
@@ -21,9 +21,9 @@ class Python < Package
     FileUtils.mkdir_p build_dir
     FileUtils.cp_r "#{src_dir}/.", build_dir
 
-    # use system compiler on darwin to build 3.5.1
-    # prebuilt gcc builds python that fails to run
-    unless Global::OS == 'darwin' and release.version == '3.5.1'
+    # use system compiler on darwin
+    # prebuilt gcc builds python that fails to link/run
+    unless Global::OS == 'darwin'
       gcc_path = "#{build_dir}/gcc"
       gxx_path = "#{build_dir}/g++"
 
@@ -42,8 +42,11 @@ class Python < Package
       end
     end
 
+    build_env['DYLD_LIBRARY_PATH'] = build_dir
+    build_env['LD_LIBRARY_PATH'] = build_dir
+
     FileUtils.cd(build_dir) do
-      configure
+      configure '--enable-shared'
       make
     end
 
@@ -70,6 +73,10 @@ class Python < Package
   def build_for_abi(abi, toolchain, release, _options)
     src_dir = build_dir_for_abi(abi)
     build_dir = "#{src_dir}/build"
+    native_build_dir = "#{build_base_dir}/native"
+
+    build_env['DYLD_LIBRARY_PATH'] = native_build_dir
+    build_env['LD_LIBRARY_PATH'] = native_build_dir
 
     @install_include_dir              = "#{package_dir}/include/python"
     @install_frozen_include_dir       = "#{package_dir}/include/frozen"

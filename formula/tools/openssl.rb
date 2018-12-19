@@ -1,12 +1,13 @@
-class Openssl < Utility
+class Openssl < Library
 
   desc "Cryptography and SSL/TLS Toolkit"
   homepage "https://openssl.org/"
   url 'https://www.openssl.org/source/openssl-${version}.tar.gz'
 
-  release '1.1.0i'
+  release '1.1.0j'
 
   depends_on 'zlib'
+  postpone_install true
 
   def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
     install_dir = install_dir_for_platform(platform.name, release)
@@ -36,6 +37,7 @@ class Openssl < Utility
     system './Configure',  *args
     system 'make', 'depend'
     system 'make', '-j', num_jobs
+    FileUtils.mkdir_p "#{install_dir}/bin" if platform.target_os == 'windows'
     system "make install"
 
     if options.check? platform

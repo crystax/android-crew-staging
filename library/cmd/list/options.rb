@@ -1,18 +1,17 @@
+require_relative '../../exceptions.rb'
 require_relative '../../global.rb'
-require_relative '../../command_options.rb'
+require_relative '../command.rb'
 
 
 module Crew
 
-  class List
+  class List < Command
 
-    class Options
-
-      extend CommandOptions
+    class Options < Command::Options
 
       def initialize(opts)
-        @list_tools = nil
-        @list_packages = nil
+        @list_tools = false
+        @list_packages = false
         @no_title = false
         @names_only = false
         @buildable_order = false
@@ -30,11 +29,11 @@ module Crew
           when '--buildable-order'
             @buildable_order = true
           else
-            raise "unknow option: #{opt}"
+            raise UnknownOption, opt
           end
         end
 
-        if (@list_tools == nil) && (@list_packages == nil)
+        if !@list_tools && !@list_packages
           @list_tools = true
           @list_packages = true
         end

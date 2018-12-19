@@ -13,6 +13,10 @@ describe "crew info" do
     clean_hold
     repository_init
     repository_clone
+    # make sure that tools installed without dev files
+    pkg_cache_add_tool 'curl', update: false
+    pkg_cache_add_tool 'ruby', update: false
+    crew_checked '-W install --no-check-shasum --cache-only --force curl ruby'
   end
 
   context "without argument" do
@@ -42,9 +46,10 @@ describe "crew info" do
                                      "Homepage:           https://www.ruby-lang.org/",
                                      "Description:        Powerful, clean, object-oriented scripting language",
                                      "Class:              ruby",
-                                     "Releases:           #{ruby_rel.version} #{ruby_rel.crystax_version} (*)",
+                                     "Releases:           #{ruby_rel.version} #{ruby_rel.crystax_version} (*/)",
                                      "Dependencies:       zlib (*), openssl (*), libssh2 (*), libgit2 (*)",
-                                     "Build dependencies: none"
+                                     "Build dependencies: none",
+                                     "Has dev files:      yes"
                                     ])
     end
   end
@@ -56,6 +61,27 @@ describe "crew info" do
       crew 'info', '--versions-only', 'curl'
       expect(result).to eq(:ok)
       expect(out.strip).to eq("#{Crew::Test::UTILS_RELEASES['curl'][3]}")
+    end
+  end
+
+  context "about curl installed with dev files" do
+    it "outputs info about ruby" do
+      pkg_cache_add_tool 'curl'
+      crew_checked '-W install --cache-only --with-dev-files --force curl'
+      crew 'info', 'curl'
+      curl_rel = Crew::Test::UTILS_RELEASES['curl'][0]
+      expect(result).to eq(:ok)
+      expect(out.split("\n")).to eq(["Name:               curl",
+                                     "Namespace:          host",
+                                     "Formula:            #{Global::FORMULA_DIR}/#{Global::NS_DIR[:host]}/curl.rb",
+                                     "Homepage:           http://curl.haxx.se/",
+                                     "Description:        Get a file from an HTTP, HTTPS or FTP server",
+                                     "Class:              curl",
+                                     "Releases:           #{curl_rel.version} #{curl_rel.crystax_version} (*/*)",
+                                     "Dependencies:       zlib (*), openssl (*), libssh2 (*)",
+                                     "Build dependencies: none",
+                                     "Has dev files:      yes"
+                                    ])
     end
   end
 
@@ -72,9 +98,10 @@ describe "crew info" do
                                      "Homepage:           http://curl.haxx.se/",
                                      "Description:        Get a file from an HTTP, HTTPS or FTP server",
                                      "Class:              curl",
-                                     "Releases:           #{curl_rel.version} #{curl_rel.crystax_version} (*)",
+                                     "Releases:           #{curl_rel.version} #{curl_rel.crystax_version} (*/)",
                                      "Dependencies:       zlib (*), openssl (*), libssh2 (*)",
                                      "Build dependencies: none",
+                                     "Has dev files:      yes",
                                      "",
                                      "Name:               libarchive",
                                      "Namespace:          host",
@@ -85,6 +112,7 @@ describe "crew info" do
                                      "Releases:           #{libarchive_rel.version} #{libarchive_rel.crystax_version} (*)",
                                      "Dependencies:       none",
                                      "Build dependencies: xz (*)",
+                                     "Has dev files:      no",
                                      "",
                                      "Name:               ruby",
                                      "Namespace:          host",
@@ -92,9 +120,10 @@ describe "crew info" do
                                      "Homepage:           https://www.ruby-lang.org/",
                                      "Description:        Powerful, clean, object-oriented scripting language",
                                      "Class:              ruby",
-                                     "Releases:           #{ruby_rel.version} #{ruby_rel.crystax_version} (*)",
+                                     "Releases:           #{ruby_rel.version} #{ruby_rel.crystax_version} (*/)",
                                      "Dependencies:       zlib (*), openssl (*), libssh2 (*), libgit2 (*)",
-                                     "Build dependencies: none"
+                                     "Build dependencies: none",
+                                     "Has dev files:      yes"
                                     ])
     end
   end
