@@ -4,8 +4,8 @@ class Python < Package
   homepage "https://www.python.org"
   url "https://www.python.org/ftp/python/${version}/Python-${version}.tgz"
 
-  release '2.7.11', crystax: 4
-  release '3.5.1',  crystax: 4
+  release '2.7.11', crystax: 5
+  release '3.5.1',  crystax: 5
 
   depends_on 'sqlite'
   depends_on 'openssl', version: /^1\.0/
@@ -21,9 +21,9 @@ class Python < Package
     FileUtils.mkdir_p build_dir
     FileUtils.cp_r "#{src_dir}/.", build_dir
 
-    # use system compiler on darwin
-    # prebuilt gcc builds python that fails to link/run
-    unless Global::OS == 'darwin'
+    # use system compiler on darwin for version 3.5.1
+    # because prebuilt gcc builds native python that fails to run
+    unless (Global::OS == 'darwin') && (release.version == '3.5.1')
       gcc_path = "#{build_dir}/gcc"
       gxx_path = "#{build_dir}/g++"
 
@@ -42,11 +42,8 @@ class Python < Package
       end
     end
 
-    build_env['DYLD_LIBRARY_PATH'] = build_dir
-    build_env['LD_LIBRARY_PATH'] = build_dir
-
     FileUtils.cd(build_dir) do
-      configure '--enable-shared'
+      configure
       make
     end
 
