@@ -563,7 +563,13 @@ describe "crew upgrade" do
         expect(out.split("\n")).to eq(["Will install: curl:#{curl_rel}",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{file}",
                                        "checking integrity of the archive file #{file}",
-                                       "unpacking archive"
+                                       "unpacking archive",
+                                       "Start postponed upgrade process",
+                                       "Finishing CURL upgrade process",
+                                       "= Removing old binary files",
+                                       "= Removing old directories",
+                                       "= Copying new files",
+                                       "= Cleaning up"
                                       ])
         expect(pkg_cache_in?(:host, 'curl', curl_rel.version, curl_rel.crystax_version)).to eq(true)
       end
@@ -581,7 +587,13 @@ describe "crew upgrade" do
         expect(out.split("\n")).to eq(["Will install: curl:#{curl_rel}",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{file}",
                                        "checking integrity of the archive file #{file}",
-                                       "unpacking archive"
+                                       "unpacking archive",
+                                       "Start postponed upgrade process",
+                                       "Finishing CURL upgrade process",
+                                       "= Removing old binary files",
+                                       "= Removing old directories",
+                                       "= Copying new files",
+                                       "= Cleaning up"
                                       ])
         expect(pkg_cache_in?(:host, 'curl', curl_rel.version, curl_rel.crystax_version)).to eq(true)
       end
@@ -599,7 +611,13 @@ describe "crew upgrade" do
         expect(out.split("\n")).to eq(["Will install: curl:#{curl_rel}",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{file}",
                                        "checking integrity of the archive file #{file}",
-                                       "unpacking archive"
+                                       "unpacking archive",
+                                       "Start postponed upgrade process",
+                                       "Finishing CURL upgrade process",
+                                       "= Removing old binary files",
+                                       "= Removing old directories",
+                                       "= Copying new files",
+                                       "= Cleaning up"
                                       ])
         expect(pkg_cache_in?(:host, 'curl', curl_rel.version, curl_rel.crystax_version)).to eq(true)
       end
@@ -630,6 +648,12 @@ describe "crew upgrade" do
                                        "checking integrity of the archive file #{ruby_file}",
                                        "unpacking archive",
                                        "Start postponed upgrade process",
+                                       "Finishing CURL upgrade process",
+                                       "= Removing old binary files",
+                                       "= Removing old directories",
+                                       "Finishing LIBARCHIVE upgrade process",
+                                       "= Removing old binary files",
+                                       "= Removing old directories",
                                        "Finishing RUBY upgrade process",
                                        "= Removing old binary files",
                                        "= Removing old directories",
@@ -924,7 +948,12 @@ describe "crew upgrade" do
                                        "unpacking archive",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/#{libtwo_file}",
                                        "checking integrity of the archive file #{libtwo_file}",
-                                       "unpacking archive"
+                                       "unpacking archive", "Start postponed upgrade process",
+                                       "Finishing CURL upgrade process",
+                                       "= Removing old binary files",
+                                       "= Removing old directories",
+                                       "= Copying new files",
+                                       "= Cleaning up"
                                       ])
         expect(pkg_cache_in?(:host, 'curl', curl_new_rel.version, curl_new_rel.crystax_version)).to eq(true)
       end
@@ -971,6 +1000,12 @@ describe "crew upgrade" do
                                        "checking integrity of the archive file #{ruby_file}",
                                        "unpacking archive",
                                        "Start postponed upgrade process",
+                                       "Finishing CURL upgrade process",
+                                       "= Removing old binary files",
+                                       "= Removing old directories",
+                                       "Finishing LIBARCHIVE upgrade process",
+                                       "= Removing old binary files",
+                                       "= Removing old directories",
                                        "Finishing RUBY upgrade process",
                                        "= Removing old binary files",
                                        "= Removing old directories",
