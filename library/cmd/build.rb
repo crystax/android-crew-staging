@@ -21,6 +21,8 @@ module Crew
     end
 
     def execute
+      options.parse_packages_options args, formulary
+
       add_all_versions if options.all_versions?
 
       args.each do |n|

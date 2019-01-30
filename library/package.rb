@@ -39,6 +39,20 @@ class Package < TargetBase
 
   attr_reader :pre_build_result, :post_build_result
 
+  class DefaultBuildOptions
+    def parse(args)
+      raise "unsupported package build options: #{args.join(',')}" unless args.empty?
+    end
+
+    def lines
+      []
+    end
+  end
+
+  def package_build_options
+    DefaultBuildOptions.new
+  end
+
   def has_home_directory?
     true
   end
@@ -132,7 +146,11 @@ class Package < TargetBase
     @target_dep_dirs = target_dep_dirs
 
     arch_list = Build.abis_to_arch_list(options.abis)
-    build_log_puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
+    build_log_puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(', ')}"
+    unless options.package_options[self.name].lines.empty?
+      build_log_puts "Using package build options:"
+      options.package_options[self.name].lines.each { |pbo| build_log_puts "  #{pbo}" }
+    end
 
     src_dir = source_directory(release)
     @num_jobs = options.num_jobs
