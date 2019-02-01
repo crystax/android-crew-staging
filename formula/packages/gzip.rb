@@ -4,7 +4,7 @@ class Gzip < Package
   homepage 'https://www.gnu.org/software/gzip/'
   url 'https://ftp.gnu.org/gnu/gzip/gzip-${version}.tar.gz'
 
-  release '1.9'
+  release '1.10'
 
   build_copy 'COPYING'
   build_options ldflags_in_c_wrapper: true,
@@ -12,12 +12,7 @@ class Gzip < Package
                 gen_android_mk:       false
 
   def build_for_abi(abi, _toolchain, _release, _options)
-    args = ["--prefix=#{install_dir_for_abi(abi)}",
-            "--host=#{host_for_abi(abi)}",
-            "--disable-silent-rules",
-            "--disable-rpath"
-           ]
-
+    args = [ "--disable-silent-rules", "--disable-rpath" ]
     configure *args
     make
     make 'install'
