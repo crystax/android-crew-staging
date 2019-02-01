@@ -5,7 +5,7 @@ class LibgpgError < Package
   homepage "https://www.gnupg.org/software/libgpg-error/"
   url "https://www.gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${version}.tar.bz2"
 
-  release '1.32'
+  release '1.35'
 
   build_copy 'COPYING','COPYING.LIB'
   build_libs 'libgpg-error'
@@ -14,9 +14,7 @@ class LibgpgError < Package
   def build_for_abi(abi, _toolchain,  _release, _options)
     install_dir = install_dir_for_abi(abi)
 
-    args =  [ "--prefix=#{install_dir}",
-              "--host=#{host_for_abi(abi)}",
-              "--disable-silent-rules",
+    args =  [ "--disable-silent-rules",
               "--enable-threads",
               "--enable-shared",
               "--enable-static",
