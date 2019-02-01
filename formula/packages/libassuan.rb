@@ -4,7 +4,8 @@ class Libassuan < Package
   homepage "https://www.gnupg.org/software/libassuan/index.html"
   url "https://www.gnupg.org/ftp/gcrypt/libassuan/libassuan-${version}.tar.bz2"
 
-  release '2.5.1', crystax: 3
+  #release '2.5.1', crystax: 3
+  release '2.5.2'
 
   depends_on 'libgpg-error'
 
@@ -21,8 +22,10 @@ class Libassuan < Package
               "--with-sysroot"
             ]
 
-    build_env['GPG_ERROR_CFLAGS'] = "-I#{target_dep_include_dir('libgpg-error')}"
-    build_env['GPG_ERROR_LIBS']   = "-L#{target_dep_lib_dir('libgpg-error', abi)} -lgpg-error"
+    build_env['GPG_ERROR_CFLAGS']    = "-I#{target_dep_include_dir('libgpg-error')}"
+    build_env['GPG_ERROR_LIBS']      = "-L#{target_dep_lib_dir('libgpg-error', abi)} -lgpg-error"
+    build_env['GPG_ERROR_MT_CFLAGS'] = build_env['GPG_ERROR_CFLAGS']
+    build_env['GPG_ERROR_MT_LIBS']   = "#{build_env['GPG_ERROR_LIBS']} -lpthread"
 
     configure *args
     make
