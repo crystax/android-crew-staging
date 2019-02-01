@@ -197,6 +197,7 @@ class Package < TargetBase
         end
         #
         setup_build_env abi, toolchain if build_options[:setup_env]
+        @build_abi = abi
         FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, options }
         install_dir = install_dir_for_abi(abi)
         Dir["#{install_dir}/**/*.pc"].each { |file| pc_edit_file file, release, abi unless File.symlink? file }
@@ -595,6 +596,9 @@ class Package < TargetBase
   end
 
   def configure(*args)
+    args = ["--host=#{host_for_abi(@build_abi)}"]          + args unless args.any? { |a| a.start_with?('--host=') }
+    args = ["--prefix=#{install_dir_for_abi(@build_abi)}"] + args unless args.any? { |a| a.start_with?('--prefix=') }
+
     src_dir = build_options[:build_outside_source_tree] ? source_directory(@build_release) : '.'
     system "#{src_dir}/configure", *args
   end
