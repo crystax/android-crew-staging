@@ -1,12 +1,12 @@
-diff -Naur a/random/rndunix.c b/random/rndunix.c
+diff -Naurw a/random/rndunix.c b/random/rndunix.c
 --- a/random/rndunix.c	2017-11-23 21:16:58.000000000 +0300
-+++ b/random/rndunix.c	2018-05-15 22:59:09.479849387 +0300
++++ b/random/rndunix.c	2019-02-01 20:52:31.823932412 +0300
 @@ -3,7 +3,7 @@
   *									    *
   *   Unix Randomness-Gathering Code					    *
   *									    *
 - *   Copyright Peter Gutmann, Paul Kendall, and Chris Wedgwood 1996-1999.   *
-+ *   Copyright Peter Gutmann, Paul Kendall, and Chris Wedgwood 1996-1999, 2018.   *
++ *   Copyright Peter Gutmann, Paul Kendall, and Chris Wedgwood 1996-1999, 2019.   *
   *   Heavily modified for GnuPG by Werner Koch				    *
   *									    *
   *									    *
