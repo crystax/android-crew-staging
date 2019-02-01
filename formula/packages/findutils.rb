@@ -4,7 +4,7 @@ class Findutils < Package
   homepage 'https://www.gnu.org/software/findutils/'
   url 'https://ftp.gnu.org/pub/gnu/findutils/findutils-${version}.tar.gz'
 
-  release '4.6.0', crystax: 4
+  release '4.6.0', crystax: 5
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'libexec'],
@@ -12,9 +12,7 @@ class Findutils < Package
 
 
   def build_for_abi(abi, _toolchain,  _release, _options)
-    args = ["--prefix=#{install_dir_for_abi(abi)}",
-            "--host=#{host_for_abi(abi)}",
-            "--disable-silent-rules",
+    args = ["--disable-silent-rules",
             "--disable-rpath",
             "--disable-nls"
            ]
