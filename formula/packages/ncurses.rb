@@ -2,22 +2,17 @@ class Ncurses < Package
 
   desc "The ncurses library is a free software emulation of curses in System V Release 4.0 (SVr4)"
   homepage "https://www.gnu.org/software/ncurses/"
-  #url "https://github.com/mirror/ncurses/archive/v${version}.tar.gz"
-  url "http://ftp.gnu.org/gnu/ncurses/ncurses-${version}.tar.gz"
+  url "https://ftp.gnu.org/gnu/ncurses/ncurses-${version}.tar.gz"
 
-  release '6.1'
+  release '6.1', crystax: 2
 
   build_copy 'COPYING'
-  build_options copy_installed_dirs:       ['bin', 'lib', 'include', 'share'],
-                gen_android_mk:            false
+  build_options copy_installed_dirs: ['bin', 'lib', 'include', 'share'],
+                gen_android_mk:      false
 
   def build_for_abi(abi, _toolchain, release, _options)
-    install_dir = install_dir_for_abi(abi)
-
     # todo: --with-pthread, --enable-reentrant, --disable-stripping?
-    args = [ "--prefix=#{install_dir}",
-             "--host=#{host_for_abi(abi)}",
-             "--without-ada",
+    args = [ "--without-ada",
              "--without-cxx-binding",
              "--without-manpages",
              "--without-tests",
@@ -44,7 +39,7 @@ class Ncurses < Package
 
     clean_install_dir abi
 
-    FileUtils.cd("#{install_dir}/lib") do
+    FileUtils.cd("#{install_dir_for_abi(abi)}/lib") do
       suffix = ".#{release.major_point_minor}"
       Dir['*.so.*'].each do |f|
         FileUtils.mv f, File.basename(f, suffix)
