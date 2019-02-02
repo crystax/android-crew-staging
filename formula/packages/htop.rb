@@ -4,7 +4,7 @@ class Htop < Package
   homepage 'https://hisham.hm/htop/'
   url 'https://hisham.hm/htop/releases/${version}/htop-${version}.tar.gz'
 
-  release '2.2.0', crystax: 2
+  release '2.2.0', crystax: 3
 
   depends_on 'ncurses'
 
@@ -17,9 +17,7 @@ class Htop < Package
 
 
   def build_for_abi(abi, _toolchain,  _release, _options)
-    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
-              "--host=#{host_for_abi(abi)}",
-              "--disable-silent-rules",
+    args =  [ "--disable-silent-rules",
 	      "--enable-unicode",
               "--enable-linux-affinity"
             ]
