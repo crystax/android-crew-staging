@@ -3,9 +3,9 @@ class ProcpsNg < Package
   name 'procps-ng'
   desc 'Command line and full screen utilities for browsing procfs'
   homepage 'https://gitlab.com/procps-ng/procps'
-  url "https://gitlab.com/procps-ng/procps.git|tag:v${version}"
+  url "https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-${version}.tar.xz"
 
-  release '3.3.12', crystax: 7
+  release '3.3.12', crystax: 8
 
   depends_on 'ncurses'
 
@@ -25,14 +25,7 @@ class ProcpsNg < Package
     build_env['LDFLAGS'] += " -L#{target_dep_lib_dir('ncurses', abi)}"
     build_env['LIBS']     = '-lncursesw'
 
-     if Global::OS == 'darwin'
-       build_env['PATH'] = "/usr/local/opt/gettext/bin:#{ENV['PATH']}"
-       fix_autogen_sh
-    end
-
-    args =  [ "--prefix=#{install_dir}",
-              "--host=#{host_for_abi(abi)}",
-              "--disable-silent-rules",
+    args =  [ "--disable-silent-rules",
               "--disable-nls",
               "--disable-rpath",
 	      "--with-pic",
@@ -43,7 +36,6 @@ class ProcpsNg < Package
               "--with-sysroot"
             ]
 
-    system './autogen.sh'
     set_ac_cv
     configure *args
     unset_ac_cv
@@ -51,19 +43,6 @@ class ProcpsNg < Package
     make 'install'
 
     clean_install_dir abi
-  end
-
-  def fix_autogen_sh
-    replace_lines_in_file('autogen.sh') do |line|
-      case line
-      when /libtoolize/
-        line.gsub 'libtoolize', 'glibtoolize'
-      when /libtool/
-        line.gsub 'libtool', 'glibtool'
-      else
-        line
-      end
-    end
   end
 
   def set_ac_cv
