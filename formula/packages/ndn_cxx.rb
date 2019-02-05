@@ -2,9 +2,9 @@ class NdnCxx < Package
 
   desc "ndn-cxx library"
   homepage "https://named-data.net/doc/ndn-cxx/"
-  url 'git://github.com/cawka/ndn-cxx.git|git_commit:317e61ec631a16d5fcec4b87435a7f932b28d69a'
+  url 'git://github.com/named-data/ndn-cxx.git|git_commit:b72360faeed901daee24c6ff8df5918e225f702e'
 
-  release version: '0.6.2-19-g317e61ec', crystax_version: 1
+  release version: '0.6.5', crystax_version: 1
 
   depends_on 'boost'
   depends_on 'openssl'
