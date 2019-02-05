@@ -1,7 +1,7 @@
-From edfe96100ef2c9caf9e1331d361df83b05e3d1a7 Mon Sep 17 00:00:00 2001
+From bfffd84558e8d1b4fa6b0eb7217b0a6fa3ed5e1c Mon Sep 17 00:00:00 2001
 From: Alexander Afanasyev <aa@cs.fiu.edu>
 Date: Thu, 5 Jul 2018 12:22:17 -0400
-Subject: [PATCH 2/2] Build patches
+Subject: [PATCH 1/3] Build patches
 
 Change-Id: I094bb7a474610c0fb33698edc826656dbd1bbb5c
 ---
@@ -53,10 +53,10 @@ index 7f4ff7f6..629e6493 100644
                      source=[mainFile],
                      use=commonDeps + ' ' + srcObjects,
 diff --git a/wscript b/wscript
-index d4da8c4b..c38b72ab 100644
+index 6aee7cd3..18b7a4c8 100644
 --- a/wscript
 +++ b/wscript
-@@ -89,10 +89,13 @@ def configure(conf):
+@@ -97,10 +97,13 @@ def configure(conf):
  
      conf.find_program('bash', var='BASH')
  
@@ -72,18 +72,18 @@ index d4da8c4b..c38b72ab 100644
 +    conf.add_os_flags("CXXFLAGS_NDN_CXX")
 +    conf.add_os_flags("LINKFLAGS_NDN_CXX")
  
-     conf.checkDependency(name='librt', lib='rt', mandatory=False)
-     conf.checkDependency(name='libresolv', lib='resolv', mandatory=False)
-@@ -111,7 +114,7 @@ def configure(conf):
-         conf.env.WITH_OTHER_TESTS = True
-         conf.define('WITH_OTHER_TESTS', 1)
+     conf.check_cfg(package='libsystemd', args=['--cflags', '--libs'],
+                    uselib_store='SYSTEMD', mandatory=False)
+@@ -114,7 +117,7 @@ def configure(conf):
+ 
+     conf.check_cxx(header_name='valgrind/valgrind.h', define_name='HAVE_VALGRIND', mandatory=False)
  
 -    boost_libs = 'system chrono program_options thread log log_setup'
 +    boost_libs = 'system atomic chrono program_options regex filesystem date_time iostreams thread log log_setup'
      if conf.options.with_tests or conf.options.with_other_tests:
          boost_libs += ' unit_test_framework'
  
-@@ -198,7 +201,9 @@ def build(bld):
+@@ -202,7 +205,9 @@ def build(bld):
                  source=bld.path.ant_glob('rib/**/*.cpp'),
                  use='core-objects')
  
@@ -93,10 +93,10 @@ index d4da8c4b..c38b72ab 100644
 +              cnum=VERSION_BASE,
                  target='bin/nfd',
                  source='daemon/main.cpp',
-                 use='daemon-objects rib-objects')
-@@ -213,6 +218,17 @@ def build(bld):
-         IF_HAVE_LIBPCAP='' if bld.env.HAVE_LIBPCAP else '; ',
-         IF_HAVE_WEBSOCKET='' if bld.env.HAVE_WEBSOCKET else '; ')
+                 use='daemon-objects rib-objects SYSTEMD')
+@@ -226,6 +231,17 @@ def build(bld):
+             source=systemd_units,
+             target=[u.change_ext('') for u in systemd_units])
  
 +    headers = bld.path.ant_glob(['core/**/*.hpp', 'daemon/**/*.hpp', 'rib/**/*.hpp'])
 +
@@ -113,5 +113,5 @@ index d4da8c4b..c38b72ab 100644
          bld(features='sphinx',
              name='manpages',
 -- 
-2.17.0
+2.20.1
 

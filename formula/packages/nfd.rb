@@ -2,11 +2,11 @@ class Nfd < Package
 
   desc "NDN Forwarding Daemon (as a set of shared libraries)"
   homepage "https://named-data.net/doc/NFD/"
-  # url "git://github.com/named-data/NFD.git|git_commit:d657d53eeab35cb88dcd34daf97716f4f9a0b0d4"
+  # url "git://github.com/named-data/NFD.git|git_commit:"
   # rugged doesn't support recursive clone of submodules, needed for websockets
   url "https://named-data.net/downloads/nfd-${version}.tar.bz2"
 
-  release version: '0.6.2-11-gd657d53', crystax_version: 2
+  release version: '0.6.5', crystax_version: 1
 
   depends_on 'boost'
   depends_on 'ndn_cxx'

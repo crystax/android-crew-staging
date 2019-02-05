@@ -1,0 +1,31 @@
+From e7c5d92d0785a1c89f900ccca29078e658e3f06b Mon Sep 17 00:00:00 2001
+From: Alexander Afanasyev <aa@cs.fiu.edu>
+Date: Tue, 5 Feb 2019 13:44:13 -0500
+Subject: [PATCH 3/3] rib: Disable throwing exception if RIB running together
+ with forwarding thread
+
+Change-Id: Ief66a405a7f60df7d8bee538cc8540b5ade1feb9
+---
+ rib/service.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/rib/service.cpp b/rib/service.cpp
+index a91a93ea..42912d02 100644
+--- a/rib/service.cpp
++++ b/rib/service.cpp
+@@ -116,11 +116,12 @@ Service::Service(ndn::KeyChain& keyChain, shared_ptr<ndn::Transport> localNfdTra
+   if (s_instance != nullptr) {
+     BOOST_THROW_EXCEPTION(std::logic_error("RIB service cannot be instantiated more than once"));
+   }
++#ifndef ANDROID
+   if (&getGlobalIoService() != &getRibIoService()) {
+     BOOST_THROW_EXCEPTION(std::logic_error("RIB service must run on RIB thread"));
+   }
++#endif
+   s_instance = this;
+ 
+   ConfigFile config(ConfigFile::ignoreUnknownSection);
+ 
+-- 
+2.20.1
+

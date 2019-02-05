@@ -1,5 +1,5 @@
 packages/sqlite.rb 3.18.0_3 android 319b7ee9c6fcb68015ab76af4c2de881536aeed3dc51d1891832896f0aae7997
-packages/nfd.rb 0.6.2-11-gd657d53_2 android ed1e9d72d0ba449edded6e8fa2ca040ae2f18298c3669b724e52176f1b68390c
 packages/openssl.rb 1.1.1-pre8_1 android c5805270348b7d722e892d1edd9f607ee86b40e534f4cf231b7ba51faf6092f3
 packages/boost.rb 1.68.0_1 android b9c98cd6e8409fbf08303098b6c2fac8114cfefabcbd2d7cbe11853a343e8d13
 packages/ndn_cxx.rb 0.6.5_1 android 9ea5183c7f2cb666717f5af8c9a6db6f3f4be5739e1d402129cdd6d9d21d2222
+packages/nfd.rb 0.6.5_1 android efd188e8be029499466cdebfcd6b266e62a129503751a59e68a48f4ec36eb8eb
