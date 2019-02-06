@@ -4,7 +4,7 @@ class Libxml2 < Package
   homepage "http://www.xmlsoft.org"
   url "ftp://xmlsoft.org/libxml2/libxml2-${version}.tar.gz"
 
-  release '2.9.8', crystax: 2
+  release '2.9.9'
 
   depends_on 'xz'
 
@@ -14,9 +14,7 @@ class Libxml2 < Package
   def build_for_abi(abi, _toolchain, _release, _options)
     install_dir = install_dir_for_abi(abi)
 
-    args =  [ "--prefix=#{install_dir}",
-              "--host=#{host_for_abi(abi)}",
-              "--disable-silent-rules",
+    args =  [ "--disable-silent-rules",
               "--enable-shared",
               "--enable-static",
               "--with-pic",
