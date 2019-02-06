@@ -2,9 +2,10 @@ class Ffmpeg < Package
 
   desc "A complete, cross-platform solution to record, convert and stream audio and video"
   homepage "https://www.ffmpeg.org"
-  url "http://ffmpeg.org/releases/ffmpeg-${version}.tar.bz2"
+  url "https://ffmpeg.org/releases/ffmpeg-${version}.tar.bz2"
 
   release '4.0.2'
+  #release '4.1'
 
   depends_on 'xz'
   depends_on 'x264'
@@ -19,7 +20,7 @@ class Ffmpeg < Package
                 use_cxx: true,
                 copy_installed_dirs: ['bin', 'include', 'lib', 'share']
 
-  def build_for_abi(abi, toolchain, _release, _options)
+  def build_for_abi(abi, toolchain, release, _options)
     install_dir = install_dir_for_abi(abi)
 
     arch, cpu = target_arch_and_cpu_for_abi(abi)
@@ -54,7 +55,7 @@ class Ffmpeg < Package
     build_env['LDFLAGS'] += ' ' + gnutls_libs + ' -lx264 -lgmp -llzma' + " -L#{toolchain.sysroot_dir}/usr/lib64"
     build_env['PATH'] = "#{toolchain.bin_dir}:#{Build.path}"
 
-    configure *args
+    system "#{source_directory(release)}/configure", *args
     # add_pie_to_exe_ldflags
     make 'V=1'
     make 'install'
