@@ -9,11 +9,12 @@ class Htop < Package
   depends_on 'ncurses'
 
   build_copy 'COPYING'
-  build_options add_deps_to_cflags: true,
-                add_deps_to_ldflags: true,
+  build_options add_deps_to_cflags:   true,
+                add_deps_to_ldflags:  true,
                 ldflags_in_c_wrapper: true,
                 copy_installed_dirs:  ['bin'],
-                gen_android_mk:       false
+                gen_android_mk:       false,
+                wrapper_remove_args:  ['-ltinfo'] # configure on linux adds it when testing for ncurses
 
 
   def build_for_abi(abi, _toolchain,  _release, _options)
