@@ -39,20 +39,6 @@ class Package < TargetBase
 
   attr_reader :pre_build_result, :post_build_result
 
-  class DefaultBuildOptions
-    def parse(args)
-      raise "unsupported package build options: #{args.join(',')}" unless args.empty?
-    end
-
-    def lines
-      []
-    end
-  end
-
-  def package_build_options
-    DefaultBuildOptions.new
-  end
-
   def has_home_directory?
     true
   end

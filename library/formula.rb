@@ -96,6 +96,20 @@ class Formula
     false
   end
 
+  class DefaultBuildOptions
+    def parse(args)
+      raise "unsupported formula build options: #{args.join(',')}" unless args.empty?
+    end
+
+    def lines
+      []
+    end
+  end
+
+  def package_build_options
+    DefaultBuildOptions.new
+  end
+
   def merge_default_install_options(opts)
     { platform: Global::PLATFORM_NAME, check_shasum: true, cache_only: false }.merge(opts)
   end
