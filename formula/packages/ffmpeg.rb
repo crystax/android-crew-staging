@@ -4,8 +4,7 @@ class Ffmpeg < Package
   homepage "https://www.ffmpeg.org"
   url "https://ffmpeg.org/releases/ffmpeg-${version}.tar.bz2"
 
-  release '4.0.2'
-  #release '4.1'
+  release '4.1'
 
   depends_on 'xz'
   depends_on 'x264'
@@ -49,6 +48,8 @@ class Ffmpeg < Package
               "--pkg-config=#{pkg_config}",
               "--extra-ldexeflags=-pie"
             ]
+
+    args << '--disable-asm' if ['mipsel', 'mips64'].include? arch
 
     gnutls_libs = '-lgnutls -lp11-kit -lidn2 -lunistring -lnettle -lhogweed -lffi -lgmp -lz'
 
