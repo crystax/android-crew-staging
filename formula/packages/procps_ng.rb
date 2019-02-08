@@ -14,7 +14,8 @@ class ProcpsNg < Package
                 add_deps_to_cflags:   false,
                 add_deps_to_ldflags:  false,
                 copy_installed_dirs:  ['bin', 'include', 'lib', 'sbin'],
-                gen_android_mk:       false
+                gen_android_mk:       false,
+                wrapper_remove_args:  ['-ltinfo']
 
   def build_for_abi(abi, _toolchain, release, _options)
     install_dir = install_dir_for_abi(abi)
