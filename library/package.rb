@@ -32,7 +32,6 @@ class Package < TargetBase
                         gen_android_mk:                 true,
                         wrapper_translate_sonames:      Hash.new,
                         wrapper_fix_stl:                false,
-                        wrapper_filter_out:             nil,
                         wrapper_remove_args:            Array.new,
                         wrapper_replace_args:           Hash.new
                       }.freeze
