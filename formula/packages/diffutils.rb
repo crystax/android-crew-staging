@@ -4,7 +4,7 @@ class Diffutils < Package
   homepage 'https://www.gnu.org/software/diffutils/'
   url 'https://ftp.gnu.org/gnu/diffutils/diffutils-${version}.tar.xz'
 
-  release '3.6', crystax: 3
+  release '3.7'
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin'],
@@ -12,12 +12,7 @@ class Diffutils < Package
 
 
   def build_for_abi(abi, _toolchain,  _release, _options)
-    args = ["--prefix=#{install_dir_for_abi(abi)}",
-            "--host=#{host_for_abi(abi)}",
-            "--disable-silent-rules",
-            "--disable-rpath"
-           ]
-
+    args = [ "--disable-silent-rules", "--disable-rpath" ]
     configure *args
     make
     make 'install'

@@ -4,7 +4,7 @@ class Pinentry < Package
   homepage "https://www.gnupg.org/related_software/pinentry/"
   url "https://www.gnupg.org/ftp/gcrypt/pinentry/pinentry-${version}.tar.bz2"
 
-  release '1.1.0', crystax: 3
+  release '1.1.0', crystax: 4
 
   depends_on 'ncurses'
   depends_on 'libgpg-error'
@@ -14,9 +14,7 @@ class Pinentry < Package
   build_options copy_installed_dirs: ['bin']
 
   def build_for_abi(abi, _toolchain,  _release, _options)
-    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
-              "--host=#{host_for_abi(abi)}",
-              "--disable-silent-rules",
+    args =  [ "--disable-silent-rules",
               "--disable-rpath",
               "--enable-libsecret",
               "--disable-pinentry-emacs",

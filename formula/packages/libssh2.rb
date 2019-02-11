@@ -1,10 +1,10 @@
 class Libssh2 < Package
 
   desc "libssh2 is a client-side C library implementing the SSH2 protocol"
-  homepage 'http://www.libssh2.org/'
+  homepage 'https://www.libssh2.org/'
   url 'http://www.libssh2.org/download/libssh2-${version}.tar.gz'
 
-  release '1.8.0', crystax: 5
+  release '1.8.0', crystax: 6
 
   depends_on 'openssl'
 
@@ -13,9 +13,7 @@ class Libssh2 < Package
                 add_deps_to_ldflags: true
 
   def build_for_abi(abi, _toolchain, _release, _options)
-    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
-              "--host=#{host_for_abi(abi)}",
-              "--disable-silent-rules",
+    args =  [ "--disable-silent-rules",
               "--disable-examples-build",
               "--enable-shared",
               "--enable-static",

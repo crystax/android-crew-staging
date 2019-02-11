@@ -32,26 +32,11 @@ class Package < TargetBase
                         gen_android_mk:                 true,
                         wrapper_translate_sonames:      Hash.new,
                         wrapper_fix_stl:                false,
-                        wrapper_filter_out:             nil,
                         wrapper_remove_args:            Array.new,
                         wrapper_replace_args:           Hash.new
                       }.freeze
 
   attr_reader :pre_build_result, :post_build_result
-
-  class DefaultBuildOptions
-    def parse(args)
-      raise "unsupported package build options: #{args.join(',')}" unless args.empty?
-    end
-
-    def lines
-      []
-    end
-  end
-
-  def package_build_options
-    DefaultBuildOptions.new
-  end
 
   def has_home_directory?
     true
@@ -197,6 +182,7 @@ class Package < TargetBase
         end
         #
         setup_build_env abi, toolchain if build_options[:setup_env]
+        @build_abi = abi
         FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, options }
         install_dir = install_dir_for_abi(abi)
         Dir["#{install_dir}/**/*.pc"].each { |file| pc_edit_file file, release, abi unless File.symlink? file }
@@ -595,6 +581,9 @@ class Package < TargetBase
   end
 
   def configure(*args)
+    args = ["--host=#{host_for_abi(@build_abi)}"]          + args unless args.any? { |a| a.start_with?('--host=') }
+    args = ["--prefix=#{install_dir_for_abi(@build_abi)}"] + args unless args.any? { |a| a.start_with?('--prefix=') }
+
     src_dir = build_options[:build_outside_source_tree] ? source_directory(@build_release) : '.'
     system "#{src_dir}/configure", *args
   end

@@ -4,7 +4,7 @@ class Readline < Package
   homepage "https://tiswww.case.edu/php/chet/readline/rltop.html"
   url "https://ftp.gnu.org/gnu/readline/readline-${version}.tar.gz"
 
-  release '7.0', crystax: 3
+  release '8.0'
 
   depends_on 'ncurses'
 
@@ -16,9 +16,7 @@ class Readline < Package
 
   def build_for_abi(abi, _toolchain,  release, _options)
     install_dir = install_dir_for_abi(abi)
-    args =  [ "--prefix=#{install_dir}",
-              "--host=#{host_for_abi(abi)}",
-              "--enable-multibyte",
+    args =  [ "--enable-multibyte",
               "--enable-shared",
               "--enable-static",
               "--with-curses"

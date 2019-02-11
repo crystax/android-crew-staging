@@ -4,7 +4,7 @@ class Nettle < Package
   homepage "https://www.lysator.liu.se/~nisse/nettle/"
   url "https://ftp.gnu.org/gnu/nettle/nettle-${version}.tar.gz"
 
-  release '3.4', crystax: 2
+  release '3.4.1'
 
   depends_on 'openssl'
   depends_on 'gmp'
@@ -19,9 +19,7 @@ class Nettle < Package
   def build_for_abi(abi, _toolchain, _release, _options)
     install_dir = install_dir_for_abi(abi)
 
-    args =  [ "--prefix=#{install_dir}",
-              "--host=#{host_for_abi(abi)}",
-              "--enable-shared",
+    args =  [ "--enable-shared",
               "--enable-static",
               "--disable-openssl",
               "--disable-documentation"
@@ -33,8 +31,8 @@ class Nettle < Package
 
     clean_install_dir abi
     FileUtils.cd("#{install_dir}/lib") do
-      FileUtils.mv 'libhogweed.so.4.4', 'libhogweed.so'
-      FileUtils.mv 'libnettle.so.6.4',  'libnettle.so'
+      FileUtils.mv 'libhogweed.so.4.5', 'libhogweed.so'
+      FileUtils.mv 'libnettle.so.6.5',  'libnettle.so'
     end
   end
 

@@ -4,7 +4,7 @@ class Vim < Package
   homepage 'https://github.com/vim/vim'
   url 'https://github.com/vim/vim/archive/v${version}.tar.gz'
 
-  release '8.1.0242'
+  release '8.1.0875'
 
   depends_on 'ncurses'
 
@@ -17,11 +17,7 @@ class Vim < Package
                 gen_android_mk:      false
 
   def build_for_abi(abi, _toolchain, _release, _options)
-    install_dir = install_dir_for_abi(abi)
-
-    args =  ["--prefix=#{install_dir}",
-             "--host=#{host_for_abi(abi)}",
-             "--disable-darwin",
+    args =  ["--disable-darwin",
              "--enable-gui=no",
              "--disable-nls",
              "--with-tlib=ncurses"
@@ -34,7 +30,7 @@ class Vim < Package
     make
     make 'install'
 
-    FileUtils.rm_rf "#{install_dir}/share/man"
+    FileUtils.rm_rf "#{install_dir_for_abi(abi)}/share/man"
   end
 
   def set_vim_cv

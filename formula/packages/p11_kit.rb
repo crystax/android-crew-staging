@@ -5,7 +5,7 @@ class P11Kit < Package
   homepage 'https://p11-glue.github.io/p11-glue/p11-kit.html'
   url 'https://github.com/p11-glue/p11-kit/releases/download/${version}/p11-kit-${version}.tar.gz'
 
-  release '0.23.12'
+  release '0.23.15'
 
   depends_on 'libffi'
 
@@ -14,9 +14,7 @@ class P11Kit < Package
                 gen_android_mk:      false
 
   def build_for_abi(abi, _toolchain, _release, _options)
-    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
-              "--host=#{host_for_abi(abi)}",
-              "--disable-silent-rules",
+    args =  [ "--disable-silent-rules",
               "--enable-shared",
               "--disable-nls",
               "--disable-doc",
