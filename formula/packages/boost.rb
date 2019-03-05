@@ -4,10 +4,11 @@ class Boost < Package
   homepage "http://www.boost.org"
   url "https://downloads.sourceforge.net/project/boost/boost/${version}/boost_${block}.tar.bz2" do |r| r.version.gsub('.', '_') end
 
-  release '1.67.0'
+  release '1.67.0', crystax: 2
 
   # todo: add versions, like this: python:2.7.*, python:3.*.*
   depends_on 'python'
+  depends_on 'xz'
 
   build_options build_outside_source_tree: true,
                 setup_env:                 false,
@@ -106,14 +107,6 @@ class Boost < Package
   end
 
   def build_for_abi(abi, _toolchain, release, options)
-    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
-              "--host=#{host_for_abi(abi)}",
-              "--enable-shared",
-              "--enable-static",
-              "--with-pic",
-              "--disable-ld-version-script"
-            ]
-
     arch = Build.arch_for_abi(abi)
     bjam_arch, bjam_abi = bjam_data(arch)
 
@@ -143,7 +136,7 @@ class Boost < Package
 
       build_env.clear
       cxx = "#{work_dir}/#{toolchain.cxx_compiler_name}"
-      cxxflags = cxx_flags(toolchain, abi)
+      cxxflags = cxx_flags(toolchain, abi) + " -I#{target_dep_include_dir('xz')}"
 
       build_env['PATH'] = "#{work_dir}:#{ENV['PATH']}"
 
@@ -224,7 +217,7 @@ class Boost < Package
   end
 
   def ld_flags(toolchain, abi)
-    { before: "#{toolchain.ldflags(abi)} --sysroot=#{Build.sysroot(abi)} #{toolchain.search_path_for_stl_libs(abi)}",
+    { before: "#{toolchain.ldflags(abi)} --sysroot=#{Build.sysroot(abi)} #{toolchain.search_path_for_stl_libs(abi)} -L#{target_dep_lib_dir('xz', abi)}",
       after:  "-l#{toolchain.stl_lib_name}_shared"
     }
   end
