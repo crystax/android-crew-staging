@@ -6,8 +6,8 @@ class Boost < Package
 
   release '1.67.0', crystax: 2
 
-  # todo: add versions, like this: python:2.7.*, python:3.*.*
-  depends_on 'python'
+  depends_on 'python', version: /^2\.7/
+  depends_on 'python', version: /^3\.5/
   depends_on 'xz'
 
   build_options build_outside_source_tree: true,
