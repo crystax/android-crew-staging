@@ -4,7 +4,7 @@ class Platforms < BasePackage
 
   desc "Android platforms headers and libraries"
 
-  release '24', crystax: 9
+  release '24', crystax: 10
 
   # todo:
   #build_depends_on default_compiler
@@ -13,39 +13,29 @@ class Platforms < BasePackage
 
   attr_accessor :src_dir, :install_dir
 
-  def release_directory(release, _ = nil)
+  def release_directory(_release = nil, _ = nil)
     File.join Global::NDK_DIR, ARCHIVE_TOP_DIRS[0]
   end
 
-  # todo: move method to the BasePackage class
-  def install_archive(release, archive, _platform_name = nil)
-    prop_dir = properties_directory(release)
-    FileUtils.mkdir_p prop_dir
-    prop = get_properties(prop_dir)
-
+  def remove_installed_files(_release)
     FileUtils.rm_rf ARCHIVE_TOP_DIRS.map { |d| File.join Global::NDK_DIR, d }
-    Utils.unpack archive, Global::NDK_DIR
-
-    prop[:installed] = true
-    prop[:installed_crystax_version] = release.crystax_version
-    save_properties prop, prop_dir
-
-    release.installed = release.crystax_version
   end
 
-  def build(release, options, host_dep_dirs, _target_dep_dirs)
+  def build(release, options, host_dep_dirs, target_dep_info)
     arch_list = Build.abis_to_arch_list(options.abis)
     puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
 
     FileUtils.rm_rf build_base_dir
+
+    @log_file = build_log_file
+
+    parse_target_dep_info target_dep_info
 
     build_env['TMPDIR'] = ENV['TMPDIR'] = Build::BASE_BUILD_DIR
 
     self.src_dir = File.join(Build::PLATFORM_DEVELOPMENT_DIR, 'ndk')
     self.install_dir = File.join(build_base_dir, 'install')
     FileUtils.mkdir_p install_dir
-
-    self.log_file = build_log_file
 
     copy_api_level_sysroot arch_list
     # todo:
@@ -55,11 +45,13 @@ class Platforms < BasePackage
     puts "= cleaning sysroot"
     FileUtils.cd(install_dir) { FileUtils.rm Dir['platforms/**/libcrystax.*'] }
 
+    write_build_info release, install_dir
+
     return if options.build_only?
 
     archive = cache_file(release)
     puts "= packaging #{archive}"
-    Utils.pack archive, install_dir, *ARCHIVE_TOP_DIRS
+    Utils.pack archive, install_dir
     clean_deb_cache release, options.abis
 
     update_shasum release if options.update_shasum?

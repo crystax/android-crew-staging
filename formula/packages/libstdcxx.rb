@@ -2,58 +2,35 @@ class Libstdcxx < BasePackage
 
   desc "GNU Standard C++ Library"
   name 'libstdc++'
-  # todo:
-  #homepage ""
-  #url ""
 
-  release '4.9', crystax: 4
-  release '5',   crystax: 4
-  release '6',   crystax: 4
+  release '4.9', crystax: 5
+  release '5',   crystax: 5
+  release '6',   crystax: 5
 
   build_depends_on 'platforms'
   build_depends_on 'libcrystax'
   # todo:
   #build_depends_on default_gcc_compiler
 
-  # todo: move method to the BasePackage class?
-  def install_archive(release, archive, _platform_name = nil)
-    prop_dir = properties_directory(release)
-    FileUtils.mkdir_p prop_dir unless Dir.exists? prop_dir
-    prop = get_properties(prop_dir)
-
-    FileUtils.rm_rf "#{Global::NDK_DIR}/#{archive_sub_dir(release)}"
-    puts "Unpacking archive into #{Global::NDK_DIR}/#{archive_sub_dir(release)}"
-    Utils.unpack archive, Global::NDK_DIR
-
-    prop[:installed] = true
-    prop[:installed_crystax_version] = release.crystax_version
-    save_properties prop, prop_dir
-
-    release.installed = release.crystax_version
+  def release_directory(release, _platform_ndk = nil)
+    "#{Global::NDK_DIR}/#{archive_sub_dir(release)}"
   end
 
-  def uninstall(release)
-    puts "removing #{name}:#{release.version}"
-
-    FileUtils.rm_rf "#{Global::NDK_DIR}/#{archive_sub_dir(release)}"
-
-    prop_dir = properties_directory(release)
-    prop = get_properties(prop_dir)
-    prop[:installed] = false
-    prop.delete :installed_crystax_version
-    save_properties prop, prop_dir
-
-    release.installed = false
+  def remove_installed_files(release)
+    FileUtils.rm_rf release_directory(release)
   end
 
-  def build(release, options, _host_dep_dirs, _target_dep_dirs)
+  def build(release, options, _host_dep_dirs, target_dep_info)
     arch_list = Build.abis_to_arch_list(options.abis)
     puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
 
     base_dir = build_base_dir
     FileUtils.rm_rf base_dir
+
     @log_file = build_log_file
     @num_jobs = options.num_jobs
+
+    parse_target_dep_info target_dep_info
 
     toolchain = select_gcc(release.version)
 
@@ -77,6 +54,8 @@ class Libstdcxx < BasePackage
       end
       FileUtils.rm_rf arch_build_dir unless options.no_clean?
     end
+
+    write_build_info release, package_dir
 
     if options.build_only?
       puts "Build only, no packaging and installing"

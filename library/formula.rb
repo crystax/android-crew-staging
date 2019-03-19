@@ -199,10 +199,6 @@ class Formula
     def fqn
       "#{@namespace}/#{@name}"
     end
-
-    def version
-      @options[:version]
-    end
   end
 
   class << self
@@ -292,6 +288,10 @@ class Formula
 
   def support_testing?
     false
+  end
+
+  def make_target_fqn(name)
+    name.start_with?('target/') ? name : 'target/' + name
   end
 
   private

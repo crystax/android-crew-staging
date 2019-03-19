@@ -121,14 +121,16 @@ class Package < TargetBase
     release.source_installed = false
   end
 
-  def build(release, options, host_dep_dirs, target_dep_dirs)
+  def build(release, options, host_dep_dirs, target_dep_info)
     base_dir = build_base_dir
     FileUtils.rm_rf base_dir
     FileUtils.mkdir_p base_dir
+
     @log_file = build_log_file
     @build_release = release
     @host_dep_dirs = host_dep_dirs
-    @target_dep_dirs = target_dep_dirs
+
+    parse_target_dep_info target_dep_info
 
     arch_list = Build.abis_to_arch_list(options.abis)
     build_log_puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(', ')}"
@@ -535,12 +537,14 @@ class Package < TargetBase
   end
 
   def target_dep_include_dir(dep_name)
-    raise "no such depency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
+    dep_name = make_target_fqn(dep_name)
+    raise "no such dependency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
     "#{@target_dep_dirs[dep_name]}/include"
   end
 
   def target_dep_lib_dir(dep_name, abi)
-    raise "no such depency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
+    dep_name = make_target_fqn(dep_name)
+    raise "no such dependency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
     "#{@target_dep_dirs[dep_name]}/libs/#{abi}"
   end
 

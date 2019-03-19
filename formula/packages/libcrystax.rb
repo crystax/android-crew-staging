@@ -5,7 +5,7 @@ class Libcrystax < BasePackage
   desc "Crystax Library, the Heart of the Crystax NDK"
   name 'libcrystax'
 
-  release '1.0.0', crystax: 3
+  release '1.0.0', crystax: 4
 
   package_info root_dir: ['libs']
 
@@ -21,31 +21,21 @@ class Libcrystax < BasePackage
     "#{Build::NDK_SRC_DIR}/#{archive_sub_dir}"
   end
 
-  # todo: move method to the BasePackage class?
-  def install_archive(release, archive, _platform_name = nil)
-    prop_dir = properties_directory(release)
-    FileUtils.mkdir_p prop_dir
-    prop = get_properties(prop_dir)
-
+  def remove_installed_files(_release)
     FileUtils.rm_rf release_directory
-    puts "Unpacking archive into #{release_directory}"
-    Utils.unpack archive, Global::NDK_DIR
-
-    prop[:installed] = true
-    prop[:installed_crystax_version] = release.crystax_version
-    save_properties prop, prop_dir
-
-    release.installed = release.crystax_version
   end
 
-  def build(release, options, _host_dep_dirs, _target_dep_dirs)
+  def build(release, options, _host_dep_dirs, target_dep_info)
     arch_list = Build.abis_to_arch_list(options.abis)
     puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
 
     base_dir = build_base_dir
     FileUtils.rm_rf base_dir
+
     @log_file = build_log_file
     @num_jobs = options.num_jobs
+
+    parse_target_dep_info target_dep_info
 
     dst_dir = "#{package_dir}/#{archive_sub_dir}"
     FileUtils.mkdir_p dst_dir
@@ -69,12 +59,14 @@ class Libcrystax < BasePackage
       FileUtils.rm_rf arch_build_dir unless options.no_clean?
     end
 
+    write_build_info release, package_dir
+
     if options.build_only?
       puts "Build only, no packaging and installing"
     else
       archive = cache_file(release)
       puts "Creating archive file #{archive}"
-      Utils.pack(archive, package_dir)
+      Utils.pack archive, package_dir
       clean_deb_cache release, options.abis
 
       install_archive release, archive if options.install?

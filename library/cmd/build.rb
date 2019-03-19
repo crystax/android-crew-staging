@@ -11,6 +11,8 @@ module Crew
     Build.new(args).execute
   end
 
+  TargetDepInfo = Struct.new(:release, :release_directory)
+
   class Build < Command
 
     def initialize(args)
@@ -72,14 +74,14 @@ module Crew
           end
         end
 
-        target_dep_dirs = {}
+        target_dep_info = {}
         target_deps.each do |d|
           f = formulary[d.fqn]
           rel = d.version ? f.find_release(d.version) : f.highest_installed_release
-          target_dep_dirs[f.name] = f.release_directory(rel)
+          target_dep_info[f.fqn] = TargetDepInfo.new(rel, f.release_directory(rel))
         end
 
-        formula.build release, options, host_dep_dirs, target_dep_dirs
+        formula.build release, options, host_dep_dirs, target_dep_info
 
         puts "" unless n == args.last
       end
