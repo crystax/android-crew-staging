@@ -1,0 +1,28 @@
+diff -Naurw a/configure b/configure
+--- a/configure	2019-02-11 13:33:45.000000000 +0300
++++ b/configure	2019-03-21 15:23:52.843800451 +0300
+@@ -14194,6 +14194,15 @@
+ 
+ # Checking for libgpg-error.
+ 
++if  test -n "$GPG_ERROR_CFLAGS"; then
++
++  $as_echo "GPG_ERROR_CFLAGS:    $GPG_ERROR_CFLAGS"
++  $as_echo "GPG_ERROR_LIBS:      $GPG_ERROR_LIBS"
++  $as_echo "GPG_ERROR_MT_CFLAGS: $GPG_ERROR_MT_CFLAGS"
++  $as_echo "GPG_ERROR_MT_LIBS:   $GPG_ERROR_MT_LIBS"
++
++else
++ 
+   gpg_error_config_prefix=""
+ 
+ # Check whether --with-libgpg-error-prefix was given.
+@@ -14484,7 +14493,7 @@
+     as_fn_error $? "libgpg-error was not found" "$LINENO" 5
+   fi
+ 
+-
++fi
+ 
+ 
+ 

@@ -2,9 +2,9 @@ class Sqlite < Package
 
   desc "SQLite library"
   homepage "https://sqlite.org/"
-  url "https://sqlite.org/2018/sqlite-amalgamation-${block}.zip" do |r| ('%s%-2s%-2s00' % r.version.split('.')).gsub(' ', '0') end
+  url "https://sqlite.org/2019/sqlite-amalgamation-${block}.zip" do |r| ('%s%-2s%+2s00' % r.version.split('.')).gsub(' ', '0') end
 
-  release '3.26.0'
+  release '3.27.2'
 
   build_libs 'libsqlite3'
   build_options build_outside_source_tree: false,

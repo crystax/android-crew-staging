@@ -2,9 +2,9 @@ class X264 < Package
 
   desc "H.264/AVC encoder"
   homepage "https://www.videolan.org/developers/x264.html"
-  url "https://git.videolan.org/git/x264.git|commit:0a84d986e7020f8344f00752e3600b9769cc1e85"
+  url "https://git.videolan.org/git/x264.git|commit:72db437770fd1ce3961f624dd57a8e75ff65ae0b"
 
-  release 'r2917'
+  release 'r2945'
 
   build_copy 'COPYING'
   build_libs 'libx264'
@@ -36,7 +36,7 @@ class X264 < Package
   end
 
   def sonames_translation_table(_release)
-    { 'libx264.so.155' => 'libx264' }
+    { 'libx264.so.157' => 'libx264' }
   end
 
   def pc_edit_file(file, release, abi)

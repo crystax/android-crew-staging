@@ -4,7 +4,7 @@ class Rsync < Package
   homepage "https://rsync.samba.org/"
   url "https://download.samba.org/pub/rsync/src/rsync-${version}.tar.gz"
 
-  release '3.1.3', crystax: 4
+  release '3.1.3', crystax: 5
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin']

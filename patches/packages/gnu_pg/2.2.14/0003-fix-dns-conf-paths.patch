@@ -1,31 +1,25 @@
-diff -Naur a/dirmngr/dns-stuff.c b/dirmngr/dns-stuff.c
---- a/dirmngr/dns-stuff.c	2017-08-28 13:22:54.000000000 +0300
-+++ b/dirmngr/dns-stuff.c	2018-05-18 22:16:08.543505328 +0300
-@@ -1,5 +1,5 @@
- /* dns-stuff.c - DNS related code including CERT RR (rfc-4398)
-- * Copyright (C) 2003, 2005, 2006, 2009 Free Software Foundation, Inc.
-+ * Copyright (C) 2003, 2005, 2006, 2009, 2018 Free Software Foundation, Inc.
-  * Copyright (C) 2005, 2006, 2009, 2015. 2016 Werner Koch
-  *
-  * This file is part of GnuPG.
-@@ -51,6 +51,7 @@
- #include <string.h>
+diff -Naurw a/dirmngr/dns-stuff.c b/dirmngr/dns-stuff.c
+--- a/dirmngr/dns-stuff.c	2019-03-07 15:03:15.000000000 +0300
++++ b/dirmngr/dns-stuff.c	2019-03-25 19:53:13.300875619 +0300
+@@ -52,6 +52,8 @@
  #include <unistd.h>
  
-+#include <crystax.h>
  
++#include <crystax.h>
++
  /* William Ahern's DNS library, included as a source copy.  */
  #ifdef USE_LIBDNS
-@@ -405,7 +406,7 @@
+ # include "dns.h"
+@@ -405,7 +407,7 @@
    return 0;
  #else
    static time_t last_mtime;
 -  const char *fname = RESOLV_CONF_NAME;
-+  char *fname = xasprintf ("%s/%s", crystax_posix_base (), RESOLV_CONF_NAME);
++  char *fname = xtryasprintf ("%s/%s", crystax_posix_base (), RESOLV_CONF_NAME);
    struct stat statbuf;
    int changed = 0;
  
-@@ -424,6 +425,7 @@
+@@ -424,6 +426,7 @@
        last_mtime = statbuf.st_mtime;
      }
  
@@ -33,7 +27,7 @@ diff -Naur a/dirmngr/dns-stuff.c b/dirmngr/dns-stuff.c
    return changed;
  #endif
  }
-@@ -439,6 +441,7 @@
+@@ -439,6 +442,7 @@
    struct libdns_s ld;
    int derr;
    char *cfgstr = NULL;
@@ -41,39 +35,36 @@ diff -Naur a/dirmngr/dns-stuff.c b/dirmngr/dns-stuff.c
  
    if (libdns.resolv_conf)
      return 0; /* Already initialized.  */
-@@ -532,19 +535,21 @@
+@@ -532,9 +536,8 @@
        xfree (ninfo);
  
  #else /* Unix */
 -      const char *fname;
-+      char *fname = xasprintf ("%s/%s", crystax_base, RESOLV_CONF_NAME);
++      char *fname = xtryasprintf ("%s/%s", crystax_base, RESOLV_CONF_NAME);
  
 -      fname = RESOLV_CONF_NAME;
        resolv_conf_changed_p (); /* Reset timestamp.  */
        err = libdns_error_to_gpg_error
          (dns_resconf_loadpath (ld.resolv_conf, fname));
-       if (err)
-         {
-           log_error ("failed to load '%s': %s\n", fname, gpg_strerror (err));
-+          xfree (fname);
+@@ -544,7 +547,9 @@
            goto leave;
          }
  
 -      fname = "/etc/nsswitch.conf";
 +      xfree (fname);
 +
-+      fname = xasprintf ("%s/%s", crystax_base, "/etc/nsswitch.conf");
++      fname = xtryasprintf ("%s/%s", crystax_base, "/etc/nsswitch.conf");
        err = libdns_error_to_gpg_error
          (dns_nssconf_loadpath (ld.resolv_conf, fname));
        if (err)
-@@ -577,6 +582,7 @@
-           else
+@@ -578,6 +583,7 @@
              log_error ("failed to append DNS to resolution order\n");
          }
-+      xfree (fname);
  
++      xfree (fname);
  #endif /* Unix */
      }
+ 
 @@ -593,6 +599,9 @@
  #if HAVE_W32_SYSTEM
      char *hosts_path = xtryasprintf ("%s\\System32\\drivers\\etc\\hosts",
@@ -94,32 +85,25 @@ diff -Naur a/dirmngr/dns-stuff.c b/dirmngr/dns-stuff.c
      if (derr)
        {
          err = libdns_error_to_gpg_error (derr);
-diff -Naur a/dirmngr/dns.c b/dirmngr/dns.c
---- a/dirmngr/dns.c	2017-08-28 13:22:54.000000000 +0300
-+++ b/dirmngr/dns.c	2018-05-18 22:16:08.543014278 +0300
-@@ -1,7 +1,7 @@
- /* ==========================================================================
-  * dns.c - Recursive, Reentrant DNS Resolver.
-  * --------------------------------------------------------------------------
-- * Copyright (c) 2008, 2009, 2010, 2012-2016  William Ahern
-+ * Copyright (c) 2008, 2009, 2010, 2012-2016, 2018  William Ahern
-  *
-  * Permission is hereby granted, free of charge, to any person obtaining a
-  * copy of this software and associated documentation files (the
-@@ -77,6 +77,8 @@
+diff -Naurw a/dirmngr/dns.c b/dirmngr/dns.c
+--- a/dirmngr/dns.c	2019-03-07 15:03:15.000000000 +0300
++++ b/dirmngr/dns.c	2019-03-25 19:53:25.116772884 +0300
+@@ -77,7 +77,10 @@
  #include <netdb.h>		/* struct addrinfo */
  #endif
  
 +#include <crystax.h>
 +
+ #include "gpgrt.h"   /* For GGPRT_GCC_VERSION */
++#include "util.h"
  #include "dns.h"
  
  
-@@ -5107,18 +5109,22 @@
+@@ -5108,18 +5111,22 @@
  struct dns_hosts *dns_hosts_local(int *error_) {
  	struct dns_hosts *hosts;
  	int error;
-+    char *hosts_file = xasprintf ("%/%s", crystax_posix_base (), "/etc/hosts");
++    char *hosts_file = xtryasprintf ("%/%s", crystax_posix_base (), "/etc/hosts");
  
  	if (!(hosts = dns_hosts_open(&error)))
  		goto error;
@@ -139,14 +123,13 @@ diff -Naur a/dirmngr/dns.c b/dirmngr/dns.c
  
  	return 0;
  } /* dns_hosts_local() */
-@@ -5420,11 +5426,15 @@
+@@ -5425,11 +5432,14 @@
  struct dns_resolv_conf *dns_resconf_local(int *error_) {
  	struct dns_resolv_conf *resconf;
  	int error;
 +    const char *crystax_base = crystax_posix_base ();
-+    char *resolv_conf_file = xasprintf ("%/%s", crystax_base, "/etc/resolv.conf");
-+    char *nsswitch_conf_file = xasprintf ("%/%s", crystax_base, "/etc/nsswitch.conf");
-+
++    char *resolv_conf_file = xtryasprintf ("%/%s", crystax_base, "/etc/resolv.conf");
++    char *nsswitch_conf_file = xtryasprintf ("%/%s", crystax_base, "/etc/nsswitch.conf");
  
  	if (!(resconf = dns_resconf_open(&error)))
  		goto error;
@@ -156,7 +139,7 @@ diff -Naur a/dirmngr/dns.c b/dirmngr/dns.c
  		/*
  		 * NOTE: Both the glibc and BIND9 resolvers ignore a missing
  		 * /etc/resolv.conf, defaulting to a nameserver of
-@@ -5436,17 +5446,23 @@
+@@ -5441,16 +5451,21 @@
  			goto error;
  	}
  
@@ -174,14 +157,12 @@ diff -Naur a/dirmngr/dns.c b/dirmngr/dns.c
  	*error_	= error;
  
  	dns_resconf_close(resconf);
- 
 +    xfree(resolv_conf_file);
 +    xfree(nsswitch_conf_file);
-+
+ 
  	return 0;
  } /* dns_resconf_local() */
- 
-@@ -10399,15 +10415,21 @@
+@@ -10456,15 +10471,21 @@
  	const char *path;
  	unsigned i;
  	int error;
@@ -192,8 +173,8 @@ diff -Naur a/dirmngr/dns.c b/dirmngr/dns.c
  	if (*resconf)
  		return *resconf;
  
-+     resolv_conf_file = xasprintf ("%/%s", crystax_base, RESOLV_CONF_NAME);
-+     nsswitch_conf_file = xasprintf ("%/%s", crystax_base, "/etc/nsswitch.conf");
++     resolv_conf_file = xtryasprintf ("%/%s", crystax_base, RESOLV_CONF_NAME);
++     nsswitch_conf_file = xtryasprintf ("%/%s", crystax_base, "/etc/nsswitch.conf");
 +
  	if (!(*resconf = dns_resconf_open(&error)))
  		panic("dns_resconf_open: %s", dns_strerror(error));
@@ -204,7 +185,7 @@ diff -Naur a/dirmngr/dns.c b/dirmngr/dns.c
  
  	for (i = 0; i < MAIN.resconf.count; i++) {
  		path	= MAIN.resconf.path[i];
-@@ -10434,7 +10456,7 @@
+@@ -10491,7 +10512,7 @@
  	}
  
  	if (!MAIN.nssconf.count) {
@@ -213,18 +194,44 @@ diff -Naur a/dirmngr/dns.c b/dirmngr/dns.c
  
  		if (!(error = dns_nssconf_loadpath(*resconf, path)))
  			MAIN.nssconf.path[MAIN.nssconf.count++] = path;
-@@ -10451,12 +10473,13 @@
+@@ -10499,6 +10520,9 @@
+ 			panic("%s: %s", path, dns_strerror(error));
+ 	}
+ 
++    xfree(resolv_conf_file);
++    xfree(nsswitch_conf_file);
++
+ 	return *resconf;
+ } /* resconf() */
+ 
+@@ -10508,17 +10532,20 @@
  	const char *path;
  	unsigned i;
  	int error;
-+    char *hosts_file = xasprintf ("%/%s", crystax_posix_base (), "/etc/hosts");
++    char *hosts_file = 0;
  
  	if (*hosts)
  		return *hosts;
  
++    hosts_file = xtryasprintf ("%/%s", crystax_posix_base (), "/etc/hosts");
  	if (!MAIN.hosts.count) {
 -		MAIN.hosts.path[MAIN.hosts.count++]	= "/etc/hosts";
 +		MAIN.hosts.path[MAIN.hosts.count++]	= hosts_file;
  
  		/* Explicitly test dns_hosts_local() */
  		if (!(*hosts = dns_hosts_local(&error)))
+ 			panic("%s: %s", "/etc/hosts", dns_strerror(error));
+ 
++        xfree(hosts_file);
+ 		return *hosts;
+ 	}
+ 
+@@ -10537,6 +10564,8 @@
+ 			panic("%s: %s", path, dns_strerror(error));
+ 	}
+ 
++    xfree(hosts_file);
++
+ 	return *hosts;
+ } /* hosts() */
+ 

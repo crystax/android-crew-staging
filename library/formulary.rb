@@ -108,7 +108,7 @@ class Formulary
   end
 
   def packages_formulas_with_dependencies(package_names)
-    packages = package_names.map { |n| "target/#{n}" }
+    packages = package_names.map { |n| Formula.make_target_fqn(n) }
       .map { |n| self[n] }
       .sort { |a,b| a.name <=> b.name }
       .uniq(&:name)

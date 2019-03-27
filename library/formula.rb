@@ -290,8 +290,12 @@ class Formula
     false
   end
 
-  def make_target_fqn(name)
-    name.start_with?('target/') ? name : 'target/' + name
+  def make_target_fqn(n)
+    self.class.make_target_fqn(n)
+  end
+
+  def self.make_target_fqn(n)
+    n.start_with?('target/') ? n : 'target/' + n
   end
 
   private

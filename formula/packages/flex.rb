@@ -4,7 +4,7 @@ class Flex < Package
   homepage "https://www.gnu.org/software/flex/"
   url "https://github.com/westes/flex/files/981163/flex-${version}.tar.gz"
 
-  release '2.6.4'
+  release '2.6.4', crystax: 2
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'include', 'lib'],

@@ -4,7 +4,7 @@ class Make < Package
   homepage "https://www.gnu.org/software/make/"
   url "https://ftp.gnu.org/gnu/make/make-${version}.tar.bz2"
 
-  release '4.2.1'
+  release '4.2.1', crystax: 2
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'include'],

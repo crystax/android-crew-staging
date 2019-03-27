@@ -4,7 +4,7 @@ class Libtiff < Package
   homepage "https://www.libtiff.org"
   url "https://download.osgeo.org/libtiff/tiff-${version}.tar.gz"
 
-  release '4.0.10'
+  release '4.0.10', crystax: 2
 
   depends_on 'xz'
   depends_on 'libjpeg'

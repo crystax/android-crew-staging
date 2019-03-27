@@ -5,7 +5,7 @@ class BerkleyDb < Package
   homepage 'https://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/'
   url 'https://download.oracle.com/berkeley-db/${version}.tar.gz'
 
-  release '6.2.32', crystax: 3
+  release '6.2.32', crystax: 4
 
   build_copy 'LICENSE'
   build_options use_cxx: true,

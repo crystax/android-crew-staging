@@ -4,7 +4,7 @@ class Coreutils < Package
   homepage "https://www.gnu.org/software/coreutils"
   url "https://ftpmirror.gnu.org/coreutils/coreutils-${version}.tar.xz"
 
-  release '8.31'
+  release '8.31', crystax: 2
 
   package_info root_dir: ['bin']
 

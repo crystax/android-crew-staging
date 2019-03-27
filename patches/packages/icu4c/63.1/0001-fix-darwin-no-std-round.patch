@@ -1,13 +1,7 @@
 diff -Naurw a/source/i18n/number_decimalquantity.cpp b/source/i18n/number_decimalquantity.cpp
---- a/source/i18n/number_decimalquantity.cpp	2018-03-26 16:38:30.000000000 +0300
-+++ b/source/i18n/number_decimalquantity.cpp	2018-06-07 13:49:47.388613104 +0300
-@@ -1,4 +1,4 @@
--// © 2017 and later: Unicode, Inc. and others.
-+// © 2017, 2018 and later: Unicode, Inc. and others.
- // License & terms of use: http://www.unicode.org/copyright.html
- 
- #include "unicode/utypes.h"
-@@ -391,7 +391,11 @@
+--- a/source/i18n/number_decimalquantity.cpp	2018-10-02 01:39:56.000000000 +0300
++++ b/source/i18n/number_decimalquantity.cpp	2019-03-20 21:09:29.668113857 +0300
+@@ -432,7 +432,11 @@
          for (; i <= -22; i += 22) n /= 1e22;
          n /= DOUBLE_MULTIPLIERS[-i];
      }

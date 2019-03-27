@@ -4,7 +4,7 @@ class Gmp < Package
   homepage "https://gmplib.org/"
   url "https://gmplib.org/download/gmp/gmp-${version}.tar.xz"
 
-  release '6.1.2', crystax: 3
+  release '6.1.2', crystax: 4
 
   build_copy 'COPYING', 'COPYING.LESSERv3', 'COPYINGv2', 'COPYINGv3'
   build_libs 'libgmp', 'libgmpxx'

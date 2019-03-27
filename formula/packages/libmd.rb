@@ -4,7 +4,7 @@ class Libmd < Package
   homepage "https://www.hadrons.org/software/libmd/"
   url "https://archive.hadrons.org/software/libmd/libmd-${version}.tar.xz"
 
-  release '1.0.1'
+  release '1.0.1', crystax: 2
 
   build_copy 'COPYING'
 

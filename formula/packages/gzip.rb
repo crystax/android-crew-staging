@@ -4,7 +4,7 @@ class Gzip < Package
   homepage 'https://www.gnu.org/software/gzip/'
   url 'https://ftp.gnu.org/gnu/gzip/gzip-${version}.tar.gz'
 
-  release '1.10'
+  release '1.10', crystax: 2
 
   build_copy 'COPYING'
   build_options ldflags_in_c_wrapper: true,

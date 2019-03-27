@@ -4,7 +4,7 @@ class Libobjc2 < Package
   homepage 'https://github.com/gnustep/libobjc2'
   url 'https://github.com/crystax/android-vendor-libobjc2.git|commit:36d73233f25183d7f371176e0417ca1c94c43c6f'
 
-  release '1.8.1', crystax: 4
+  release '1.8.1', crystax: 5
 
   build_options build_outside_source_tree: false,
                 setup_env: false

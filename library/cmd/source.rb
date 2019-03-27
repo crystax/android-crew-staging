@@ -23,7 +23,7 @@ module Crew
       args.each do |n|
         name, ver = n.split(':')
         raise "this command works only with formulas from 'target' namespace" if name.start_with?('host/')
-        fqn = name.start_with?('target') ? name : "target/#{name}"
+        fqn = Formula.make_target_fqn(name)
         formula = formulary[fqn]
         releases = options.all_versions? ? formula.releases : [formula.find_release(Release.new(ver))]
 

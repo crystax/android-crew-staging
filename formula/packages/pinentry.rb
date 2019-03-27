@@ -4,7 +4,7 @@ class Pinentry < Package
   homepage "https://www.gnupg.org/related_software/pinentry/"
   url "https://www.gnupg.org/ftp/gcrypt/pinentry/pinentry-${version}.tar.bz2"
 
-  release '1.1.0', crystax: 4
+  release '1.1.0', crystax: 5
 
   depends_on 'ncurses'
   depends_on 'libgpg-error'

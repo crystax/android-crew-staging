@@ -4,7 +4,7 @@ class Libgcrypt < Package
   homepage "https://www.gnupg.org/software/libgcrypt/"
   url "https://www.gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-${version}.tar.bz2"
 
-  release '1.8.4'
+  release '1.8.4', crystax: 2
 
   depends_on 'libgpg-error'
 

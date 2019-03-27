@@ -25,7 +25,7 @@ module Crew
       formulary = Formulary.new
       _, dependencies = formulary.packages_formulas_with_dependencies(options.with_packages.map(&:name))
       options.with_packages.each do |package|
-        formula = formulary["target/#{package.name}"]
+        formula = formulary[package.name]
         package.release = package.release ? formula.find_release(package.release) : formula.highest_installed_release
         raise "package #{package} is not installed; please, install it and repeat the command" unless formula.installed?(package.release)
         package.formula = formula
@@ -159,7 +159,7 @@ module Crew
         # GNU GCC C++ headers must be copied to directory where they will be found by a compiler
         cxx_include_dir = "#{install_dir}/#{options.arch.host}/include"
         package = PackageInfo.new(stl_name, Release.new(stl_version))
-        formula = formulary["target/#{package.name}"]
+        formula = formulary[package.name]
         release = package.release ? formula.find_release(package.release) : formula.highest_installed_release
         puts "    #{formula.name}:#{release}"
         formula.copy_to_standalone_toolchain(release, options.arch, cxx_include_dir, target_lib_dir, stl_opts)
@@ -183,7 +183,7 @@ module Crew
         end
 
         [PackageInfo.new('libcrystax'), PackageInfo.new('libobjc2')].each do |package|
-          formula = formulary["target/#{package.name}"]
+          formula = formulary[package.name]
           release = package.release ? formula.find_release(package.release) : formula.highest_installed_release
           puts "    #{formula.name}:#{release}"
           formula.copy_to_standalone_toolchain(release, options.arch, target_include_dir, target_lib_dir, {})

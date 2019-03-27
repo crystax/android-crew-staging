@@ -4,7 +4,7 @@ class Libpcre < Package
   homepage 'https://www.pcre.org'
   url 'https://ftp.pcre.org/pub/pcre/pcre2-${version}.tar.gz'
 
-  release '10.32'
+  release '10.32', crystax: 2
 
   build_libs 'libpcre2-8', 'libpcre2-posix'
   build_copy 'LICENCE'

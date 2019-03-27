@@ -4,7 +4,7 @@ class Libidn2 < Package
   homepage "https://www.gnu.org/software/libidn/#libidn2"
   url "https://ftp.gnu.org/gnu/libidn/libidn2-${version}.tar.gz"
 
-  release '2.1.0'
+  release '2.1.1a'
 
   depends_on 'libunistring'
 
