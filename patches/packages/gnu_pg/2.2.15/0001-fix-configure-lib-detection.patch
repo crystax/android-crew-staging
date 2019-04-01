@@ -1,6 +1,6 @@
 diff -Naurw a/configure b/configure
---- a/configure	2019-03-19 13:40:02.000000000 +0300
-+++ b/configure	2019-03-25 16:43:40.062775227 +0300
+--- a/configure	2019-03-26 16:34:43.000000000 +0300
++++ b/configure	2019-04-01 18:53:05.983054793 +0300
 @@ -8301,6 +8301,11 @@
  # related projects.
  #

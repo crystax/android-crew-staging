@@ -1,93 +1,6 @@
-diff -Naurw a/dirmngr/dns-stuff.c b/dirmngr/dns-stuff.c
---- a/dirmngr/dns-stuff.c	2019-03-07 15:03:15.000000000 +0300
-+++ b/dirmngr/dns-stuff.c	2019-03-25 19:53:13.300875619 +0300
-@@ -52,6 +52,8 @@
- #include <unistd.h>
- 
- 
-+#include <crystax.h>
-+
- /* William Ahern's DNS library, included as a source copy.  */
- #ifdef USE_LIBDNS
- # include "dns.h"
-@@ -405,7 +407,7 @@
-   return 0;
- #else
-   static time_t last_mtime;
--  const char *fname = RESOLV_CONF_NAME;
-+  char *fname = xtryasprintf ("%s/%s", crystax_posix_base (), RESOLV_CONF_NAME);
-   struct stat statbuf;
-   int changed = 0;
- 
-@@ -424,6 +426,7 @@
-       last_mtime = statbuf.st_mtime;
-     }
- 
-+  xfree (fname);
-   return changed;
- #endif
- }
-@@ -439,6 +442,7 @@
-   struct libdns_s ld;
-   int derr;
-   char *cfgstr = NULL;
-+  const char *crystax_base = crystax_posix_base ();
- 
-   if (libdns.resolv_conf)
-     return 0; /* Already initialized.  */
-@@ -532,9 +536,8 @@
-       xfree (ninfo);
- 
- #else /* Unix */
--      const char *fname;
-+      char *fname = xtryasprintf ("%s/%s", crystax_base, RESOLV_CONF_NAME);
- 
--      fname = RESOLV_CONF_NAME;
-       resolv_conf_changed_p (); /* Reset timestamp.  */
-       err = libdns_error_to_gpg_error
-         (dns_resconf_loadpath (ld.resolv_conf, fname));
-@@ -544,7 +547,9 @@
-           goto leave;
-         }
- 
--      fname = "/etc/nsswitch.conf";
-+      xfree (fname);
-+
-+      fname = xtryasprintf ("%s/%s", crystax_base, "/etc/nsswitch.conf");
-       err = libdns_error_to_gpg_error
-         (dns_nssconf_loadpath (ld.resolv_conf, fname));
-       if (err)
-@@ -578,6 +583,7 @@
-             log_error ("failed to append DNS to resolution order\n");
-         }
- 
-+      xfree (fname);
- #endif /* Unix */
-     }
- 
-@@ -593,6 +599,9 @@
- #if HAVE_W32_SYSTEM
-     char *hosts_path = xtryasprintf ("%s\\System32\\drivers\\etc\\hosts",
-                                      getenv ("SystemRoot"));
-+#else
-+    char *hosts_path = xtryasprintf ("%s/%s", crystax_base, "/etc/hosts");
-+#endif
-     if (! hosts_path)
-       {
-         err = gpg_error_from_syserror ();
-@@ -601,9 +610,6 @@
- 
-     derr = dns_hosts_loadpath (ld.hosts, hosts_path);
-     xfree (hosts_path);
--#else
--    derr = dns_hosts_loadpath (ld.hosts, "/etc/hosts");
--#endif
-     if (derr)
-       {
-         err = libdns_error_to_gpg_error (derr);
 diff -Naurw a/dirmngr/dns.c b/dirmngr/dns.c
---- a/dirmngr/dns.c	2019-03-07 15:03:15.000000000 +0300
-+++ b/dirmngr/dns.c	2019-03-25 19:53:25.116772884 +0300
+--- a/dirmngr/dns.c	2019-03-25 16:42:01.000000000 +0300
++++ b/dirmngr/dns.c	2019-04-01 19:14:41.515525740 +0300
 @@ -77,7 +77,10 @@
  #include <netdb.h>		/* struct addrinfo */
  #endif
@@ -173,8 +86,8 @@ diff -Naurw a/dirmngr/dns.c b/dirmngr/dns.c
  	if (*resconf)
  		return *resconf;
  
-+     resolv_conf_file = xtryasprintf ("%/%s", crystax_base, RESOLV_CONF_NAME);
-+     nsswitch_conf_file = xtryasprintf ("%/%s", crystax_base, "/etc/nsswitch.conf");
++    resolv_conf_file = xtryasprintf ("%/%s", crystax_base, RESOLV_CONF_NAME);
++    nsswitch_conf_file = xtryasprintf ("%/%s", crystax_base, "/etc/nsswitch.conf");
 +
  	if (!(*resconf = dns_resconf_open(&error)))
  		panic("dns_resconf_open: %s", dns_strerror(error));
