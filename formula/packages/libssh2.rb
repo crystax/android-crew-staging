@@ -4,7 +4,7 @@ class Libssh2 < Package
   homepage 'https://www.libssh2.org/'
   url 'http://www.libssh2.org/download/libssh2-${version}.tar.gz'
 
-  release '1.8.1'
+  release '1.8.2'
 
   depends_on 'openssl'
 
