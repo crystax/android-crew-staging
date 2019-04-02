@@ -45,7 +45,7 @@ class TestMakeStandaloneToolchainOptions < MiniTest::Test
     assert_equal('libc++',            v.stl)
     assert_equal(def_platform.name,   v.platform.name)
     assert_equal(21,                  v.api_level)
-    assert_equal('erlang',            v.with_packages[0].name)
+    assert_equal('target/erlang',     v.with_packages[0].name)
 
     # without --clean-install-dir and existing install dir
     Dir.mktmpdir do |dir|
