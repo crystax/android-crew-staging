@@ -56,6 +56,8 @@ class Package < TargetBase
 
   def install_archive(release, archive, _platform_name = nil)
     rel_dir = release_directory(release)
+    prop = get_properties(rel_dir)
+
     FileUtils.rm_rf binary_files(rel_dir)
     Utils.unpack archive, rel_dir
 
@@ -63,7 +65,7 @@ class Package < TargetBase
     # todo:
     #update_root_android_mk release
 
-    prop = get_properties(rel_dir)
+    prop.merge(get_properties(rel_dir))
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version
     save_properties prop, rel_dir
