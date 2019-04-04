@@ -407,9 +407,7 @@ Formula (no home directory)
                 Libedit  (f)
                 Mpc      (f)
                 Mpfr     (f)
-                Openssl  (f)
                 Ppl      (f)
-                Xz       (f)
                 
     TargetBase (single platform)
     
