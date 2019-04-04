@@ -1,0 +1,25 @@
+diff -Naurw a/libavformat/os_support.h b/libavformat/os_support.h
+--- a/libavformat/os_support.h	2018-11-03 03:17:29.000000000 +0300
++++ b/libavformat/os_support.h	2019-02-06 22:35:37.626953844 +0300
+@@ -1,6 +1,6 @@
+ /*
+  * various OS-feature replacement utilities
+- * copyright (c) 2000, 2001, 2002 Fabrice Bellard
++ * copyright (c) 2000, 2001, 2002, 2019 Fabrice Bellard
+  *
+  * This file is part of FFmpeg.
+  *
+@@ -61,11 +61,13 @@
+ #  if HAVE_UNISTD_H
+ #    include <unistd.h>
+ #  endif
++#  ifndef __LIBCRYSTAX__
+ #  ifdef lseek
+ #   undef lseek
+ #  endif
+ #  define lseek(f,p,w) lseek64((f), (p), (w))
+ #endif
++#endif
+ 
+ static inline int is_dos_path(const char *path)
+ {

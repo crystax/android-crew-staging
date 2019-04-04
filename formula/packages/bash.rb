@@ -4,7 +4,7 @@ class Bash < Package
   homepage "https://www.gnu.org/software/bash/"
   url "http://ftp.gnu.org/gnu/bash/bash-${version}.tar.gz"
 
-  release '4.4.18', crystax: 4
+  release '5.0', crystax: 2
 
   package_info root_dir: ['bin']
 
@@ -16,29 +16,25 @@ class Bash < Package
 
 
   def build_for_abi(abi, toolchain,  _release, _options)
-    install_dir = install_dir_for_abi(abi)
-
-    args =  [ "--prefix=#{install_dir}",
-              "--host=#{host_for_abi(abi)}",
-              "--enable-readline",
-              "--enable-alias",
-              "--enable-arith-for-command",
-              "--enable-array-variables",
-              "--enable-brace-expansion",
-              "--enable-direxpand-default",
-              "--enable-directory-stack",
-              "--disable-nls",
-              "--disable-rpath",
-              "--without-bash-malloc",
-              "--without-libintl-prefix",
-              "--without-libiconv-prefix"
-            ]
+    args = [ "--enable-readline",
+             "--enable-alias",
+             "--enable-arith-for-command",
+             "--enable-array-variables",
+             "--enable-brace-expansion",
+             "--enable-direxpand-default",
+             "--enable-directory-stack",
+             "--disable-nls",
+             "--disable-rpath",
+             "--without-bash-malloc",
+             "--without-libintl-prefix",
+             "--without-libiconv-prefix"
+           ]
 
     configure *args
     make
     make 'install'
 
     # remove unneeded files
-    FileUtils.rm File.join(install_dir, 'bin', 'bashbug')
+    FileUtils.rm File.join(install_dir_for_abi(abi), 'bin', 'bashbug')
   end
 end

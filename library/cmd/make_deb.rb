@@ -27,7 +27,7 @@ module Crew
       formulas = []
       args.each do |name|
         name, version = name.split(':')
-        name = "target/#{name}" unless name.include? '/'
+        name = Formula.make_target_fqn(name)
         formula = formulary[name]
         raise "only formulas with 'target' namespace may be packaged into deb format" if formula.namespace == :host
         releases = options.all_versions? ? formula.releases : [formula.find_release(Release.new(version))]

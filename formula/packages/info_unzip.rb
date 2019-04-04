@@ -5,7 +5,7 @@ class InfoUnzip < Package
   homepage 'http://www.info-zip.org/UnZip.html'
   url 'https://sourceforge.net/projects/infozip/files/UnZip%206.x%20%28latest%29/UnZip%20${version}/unzip${block}.tar.gz' do |r| r.version.split('.').first(2).join end
 
-  release '6.0', crystax: 3
+  release '6.0', crystax: 4
 
   build_copy 'LICENSE'
   build_options build_outside_source_tree: false,

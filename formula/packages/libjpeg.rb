@@ -1,17 +1,15 @@
 class Libjpeg < Package
 
   desc "JPEG image manipulation library"
-  homepage "http://www.ijg.org"
-  url "http://www.ijg.org/files/jpegsrc.v${version}.tar.gz"
+  homepage "https://www.ijg.org"
+  url "https://www.ijg.org/files/jpegsrc.v${version}.tar.gz"
 
-  release '9c', crystax: 2
+  release '9c', crystax: 4
 
   build_copy 'README'
 
   def build_for_abi(abi, _toolchain, _release, _options)
-    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
-              "--host=#{host_for_abi(abi)}",
-              "--disable-silent-rules",
+    args =  [ "--disable-silent-rules",
               "--enable-shared",
               "--enable-static",
               "--with-pic",

@@ -13,6 +13,7 @@ module Crew
     class Options < Command::Options
 
       attr_accessor :platforms, :abis, :num_jobs
+      attr_reader :package_options
 
       def initialize(opts)
         @abis = Arch::ABI_LIST
@@ -25,8 +26,10 @@ module Crew
         @update_shasum = false
         @num_jobs = Utils.processor_count * 2
         @platforms = Platform.default_names_for_host_os
+        @package_options = {}
 
         @num_jobs_default = true
+        @unparsed = []
 
         opts.each do |opt|
           case opt
@@ -55,7 +58,7 @@ module Crew
             @abis = opt.split('=')[1].split(',')
             check_abis *@abis
           else
-            raise UnknownOption, opt
+            @unparsed << opt
           end
         end
       end
@@ -94,6 +97,18 @@ module Crew
 
       def num_jobs_default?
         @num_jobs_default
+      end
+
+      def parse_packages_options(args, formulary)
+        args.each do |arg|
+          item, _ = arg.split(':')
+          formula = formulary[item]
+          @package_options[formula.name] = formula.package_build_options
+          opts, @unparsed = @unparsed.partition { |a| a.start_with? "--#{formula.name}-" }
+          @package_options[formula.name].parse opts
+        end
+
+        raise "unknown build options: #{@unparsed.join(',')}" unless @unparsed.empty?
       end
     end
   end

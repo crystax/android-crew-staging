@@ -1,0 +1,16 @@
+diff -Naurw a/lib/strtod.c b/lib/strtod.c
+--- a/lib/strtod.c	2019-02-11 06:25:16.000000000 +0300
++++ b/lib/strtod.c	2019-03-12 20:22:11.219746448 +0300
+@@ -302,8 +302,12 @@
+ }
+ # define minus_zero compute_minus_zero ()
+ #else
++ #ifdef USE_LONG_DOUBLE
++extern DOUBLE minus_zero;
++ #else
+ DOUBLE minus_zero = -0.0;
+ #endif
++#endif
+ 
+ /* Convert NPTR to a DOUBLE.  If ENDPTR is not NULL, a pointer to the
+    character after the last one used in the number is put in *ENDPTR.  */

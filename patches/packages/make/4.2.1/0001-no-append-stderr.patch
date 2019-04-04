@@ -1,0 +1,14 @@
+diff -Naurw a/output.c b/output.c
+--- a/output.c	2016-05-21 23:22:32.000000000 +0300
++++ b/output.c	2019-02-28 18:00:27.405673342 +0300
+@@ -157,6 +157,10 @@
+ static void
+ set_append_mode (int fd)
+ {
++#ifdef __ANDROID__
++  /* SELinux has a deny rule for append on stderr (eg. SCM_RIGHTS returns MSG_CTRUNC) */
++  if (isatty(fd)) return;
++#endif
+ #if defined(F_GETFL) && defined(F_SETFL) && defined(O_APPEND)
+   int flags = fcntl (fd, F_GETFL, 0);
+   if (flags >= 0)

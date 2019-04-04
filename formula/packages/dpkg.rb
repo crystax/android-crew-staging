@@ -4,7 +4,7 @@ class Dpkg < Package
   homepage "https://wiki.debian.org/Teams/Dpkg"
   url "http://http.debian.net/debian/pool/main/d/dpkg/dpkg_${version}.tar.xz"
 
-  release '1.19.0.5', crystax: 6
+  release '1.19.0.5', crystax: 8
 
   depends_on 'libmd'
   depends_on 'xz'
@@ -17,9 +17,7 @@ class Dpkg < Package
   def build_for_abi(abi, _toolchain,  _release, _options)
     install_dir = install_dir_for_abi(abi)
 
-    args =  [ "--prefix=#{install_dir}",
-              "--host=#{host_for_abi(abi)}",
-              "--disable-silent-rules",
+    args =  [ "--disable-silent-rules",
               "--disable-nls",
               "--disable-rpath",
               "--enable-static",

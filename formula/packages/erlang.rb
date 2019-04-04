@@ -4,7 +4,7 @@ class Erlang < Package
   homepage "https://www.erlang.org/"
   url "https://github.com/erlang/otp/archive/OTP-${version}.tar.gz"
 
-  release '21.0.9'
+  release '21.3.3'
 
   depends_on 'ncurses'
   depends_on 'openssl'
@@ -70,7 +70,7 @@ class Erlang < Package
     ranlib = toolchain.tool(arch, 'ranlib')
     ld     = toolchain.tool(arch, 'ld')
 
-    cflags   = toolchain.cflags(abi)
+    cflags   = toolchain.cflags(abi) + ' -O2'
     cflags  += ' -mthumb' if abi =~ /^armeabi/
     cppflags = "-I#{target_dep_include_dir('ncurses')}/include -I#{openssl_include_dir}/include"
     ldflags  = toolchain.ldflags(abi) + " -fPIE -pie -L#{target_dep_lib_dir('ncurses', abi)} -L#{openssl_lib_dir}"

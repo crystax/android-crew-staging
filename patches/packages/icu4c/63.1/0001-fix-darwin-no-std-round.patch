@@ -1,0 +1,15 @@
+diff -Naurw a/source/i18n/number_decimalquantity.cpp b/source/i18n/number_decimalquantity.cpp
+--- a/source/i18n/number_decimalquantity.cpp	2018-10-02 01:39:56.000000000 +0300
++++ b/source/i18n/number_decimalquantity.cpp	2019-03-20 21:09:29.668113857 +0300
+@@ -432,7 +432,11 @@
+         for (; i <= -22; i += 22) n /= 1e22;
+         n /= DOUBLE_MULTIPLIERS[-i];
+     }
++#ifdef __APPLE__
++    auto result = static_cast<int64_t>(::round(n));
++#else
+     auto result = static_cast<int64_t>(std::round(n));
++#endif
+     if (result != 0) {
+         _setToLong(result);
+         scale -= fracLength;

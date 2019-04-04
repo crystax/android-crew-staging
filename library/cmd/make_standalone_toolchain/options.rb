@@ -1,6 +1,7 @@
 require_relative '../../exceptions.rb'
 require_relative '../../toolchain.rb'
 require_relative '../../release.rb'
+require_relative '../../formula.rb'
 require_relative '../command.rb'
 
 
@@ -12,7 +13,7 @@ module Crew
 
       PackageInfo = Struct.new(:name, :release, :formula) do
         def initialize(name, release = nil, formula = nil)
-          super name, release, formula
+          super Formula.make_target_fqn(name), release, formula
         end
 
         def to_s

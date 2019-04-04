@@ -5,7 +5,7 @@ class GnuPg < Package
   homepage "https://www.gnupg.org"
   url "https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-${version}.tar.bz2"
 
-  release '2.2.7', crystax: 4
+  release '2.2.15'
 
   depends_on 'sqlite'
   depends_on 'npth'
@@ -30,9 +30,7 @@ class GnuPg < Package
   def build_for_abi(abi, _toolchain,  _release, _options)
     install_dir = install_dir_for_abi(abi)
 
-    args =  [ "--prefix=#{install_dir}",
-              "--host=#{host_for_abi(abi)}",
-              "--disable-silent-rules",
+    args =  [ "--disable-silent-rules",
               "--disable-doc",
               "--enable-tofu",
               "--disable-ldap",

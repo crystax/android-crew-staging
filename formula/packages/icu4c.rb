@@ -4,7 +4,7 @@ class Icu4c < Package
   homepage "http://site.icu-project.org/"
   url "https://ssl.icu-project.org/files/icu4c/${version}/icu4c-${block}-src.tgz" do |r| r.version.gsub('.', '_') end
 
-  release '62.1'
+  release '63.1'
 
   # this libs were in 57.1: 'libicule'
   # todo: 'libiculx' requires harfbuzz

@@ -4,8 +4,8 @@ class Python < Package
   homepage "https://www.python.org"
   url "https://www.python.org/ftp/python/${version}/Python-${version}.tgz"
 
-  release '2.7.11', crystax: 5
-  release '3.5.1',  crystax: 5
+  release '2.7.11', crystax: 7
+  release '3.5.1',  crystax: 7
 
   depends_on 'sqlite'
   depends_on 'openssl', version: /^1\.0/
@@ -43,7 +43,7 @@ class Python < Package
     end
 
     FileUtils.cd(build_dir) do
-      configure
+      system './configure'
       make
     end
 

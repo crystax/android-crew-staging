@@ -96,6 +96,20 @@ class Formula
     false
   end
 
+  class DefaultBuildOptions
+    def parse(args)
+      raise "unsupported formula build options: #{args.join(',')}" unless args.empty?
+    end
+
+    def lines
+      []
+    end
+  end
+
+  def package_build_options
+    DefaultBuildOptions.new
+  end
+
   def merge_default_install_options(opts)
     { platform: Global::PLATFORM_NAME, check_shasum: true, cache_only: false }.merge(opts)
   end
@@ -184,10 +198,6 @@ class Formula
 
     def fqn
       "#{@namespace}/#{@name}"
-    end
-
-    def version
-      @options[:version]
     end
   end
 
@@ -278,6 +288,14 @@ class Formula
 
   def support_testing?
     false
+  end
+
+  def make_target_fqn(n)
+    self.class.make_target_fqn(n)
+  end
+
+  def self.make_target_fqn(n)
+    n.start_with?('target/') ? n : 'target/' + n
   end
 
   private

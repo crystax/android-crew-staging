@@ -4,12 +4,13 @@ class Boost < Package
   homepage "http://www.boost.org"
   url "https://downloads.sourceforge.net/project/boost/boost/${version}/boost_${block}.tar.bz2" do |r| r.version.gsub('.', '_') end
 
-  release '1.64.0', crystax: 5
+  release '1.67.0', crystax: 3
 
-  # todo: add versions, like this: python:2.7.*, python:3.*.*
-  depends_on 'python'
+  depends_on 'python', version: /^2\.7/
+  depends_on 'python', version: /^3\.5/
+  depends_on 'xz'
 
-  build_options build_outside_source_tree: false,
+  build_options build_outside_source_tree: true,
                 setup_env:                 false,
                 copy_installed_dirs:       [],
                 gen_android_mk:            false,
@@ -17,72 +18,100 @@ class Boost < Package
                 wrapper_replace_args:      { '-dynamiclib' => '-shared', '-undefined' => '-u' }
 
   build_copy 'LICENSE_1_0.txt'
-  # todo: build libs list automatically?
-  build_libs 'atomic',
-             'chrono',
-             'container',
-             'context',
-             'coroutine',
-             'date_time',
-             'exception',
-             'filesystem',
-             'graph',
-             'iostreams',
-             'locale',
-             'log',
-             'log_setup',
-             'math_c99',
-             'math_c99f',
-             'math_c99l',
-             'math_tr1',
-             'math_tr1f',
-             'math_tr1l',
-             'prg_exec_monitor',
-             'program_options',
-             'python',
-             'python3',
-             'random',
-             'regex',
-             'serialization',
-             'signals',
-             'system',
-             'test_exec_monitor',
-             'thread',
-             'timer',
-             'type_erasure',
-             'unit_test_framework',
-             'wave',
-             'wserialization'
 
   STATIC_ONLY = ['exception', 'test_exec_monitor']
+
+  @built_libraries = Hash.new { |h,k| h[k] = [] }
+
+  def self.built_libraries
+    @built_libraries
+  end
+
+  def built_libraries
+    self.class.built_libraries
+  end
+
+  class BuildOptions
+    attr_reader :toolchains
+
+    def initialize
+      @toolchains = []
+    end
+
+    def parse(opts)
+      toolchain_names = []
+
+      opts.each do |opt|
+        case opt
+        when /^--boost-toolchains=/
+          toolchain_names = opt.split('=')[1].split(',')
+        else
+          raise "unknown boost build option: #{opt}"
+        end
+      end
+
+      if toolchain_names.empty?
+        @toolchains = Build::TOOLCHAIN_LIST
+      else
+        toolchain_names.each do |tn|
+          ta = Build::TOOLCHAIN_LIST.select { |t| t.to_s == tn }.uniq
+          raise "unsupported toolchain #{tn}" if ta.empty?
+          @toolchains << ta[0]
+        end
+      end
+    end
+
+    def lines
+      ["build with toolchains: #{@toolchains.join(', ')}"]
+    end
+  end
+
+  def package_build_options
+    BuildOptions.new
+  end
 
   def initialize(path)
     super path
     @lib_deps = Hash.new([])
   end
 
-  def pre_build(src_dir, release)
-    # todo: build bjam here
+  def pre_build(_, release)
+    src_dir = "#{build_base_dir}/src"
+    FileUtils.cp_r "#{source_directory(release)}/.", src_dir
+
+    host_tc_dir = "#{src_dir}/host-bin"
+    FileUtils.mkdir_p host_tc_dir
+    host_cc = "#{host_tc_dir}/cc"
+    Build.gen_host_compiler_wrapper host_cc, 'gcc'
+
+    FileUtils.cd(src_dir) do
+      build_env['PATH'] = "#{host_tc_dir}:#{ENV['PATH']}"
+      system './bootstrap.sh',  '--with-toolset=cc'
+    end
+
+    # todo: fix mpi?
+    gen_user_config_jam src_dir
+
+    src_dir
   end
 
   def post_build(pkg_dir, release)
+    # puts ''
+    # built_libraries.keys.each do |key|
+    #   puts "#{key}: #{built_libraries[key].join(',')}"
+    # end
+
     gen_android_mk pkg_dir, release
-    nil
+
+    'OK'
   end
 
-  def build_for_abi(abi, _toolchain, release, _options)
-    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
-              "--host=#{host_for_abi(abi)}",
-              "--enable-shared",
-              "--enable-static",
-              "--with-pic",
-              "--disable-ld-version-script"
-            ]
-
+  def build_for_abi(abi, _toolchain, release, options)
     arch = Build.arch_for_abi(abi)
     bjam_arch, bjam_abi = bjam_data(arch)
 
-    src_dir = build_dir_for_abi(abi)
+    src_dir = pre_build_result
+    base_work_dir = Dir.pwd
 
     common_args = [ "-d+2",
                     "-j#{num_jobs}",
@@ -96,49 +125,31 @@ class Boost < Package
                     "architecture=#{bjam_arch}",
                     "abi=#{bjam_abi}",
                     "--user-config=#{src_dir}/user-config.jam",
-                    "--layout=system",
-                    "--without-mpi",
-                    without_libs(release, arch).map { |lib| "--without-#{lib}" }
-                  ].flatten
+                    "--layout=system"
+                  ]
 
-    #[Toolchain::GCC_4_9].each do |toolchain|
-    #[Toolchain::GCC_6].each do |toolchain|
-    #[Toolchain::LLVM_3_6].each do |toolchain|
-    Build::TOOLCHAIN_LIST.each do |toolchain|
+    options.package_options[self.name].toolchains.each do |toolchain|
       stl_name = toolchain.stl_name
       puts "    using C++ standard library: #{stl_name}"
-      # todo: copy sources for every toolchain
-      work_dir = "#{src_dir}/#{stl_name}"
-      host_tc_dir = "#{work_dir}/host-bin"
-      FileUtils.mkdir_p host_tc_dir
-      host_cc = "#{host_tc_dir}/cc"
-      Build.gen_host_compiler_wrapper host_cc, 'gcc'
-
-      build_env['PATH'] = "#{work_dir}:#{ENV['PATH']}"
-      system './bootstrap.sh',  "--with-toolset=cc"
-
-      gen_user_config_jam src_dir
+      work_dir = "#{base_work_dir}/#{stl_name}"
+      FileUtils.mkdir_p work_dir
 
       build_env.clear
-      cxx = "#{build_dir_for_abi(abi)}/#{toolchain.cxx_compiler_name}"
-      cxxflags = toolchain.cflags(abi) + ' ' +
-                 "--sysroot=#{Build.sysroot(abi)}" + ' ' +
-                 toolchain.search_path_for_stl_includes(abi) + ' ' +
-                 '-fPIC -Wno-long-long'
+      cxx = "#{work_dir}/#{toolchain.cxx_compiler_name}"
+      cxxflags = cxx_flags(toolchain, abi) + " -I#{target_dep_include_dir('xz')}"
 
-      build_env['PATH'] = "#{src_dir}:#{ENV['PATH']}"
+      build_env['PATH'] = "#{work_dir}:#{ENV['PATH']}"
 
       # build without python
       prefix_dir = "#{work_dir}/install"
       build_dir = "#{work_dir}/build"
-      ldflags = { before: "#{toolchain.ldflags(abi)} --sysroot=#{Build.sysroot(abi)} #{toolchain.search_path_for_stl_libs(abi)}",
-                  after:  "-l#{toolchain.stl_lib_name}_shared"
-                }
+      ldflags = ld_flags(toolchain, abi)
+
       gen_project_config_jam src_dir, arch, abi, stl_name, { ver: :none }
       Build.gen_compiler_wrapper cxx, toolchain.cxx_compiler(arch, abi), toolchain, build_options, cxxflags, ldflags
       puts "      building boost libraries"
-      args = common_args + [' --without-python', "--build-dir=#{build_dir}", "--prefix=#{prefix_dir}"]
-      system "#{src_dir}/b2", *args, 'install'
+      args = common_args + without_libs(release, arch) + ['--without-mpi', '--without-python', "--build-dir=#{build_dir}", "--prefix=#{prefix_dir}"]
+      FileUtils.cd(src_dir) { system "./b2", *args, 'install' }
 
       # build python libs
       python_versions.each do |py_ver|
@@ -153,13 +164,9 @@ class Boost < Package
                     inc_dir: "#{py_dir}/include/python"
                   }
         gen_project_config_jam src_dir, arch, abi, stl_name, py_data
-        args = common_args + ["--build-dir=#{build_dir}-#{py_ver}", "--prefix=#{prefix_dir}-#{py_ver}"]
-        #
-        FileUtils.cd("#{src_dir}/libs/python/build") do
-          puts "      building python library for python #{py_ver}"
-          system "#{src_dir}/b2", *args, 'install'
-        end
-        #
+        args = common_args + ["--build-dir=#{build_dir}-#{py_ver}", "--prefix=#{prefix_dir}-#{py_ver}", '--with-python']
+        puts "      building python library for python #{py_ver}"
+        FileUtils.cd(src_dir) { system "./b2", *args, 'install' }
         Dir["#{prefix_dir}-#{py_ver}/lib/*"].each { |p| FileUtils.copy_entry p, "#{prefix_dir}/lib/#{File.basename(p)}" }
       end
 
@@ -186,12 +193,33 @@ class Boost < Package
       FileUtils.mkdir_p libs_dir
       FileUtils.cp Dir["#{prefix_dir}/lib/*.a"],  libs_dir
       FileUtils.cp Dir["#{prefix_dir}/lib/*.so"], libs_dir
-      # run ranlib
+      # run ranlib and update built libraries list
       FileUtils.cd(libs_dir) do
         ranlib = toolchain.tool(arch, 'ranlib')
-        Dir['*.a'].each { |f| system ranlib, f }
+        libs = Dir['*.a']
+        libs.each { |f| system ranlib, f }
+        update_built_libraries toolchain, abi, libs
       end
     end
+  end
+
+  def update_built_libraries(toolchain, abi, libs)
+    libs.map { |e| e.sub(/^libboost_/, '').sub(/\.a$/, '') }.sort.uniq.each do |lib|
+      built_libraries[lib] << "#{toolchain}_#{abi}"
+    end
+  end
+
+  def cxx_flags(toolchain, abi)
+    toolchain.cflags(abi) + ' ' +
+      "--sysroot=#{Build.sysroot(abi)}" + ' ' +
+      toolchain.search_path_for_stl_includes(abi) + ' ' +
+      '-fPIC -Wno-long-long'
+  end
+
+  def ld_flags(toolchain, abi)
+    { before: "#{toolchain.ldflags(abi)} --sysroot=#{Build.sysroot(abi)} #{toolchain.search_path_for_stl_libs(abi)} -L#{target_dep_lib_dir('xz', abi)}",
+      after:  "-l#{toolchain.stl_lib_name}_shared"
+    }
   end
 
   def bjam_data(arch)
@@ -216,26 +244,17 @@ class Boost < Package
   end
 
   def without_libs(release, arch)
-    exclude_libs(release).select { |_, v| v.include? arch.name }.keys
+    exclude_libs(release).select { |_, v| v.include? arch.name }.keys.map { |lib| "--without-#{lib}" }
   end
 
   def exclude_libs(release)
     exclude = {}
     major, minor, _ = release.version.split('.').map { |a| a.to_i }
 
-    # Boost.Context in 1.64.0 and earlier don't support mips64
+    # Boost.Fiber fails to build for mips using gcc 6: Error: opcode not supported on this processor: mips32 (mips32) `pause'
     # check next versions
-    if major == 1 and minor <= 64
-      exclude['context'] = ['mips64']
-    end
-
-    # Boost.Coroutine depends on Boost.Context
-    if archs = exclude['context']
-      exclude['coroutine'] = archs
-      # Starting from 1.59.0, there is Boost.Coroutine2 library, which depends on Boost.Context too
-      if major == 1 and minor >= 59
-        exclude['coroutine2'] = archs
-      end
+    if major == 1 and minor <= 69
+      exclude['fiber'] = ['mips']
     end
 
     exclude
@@ -272,7 +291,7 @@ class Boost < Package
   end
 
   def gen_android_mk(pkg_dir, release)
-    exclude = exclude_libs(release)
+    #exclude = exclude_libs(release)
 
     File.open("#{pkg_dir}/Android.mk", "w") do |f|
       f.puts Build::COPYRIGHT_STR
@@ -286,22 +305,33 @@ class Boost < Package
       f.puts '))'
       f.puts 'endif'
       f.puts ''
+      f.puts '__boost_toolchain_version := $(strip \\'
+      f.puts '    $(if $(filter c++_%,$(APP_STL)),\\'
+      f.puts '        $(if $(filter clang%,$(NDK_TOOLCHAIN_VERSION)),$(patsubst clang%,%,$(NDK_TOOLCHAIN_VERSION)),$(DEFAULT_LLVM_VERSION)),\\'
+      f.puts '        $(if $(filter clang%,$(NDK_TOOLCHAIN_VERSION)),$(DEFAULT_GCC_VERSION),$(or $(NDK_TOOLCHAIN_VERSION),$(DEFAULT_GCC_VERSION)))\\'
+      f.puts '    ))'
+      f.puts ''
+      f.puts '__boost_toolchain_abi_pair := $(strip \\'
+      f.puts '    $(strip $(if $(filter c++_%,$(APP_STL)),\\'
+      f.puts '        clang,\\'
+      f.puts '        gcc\\'
+      f.puts '    ))$(__boost_toolchain_version)_$(TARGET_ARCH_ABI)\\'
+      f.puts '    )'
+      f.puts ''
       f.puts '__boost_libstdcxx_subdir := $(strip \\'
       f.puts '    $(strip $(if $(filter c++_%,$(APP_STL)),\\'
       f.puts '        llvm,\\'
       f.puts '        gnu\\'
-      f.puts '    ))-$(strip $(if $(filter c++_%,$(APP_STL)),\\'
-      f.puts '        $(if $(filter clang%,$(NDK_TOOLCHAIN_VERSION)),$(patsubst clang%,%,$(NDK_TOOLCHAIN_VERSION)),$(DEFAULT_LLVM_VERSION)),\\'
-      f.puts '        $(if $(filter clang%,$(NDK_TOOLCHAIN_VERSION)),$(DEFAULT_GCC_VERSION),$(or $(NDK_TOOLCHAIN_VERSION),$(DEFAULT_GCC_VERSION)))\\'
-      f.puts '    ))\\'
-      f.puts ')'
+      f.puts '    ))-$(__boost_toolchain_version)\\'
+      f.puts '    )'
       f.puts ''
-      build_libs.each do |name|
-        exclude_flag = false
-        if archs = exclude[name]
-          exclude_flag = true
-          f.puts "ifeq (,$(filter #{archs.join(' ')},$(TARGET_ARCH_ABI)))"
-        end
+      built_libraries.keys.each do |name|
+        # exclude_flag = false
+        # if archs = exclude[name]
+        #   exclude_flag = true
+        #   f.puts "ifeq (,$(filter #{archs.join(' ')},$(TARGET_ARCH_ABI)))"
+        # end
+        f.puts "ifneq (,$(filter $(__boost_toolchain_abi_pair),#{built_libraries[name].join(' ')}))"
         f.puts 'include $(CLEAR_VARS)'
         f.puts "LOCAL_MODULE := boost_#{name}_static"
         f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/$(__boost_libstdcxx_subdir)/libboost_#{name}.a"
@@ -327,10 +357,11 @@ class Boost < Package
           end
           f.puts 'include $(PREBUILT_SHARED_LIBRARY)'
         end
-        if exclude_flag
-          f.puts 'endif'
-          exclude_flag = false
-        end
+        f.puts 'endif'
+        # if exclude_flag
+        #   f.puts 'endif'
+        #   exclude_flag = false
+        # end
         # todo: do not output empty lines for the last element
         f.puts ''
         f.puts ''

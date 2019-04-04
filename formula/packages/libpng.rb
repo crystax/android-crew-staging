@@ -2,19 +2,17 @@ class Libpng < Package
 
   desc "Library for manipulating PNG images"
   homepage "http://www.libpng.org/pub/png/libpng.html"
-  url "http://sourceforge.net/projects/libpng/files/libpng16/${version}/libpng-${version}.tar.xz"
-  url "http://sourceforge.net/projects/libpng/files/libpng16/older-releases/${version}/libpng-${version}.tar.xz"
+  url "https://sourceforge.net/projects/libpng/files/libpng16/${version}/libpng-${version}.tar.xz"
+  url "https://sourceforge.net/projects/libpng/files/libpng16/older-releases/${version}/libpng-${version}.tar.xz"
 
-  release '1.6.35', crystax: 2
+  release '1.6.36', crystax: 2
 
   build_copy 'LICENSE'
   build_options export_ldlibs: '-lz'
 
   def build_for_abi(abi, _toolchain, release, _options)
     install_dir = install_dir_for_abi(abi)
-    args =  [ "--prefix=#{install_dir}",
-              "--host=#{host_for_abi(abi)}",
-              "--disable-silent-rules",
+    args =  [ "--disable-silent-rules",
               "--enable-shared",
               "--enable-static",
               "--disable-werror", # because of _POSIX_SOURCE redefinition

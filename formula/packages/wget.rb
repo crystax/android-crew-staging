@@ -2,9 +2,9 @@ class Wget < Package
 
   desc "GNU Wget is a free software package for retrieving files using HTTP, HTTPS, FTP and FTPS the most widely-used Internet protocols"
   homepage "https://www.gnu.org/software/wget/"
-  url "http://ftp.gnu.org/gnu/wget/wget-${version}.tar.gz"
+  url "https://ftp.gnu.org/gnu/wget/wget-${version}.tar.gz"
 
-  release '1.19.5', crystax: 3
+  release '1.20', crystax: 2
 
   depends_on 'openssl'
   depends_on 'libunistring'
@@ -16,9 +16,7 @@ class Wget < Package
                 gen_android_mk:      false
 
   def build_for_abi(abi, _toolchain,  _release, _options)
-    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
-              "--host=#{host_for_abi(abi)}",
-              "--disable-silent-rules",
+    args =  [ "--disable-silent-rules",
               "--disable-nls",
               "--with-ssl=openssl",
               "--without-libpsl",

@@ -2,9 +2,9 @@ class X264 < Package
 
   desc "H.264/AVC encoder"
   homepage "https://www.videolan.org/developers/x264.html"
-  url "https://git.videolan.org/git/x264.git|commit:7d0ff22e8c96de126be9d3de4952edd6d1b75a8c"
+  url "https://git.videolan.org/git/x264.git|commit:72db437770fd1ce3961f624dd57a8e75ff65ae0b"
 
-  release 'r2901'
+  release 'r2945'
 
   build_copy 'COPYING'
   build_libs 'libx264'
@@ -16,9 +16,7 @@ class X264 < Package
   def build_for_abi(abi, toolchain, release, _options)
     install_dir = install_dir_for_abi(abi)
 
-    args =  [ "--prefix=#{install_dir}",
-              "--host=#{host_for_abi(abi)}",
-              "--cross-prefix=#{host_for_abi(abi)}-",
+    args =  [ "--cross-prefix=#{host_for_abi(abi)}-",
               "--enable-shared",
               "--enable-static"
             ]
@@ -38,7 +36,7 @@ class X264 < Package
   end
 
   def sonames_translation_table(_release)
-    { 'libx264.so.155' => 'libx264' }
+    { 'libx264.so.157' => 'libx264' }
   end
 
   def pc_edit_file(file, release, abi)

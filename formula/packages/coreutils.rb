@@ -2,9 +2,9 @@ class Coreutils < Package
 
   desc "GNU File, Shell, and Text utilities"
   homepage "https://www.gnu.org/software/coreutils"
-  url "http://ftpmirror.gnu.org/coreutils/coreutils-${version}.tar.xz"
+  url "https://ftpmirror.gnu.org/coreutils/coreutils-${version}.tar.xz"
 
-  release '8.30'
+  release '8.31', crystax: 2
 
   package_info root_dir: ['bin']
 
@@ -14,9 +14,7 @@ class Coreutils < Package
 
 
   def build_for_abi(abi, _toolchain,  _release, _options)
-    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
-              "--host=#{host_for_abi(abi)}",
-              "--enable-single-binary=symlinks",
+    args =  [ "--enable-single-binary=symlinks",
               "--disable-silent-rules",
               "--disable-rpath",
 	      "--disable-nls"

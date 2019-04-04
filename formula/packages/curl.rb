@@ -1,10 +1,10 @@
 class Curl < Package
 
   desc 'Get a file from an HTTP, HTTPS or FTP server'
-  homepage 'http://curl.haxx.se/'
+  homepage 'https://curl.haxx.se/'
   url 'https://curl.haxx.se/download/curl-${version}.tar.bz2'
 
-  release '7.61.1'
+  release '7.64.0'
 
   depends_on 'openssl'
   depends_on 'libssh2'
@@ -14,9 +14,7 @@ class Curl < Package
                 copy_installed_dirs: ['bin', 'include', 'lib']
 
   def build_for_abi(abi, _toolchain,  _release, _options)
-    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
-              "--host=#{host_for_abi(abi)}",
-              "--with-ssl",
+    args =  [ "--with-ssl",
               "--with-libssh2",
               "--disable-nls",
              " --disable-silent-rules"

@@ -4,7 +4,7 @@ class Libidn2 < Package
   homepage "https://www.gnu.org/software/libidn/#libidn2"
   url "https://ftp.gnu.org/gnu/libidn/libidn2-${version}.tar.gz"
 
-  release '2.0.5', crystax: 2
+  release '2.1.1a'
 
   depends_on 'libunistring'
 
@@ -14,9 +14,7 @@ class Libidn2 < Package
                 copy_installed_dirs: ['bin', 'include', 'lib']
 
   def build_for_abi(abi, _toolchain, release, _options)
-    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
-              "--host=#{host_for_abi(abi)}",
-              "--disable-silent-rules",
+    args =  [ "--disable-silent-rules",
               "--enable-shared",
               "--enable-static",
               "--disable-doc",

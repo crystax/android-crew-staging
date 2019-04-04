@@ -32,7 +32,6 @@ class Package < TargetBase
                         gen_android_mk:                 true,
                         wrapper_translate_sonames:      Hash.new,
                         wrapper_fix_stl:                false,
-                        wrapper_filter_out:             nil,
                         wrapper_remove_args:            Array.new,
                         wrapper_replace_args:           Hash.new
                       }.freeze
@@ -57,6 +56,8 @@ class Package < TargetBase
 
   def install_archive(release, archive, _platform_name = nil)
     rel_dir = release_directory(release)
+    prop = get_properties(rel_dir)
+
     FileUtils.rm_rf binary_files(rel_dir)
     Utils.unpack archive, rel_dir
 
@@ -64,7 +65,7 @@ class Package < TargetBase
     # todo:
     #update_root_android_mk release
 
-    prop = get_properties(rel_dir)
+    prop.merge(get_properties(rel_dir))
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version
     save_properties prop, rel_dir
@@ -81,6 +82,7 @@ class Package < TargetBase
       prop = get_properties(rel_dir)
       FileUtils.rm_rf binary_files(rel_dir)
       prop[:installed] = false
+      prop.delete :build_info
       save_properties prop, rel_dir
     end
     release.installed = false
@@ -122,17 +124,23 @@ class Package < TargetBase
     release.source_installed = false
   end
 
-  def build(release, options, host_dep_dirs, target_dep_dirs)
+  def build(release, options, host_dep_dirs, target_dep_info)
     base_dir = build_base_dir
     FileUtils.rm_rf base_dir
     FileUtils.mkdir_p base_dir
+
     @log_file = build_log_file
     @build_release = release
     @host_dep_dirs = host_dep_dirs
-    @target_dep_dirs = target_dep_dirs
+
+    parse_target_dep_info target_dep_info
 
     arch_list = Build.abis_to_arch_list(options.abis)
-    build_log_puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
+    build_log_puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(', ')}"
+    unless options.package_options[self.name].lines.empty?
+      build_log_puts "Using package build options:"
+      options.package_options[self.name].lines.each { |pbo| build_log_puts "  #{pbo}" }
+    end
 
     src_dir = source_directory(release)
     @num_jobs = options.num_jobs
@@ -154,7 +162,7 @@ class Package < TargetBase
       build_log_puts "= building for architecture: #{arch.name}"
       if build_options[:use_standalone_toolchain]
         warning "build option 'cflags_in_c_wrapper=true' ignored for standalone toolchains" if build_options[:cflags_in_c_wrapper]
-        st_packages = target_dep_dirs.keys
+        st_packages = @target_dep_dirs.keys
         st_base_dir = "#{build_base_dir}/#{arch.name}-toolchain"
         build_log_puts "  making standalone toolchain with packages: #{st_packages}"
         toolchain = Toolchain::Standalone.new(arch, st_base_dir, Toolchain::DEFAULT_GCC, Toolchain::DEFAULT_LLVM, st_packages, self)
@@ -179,6 +187,7 @@ class Package < TargetBase
         end
         #
         setup_build_env abi, toolchain if build_options[:setup_env]
+        @build_abi = abi
         FileUtils.cd(build_dir) { build_for_abi abi, toolchain, release, options }
         install_dir = install_dir_for_abi(abi)
         Dir["#{install_dir}/**/*.pc"].each { |file| pc_edit_file file, release, abi unless File.symlink? file }
@@ -197,7 +206,9 @@ class Package < TargetBase
     end
 
     build_copy.each { |f| FileUtils.cp "#{src_dir}/#{f}", package_dir }
-    copy_tests release, target_dep_dirs
+    copy_tests release
+
+    write_build_info package_dir
 
     if options.build_only?
       build_log_puts "Build only, no packaging and installing"
@@ -404,7 +415,13 @@ class Package < TargetBase
     end
   end
 
-  def copy_tests(release, target_dep_dirs)
+
+  def write_build_info(package_dir)
+    prop = { build_info: @target_build_info }
+    save_properties prop, package_dir
+  end
+
+  def copy_tests(release)
     src_tests_dir = "#{Build::VENDOR_TESTS_DIR}/#{file_name}"
     puts "tests dir: #{src_tests_dir}"
     if Dir.exists? src_tests_dir
@@ -419,7 +436,7 @@ class Package < TargetBase
           when /\${version}/
             line.gsub '${version}', release.version
           when /\${module_subdir\((.*)\)}/
-            dep_dir = target_dep_dirs[$1]
+            dep_dir = @target_dep_dirs[Formula.make_target_fqn($1)]
             line.gsub /\${module_subdir.*}/, dep_dir.split(File::SEPARATOR)[-2..-1].join(File::SEPARATOR)
           else
             line
@@ -531,12 +548,14 @@ class Package < TargetBase
   end
 
   def target_dep_include_dir(dep_name)
-    raise "no such depency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
+    dep_name = make_target_fqn(dep_name)
+    raise "no such dependency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
     "#{@target_dep_dirs[dep_name]}/include"
   end
 
   def target_dep_lib_dir(dep_name, abi)
-    raise "no such depency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
+    dep_name = make_target_fqn(dep_name)
+    raise "no such dependency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
     "#{@target_dep_dirs[dep_name]}/libs/#{abi}"
   end
 
@@ -577,6 +596,9 @@ class Package < TargetBase
   end
 
   def configure(*args)
+    args = ["--host=#{host_for_abi(@build_abi)}"]          + args unless args.any? { |a| a.start_with?('--host=') }
+    args = ["--prefix=#{install_dir_for_abi(@build_abi)}"] + args unless args.any? { |a| a.start_with?('--prefix=') }
+
     src_dir = build_options[:build_outside_source_tree] ? source_directory(@build_release) : '.'
     system "#{src_dir}/configure", *args
   end

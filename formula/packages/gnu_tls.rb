@@ -5,7 +5,7 @@ class GnuTls < Package
   homepage "https://www.gnutls.org"
   url "https://www.gnupg.org/ftp/gcrypt/gnutls/v${block}/gnutls-${version}.tar.xz" do |r| r.version.split('.').first(2).join('.') end
 
-  release '3.5.19'
+  release '3.6.7'
 
   depends_on 'gmp'
   depends_on 'libffi'
@@ -20,9 +20,7 @@ class GnuTls < Package
                 copy_installed_dirs: ['bin', 'include', 'lib']
 
   def build_for_abi(abi, _toolchain, release, _options)
-    args =  [ "--prefix=#{install_dir_for_abi(abi)}",
-              "--host=#{host_for_abi(abi)}",
-              "--disable-silent-rules",
+    args =  [ "--disable-silent-rules",
               "--disable-doc",
               "--enable-shared",
               "--enable-static",
@@ -34,6 +32,10 @@ class GnuTls < Package
 
     build_env['CFLAGS']  += " -I#{target_dep_include_dir('libidn2')}"
     build_env['LDFLAGS'] += " -L#{target_dep_lib_dir('libunistring', abi)} -L#{target_dep_lib_dir('libidn2', abi)} -lunistring -lidn2"
+
+    if ['mips', 'arm64-v8a', 'mips64'].include? abi
+      build_env['LDFLAGS'] += " -L#{target_dep_lib_dir('gmp', abi)} -L#{target_dep_lib_dir('nettle', abi)} -lhogweed -lnettle -lgmp"
+    end
 
     configure *args
     fix_makefile abi if ['mips', 'arm64-v8a', 'mips64'].include? abi

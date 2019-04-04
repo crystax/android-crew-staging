@@ -14,6 +14,7 @@ module Properties
   end
 
   def save_properties(prop, dir)
+    FileUtils.mkdir_p dir
     propfile = File.join(dir, FILE)
     File.open(propfile, "w") { |f| f.puts prop.to_json ; f.flush }
   end

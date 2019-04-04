@@ -4,11 +4,8 @@ class GdbServer < BasePackage
 
   desc "GDB server"
   name 'gdb-server'
-  # todo:
-  #homepage ""
-  #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release '7.10', crystax: 3
+  release '7.10', crystax: 4
 
   # todo:
   #build_depends_on default_compiler
@@ -21,44 +18,21 @@ class GdbServer < BasePackage
     File.join Global::NDK_DIR, 'prebuilt'
   end
 
-  def install_archive(release, archive, _platform_name = nil)
-    prop_dir = properties_directory(release)
-    FileUtils.mkdir_p prop_dir
-    prop = get_properties(prop_dir)
-
+  def remove_installed_files(_release)
     FileUtils.rm_rf ARCHIVE_SUB_DIRS.map { |d| File.join release_directory, d }
-    Utils.unpack archive, Global::NDK_DIR
-
-    prop[:installed] = true
-    prop[:installed_crystax_version] = release.crystax_version
-    save_properties prop, prop_dir
-
-    release.installed = release.crystax_version
   end
 
-  def uninstall(release)
-    puts "removing #{name}:#{release.version}"
-
-    FileUtils.rm_rf ARCHIVE_SUB_DIRS.map { |d| File.join release_directory, d }
-
-    prop_dir = properties_directory(release)
-    prop = get_properties(prop_dir)
-    prop[:installed] = false
-    prop.delete :installed_crystax_version
-    save_properties prop, prop_dir
-
-    release.installed = false
-  end
-
-  def build(release, options, _host_dep_dirs, _target_dep_dirs)
+  def build(release, options, _host_dep_dirs, target_dep_info)
     arch_list = Build.abis_to_arch_list(options.abis)
     puts "Building #{name} #{release} for architectures: #{arch_list.map{|a| a.name}.join(' ')}"
 
     FileUtils.rm_rf build_base_dir
 
-    FileUtils.rm_rf build_base_dir
     @log_file = build_log_file
     @num_jobs = options.num_jobs
+
+    parse_target_dep_info target_dep_info
+
     src_dir = "#{Build::TOOLCHAIN_SRC_DIR}/gdb/gdb-#{release.version}/gdb/gdbserver"
     package_dir = "#{build_base_dir}/package"
 
@@ -74,6 +48,8 @@ class GdbServer < BasePackage
       FileUtils.cd(build_dir) { build_for_arch arch, toolchain, src_dir, sysroot_dir, package_dir }
       FileUtils.rm_rf base_arch_dir unless options.no_clean?
     end
+
+    write_build_info release, package_dir
 
     if options.build_only?
       puts "Build only, no packaging and installing"

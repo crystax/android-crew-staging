@@ -74,6 +74,8 @@ class TestBuildOptions < MiniTest::Test
     assert_equal(false, v.num_jobs_default?)
 
     # unknown option
-    assert_raises(UnknownOption) { Crew::Build::Options.new(['--hello-world']) }
+    v = Crew::Build::Options.new(['--hello-world'])
+    formulary = Formulary.new
+    assert_raises(RuntimeError) { v.parse_packages_options ['libjpeg'], formulary }
   end
 end

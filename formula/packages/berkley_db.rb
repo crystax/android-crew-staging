@@ -2,10 +2,10 @@ class BerkleyDb < Package
 
   name 'berkley-db'
   desc 'Berkeley DB is a family of embedded key-value database libraries providing scalable high-performance data management services to applications'
-  homepage 'http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/'
-  url 'http://download.oracle.com/berkeley-db/db-6.2.32.tar.gz'
+  homepage 'https://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/'
+  url 'https://download.oracle.com/berkeley-db/${version}.tar.gz'
 
-  release '6.2.32', crystax: 3
+  release '6.2.32', crystax: 4
 
   build_copy 'LICENSE'
   build_options use_cxx: true,

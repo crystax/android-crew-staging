@@ -4,7 +4,7 @@ class Apt < Package
   homepage "https://github.com/Debian/apt"
   url "https://salsa.debian.org/apt-team/apt.git|tag:${version}"
 
-  release '1.6.3', crystax: 3
+  release '1.6.3', crystax: 5
 
   depends_on 'xz'
   depends_on 'lz4'
@@ -18,10 +18,6 @@ class Apt < Package
                 gen_android_mk: false
 
   build_copy 'COPYING'
-
-  depends_on 'berkley-db'
-  depends_on 'curl'
-  depends_on 'gnu-tls'
 
   def build_for_abi(abi, toolchain,  release, _options)
     install_dir = install_dir_for_abi(abi)

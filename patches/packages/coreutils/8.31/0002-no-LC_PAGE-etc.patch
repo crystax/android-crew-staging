@@ -1,0 +1,17 @@
+diff -Naurw a/gnulib-tests/setlocale.c b/gnulib-tests/setlocale.c
+--- a/gnulib-tests/setlocale.c	2019-02-11 06:25:16.000000000 +0300
++++ b/gnulib-tests/setlocale.c	2019-03-12 20:24:23.538368037 +0300
+@@ -811,11 +811,13 @@
+       case LC_MONETARY:
+       case LC_MESSAGES:
+       case LC_ALL:
++#ifndef __CRYSTAX__
+       case LC_PAPER:
+       case LC_NAME:
+       case LC_ADDRESS:
+       case LC_TELEPHONE:
+       case LC_MEASUREMENT:
++#endif
+         if (locale == NULL
+             || strcmp (locale, "C") == 0 || strcmp (locale, "POSIX") == 0)
+           result = (char *) "C";

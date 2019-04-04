@@ -1,0 +1,35 @@
+diff -Naurw a/configure b/configure
+--- a/configure	2018-10-26 20:32:13.000000000 +0300
++++ b/configure	2019-02-01 20:46:32.483295146 +0300
+@@ -6,7 +6,7 @@
+ # Report bugs to <http://bugs.gnupg.org>.
+ #
+ #
+-# Copyright (C) 1992-1996, 1998-2012 Free Software Foundation, Inc.
++# Copyright (C) 1992-1996, 1998-2012, 2019 Free Software Foundation, Inc.
+ #
+ #
+ # This configure script is free software; the Free Software Foundation
+@@ -14146,7 +14146,12 @@
+ #
+ # gpg-error is required.
+ #
+-
++if test -n "$GPG_ERROR_CFLAGS"; then
++  $as_echo "GPG_ERROR_CFLAGS:    $GPG_ERROR_CFLAGS"
++  $as_echo "GPG_ERROR_LIBS:      $GPG_ERROR_LIBS"
++  $as_echo "GPG_ERROR_MT_CFLAGS: $GPG_ERROR_MT_CFLAGS"
++  $as_echo "GPG_ERROR_MT_LIBS:   $GPG_ERROR_MT_LIBS"
++else
+   gpg_error_config_prefix=""
+ 
+ # Check whether --with-libgpg-error-prefix was given.
+@@ -14288,7 +14293,7 @@
+     :
+   fi
+ 
+-
++fi
+ 
+ 
+ 
