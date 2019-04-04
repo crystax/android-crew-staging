@@ -344,4 +344,8 @@ describe "crew install" do
       end
     end
   end
+
+  # todo: test that when package installed information about installed sources kept intact
+  context '' do
+  end
 end
