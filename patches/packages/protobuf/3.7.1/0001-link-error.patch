@@ -1,0 +1,12 @@
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 4b895b3a..3756046c 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -313,6 +313,7 @@ libprotoc_la_LDFLAGS += -Wl,--version-script=$(srcdir)/libprotoc.map
+ EXTRA_libprotoc_la_DEPENDENCIES = libprotoc.map
+ endif
+ libprotoc_la_SOURCES =                                         \
++  google/protobuf/descriptor.pb.cc                             \
+   google/protobuf/compiler/code_generator.cc                   \
+   google/protobuf/compiler/command_line_interface.cc           \
+   google/protobuf/compiler/plugin.cc                           \
