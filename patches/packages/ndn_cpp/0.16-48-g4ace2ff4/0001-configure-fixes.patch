@@ -1,0 +1,234 @@
+diff --git a/configure b/configure
+index 5c1d3fdd..f270dac1 100755
+--- a/configure
++++ b/configure
+@@ -2442,97 +2442,6 @@ fi
+   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+ 
+ } # ac_fn_cxx_check_header_mongrel
+-
+-# ac_fn_c_check_header_mongrel LINENO HEADER VAR INCLUDES
+-# -------------------------------------------------------
+-# Tests whether HEADER exists, giving a warning if it cannot be compiled using
+-# the include files in INCLUDES and setting the cache variable VAR
+-# accordingly.
+-ac_fn_c_check_header_mongrel ()
+-{
+-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+-  if eval \${$3+:} false; then :
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
+-$as_echo_n "checking for $2... " >&6; }
+-if eval \${$3+:} false; then :
+-  $as_echo_n "(cached) " >&6
+-fi
+-eval ac_res=\$$3
+-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+-$as_echo "$ac_res" >&6; }
+-else
+-  # Is the header compilable?
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking $2 usability" >&5
+-$as_echo_n "checking $2 usability... " >&6; }
+-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-$4
+-#include <$2>
+-_ACEOF
+-if ac_fn_c_try_compile "$LINENO"; then :
+-  ac_header_compiler=yes
+-else
+-  ac_header_compiler=no
+-fi
+-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_header_compiler" >&5
+-$as_echo "$ac_header_compiler" >&6; }
+-
+-# Is the header present?
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking $2 presence" >&5
+-$as_echo_n "checking $2 presence... " >&6; }
+-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-#include <$2>
+-_ACEOF
+-if ac_fn_c_try_cpp "$LINENO"; then :
+-  ac_header_preproc=yes
+-else
+-  ac_header_preproc=no
+-fi
+-rm -f conftest.err conftest.i conftest.$ac_ext
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_header_preproc" >&5
+-$as_echo "$ac_header_preproc" >&6; }
+-
+-# So?  What about this header?
+-case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in #((
+-  yes:no: )
+-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $2: accepted by the compiler, rejected by the preprocessor!" >&5
+-$as_echo "$as_me: WARNING: $2: accepted by the compiler, rejected by the preprocessor!" >&2;}
+-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $2: proceeding with the compiler's result" >&5
+-$as_echo "$as_me: WARNING: $2: proceeding with the compiler's result" >&2;}
+-    ;;
+-  no:yes:* )
+-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $2: present but cannot be compiled" >&5
+-$as_echo "$as_me: WARNING: $2: present but cannot be compiled" >&2;}
+-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $2:     check for missing prerequisite headers?" >&5
+-$as_echo "$as_me: WARNING: $2:     check for missing prerequisite headers?" >&2;}
+-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $2: see the Autoconf documentation" >&5
+-$as_echo "$as_me: WARNING: $2: see the Autoconf documentation" >&2;}
+-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $2:     section \"Present But Cannot Be Compiled\"" >&5
+-$as_echo "$as_me: WARNING: $2:     section \"Present But Cannot Be Compiled\"" >&2;}
+-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $2: proceeding with the compiler's result" >&5
+-$as_echo "$as_me: WARNING: $2: proceeding with the compiler's result" >&2;}
+-( $as_echo "## ---------------------------------------- ##
+-## Report this to ndn-lib@lists.cs.ucla.edu ##
+-## ---------------------------------------- ##"
+-     ) | sed "s/^/$as_me: WARNING:     /" >&2
+-    ;;
+-esac
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
+-$as_echo_n "checking for $2... " >&6; }
+-if eval \${$3+:} false; then :
+-  $as_echo_n "(cached) " >&6
+-else
+-  eval "$3=\$ac_header_compiler"
+-fi
+-eval ac_res=\$$3
+-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+-$as_echo "$ac_res" >&6; }
+-fi
+-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+-
+-} # ac_fn_c_check_header_mongrel
+ cat >config.log <<_ACEOF
+ This file contains any messages produced by compilers while
+ running configure, to aid debugging if configure makes a mistake.
+@@ -18889,51 +18798,6 @@ as_fn_error $? "have protobuf headers but no libprotobuf
+ See \`config.log' for more details" "$LINENO" 5; }
+ fi
+ 
+-  # libprotobuf needs libpthread.
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lpthread" >&5
+-$as_echo_n "checking for main in -lpthread... " >&6; }
+-if ${ac_cv_lib_pthread_main+:} false; then :
+-  $as_echo_n "(cached) " >&6
+-else
+-  ac_check_lib_save_LIBS=$LIBS
+-LIBS="-lpthread  $LIBS"
+-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-
+-
+-int
+-main ()
+-{
+-return main ();
+-  ;
+-  return 0;
+-}
+-_ACEOF
+-if ac_fn_cxx_try_link "$LINENO"; then :
+-  ac_cv_lib_pthread_main=yes
+-else
+-  ac_cv_lib_pthread_main=no
+-fi
+-rm -f core conftest.err conftest.$ac_objext \
+-    conftest$ac_exeext conftest.$ac_ext
+-LIBS=$ac_check_lib_save_LIBS
+-fi
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pthread_main" >&5
+-$as_echo "$ac_cv_lib_pthread_main" >&6; }
+-if test "x$ac_cv_lib_pthread_main" = xyes; then :
+-  cat >>confdefs.h <<_ACEOF
+-#define HAVE_LIBPTHREAD 1
+-_ACEOF
+-
+-  LIBS="-lpthread $LIBS"
+-
+-else
+-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error $? "have libprotobuf but no libpthread
+-See \`config.log' for more details" "$LINENO" 5; }
+-fi
+-
+ 
+   # See https://stackoverflow.com/questions/13939904/how-to-use-protocol-buffers-with-autoconf-automake
+ 
+@@ -19042,11 +18906,11 @@ then
+         LDFLAGS="$LDFLAGS -L${ZLIB_HOME}/lib"
+         CPPFLAGS="$CPPFLAGS -I${ZLIB_HOME}/include"
+   fi
+-  ac_ext=c
+-ac_cpp='$CPP $CPPFLAGS'
+-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+-ac_compiler_gnu=$ac_cv_c_compiler_gnu
++  ac_ext=cpp
++ac_cpp='$CXXCPP $CPPFLAGS'
++ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
++ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
++ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+ 
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for inflateEnd in -lz" >&5
+ $as_echo_n "checking for inflateEnd in -lz... " >&6; }
+@@ -19073,7 +18937,7 @@ return inflateEnd ();
+   return 0;
+ }
+ _ACEOF
+-if ac_fn_c_try_link "$LINENO"; then :
++if ac_fn_cxx_try_link "$LINENO"; then :
+   ac_cv_lib_z_inflateEnd=yes
+ else
+   ac_cv_lib_z_inflateEnd=no
+@@ -19090,7 +18954,7 @@ else
+   zlib_cv_libz=no
+ fi
+ 
+-  ac_fn_c_check_header_mongrel "$LINENO" "zlib.h" "ac_cv_header_zlib_h" "$ac_includes_default"
++  ac_fn_cxx_check_header_mongrel "$LINENO" "zlib.h" "ac_cv_header_zlib_h" "$ac_includes_default"
+ if test "x$ac_cv_header_zlib_h" = xyes; then :
+   zlib_cv_zlib_h=yes
+ else
+diff --git a/configure.ac b/configure.ac
+index bf364c8b..92de3b2f 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -309,9 +309,6 @@ AC_DEFINE_UNQUOTED([HAVE_PROTOBUF], $HAVE_PROTOBUF, [1 if have Google Protobuf.]
+ if test "$HAVE_PROTOBUF" == "1" ; then
+   AC_CHECK_LIB([protobuf], [main], [],
+                [AC_MSG_FAILURE([have protobuf headers but no libprotobuf])])
+-  # libprotobuf needs libpthread.
+-  AC_CHECK_LIB([pthread], [main], [],
+-               [AC_MSG_FAILURE([have libprotobuf but no libpthread])])
+ 
+   # See https://stackoverflow.com/questions/13939904/how-to-use-protocol-buffers-with-autoconf-automake
+   AC_ARG_WITH([protoc],
+diff --git a/include/config.h.in b/include/config.h.in
+index f531034b..4eaed90c 100644
+--- a/include/config.h.in
++++ b/include/config.h.in
+@@ -45,9 +45,6 @@
+ /* Define to 1 if you have the `protobuf' library (-lprotobuf). */
+ #undef HAVE_LIBPROTOBUF
+ 
+-/* Define to 1 if you have the `pthread' library (-lpthread). */
+-#undef HAVE_LIBPTHREAD
+-
+ /* Define to 1 if you have the `sqlite3' library (-lsqlite3). */
+ #undef HAVE_LIBSQLITE3
+ 
+diff --git a/m4/ax_check_zlib.m4 b/m4/ax_check_zlib.m4
+index 1a168430..40cf65fb 100644
+--- a/m4/ax_check_zlib.m4
++++ b/m4/ax_check_zlib.m4
+@@ -108,10 +108,10 @@ then
+         LDFLAGS="$LDFLAGS -L${ZLIB_HOME}/lib"
+         CPPFLAGS="$CPPFLAGS -I${ZLIB_HOME}/include"
+   fi
+-  AC_LANG_PUSH([C])
++  AC_LANG_PUSH([C++])
+   AC_CHECK_LIB([z], [inflateEnd], [zlib_cv_libz=yes], [zlib_cv_libz=no])
+   AC_CHECK_HEADER([zlib.h], [zlib_cv_zlib_h=yes], [zlib_cv_zlib_h=no])
+-  AC_LANG_POP([C])
++  AC_LANG_POP([C++])
+   if test "$zlib_cv_libz" = "yes" && test "$zlib_cv_zlib_h" = "yes"
+   then
+     #
