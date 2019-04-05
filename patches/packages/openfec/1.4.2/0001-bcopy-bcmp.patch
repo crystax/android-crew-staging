@@ -1,0 +1,19 @@
+diff --git a/src/lib_stable/reed-solomon_gf_2_8/of_reed-solomon_gf_2_8.c b/src/lib_stable/reed-solomon_gf_2_8/of_reed-solomon_gf_2_8.c
+index de24ed0..cf00748 100755
+--- a/src/lib_stable/reed-solomon_gf_2_8/of_reed-solomon_gf_2_8.c
++++ b/src/lib_stable/reed-solomon_gf_2_8/of_reed-solomon_gf_2_8.c
+@@ -34,8 +34,14 @@
+  */
+ #include "of_reed-solomon_gf_2_8_includes.h"
+ 
++#include <strings.h>
++
+ #ifdef OF_USE_REED_SOLOMON_CODEC
+ 
++#ifdef ANDROID
++#define bcmp(a,b,sz)	memcmp((a), (b), (sz))
++#endif /*  ANDROID */
++
+ /* VR: added for WIN CE support */
+ #ifdef _WIN32_WCE
+ #define bzero(to,sz)	memset((to), 0, (sz))

@@ -30,7 +30,7 @@ module Build
 
   NDK_HOST_TOOLS_DIR = File.join(Global::NDK_DIR, 'sources', 'host-tools')
 
-  # CMAKE_TOOLCHAIN_FILE = File.join(Global::NDK_DIR, 'cmake', 'toolchain.cmake')
+  CMAKE_TOOLCHAIN_FILE = File.join(Global::NDK_DIR, 'build', 'cmake', 'android.toolchain.cmake')
 
   DEFAULT_TOOLCHAIN = Toolchain::DEFAULT_LLVM
   TOOLCHAIN_LIST = Toolchain::SUPPORTED_LLVM

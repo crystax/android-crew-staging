@@ -1,0 +1,12 @@
+diff --git a/src/lib_stable/reed-solomon_gf_2_m/galois_field_codes_utils/of_galois_field_code.c b/src/lib_stable/reed-solomon_gf_2_m/galois_field_codes_utils/of_galois_field_code.c
+index 898de1a..98bdf57 100644
+--- a/src/lib_stable/reed-solomon_gf_2_m/galois_field_codes_utils/of_galois_field_code.c
++++ b/src/lib_stable/reed-solomon_gf_2_m/galois_field_codes_utils/of_galois_field_code.c
+@@ -33,6 +33,7 @@
+ 
+ #include "../of_reed-solomon_gf_2_m_includes.h"
+ 
++#include <strings.h>
+ 
+ #ifdef OF_USE_REED_SOLOMON_2_M_CODEC
+ 
