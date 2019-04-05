@@ -3,3 +3,5 @@ packages/openssl.rb 1.1.1-pre8_1 android c5805270348b7d722e892d1edd9f607ee86b40e
 packages/boost.rb 1.68.0_1 android b9c98cd6e8409fbf08303098b6c2fac8114cfefabcbd2d7cbe11853a343e8d13
 packages/ndn_cxx.rb 0.6.5_1 android 9ea5183c7f2cb666717f5af8c9a6db6f3f4be5739e1d402129cdd6d9d21d2222
 packages/nfd.rb 0.6.5_1 android efd188e8be029499466cdebfcd6b266e62a129503751a59e68a48f4ec36eb8eb
+packages/ndn_cpp.rb 0.16-48-g4ace2ff4_1 android 6ff4fb1e6682e3f85e22d20f51250089ab65e559ab34b0da2aa96881a74ee4da
+packages/protobuf.rb 3.7.1_1 android c7429df7cc2f7e197566ade30ed0dba3d4170e252b577bed9302ce82808578c5
