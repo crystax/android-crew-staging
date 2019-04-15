@@ -6,3 +6,4 @@ packages/nfd.rb 0.6.5_1 android efd188e8be029499466cdebfcd6b266e62a129503751a59e
 packages/ndn_cpp.rb 0.16-48-g4ace2ff4_1 android 6ff4fb1e6682e3f85e22d20f51250089ab65e559ab34b0da2aa96881a74ee4da
 packages/protobuf.rb 3.7.1_1 android c7429df7cc2f7e197566ade30ed0dba3d4170e252b577bed9302ce82808578c5
 packages/openfec.rb 1.4.2_1 android b0d36c5524acd6234c6f7fb20dd19dc6e0174d51b0f14104d9247ab741309ec5
+packages/psync.rb 0.1.0_1 android feae756173cb3d57fa5ffe81202f1e6296ac8a241cb2d3537dc5f37139127724
