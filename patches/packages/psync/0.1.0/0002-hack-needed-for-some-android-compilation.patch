@@ -1,0 +1,25 @@
+From 5718e2f0e4c7b840958317151c914573f59445a7 Mon Sep 17 00:00:00 2001
+From: Alexander Afanasyev <aa@cs.fiu.edu>
+Date: Mon, 15 Apr 2019 17:16:39 -0400
+Subject: [PATCH] Hack needed for some android compilation
+
+---
+ wscript | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/wscript b/wscript
+index 9412e7d..4f2d485 100644
+--- a/wscript
++++ b/wscript
+@@ -33,7 +33,7 @@ def configure(conf):
+     conf.env['WITH_TESTS'] = conf.options.with_tests
+     conf.env['WITH_EXAMPLES'] = conf.options.with_examples
+ 
+-    boost_libs = 'system thread log log_setup iostreams'
++    boost_libs = 'system thread log log_setup iostreams regex filesystem chrono date_time atomic'
+     if conf.env['WITH_TESTS']:
+         conf.define('WITH_TESTS', 1);
+         boost_libs += ' unit_test_framework'
+-- 
+2.21.0
+
