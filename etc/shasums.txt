@@ -7,3 +7,5 @@ packages/ndn_cpp.rb 0.16-48-g4ace2ff4_1 android 6ff4fb1e6682e3f85e22d20f51250089
 packages/protobuf.rb 3.7.1_1 android c7429df7cc2f7e197566ade30ed0dba3d4170e252b577bed9302ce82808578c5
 packages/openfec.rb 1.4.2_1 android b0d36c5524acd6234c6f7fb20dd19dc6e0174d51b0f14104d9247ab741309ec5
 packages/psync.rb 0.1.0_1 android feae756173cb3d57fa5ffe81202f1e6296ac8a241cb2d3537dc5f37139127724
+packages/ndnrtc.rb 0.0.1_1 android e130d57952ca5d1d4881cf831b7c69064e65f5fa39b0199054fa8ceffc8ed52e
+packages/webrtc.rb 59_1 android dafece6ac972b9a4ff11a52a9d5d45de7ec6dd722fc6c9a70cad4cb5619ef1a3
