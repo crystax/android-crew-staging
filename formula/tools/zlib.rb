@@ -5,11 +5,11 @@ class Zlib < Library
   url 'http://zlib.net/zlib-${version}.tar.xz'
   url 'https://github.com/madler/zlib/archive/v${version}.tar.gz'
 
-  release '1.2.11', crystax: 6
+  release '1.2.11', crystax: 7
 
   postpone_install true
 
-  def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     install_dir = install_dir_for_platform(platform.name, release)
 
     # copy sources; zlib doesn't support build in a separate directory
@@ -25,8 +25,6 @@ class Zlib < Library
       build_env['PREFIX'] = platform.cc.chop.chop.chop
 
       loc = platform.target_cpu == 'x86' ? 'LOC=-m32' : 'LOC=-m64'
-
-      #system 'make', '-j', num_jobs, loc, '-f', 'win32/Makefile.gcc', 'libz.a'
 
       targets = ['libz.a', 'zlib1.dll', 'libz.dll.a']
       system 'make', '-j', num_jobs, loc, '-f', 'win32/Makefile.gcc', *targets

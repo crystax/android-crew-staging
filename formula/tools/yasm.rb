@@ -4,9 +4,9 @@ class Yasm < Utility
   homepage "http://yasm.tortall.net/"
   url "https://www.tortall.net/projects/yasm/releases/yasm-${version}.tar.gz"
 
-  release '1.3.0', crystax: 3
+  release '1.3.0', crystax: 4
 
-  def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     install_dir = install_dir_for_platform(platform.name, release)
 
     args  = platform.configure_args +

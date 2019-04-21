@@ -6,11 +6,14 @@ require_relative 'host_base.rb'
 
 class Tool < HostBase
 
-  def build(release, options, host_dep_dirs, target_dep_dirs)
+  def build(release, options, host_dep_info, target_dep_info)
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"
 
     self.num_jobs = options.num_jobs
+
+    parse_host_dep_info   host_dep_info
+    parse_target_dep_info target_dep_info
 
     # create required directories and download sources
     FileUtils.rm_rf build_base_dir
@@ -23,13 +26,15 @@ class Tool < HostBase
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"
-      #
-      base_dir = base_dir_for_platform(platform.name)
-      build_dir = build_dir_for_platform(platform.name)
+
+      base_dir    = base_dir_for_platform(platform.name)
+      build_dir   = build_dir_for_platform(platform.name)
       package_dir = package_dir_for_platform(platform.name)
       install_dir = install_dir_for_platform(platform.name, release)
       FileUtils.mkdir_p [build_dir, install_dir]
+
       self.log_file = build_log_file(platform.name)
+
       # prepare standard build environment
       build_env.clear
       build_env['CC']                       = platform.cc
@@ -44,8 +49,9 @@ class Tool < HostBase
       build_env['RC']                       = platform.windres                           if platform.target_os == 'windows'
       build_env['MACOSX_DEPLOYMENT_TARGET'] = Build::MACOS_MIN_VER                       if platform.target_os == 'darwin'
       #
-      FileUtils.cd(build_dir) { build_for_platform platform, release, options, host_dep_dirs, target_dep_dirs }
+      FileUtils.cd(build_dir) { build_for_platform platform, release, options }
       write_file_list package_dir, platform.name if build_filelist?
+      write_build_info platform.name, release
 
       next if options.build_only?
       #

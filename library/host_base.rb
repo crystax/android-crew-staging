@@ -114,6 +114,11 @@ class HostBase < Formula
     FileUtils.mv bin_list_file, rel_dir
     FileUtils.mv dev_list_file, rel_dir if File.exist? dev_list_file
 
+    if postpone_install?(platform_name)
+      prop_file = File.join(target_dir, release_dir_suffix(release, platform_name), Properties::FILE)
+      FileUtils.mv prop_file, rel_dir
+    end
+
     prop = get_properties(rel_dir)
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version
@@ -342,5 +347,21 @@ class HostBase < Formula
         end
       end
     end
+  end
+
+  def build_info_install_dir(platform_name, release)
+    File.join(base_dir_for_platform(platform_name), release_dir_suffix(release, platform_name))
+  end
+
+  def write_build_info(platform_name, release)
+    dir = build_info_install_dir(platform_name, release)
+    prop = { build_info: @host_build_info + @target_build_info }
+    save_properties prop, dir
+  end
+
+  def release_dir_suffix(release, platform_name)
+    s = release_directory(release, platform_name).delete_prefix(File.dirname(Global::SERVICE_DIR))
+    s = s[1..-1] if s.start_with?('/')
+    s
   end
 end

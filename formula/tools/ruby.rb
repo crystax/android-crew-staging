@@ -4,7 +4,7 @@ class Ruby < Library
   homepage 'https://www.ruby-lang.org/'
   url 'https://cache.ruby-lang.org/pub/ruby/${block}/ruby-${version}.tar.gz' do |r| r.version.split('.').slice(0, 2).join('.') end
 
-  release '2.5.3', crystax: 3
+  release '2.5.3', crystax: 4
 
   depends_on 'zlib'
   depends_on 'openssl'
@@ -55,7 +55,7 @@ class Ruby < Library
     FileUtils.cp_r Dir["#{rugged_src}/lib/*"], "#{rugged_dst}/lib/"
   end
 
-  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     install_dir = install_dir_for_platform(platform.name, release)
     tools_dir   = Global::tools_dir(platform.name)
 

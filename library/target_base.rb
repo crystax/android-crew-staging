@@ -109,15 +109,6 @@ class TargetBase < Formula
     FileUtils.cd(target_dir) { FileUtils.mkdir_p dirs }
   end
 
-  def parse_target_dep_info(info)
-    @target_build_info = []
-    @target_dep_dirs = {}
-    info.each_pair do |fqn, dep_info|
-      @target_build_info << "#{fqn}:#{dep_info.release}"
-      @target_dep_dirs[fqn] = dep_info.release_directory
-    end
-  end
-
   def build_base_dir
     "#{Build::BASE_TARGET_DIR}/#{file_name}"
   end

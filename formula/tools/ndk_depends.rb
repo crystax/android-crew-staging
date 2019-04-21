@@ -4,12 +4,12 @@ class NdkDepends < Utility
   name 'ndk-depends'
   homepage ""
 
-  release '1', crystax: 3
+  release '1', crystax: 4
 
   def prepare_source_code(release, dir, src_name, log_prefix)
   end
 
-  def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     src_dir = File.join(Build::NDK_HOST_TOOLS_DIR, 'ndk-depends')
     install_dir = File.join(install_dir_for_platform(platform.name, release), 'bin')
     FileUtils.mkdir_p install_dir

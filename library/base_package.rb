@@ -38,7 +38,7 @@ class BasePackage < TargetBase
 
   def write_build_info(release, package_dir)
     prop_dir = File.join(package_dir, File.basename(Global::SERVICE_DIR), file_name, release.version)
-    prop = { build_info: @target_build_info }
+    prop = { build_info: @host_build_info + @target_build_info }
     save_properties prop, prop_dir
   end
 end

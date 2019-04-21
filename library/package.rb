@@ -65,7 +65,7 @@ class Package < TargetBase
     # todo:
     #update_root_android_mk release
 
-    prop.merge(get_properties(rel_dir))
+    prop.merge! get_properties(rel_dir)
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version
     save_properties prop, rel_dir
@@ -415,9 +415,8 @@ class Package < TargetBase
     end
   end
 
-
   def write_build_info(package_dir)
-    prop = { build_info: @target_build_info }
+    prop = { build_info: @host_build_info + @target_build_info }
     save_properties prop, package_dir
   end
 
@@ -545,22 +544,6 @@ class Package < TargetBase
       FileUtils.rm_rf Dir['lib/**/*.la']
       Dir['lib/**/*.a', 'lib/**/*.so', 'lib/**/*.so.*'].each { |f| FileUtils.rm f if File.symlink?(f) }
     end
-  end
-
-  def target_dep_include_dir(dep_name)
-    dep_name = make_target_fqn(dep_name)
-    raise "no such dependency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
-    "#{@target_dep_dirs[dep_name]}/include"
-  end
-
-  def target_dep_lib_dir(dep_name, abi)
-    dep_name = make_target_fqn(dep_name)
-    raise "no such dependency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
-    "#{@target_dep_dirs[dep_name]}/libs/#{abi}"
-  end
-
-  def target_dep_pkgconfig_dir(dep_name, abi)
-    "#{target_dep_lib_dir(dep_name, abi)}/pkgconfig"
   end
 
   # def target_dep_all_include_dirs(dirs)

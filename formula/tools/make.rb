@@ -4,13 +4,13 @@ class Make < Utility
   homepage "https://www.gnu.org/software/make/"
   #url "https://ftpmirror.gnu.org/make/make-${version}.tar.bz2"
 
-  release '3.81', crystax: 3
+  release '3.81', crystax: 4
 
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in sources/host-tools/ directory
   end
 
-  def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     src_dir = File.join(Build::NDK_HOST_TOOLS_DIR, "make-#{release.version}")
     install_dir = install_dir_for_platform(platform.name, release)
 

@@ -4,14 +4,14 @@ class Libssh2 < Library
   homepage 'http://www.libssh2.org/'
   url 'http://www.libssh2.org/download/libssh2-${version}.tar.gz'
 
-  release '1.8.0', crystax: 6
+  release '1.8.2'
 
   depends_on 'zlib'
   depends_on 'openssl'
 
   postpone_install true
 
-  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     install_dir = install_dir_for_platform(platform.name, release)
     tools_dir   = Global::tools_dir(platform.name)
 

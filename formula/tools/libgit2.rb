@@ -4,7 +4,7 @@ class Libgit2 < Library
   homepage 'https://libgit2.github.com/'
   url 'https://github.com/libgit2/libgit2/archive/v${version}.tar.gz'
 
-  release '0.27.7'
+  release '0.27.7', crystax: 2
 
   depends_on 'zlib'
   depends_on 'openssl'
@@ -12,7 +12,7 @@ class Libgit2 < Library
 
   postpone_install true
 
-  def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     install_dir = install_dir_for_platform(platform.name, release)
     tools_dir   = Global::tools_dir(platform.name)
 
@@ -26,6 +26,8 @@ class Libgit2 < Library
       "CMAKE_C_FLAGS=\"#{platform.cflags} -I#{tools_dir}/include\"",
       "CMAKE_FIND_ROOT_PATH=#{tools_dir}",
       "BUILD_CLAR=OFF",
+      "SHA1_BACKEND=OpenSSL",
+      "USE_HTTPS=ON",
       "USE_ICONV=OFF",
       "USE_EXT_HTTP_PARSER=OFF"
     ]

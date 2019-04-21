@@ -4,16 +4,16 @@ class Mpc < BuildDependency
   homepage "http://multiprecision.org"
   url "https://ftpmirror.gnu.org/mpc/mpc-${version}.tar.gz"
 
-  release '1.0.3', crystax: 3
+  release '1.0.3', crystax: 4
 
   depends_on 'gmp'
   depends_on 'mpfr'
 
-  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     install_dir = install_dir_for_platform(platform.name, release)
 
-    gmp_dir  = host_dep_dirs[platform.name]['gmp']
-    mpfr_dir = host_dep_dirs[platform.name]['mpfr']
+    gmp_dir  = host_dep_dir(platform.name, 'gmp')
+    mpfr_dir = host_dep_dir(platform.name, 'mpfr')
 
     args = platform.configure_args +
            ["--prefix=#{install_dir}",

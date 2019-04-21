@@ -29,6 +29,10 @@ class Formula
     @patches = {}
     @log_file = File.join('/tmp', name)
     @system_ignore_result = false
+    @host_build_info = []
+    @host_dep_dirs = Hash.new { |h, k| h[k] = Hash.new }
+    @target_build_info = []
+    @target_dep_dirs = {}
   end
 
   def name
@@ -290,12 +294,58 @@ class Formula
     false
   end
 
+  def make_host_fqn(n)
+    self.class.make_host_fqn(n)
+  end
+
+  def self.make_host_fqn(n)
+    n.start_with?('host/') ? n : 'host/' + n
+  end
+
   def make_target_fqn(n)
     self.class.make_target_fqn(n)
   end
 
   def self.make_target_fqn(n)
     n.start_with?('target/') ? n : 'target/' + n
+  end
+
+  def parse_host_dep_info(info)
+    info.each_pair do |platform, host_deps|
+      host_deps.each_pair do |fqn, dep_info|
+        @host_build_info << "#{fqn}:#{dep_info.release}"
+        dep = { fqn => dep_info.code_directory }
+        @host_dep_dirs[platform].update dep
+      end
+    end
+  end
+
+  def parse_target_dep_info(info)
+    info.each_pair do |fqn, dep_info|
+      @target_build_info << "#{fqn}:#{dep_info.release}"
+      @target_dep_dirs[fqn] = dep_info.release_directory
+    end
+  end
+
+  def host_dep_dir(platform_name, dep_name)
+    dep_name = make_host_fqn(dep_name)
+    @host_dep_dirs[platform_name][dep_name]
+  end
+
+  def target_dep_include_dir(dep_name)
+    dep_name = make_target_fqn(dep_name)
+    raise "no such dependency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
+    "#{@target_dep_dirs[dep_name]}/include"
+  end
+
+  def target_dep_lib_dir(dep_name, abi)
+    dep_name = make_target_fqn(dep_name)
+    raise "no such dependency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
+    "#{@target_dep_dirs[dep_name]}/libs/#{abi}"
+  end
+
+  def target_dep_pkgconfig_dir(dep_name, abi)
+    "#{target_dep_lib_dir(dep_name, abi)}/pkgconfig"
   end
 
   private

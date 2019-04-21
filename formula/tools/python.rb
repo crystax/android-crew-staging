@@ -3,13 +3,13 @@ class Python < Library
   desc "Interpreted, interactive, object-oriented programming language"
   homepage "https://www.python.org"
 
-  release '2.7.5', crystax: 4
+  release '2.7.5', crystax: 5
 
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in toolchain/python repository
   end
 
-  def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'python', "Python-#{release.version}")
     install_dir = install_dir_for_platform(platform.name, release)
 
