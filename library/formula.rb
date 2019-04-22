@@ -318,6 +318,7 @@ class Formula
         @host_dep_dirs[platform].update dep
       end
     end
+    @host_build_info.uniq!
   end
 
   def parse_target_dep_info(info)
