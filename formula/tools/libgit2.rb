@@ -28,7 +28,7 @@ class Libgit2 < Library
       "CMAKE_FIND_ROOT_PATH=#{tools_dir}",
       "BUILD_CLAR=OFF",
       "SHA1_BACKEND=OpenSSL",
-      "USE_HTTPS=ON",
+      "USE_HTTPS=OpenSSL",
       "USE_ICONV=OFF",
       "USE_EXT_HTTP_PARSER=OFF"
     ]
