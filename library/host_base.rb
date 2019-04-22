@@ -105,7 +105,7 @@ class HostBase < Formula
     rel_dir = release_directory(release, platform_name)
     FileUtils.mkdir_p rel_dir
 
-    target_dir = File.exist?(upgrade_script_filename) ? postpone_dir : Global::NDK_DIR
+    target_dir = postpone_install?(platform_name) ? postpone_dir : Global::NDK_DIR
 
     Utils.unpack archive, target_dir
 
