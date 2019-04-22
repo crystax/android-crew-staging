@@ -4,11 +4,12 @@ class Libgit2 < Library
   homepage 'https://libgit2.github.com/'
   url 'https://github.com/libgit2/libgit2/archive/v${version}.tar.gz'
 
-  release '0.27.7', crystax: 2
+  release '0.27.7', crystax: 3
 
   depends_on 'zlib'
   depends_on 'openssl'
   depends_on 'libssh2'
+  depends_on 'curl'
 
   postpone_install true
 
