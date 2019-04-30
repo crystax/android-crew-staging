@@ -54,7 +54,7 @@ module Crew
             @arch = Arch::LIST[arch_name.to_sym]
           when /^--platform=/
             platform_name = opt.split('=')[1]
-            raise "platform #{platform} unsupported on #{Global::OS}" unless Platform.default_names_for_host_os.include? platform_name
+            check_platform_names platform_name
             @platform = Platform.new(platform_name)
           when /^--api-level=/
             @api_level = opt.split('=')[1].to_i
