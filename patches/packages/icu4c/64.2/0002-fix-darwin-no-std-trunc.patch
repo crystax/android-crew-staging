@@ -1,7 +1,7 @@
 diff -Naurw a/source/i18n/decimfmt.cpp b/source/i18n/decimfmt.cpp
---- a/source/i18n/decimfmt.cpp	2018-10-02 01:39:56.000000000 +0300
-+++ b/source/i18n/decimfmt.cpp	2019-03-20 21:10:45.474675649 +0300
-@@ -1349,7 +1349,11 @@
+--- a/source/i18n/decimfmt.cpp	2019-04-17 22:42:15.000000000 +0300
++++ b/source/i18n/decimfmt.cpp	2019-04-26 18:46:32.699690649 +0300
+@@ -1812,7 +1812,11 @@
          return false;
      }
      if (std::isnan(input)
