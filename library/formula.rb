@@ -9,9 +9,12 @@ require_relative 'multi_version.rb'
 require_relative 'release.rb'
 require_relative 'utils.rb'
 require_relative 'patch.rb'
+require_relative 'properties.rb'
 
 
 class Formula
+
+  include Properties
 
   DEF_BUILD_OPTIONS = { source_archive_without_top_dir: false }.freeze
 
@@ -112,6 +115,12 @@ class Formula
 
   def package_build_options
     DefaultBuildOptions.new
+  end
+
+  def build_info(release, platform_name)
+    rel_dir = release_directory(release, platform_name)
+    prop = get_properties(rel_dir)
+    prop[:build_info] ? prop[:build_info] : []
   end
 
   def merge_default_install_options(opts)

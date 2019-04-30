@@ -1,6 +1,5 @@
 require_relative 'shasum.rb'
 require_relative 'release.rb'
-require_relative 'properties.rb'
 require_relative 'formula.rb'
 require_relative 'build.rb'
 
@@ -9,7 +8,6 @@ class TargetBase < Formula
 
   namespace :target
 
-  include Properties
   include MultiVersion
 
   BIN_PACKAGE_DIRS = ['bin', 'libs', 'libexec', 'sbin']

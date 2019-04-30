@@ -17,7 +17,7 @@ describe "crew list" do
     # make sure that tools installed without dev files
     pkg_cache_add_tool 'curl', update: false
     pkg_cache_add_tool 'ruby', update: false
-    crew_checked '-W install --no-check-shasum --cache-only --force curl ruby'
+    crew_checked '-W install --no-check-shasum --cache-only --force host/curl host/ruby'
   end
 
   context "when given bad arguments" do

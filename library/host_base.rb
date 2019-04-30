@@ -2,9 +2,9 @@ require_relative 'shasum.rb'
 require_relative 'platform.rb'
 require_relative 'formula.rb'
 
+
 class HostBase < Formula
 
-  include Properties
   include SingleVersion
 
   namespace :host

@@ -49,7 +49,12 @@ describe "crew info" do
                                      "Releases:           #{ruby_rel.version} #{ruby_rel.crystax_version} (*/)",
                                      "Dependencies:       zlib (*), openssl (*), libssh2 (*), libgit2 (*)",
                                      "Build dependencies: none",
-                                     "Has dev files:      yes"
+                                     "Has dev files:      yes",
+                                     "Build info:",
+                                     "#{Global::PLATFORM_NAME}, #{ruby_rel}",
+                                     # todo: versions should not be hardcoded
+                                     "  host:   zlib:1.2.11_7, openssl:1.1.0j_2, libssh2:1.8.2_1, libgit2:0.27.7_3, curl:7.64.1_1",
+                                     "  target: "
                                     ])
     end
   end
@@ -80,7 +85,12 @@ describe "crew info" do
                                      "Releases:           #{curl_rel.version} #{curl_rel.crystax_version} (*/*)",
                                      "Dependencies:       zlib (*), openssl (*), libssh2 (*)",
                                      "Build dependencies: none",
-                                     "Has dev files:      yes"
+                                     "Has dev files:      yes",
+                                     "Build info:",
+                                     "#{Global::PLATFORM_NAME}, #{curl_rel}",
+                                     # todo: versions should not be hardcoded
+                                     "  host:   zlib:1.2.11_7, openssl:1.1.0j_2, libssh2:1.8.2_1",
+                                     "  target: "
                                     ])
     end
   end
@@ -102,6 +112,11 @@ describe "crew info" do
                                      "Dependencies:       zlib (*), openssl (*), libssh2 (*)",
                                      "Build dependencies: none",
                                      "Has dev files:      yes",
+                                     "Build info:",
+                                     "#{Global::PLATFORM_NAME}, #{curl_rel}",
+                                     # todo: versions should not be hardcoded
+                                     "  host:   zlib:1.2.11_7, openssl:1.1.0j_2, libssh2:1.8.2_1",
+                                     "  target: ",
                                      "",
                                      "Name:               libarchive",
                                      "Namespace:          host",
@@ -113,6 +128,11 @@ describe "crew info" do
                                      "Dependencies:       none",
                                      "Build dependencies: xz (*)",
                                      "Has dev files:      no",
+                                     "Build info:",
+                                     "#{Global::PLATFORM_NAME}, #{libarchive_rel}",
+                                     # todo: versions should not be hardcoded
+                                     "  host:   xz:5.2.4_4",
+                                     "  target: ",
                                      "",
                                      "Name:               ruby",
                                      "Namespace:          host",
@@ -123,7 +143,12 @@ describe "crew info" do
                                      "Releases:           #{ruby_rel.version} #{ruby_rel.crystax_version} (*/)",
                                      "Dependencies:       zlib (*), openssl (*), libssh2 (*), libgit2 (*)",
                                      "Build dependencies: none",
-                                     "Has dev files:      yes"
+                                     "Has dev files:      yes",
+                                     "Build info:",
+                                     "#{Global::PLATFORM_NAME}, #{ruby_rel}",
+                                     # todo: versions should not be hardcoded
+                                     "  host:   zlib:1.2.11_7, openssl:1.1.0j_2, libssh2:1.8.2_1, libgit2:0.27.7_3, curl:7.64.1_1",
+                                     "  target: "
                                     ])
     end
   end
@@ -141,7 +166,11 @@ describe "crew info" do
                                      "Class:              libone",
                                      "Releases:           1.0.0 1",
                                      "Dependencies:       none",
-                                     "Build dependencies: none"
+                                     "Build dependencies: none",
+                                     "Build info:",
+                                     "#{Global::PLATFORM_NAME}, 1.0.0_1",
+                                     "  host:   ",
+                                     "  target: "
                                     ])
     end
   end
@@ -159,7 +188,14 @@ describe "crew info" do
              "Class:              libtwo",
              "Releases:           1.1.0 1, 2.2.0 1",
              "Dependencies:       libone",
-             "Build dependencies: none"
+             "Build dependencies: none",
+             "Build info:",
+             "#{Global::PLATFORM_NAME}, 1.1.0_1",
+             "  host:   ",
+             "  target: ",
+             "#{Global::PLATFORM_NAME}, 2.2.0_1",
+             "  host:   ",
+             "  target: "
             ]
       got = out.split("\n")
       got.each_with_index { |g, i| expect(g).to match(exp[i]) }
@@ -197,7 +233,17 @@ describe "crew info" do
              "Class:              libthree",
              "Releases:           1.1.1 1, 2.2.2 1, 3.3.3 1",
              "Dependencies:       libone, libtwo",
-             "Build dependencies: none"
+             "Build dependencies: none",
+             "Build info:",
+             "#{Global::PLATFORM_NAME}, 1.1.1_1",
+             "  host:   ",
+             "  target: ",
+             "#{Global::PLATFORM_NAME}, 2.2.2_1",
+             "  host:   ",
+             "  target: ",
+             "#{Global::PLATFORM_NAME}, 3.3.3_1",
+             "  host:   ",
+             "  target: "
             ]
       got = out.split("\n")
       got.each_with_index { |g, i| expect(g).to match(exp[i]) }
@@ -220,7 +266,17 @@ describe "crew info" do
              "Class:              libthree",
              "Releases:           1.1.1 1, 2.2.2 1, 3.3.3 1",
              "Dependencies:       libone (*), libtwo (*)",
-             "Build dependencies: none"
+             "Build dependencies: none",
+             "Build info:",
+             "#{Global::PLATFORM_NAME}, 1.1.1_1",
+             "  host:   ",
+             "  target: ",
+             "#{Global::PLATFORM_NAME}, 2.2.2_1",
+             "  host:   ",
+             "  target: ",
+             "#{Global::PLATFORM_NAME}, 3.3.3_1",
+             "  host:   ",
+             "  target: "
             ]
       got = out.split("\n")
       got.each_with_index { |g, i| expect(g).to match(exp[i]) }
