@@ -1,0 +1,40 @@
+From 7be89ca743f2b140b1bd9bb746e9991ad32dfd33 Mon Sep 17 00:00:00 2001
+From: Alexander Afanasyev <aa@cs.fiu.edu>
+Date: Thu, 2 May 2019 16:03:59 -0400
+Subject: [PATCH 3/3] Enable `resetGlobalIoService` for Android build
+
+Change-Id: I8e05faea944a92e0ac64d61443f1634c2aab3181
+---
+ daemon/common/global.cpp | 2 +-
+ daemon/common/global.hpp | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/daemon/common/global.cpp b/daemon/common/global.cpp
+index a0fd88f7..3143a0d7 100644
+--- a/daemon/common/global.cpp
++++ b/daemon/common/global.cpp
+@@ -50,7 +50,7 @@ getScheduler()
+   return *g_scheduler;
+ }
+ 
+-#ifdef WITH_TESTS
++#if defined(WITH_TESTS) or defined(ANDROID)
+ void
+ resetGlobalIoService()
+ {
+diff --git a/daemon/common/global.hpp b/daemon/common/global.hpp
+index 1e1fce83..dcb19bf7 100644
+--- a/daemon/common/global.hpp
++++ b/daemon/common/global.hpp
+@@ -61,7 +61,7 @@ runOnMainIoService(const std::function<void()>& f);
+ void
+ runOnRibIoService(const std::function<void()>& f);
+ 
+-#ifdef WITH_TESTS
++#if defined(WITH_TESTS) or defined(ANDROID)
+ /** \brief Destroy the global io_service instance.
+  *
+  *  It will be recreated at the next invocation of getGlobalIoService().
+-- 
+2.21.0
+

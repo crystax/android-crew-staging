@@ -6,7 +6,7 @@ class Nfd < Package
   # rugged doesn't support recursive clone of submodules, needed for websockets
   url "https://named-data.net/downloads/nfd-${version}.tar.bz2"
 
-  release version: '0.6.5', crystax_version: 1
+  release version: '0.6.6', crystax_version: 2
 
   depends_on 'boost'
   depends_on 'ndn_cxx'
@@ -66,7 +66,8 @@ class Nfd < Package
                    "--boost-includes=#{@boost_dir}/include",
                    "--boost-libs=#{@boost_dir}/libs/#{abi}/#{stl_name}",
                    "--sysconfdir=./etc",
-                   "--without-libpcap"
+                   "--without-libpcap",
+                   "--without-systemd",
                  ]
       @build_env['CXXFLAGS_NDN_CXX'] = [
         "-I#{@ndn_cxx_dir}/include",
@@ -135,7 +136,7 @@ class Nfd < Package
       f.puts 'include $(CLEAR_VARS)'
       f.puts "LOCAL_MODULE := nfd_shared"
       f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/llvm/libnfd.so"
-      f.puts 'LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include/NFD'
+      f.puts 'LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include/NFD $(LOCAL_PATH)/include/NFD/daemon'
       f.puts 'ifneq (,$(filter clang%,$(NDK_TOOLCHAIN_VERSION)))'
       f.puts 'LOCAL_EXPORT_LDLIBS := -latomic'
       f.puts 'endif'
