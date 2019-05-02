@@ -1,0 +1,68 @@
+From bdedb81bd9a6a4cd7a8421e129e5425a702686b3 Mon Sep 17 00:00:00 2001
+From: Alexander Afanasyev <aa@cs.fiu.edu>
+Date: Thu, 5 Jul 2018 10:01:44 -0400
+Subject: [PATCH 1/2] Customize logging for Android
+
+Change-Id: I6206d0096d0e2dd729fade35f6acc9d5adeaf75a
+---
+ ndn-cxx/util/logger.hpp | 18 +++++++-----------
+ 1 file changed, 7 insertions(+), 11 deletions(-)
+
+diff --git a/ndn-cxx/util/logger.hpp b/ndn-cxx/util/logger.hpp
+index f785c7ba..94f45bb5 100644
+--- a/ndn-cxx/util/logger.hpp
++++ b/ndn-cxx/util/logger.hpp
+@@ -31,6 +31,7 @@
+ #include <boost/log/common.hpp>
+ #include <boost/log/sources/logger.hpp>
+ #include <atomic>
++#include <android/log.h>
+ 
+ namespace ndn {
+ namespace util {
+@@ -233,20 +234,15 @@ using ArgumentType = typename ExtractArgument<T>::type;
+   struct ndn_cxx_allow_trailing_semicolon
+ 
+ /** \cond */
+-#if BOOST_VERSION == 105900
+-// workaround Boost bug 11549
+-#define NDN_BOOST_LOG(x) BOOST_LOG(x) << ""
+-#else
+-#define NDN_BOOST_LOG(x) BOOST_LOG(x)
+-#endif
+ 
+ // implementation detail
+ #define NDN_LOG_INTERNAL(lvl, lvlstr, expression) \
+   do { \
+     if (ndn_cxx_getLogger().isLevelEnabled(::ndn::util::LogLevel::lvl)) { \
+-      NDN_BOOST_LOG(ndn_cxx_getLogger()) << ::ndn::util::detail::LoggerTimestamp{} \
+-        << " " BOOST_STRINGIZE(lvlstr) ": [" << ndn_cxx_getLogger().getModuleName() << "] " \
+-        << expression; \
++      std::ostringstream os;                                              \
++      os << expression;                                                   \
++      __android_log_print(ANDROID_LOG_##lvlstr,                           \
++                          ndn_cxx_getLogger().getModuleName().c_str(), "%s", os.str().c_str()); \
+     } \
+   } while (false)
+ /** \endcond */
+@@ -254,7 +250,7 @@ using ArgumentType = typename ExtractArgument<T>::type;
+ /** \brief Log at TRACE level.
+  *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
+  */
+-#define NDN_LOG_TRACE(expression) NDN_LOG_INTERNAL(TRACE, TRACE, expression)
++#define NDN_LOG_TRACE(expression) NDN_LOG_INTERNAL(TRACE, VERBOSE, expression)
+ 
+ /** \brief Log at DEBUG level.
+  *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
+@@ -269,7 +265,7 @@ using ArgumentType = typename ExtractArgument<T>::type;
+ /** \brief Log at WARN level.
+  *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
+  */
+-#define NDN_LOG_WARN(expression) NDN_LOG_INTERNAL(WARN, WARNING, expression)
++#define NDN_LOG_WARN(expression) NDN_LOG_INTERNAL(WARN, WARN, expression)
+ 
+ /** \brief Log at ERROR level.
+  *  \pre A log module must be declared in the same translation unit, class, struct, or namespace.
+-- 
+2.20.1
+
