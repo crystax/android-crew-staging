@@ -4,7 +4,7 @@ class NdnCpp < Package
   homepage "https://named-data.net/doc/ndn-cpp/"
   url 'git://github.com/named-data/ndn-cpp.git|git_commit:4ace2ff4e1b9671591797c84f3d8a748a6c2c64e'
 
-  release version: '0.16-48-g4ace2ff4', crystax_version: 1
+  release version: '0.16-48-g4ace2ff4', crystax_version: 2
 
   depends_on 'boost'
   depends_on 'openssl'
