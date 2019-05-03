@@ -4,7 +4,7 @@ class Ndnrtc < Package
   homepage "https://github.com/cawka/ndnrtc/"
   url 'https://github.com/cawka/ndnrtc|git_commit:941c9608799896d09fdf3c3ee7f12c548ef0e8d8'
 
-  release version: '0.0.1', crystax_version: 1
+  release version: '0.0.1', crystax_version: 2
 
   depends_on 'boost'
   depends_on 'ndn_cpp'
