@@ -11,3 +11,4 @@ packages/ndnrtc.rb 0.0.1_1 android e130d57952ca5d1d4881cf831b7c69064e65f5fa39b01
 packages/webrtc.rb 59_1 android dafece6ac972b9a4ff11a52a9d5d45de7ec6dd722fc6c9a70cad4cb5619ef1a3
 packages/ndn_cxx.rb 0.6.6_1 android 84b221d682615eee56fabe490151035376cdd33a3b0b6557f5017ded4fe18792
 packages/nfd.rb 0.6.6_2 android 3c7ab7f94b3fda8810c78557b6df7116ee02808f88f1640d6ac015384af59c6d
+packages/boost.rb 1.70.0_1 android dd09c4fd3f51d453eb615be5e9812648491f0dd79af0779aebccc725429fea1a

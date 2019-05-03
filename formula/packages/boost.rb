@@ -4,7 +4,8 @@ class Boost < Package
   homepage "http://www.boost.org"
   url "https://downloads.sourceforge.net/project/boost/boost/${version}/boost_${block}.tar.bz2" do |r| r.version.gsub('.', '_') end
 
-  release version: '1.68.0', crystax_version: 1
+  release version: '1.70.0', crystax_version: 1
+  # release version: '1.68.0', crystax_version: 1
 
   # todo: add versions, like this: python:2.7.*, python:3.*.*
   # depends_on 'python'
@@ -286,37 +287,38 @@ class Boost < Package
       f.puts '))'
       f.puts 'endif'
       f.puts ''
-      build_libs.each do |name|
+      @lib_deps.each do |name, deps|
         exclude_flag = false
         if archs = exclude[name]
           exclude_flag = true
           f.puts "ifeq (,$(filter #{archs.join(' ')},$(TARGET_ARCH_ABI)))"
         end
+        ## Disable config for static libraries
+        # f.puts 'include $(CLEAR_VARS)'
+        # f.puts "LOCAL_MODULE := boost_#{name}_static"
+        # f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/llvm/libboost_#{name}.a"
+        # f.puts 'LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include'
+        # f.puts 'ifneq (,$(filter clang%,$(NDK_TOOLCHAIN_VERSION)))'
+        # f.puts 'LOCAL_EXPORT_LDLIBS := -latomic'
+        # f.puts 'endif'
+        # @lib_deps[name].each do |dep|
+        #   f.puts "LOCAL_STATIC_LIBRARIES += boost_#{dep}_static"
+        # end
+        # f.puts 'include $(PREBUILT_STATIC_LIBRARY)'
+        # f.puts ''
+        # unless STATIC_ONLY.include? name
         f.puts 'include $(CLEAR_VARS)'
-        f.puts "LOCAL_MODULE := boost_#{name}_static"
-        f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/llvm/libboost_#{name}.a"
+        f.puts "LOCAL_MODULE := boost_#{name}_shared"
+        f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/llvm/libboost_#{name}.so"
         f.puts 'LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include'
         f.puts 'ifneq (,$(filter clang%,$(NDK_TOOLCHAIN_VERSION)))'
         f.puts 'LOCAL_EXPORT_LDLIBS := -latomic'
         f.puts 'endif'
-        @lib_deps[name].each do |dep|
-          f.puts "LOCAL_STATIC_LIBRARIES += boost_#{dep}_static"
+        deps.each do |dep|
+          f.puts "LOCAL_SHARED_LIBRARIES += boost_#{dep}_shared"
         end
-        f.puts 'include $(PREBUILT_STATIC_LIBRARY)'
-        f.puts ''
-        unless STATIC_ONLY.include? name
-          f.puts 'include $(CLEAR_VARS)'
-          f.puts "LOCAL_MODULE := boost_#{name}_shared"
-          f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/llvm/libboost_#{name}.so"
-          f.puts 'LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include'
-          f.puts 'ifneq (,$(filter clang%,$(NDK_TOOLCHAIN_VERSION)))'
-          f.puts 'LOCAL_EXPORT_LDLIBS := -latomic'
-          f.puts 'endif'
-          @lib_deps[name].each do |dep|
-            f.puts "LOCAL_SHARED_LIBRARIES += boost_#{dep}_shared"
-          end
-          f.puts 'include $(PREBUILT_SHARED_LIBRARY)'
-        end
+        f.puts 'include $(PREBUILT_SHARED_LIBRARY)'
+        # end
         if exclude_flag
           f.puts 'endif'
           exclude_flag = false

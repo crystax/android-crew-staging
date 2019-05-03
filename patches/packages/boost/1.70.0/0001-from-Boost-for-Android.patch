@@ -1,0 +1,107 @@
+From 3f5dbd7bc281b77e0156207c69214993ff7d729d Mon Sep 17 00:00:00 2001
+From: Alexander Afanasyev <aa@cs.fiu.edu>
+Date: Thu, 2 May 2019 18:45:41 -0400
+Subject: [PATCH] from Boost-for-Android
+
+---
+ boost/asio/detail/config.hpp       |  6 +++++-
+ boost/config/user.hpp              |  6 ++++++
+ boost/system/error_code.hpp        |  1 +
+ libs/filesystem/src/operations.cpp | 15 +++++++++++++++
+ tools/build/src/tools/common.jam   |  8 ++++----
+ 5 files changed, 31 insertions(+), 5 deletions(-)
+
+diff --git a/boost/asio/detail/config.hpp b/boost/asio/detail/config.hpp
+index 8fef292b0..cb58a0766 100644
+--- a/boost/asio/detail/config.hpp
++++ b/boost/asio/detail/config.hpp
+@@ -825,7 +825,11 @@
+ #    if (_LIBCPP_VERSION < 7000)
+ #     if (__cplusplus >= 201402)
+ #      if __has_include(<experimental/string_view>)
+-#       define BOOST_ASIO_HAS_STD_EXPERIMENTAL_STRING_VIEW 1
++#     if __clang_major__ >= 7
++#      undef BOOST_ASIO_HAS_STD_EXPERIMENTAL_STRING_VIEW
++#     else
++#      define BOOST_ASIO_HAS_STD_EXPERIMENTAL_STRING_VIEW 1
++#     endif // __clang_major__ >= 7
+ #      endif // __has_include(<experimental/string_view>)
+ #     endif // (__cplusplus >= 201402)
+ #    endif // (_LIBCPP_VERSION < 7000)
+diff --git a/boost/config/user.hpp b/boost/config/user.hpp
+index 28e7476af..afe955f09 100644
+--- a/boost/config/user.hpp
++++ b/boost/config/user.hpp
+@@ -13,6 +13,12 @@
+ //  configuration policy:
+ //
+ 
++// Android defines
++// There is problem with std::atomic on android (and some other platforms).
++// See this link for more info:
++// https://code.google.com/p/android/issues/detail?id=42735#makechanges
++#define BOOST_ASIO_DISABLE_STD_ATOMIC 1
++
+ // define this to locate a compiler config file:
+ // #define BOOST_COMPILER_CONFIG <myheader>
+ 
+diff --git a/boost/system/error_code.hpp b/boost/system/error_code.hpp
+index f1d7ddb74..7c7ae1546 100644
+--- a/boost/system/error_code.hpp
++++ b/boost/system/error_code.hpp
+@@ -14,6 +14,7 @@
+ #include <boost/system/detail/config.hpp>
+ #include <boost/cstdint.hpp>
+ #include <boost/config.hpp>
++#include <stdio.h>
+ #include <ostream>
+ #include <string>
+ #include <functional>
+diff --git a/libs/filesystem/src/operations.cpp b/libs/filesystem/src/operations.cpp
+index 91fe4d5c3..26df9a819 100644
+--- a/libs/filesystem/src/operations.cpp
++++ b/libs/filesystem/src/operations.cpp
+@@ -236,6 +236,21 @@ inline std::wstring wgetenv(const wchar_t* name)
+ 
+ # if defined(BOOST_POSIX_API)
+ 
++#  if defined(__ANDROID__)
++#  define truncate libboost_truncate_wrapper
++// truncate() is present in Android libc only starting from ABI 21, so here's a simple wrapper
++static int libboost_truncate_wrapper(const char *path, off_t length)
++{
++  int fd = open(path, O_WRONLY);
++  if (fd == -1) {
++    return -1;
++  }
++  int status = ftruncate(fd, length);
++  close(fd);
++  return status;
++}
++#  endif
++
+ typedef int err_t;
+ 
+ //  POSIX uses a 0 return to indicate success
+diff --git a/tools/build/src/tools/common.jam b/tools/build/src/tools/common.jam
+index 5b9b35085..59053711f 100644
+--- a/tools/build/src/tools/common.jam
++++ b/tools/build/src/tools/common.jam
+@@ -980,10 +980,10 @@ local rule toolset-tag ( name : type ? : property-set )
+     }
+ 
+     # Ditto, from Clang 4
+-    if ( $(tag) = clang || $(tag) = clangw ) && [ numbers.less 3 $(version[1]) ]
+-    {
+-        version = $(version[1]) ;
+-    }
++    # if ( $(tag) = clang || $(tag) = clangw ) && [ numbers.less 3 $(version[1]) ]
++    # {
++    #     version = $(version[1]) ;
++    # }
+ 
+     # On intel, version is not added, because it does not matter and it is the
+     # version of vc used as backend that matters. Ideally, we should encode the
+-- 
+2.21.0
+
