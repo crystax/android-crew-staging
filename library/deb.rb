@@ -130,9 +130,11 @@ module Deb
 
   def self.make_m5sums_file(dir, sums_file)
     FileUtils.cd(dir) do
-      files = Dir['./**/*'].select { |f| File.file?(f) }
-      sums = Utils.run_md5sum(*files)
-      File.open(sums_file, 'w') { |f| f.puts sums }
+      File.open(sums_file, 'w') do |f|
+        Dir['./**/*'].select { |f| File.file?(f) }.each do |file|
+          f.puts Utils.run_md5sum(file)
+        end
+      end
     end
   end
 
