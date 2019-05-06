@@ -4,7 +4,7 @@ class Gawk < Package
   homepage "https://www.gnu.org/software/gawk/"
   url "https://ftp.gnu.org/gnu/gawk/gawk-${version}.tar.xz"
 
-  release '4.2.1', crystax: 2
+  release '5.0.0'
 
   depends_on 'readline'
 
