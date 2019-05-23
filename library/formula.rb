@@ -117,7 +117,7 @@ class Formula
     DefaultBuildOptions.new
   end
 
-  def build_info(release, platform_name)
+  def build_info(release, platform_name = Global::PLATFORM_NAME)
     rel_dir = release_directory(release, platform_name)
     prop = get_properties(rel_dir)
     prop[:build_info] ? prop[:build_info] : []
@@ -171,6 +171,12 @@ class Formula
 
   def installed?(release = Release.new)
     releases.any? { |r| r.match?(release) and r.installed? }
+  end
+
+  def find_exact_release(release)
+    rel = releases.reverse_each.find { |r| (r.version == release.version) && (r.crystax_version == release.crystax_version) }
+    raise ReleaseNotFound.new(name, release) unless rel
+    rel
   end
 
   def find_release(release)
@@ -238,9 +244,11 @@ class Formula
       raise "#{name}: wrong crystax version: #{r[:crystax_version].inspect}" unless r[:crystax_version].is_a?(Integer) && r[:crystax_version] > 0
 
       @releases = [] if !@releases
-      raise "#{name}: has more than one version #{r[:version]}" if @releases.any? { |rel| rel.version == r[:version] }
 
-      @releases << Release.new(r[:version], r[:crystax_version])
+      rel = Release.new(r[:version], r[:crystax_version])
+      raise "#{name}: has more than one release #{rel}" if @releases.any? { |r| (rel.version == r.version) && (rel.crystax_version == r.crystax_version) }
+
+      @releases << rel
     end
 
     def depends_on(name, options = {})
