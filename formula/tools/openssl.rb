@@ -4,7 +4,7 @@ class Openssl < Library
   homepage "https://openssl.org/"
   url 'https://www.openssl.org/source/openssl-${version}.tar.gz'
 
-  release '1.1.0j', crystax: 2
+  release '1.1.0k'
 
   depends_on 'zlib'
   postpone_install true
