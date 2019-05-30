@@ -4,7 +4,7 @@ class Curl < Library
   homepage 'http://curl.haxx.se/'
   url 'https://curl.haxx.se/download/curl-${version}.tar.bz2'
 
-  release '7.64.1'
+  release '7.65.0'
 
   depends_on 'zlib'
   depends_on 'openssl'
