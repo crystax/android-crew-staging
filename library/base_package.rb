@@ -4,7 +4,7 @@ require_relative 'target_base.rb'
 
 class BasePackage < TargetBase
 
-  def properties_directory(release)
+  def properties_directory(release, _platform_name = nil)
     File.join(Global::SERVICE_DIR, file_name, release.version)
   end
 

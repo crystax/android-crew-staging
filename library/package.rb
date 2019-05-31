@@ -50,8 +50,8 @@ class Package < TargetBase
     File.join(home_directory, release.version)
   end
 
-  def properties_directory(release)
-    release_directory release
+  def properties_directory(release, platform_name = nil)
+    release_directory release, platform_name
   end
 
   def install_archive(release, archive, _platform_name = nil)

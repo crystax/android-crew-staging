@@ -38,6 +38,10 @@ class HostBase < Formula
     File.join(Global::SERVICE_DIR, file_name, platform_name, release.version)
   end
 
+  def properties_directory(release, platform_name)
+    release_directory(release, platform_name)
+  end
+
   def support_dev_files?
     true
   end

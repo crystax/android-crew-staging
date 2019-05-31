@@ -118,7 +118,7 @@ class Formula
   end
 
   def build_info(release, platform_name = Global::PLATFORM_NAME)
-    rel_dir = release_directory(release, platform_name)
+    rel_dir = properties_directory(release, platform_name)
     prop = get_properties(rel_dir)
     prop[:build_info] ? prop[:build_info] : []
   end
