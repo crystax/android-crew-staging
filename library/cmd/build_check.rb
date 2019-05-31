@@ -30,7 +30,11 @@ module Crew
             bad_names = []
             bad_releases = []
             newer_releases = []
-            formula.build_info(release).each do |bi_str|
+            build_info = formula.build_info(release)
+            #puts "build info size: #{build_info.size}"
+            #puts "dependencies size: #{formula.dependencies.size}"
+            good_build_info = (build_info.size == formulary.dependencies(formula, with_build_deps: true).size)
+            build_info.each do |bi_str|
               # puts "bi_str: #{bi_str}"
               bi_fqn, bi_release = parse_build_info(bi_str)
               # puts "bi_fqn: #{bi_fqn}"
@@ -57,14 +61,15 @@ module Crew
                 bad_releases << bi_str
               end
             end
-            if bad_names.empty? && bad_releases.empty? && newer_releases.empty?
+            if bad_names.empty? && bad_releases.empty? && newer_releases.empty? && good_build_info
               io.puts 'OK'
             else
               have_issues = true
               io.puts 'build with bad build dependencies:'
-              io.puts "    not existing formulas: #{bad_names.join(', ')}" unless bad_names.empty?
-              io.puts "    not existing releases: #{bad_releases.join(', ')}" unless bad_releases.empty?
-              io.puts "    have newer releases: #{newer_releases.join(', ')}" unless newer_releases.empty?
+              io.puts "    not existing formulas: #{bad_names.join(', ')}"           unless bad_names.empty?
+              io.puts "    not existing releases: #{bad_releases.join(', ')}"        unless bad_releases.empty?
+              io.puts "    have newer releases: #{newer_releases.join(', ')}"        unless newer_releases.empty?
+              io.puts "    build info does not correspond to formula's dependencies" unless good_build_info
             end
           end
         end

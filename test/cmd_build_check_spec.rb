@@ -119,7 +119,8 @@ describe "crew build-check" do
           expect(result).to eq(:ok)
           expect(out.split("\n")).to eq(['target/build-check-package: ',
                                          '  3_1: build with bad build dependencies:',
-                                         '    not existing formulas: target/build-check-dep-package:1.0.0_1'
+                                         '    not existing formulas: target/build-check-dep-package:1.0.0_1',
+                                         '    build info does not correspond to formula\'s dependencies'
                                         ])
         end
       end
@@ -178,6 +179,20 @@ describe "crew build-check" do
                                         ])
         end
       end
+
+      context 'package has dependency but empty build info' do
+        it 'outputs info about bad build info' do
+          repository_add_formula :target, 'build_check_package-8.rb:build_check_package.rb', 'build_check_dep_package-1.rb:build_check_dep_package.rb'
+          repository_clone
+          crew_checked 'install build-check-package'
+          crew 'build-check build-check-package'
+          expect(result).to eq(:ok)
+          expect(out.split("\n")).to eq(['target/build-check-package: ',
+                                         '  8_1: build with bad build dependencies:',
+                                         '    build info does not correspond to formula\'s dependencies'
+                                        ])
+        end
+      end
     end
 
     # todo:
@@ -228,7 +243,8 @@ describe "crew build-check" do
           expect(result).to eq(:ok)
           expect(out.split("\n")).to eq(['target/build-check-package: ',
                                          '  3_1: build with bad build dependencies:',
-                                         '    not existing formulas: target/build-check-dep-package:1.0.0_1'
+                                         '    not existing formulas: target/build-check-dep-package:1.0.0_1',
+                                         '    build info does not correspond to formula\'s dependencies'
                                         ])
         end
       end

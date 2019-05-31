@@ -39,6 +39,7 @@ describe "crew info" do
     it "outputs info about ruby" do
       crew 'info', 'ruby'
       ruby_rel = Crew::Test::UTILS_RELEASES['ruby'][0]
+      curl_rel = Crew::Test::UTILS_RELEASES['curl'][0]
       expect(result).to eq(:ok)
       expect(out.split("\n")).to eq(["Name:               ruby",
                                      "Namespace:          host",
@@ -53,7 +54,7 @@ describe "crew info" do
                                      "Build info:",
                                      "#{Global::PLATFORM_NAME}, #{ruby_rel}",
                                      # todo: versions should not be hardcoded
-                                     "  host:   zlib:1.2.11_7, openssl:1.1.0j_2, libssh2:1.8.2_1, libgit2:0.27.7_3, curl:7.64.1_1",
+                                     "  host:   zlib:1.2.11_7, openssl:1.1.0k_1, libssh2:1.8.2_2, libgit2:0.27.7_4, curl:#{curl_rel}",
                                      "  target: "
                                     ])
     end
@@ -89,7 +90,7 @@ describe "crew info" do
                                      "Build info:",
                                      "#{Global::PLATFORM_NAME}, #{curl_rel}",
                                      # todo: versions should not be hardcoded
-                                     "  host:   zlib:1.2.11_7, openssl:1.1.0j_2, libssh2:1.8.2_1",
+                                     "  host:   zlib:1.2.11_7, openssl:1.1.0k_1, libssh2:1.8.2_2",
                                      "  target: "
                                     ])
     end
@@ -115,7 +116,7 @@ describe "crew info" do
                                      "Build info:",
                                      "#{Global::PLATFORM_NAME}, #{curl_rel}",
                                      # todo: versions should not be hardcoded
-                                     "  host:   zlib:1.2.11_7, openssl:1.1.0j_2, libssh2:1.8.2_1",
+                                     "  host:   zlib:1.2.11_7, openssl:1.1.0k_1, libssh2:1.8.2_2",
                                      "  target: ",
                                      "",
                                      "Name:               libarchive",
@@ -147,7 +148,7 @@ describe "crew info" do
                                      "Build info:",
                                      "#{Global::PLATFORM_NAME}, #{ruby_rel}",
                                      # todo: versions should not be hardcoded
-                                     "  host:   zlib:1.2.11_7, openssl:1.1.0j_2, libssh2:1.8.2_1, libgit2:0.27.7_3, curl:7.64.1_1",
+                                     "  host:   zlib:1.2.11_7, openssl:1.1.0k_1, libssh2:1.8.2_2, libgit2:0.27.7_4, curl:#{curl_rel}",
                                      "  target: "
                                     ])
     end
