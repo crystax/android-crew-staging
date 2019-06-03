@@ -4,7 +4,7 @@ class Curl < Package
   homepage 'https://curl.haxx.se/'
   url 'https://curl.haxx.se/download/curl-${version}.tar.bz2'
 
-  release '7.64.0'
+  release '7.65.0'
 
   depends_on 'openssl'
   depends_on 'libssh2'
