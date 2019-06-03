@@ -4,7 +4,7 @@ class Less < Package
   homepage "https://www.gnu.org/software/less/"
   url "https://ftp.gnu.org/gnu/less/less-530.tar.gz"
 
-  release '530', crystax: 6
+  release '530', crystax: 7
 
   depends_on 'ncurses'
 
