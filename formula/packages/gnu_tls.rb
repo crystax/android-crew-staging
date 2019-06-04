@@ -5,7 +5,7 @@ class GnuTls < Package
   homepage "https://www.gnutls.org"
   url "https://www.gnupg.org/ftp/gcrypt/gnutls/v${block}/gnutls-${version}.tar.xz" do |r| r.version.split('.').first(2).join('.') end
 
-  release '3.6.7'
+  release '3.6.8'
 
   depends_on 'gmp'
   depends_on 'libffi'
