@@ -5,7 +5,7 @@ class ProcpsNg < Package
   homepage 'https://gitlab.com/procps-ng/procps'
   url "https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-${version}.tar.xz"
 
-  release '3.3.12', crystax: 9
+  release '3.3.12', crystax: 10
 
   depends_on 'ncurses'
 
