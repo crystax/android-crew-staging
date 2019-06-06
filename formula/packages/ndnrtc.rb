@@ -2,9 +2,9 @@ class Ndnrtc < Package
 
   desc "NDNRTC library"
   homepage "https://github.com/cawka/ndnrtc/"
-  url 'https://github.com/cawka/ndnrtc|git_commit:941c9608799896d09fdf3c3ee7f12c548ef0e8d8'
+  url 'https://github.com/remap/ndnrtc|git_commit:80ab0afef7f1b066f1a33fd12247c94f8c566d23'
 
-  release version: '0.0.1', crystax_version: 2
+  release version: '0.0.2', crystax_version: 1
 
   depends_on 'boost'
   depends_on 'ndn_cpp'
@@ -116,28 +116,31 @@ class Ndnrtc < Package
       f.puts ''
       f.puts 'ifeq (,$(filter c++_%,$(APP_STL)))'
       f.puts '$(error $(strip \\'
-      f.puts '    We do not support APP_STL \'$(APP_STL)\' for PSync! \\'
+      f.puts '    We do not support APP_STL \'$(APP_STL)\' for ndnrtc! \\'
       f.puts '    Please use "c++_shared". \\'
       f.puts '))'
       f.puts 'endif'
       f.puts ''
 
       f.puts 'include $(CLEAR_VARS)'
-      f.puts "LOCAL_MODULE := psync_shared"
-      f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/llvm/libPSync.so"
-      f.puts 'LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include/PSync'
+      f.puts "LOCAL_MODULE := ndnrtc_shared"
+      f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/llvm/libndnrtc.so"
+      f.puts 'LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include'
       f.puts 'ifneq (,$(filter clang%,$(NDK_TOOLCHAIN_VERSION)))'
       f.puts 'LOCAL_EXPORT_LDLIBS := -latomic'
       f.puts 'endif'
-      @lib_deps["libPSync"].each do |dep|
+      @lib_deps["libndnrtc"].each do |dep|
         f.puts "LOCAL_SHARED_LIBRARIES += boost_#{dep}_shared"
       end
       f.puts "LOCAL_SHARED_LIBRARIES += ndn_cpp_shared"
+      f.puts "LOCAL_SHARED_LIBRARIES += openfec_shared"
       f.puts 'include $(PREBUILT_SHARED_LIBRARY)'
+
 
       f.puts ''
       f.puts "$(call import-module,../packages/#{import_module_path(@boost_dir)})"
       f.puts "$(call import-module,../packages/#{import_module_path(@ndn_cpp_dir)})"
+      f.puts "$(call import-module,../packages/#{import_module_path(@openfec_dir)})"
 
     end
   end
