@@ -179,9 +179,9 @@ module Build
     ndk_root_dir = Pathname.new(Build::NDK_SRC_DIR).realpath.dirname.dirname.to_s
     case Global::OS
     when 'darwin'
-      sysroot_dir = "#{ndk_root_dir}/platform/prebuilts/sysroot/darwin-x86/MacOSX10.6.sdk"
+      sysroot_dir = "#{ndk_root_dir}/platform/prebuilts/sysroot/darwin-x86/MacOSX#{MACOS_MIN_VER}.sdk"
       cc = "#{ndk_root_dir}/platform/prebuilts/gcc/darwin-x86/host/x86_64-apple-darwin-4.9.3/bin/#{compiler}"
-      args = "-isysroot #{sysroot_dir} -mmacosx-version-min=10.6 -DMACOSX_DEPLOYMENT_TARGET=10.6 -Wl,-syslibroot,#{sysroot_dir} "
+      args = "-isysroot #{sysroot_dir} -mmacosx-version-min=#{MACOS_MIN_VER} -DMACOSX_DEPLOYMENT_TARGET=#{MACOS_MIN_VER} -Wl,-syslibroot,#{sysroot_dir} "
     when 'linux'
       sysroot_dir = "#{ndk_root_dir}/platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/sysroot"
       cc = "#{ndk_root_dir}/platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8/bin/x86_64-linux-#{compiler}"
