@@ -4,9 +4,10 @@ class Python < Package
   homepage "https://www.python.org"
   url "https://www.python.org/ftp/python/${version}/Python-${version}.tgz"
 
-  release '2.7.11', crystax: 7
-  release '3.5.1',  crystax: 7
+  release '2.7.16'
+  release '3.5.7'
 
+  depends_on 'host/zlib'
   depends_on 'sqlite'
   depends_on 'openssl', version: /^1\.0/
 
@@ -21,9 +22,23 @@ class Python < Package
     FileUtils.mkdir_p build_dir
     FileUtils.cp_r "#{src_dir}/.", build_dir
 
-    # use system compiler on darwin for version 3.5.1
+    # use system compiler on darwin for version 3.5.*
     # because prebuilt gcc builds native python that fails to run
-    unless (Global::OS == 'darwin') && (release.version == '3.5.1')
+
+    if (Global::OS == 'darwin')
+      if release.version.start_with?('2.7')
+        platform = Platform.new(Global::PLATFORM_NAME)
+        build_env['DARWIN_SYSROOT'] = platform.sysroot
+        build_env['MACOSX_DEPLOYMENT_TARGET'] = Build::MACOS_MIN_VER
+        build_env['CFLAGS'] = "-I#{platform.sysroot}/usr/include"
+        build_env['LDFLAGS'] = "-L#{platform.sysroot}/usr/lib"
+      elsif release.version.start_with?('3.5')
+        build_env['CFLAGS'] = "-I#{Global::TOOLS_DIR}/include"
+        build_env['LDFLAGS'] = "-L#{Global::TOOLS_DIR}/lib"
+      end
+    end
+
+    unless (Global::OS == 'darwin') && release.version.start_with?('3.5')
       gcc_path = "#{build_dir}/gcc"
       gxx_path = "#{build_dir}/g++"
 
@@ -33,13 +48,6 @@ class Python < Package
       build_env['PATH'] = "#{build_dir}:#{ENV['PATH']}"
       build_env['CC']   = gcc_path
       build_env['CXX']  = gxx_path
-
-      platform = Platform.new(Global::PLATFORM_NAME)
-
-      if platform.target_os == 'darwin'
-        build_env['DARWIN_SYSROOT'] = platform.sysroot
-        build_env['MACOSX_DEPLOYMENT_TARGET'] = '10.6'
-      end
     end
 
     FileUtils.cd(build_dir) do
@@ -110,7 +118,7 @@ class Python < Package
             "--enable-ipv6",
             "--without-ensurepip"
            ]
-    args << (major_ver == 2) ? "--enable-unicode=ucs4" : "--with-computed-gotos"
+    args << ((major_ver == 2) ? "--enable-unicode=ucs4" : "--with-computed-gotos")
 
     FileUtils.cd(build_config_dir) { system "#{src_dir}/configure", *args }
 
@@ -559,7 +567,7 @@ class Python < Package
     # build shared module
     module_name = 'pyexpat'
     options = { c_includes: ['$(MY_PYTHON_SRC_ROOT)/Modules/expat'],
-                cflags: ['-DHAVE_EXPAT_CONFIG_H', '-DXML_STATIC'],
+                cflags: ['-DHAVE_EXPAT_CONFIG_H', '-DXML_STATIC', '-DHAVE_ARC4RANDOM'],
                 module_type: :shared
               }
     gen_module_android_mk "#{build_shared_dir}/jni/Android.mk", module_name, src_dir, src_list, options
