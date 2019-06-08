@@ -281,8 +281,9 @@ class Formula
   end
 
   def self.parse_name(name)
-    nm, ns = name.split('/')
-    if not ns
+    ns, nm = name.split('/')
+    if not nm
+      nm = ns
       ns = namespace
     elsif
       ns = ns.to_sym
