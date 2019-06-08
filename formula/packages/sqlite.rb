@@ -2,9 +2,9 @@ class Sqlite < Package
 
   desc "SQLite library"
   homepage "https://sqlite.org/"
-  url "https://sqlite.org/2017/sqlite-amalgamation-${block}.zip" do |r| ('%s%-2s%-2s00' % r.version.split('.')).gsub(' ', '0') end
+  url "https://sqlite.org/2019/sqlite-amalgamation-${block}.zip" do |r| ('%s%-2s%-2s00' % r.version.split('.')).gsub(' ', '0') end
 
-  release version: '3.18.0', crystax_version: 3
+  release version: '3.28.0', crystax_version: 1
 
   build_options setup_env: false
   build_libs 'libsqlite3'
@@ -22,6 +22,24 @@ class Sqlite < Package
         f.puts 'LOCAL_CFLAGS := -Wall -Wno-unused -Wno-multichar -Wno-strict-aliasing -Werror'
         f.puts 'LOCAL_CFLAGS += -fno-exceptions -fmessage-length=0'
         f.puts 'LOCAL_CFLAGS += -DSQLITE_THREADSAFE=1'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_ENABLE_LOAD_EXTENSION=1'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_HAVE_ISNAN'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_HAVE_USLEEP'
+	f.puts 'LOCAL_CFLAGS += -DHAVE_USLEEP=1'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_ENABLE_COLUMN_METADATA'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_CORE'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_ENABLE_FTS3'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_ENABLE_FTS3_PARENTHESIS'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_ENABLE_FTS5'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_ENABLE_JSON1'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_ENABLE_RTREE'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_ENABLE_STAT2'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_THREADSAFE=1'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_DEFAULT_MEMSTATUS=0'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_DEFAULT_FILE_PERMISSIONS=0666'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_MAX_VARIABLE_NUMBER=250000'
+	f.puts 'LOCAL_CFLAGS += -DSQLITE_MAX_MMAP_SIZE=1099511627776'
+
         f.puts "include $(BUILD_#{libtype.upcase}_LIBRARY)"
       end
 

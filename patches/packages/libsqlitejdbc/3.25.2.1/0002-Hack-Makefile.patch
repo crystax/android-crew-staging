@@ -1,0 +1,42 @@
+From 305adedfa1e8bf4df6c2d24af9e038b8aed30c25 Mon Sep 17 00:00:00 2001
+From: Alexander Afanasyev <aa@cs.fiu.edu>
+Date: Sun, 9 Jun 2019 14:44:50 -0400
+Subject: [PATCH 2/2] Hack Makefile
+
+---
+ Makefile | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 82efc49..1bd034f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -78,14 +78,10 @@ $(SQLITE_OUT)/sqlite3.o : $(SQLITE_UNPACKED)
+ 	    $(SQLITE_FLAGS) \
+ 	    $(SQLITE_OUT)/sqlite3.c
+ 
+-$(SQLITE_OUT)/$(LIBNAME): $(SQLITE_OUT)/sqlite3.o $(SRC)/org/sqlite/core/NativeDB.c
++$(SQLITE_OUT)/$(LIBNAME): $(SRC)/org/sqlite/core/NativeDB.c
+ 	@mkdir -p $(@D)
+-	$(CC) $(CCFLAGS) -I $(TARGET)/common-lib -c -o $(SQLITE_OUT)/NativeDB.o $(SRC)/org/sqlite/core/NativeDB.c
++	$(CC) $(CCFLAGS) -I$(TARGET)/common-lib -c -o $(SQLITE_OUT)/NativeDB.o $(SRC)/org/sqlite/core/NativeDB.c
+ 	$(CC) $(CCFLAGS) -o $@ $(SQLITE_OUT)/*.o $(LINKFLAGS)
+-# Workaround for strip Protocol error when using VirtualBox on Mac
+-	cp $@ /tmp/$(@F)
+-	$(STRIP) /tmp/$(@F)
+-	cp /tmp/$(@F) $@
+ 
+ NATIVE_DIR=src/main/resources/org/sqlite/native/$(OS_NAME)/$(OS_ARCH)
+ NATIVE_TARGET_DIR:=$(TARGET)/classes/org/sqlite/native/$(OS_NAME)/$(OS_ARCH)
+@@ -95,7 +91,7 @@ NATIVE_DLL:=$(NATIVE_DIR)/$(LIBNAME)
+ # Disabled linux-armv6 build because of this issue; https://github.com/dockcross/dockcross/issues/190
+ native-all: native win32 win64 mac64 linux32 linux64 linux-arm linux-armv7 linux-arm64 linux-android-arm linux-ppc64
+ 
+-native: $(SQLITE_UNPACKED) $(NATIVE_DLL)
++native: $(NATIVE_DLL)
+ 
+ $(NATIVE_DLL): $(SQLITE_OUT)/$(LIBNAME)
+ 	@mkdir -p $(@D)
+-- 
+2.21.0
+
