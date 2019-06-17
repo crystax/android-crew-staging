@@ -4,7 +4,7 @@ class Psync < Package
   homepage "https://named-data.net/doc/PSync/"
   url 'git://github.com/named-data/PSync.git|git_commit:3cb0b1b408a5a6542af77fb782018bb962b24bcb'
 
-  release version: '0.1.0', crystax_version: 2
+  release version: '0.1.0', crystax_version: 3
 
   depends_on 'boost'
   depends_on 'ndn_cxx'
