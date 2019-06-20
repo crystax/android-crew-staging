@@ -94,7 +94,7 @@ class Formulary
         d.matched_releases = d.formula.find_matched_releases(d.version)
         d.release = d.matched_releases.first
       end
-      unless result.find_index { |e|  e.fqn == d.fqn }
+      unless result.find_index { |e|  (e.fqn == d.fqn) && (e.version == d.version) }
         result << d
       end
       deps += d.formula.dependencies
