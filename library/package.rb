@@ -124,15 +124,15 @@ class Package < TargetBase
     release.source_installed = false
   end
 
-  def build(release, options, host_dep_dirs, target_dep_info)
+  def build(release, options, host_dep_info, target_dep_info)
     base_dir = build_base_dir
     FileUtils.rm_rf base_dir
     FileUtils.mkdir_p base_dir
 
     @log_file = build_log_file
     @build_release = release
-    @host_dep_dirs = host_dep_dirs
 
+    parse_host_dep_info   host_dep_info
     parse_target_dep_info target_dep_info
 
     arch_list = Build.abis_to_arch_list(options.abis)
