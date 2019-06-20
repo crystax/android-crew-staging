@@ -12,7 +12,7 @@ module Crew
   end
 
   HostDepInfo   = Struct.new(:release, :code_directory)
-  TargetDepInfo = Struct.new(:release, :release_directory)
+  TargetDepInfo = Struct.new(:fqn, :release, :release_directory)
 
   class Build < Command
 
@@ -75,11 +75,11 @@ module Crew
           end
         end
 
-        target_dep_info = {}
+        target_dep_info = []
         target_deps.each do |d|
           f = formulary[d.fqn]
           rel = d.version ? f.find_release(d.version) : f.highest_installed_release
-          target_dep_info[f.fqn] = TargetDepInfo.new(rel, f.release_directory(rel))
+          target_dep_info << TargetDepInfo.new(f.fqn, rel, f.release_directory(rel))
         end
 
         formula.build release, options, host_dep_info, target_dep_info

@@ -31,22 +31,20 @@ module Crew
             bad_releases = []
             newer_releases = []
             build_info = formula.build_info(release)
-            #puts "build info size: #{build_info.size}"
-            #puts "dependencies size: #{formula.dependencies.size}"
-            good_build_info = (build_info.size == formulary.dependencies(formula, with_build_deps: true).size)
+            full_dependencies = formulary.dependencies(formula, with_build_deps: true)
+            good_build_info = (build_info.size == full_dependencies.size)
             build_info.each do |bi_str|
-              # puts "bi_str: #{bi_str}"
               bi_fqn, bi_release = parse_build_info(bi_str)
-              # puts "bi_fqn: #{bi_fqn}"
-              # puts "bi_release: #{bi_release}"
               begin
                 bi_formula = formulary[bi_fqn]
-                # puts "  bi_release 1: #{bi_release}"
                 bi_release = bi_formula.find_exact_release(bi_release)
-                # puts "  bi_release 2: #{bi_release}"
                 formula.dependencies.select { |d| d.fqn == bi_formula.fqn }.each do |dep|
                   if dep.version
-                    last = bi_formula.find_matched_releases(dep.version).first
+                    unless dep.version =~ bi_release.to_s
+                      next
+                    else
+                      last = bi_formula.find_matched_releases(dep.version).first
+                    end
                   else
                     last = bi_formula.releases.last
                   end
@@ -69,7 +67,11 @@ module Crew
               io.puts "    not existing formulas: #{bad_names.join(', ')}"           unless bad_names.empty?
               io.puts "    not existing releases: #{bad_releases.join(', ')}"        unless bad_releases.empty?
               io.puts "    have newer releases: #{newer_releases.join(', ')}"        unless newer_releases.empty?
-              io.puts "    build info does not correspond to formula's dependencies" unless good_build_info
+              unless good_build_info
+                io.puts "    build info does not correspond to formula's dependencies:"
+                io.puts "      build info:   #{build_info.sort.join(', ')}"
+                io.puts "      dependencies: #{full_dependencies.sort{ |d1, d2| d1.fqn <=> d2.fqn}.join(', ')}"
+              end
             end
           end
         end

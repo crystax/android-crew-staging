@@ -42,7 +42,9 @@ module Crew
 
     def sort_in_buildable_order(formulas, ns)
       Struct.new('Pair', :formula, :dependencies)
-      unresolved = sort_by_name(formulas).map { |f| Struct::Pair.new(f, formulary.dependencies(f).delete_if { |e| e.namespace != ns }.map(&:fqn)) }
+      unresolved = sort_by_name(formulas).map do |f|
+        Struct::Pair.new(f, formulary.dependencies(f, with_build_deps: true).delete_if { |e| e.namespace != ns }.map(&:fqn))
+      end
       resolved, unresolved = sort_in_buildable_order_impl([], unresolved)
 
       unless unresolved.empty?
