@@ -218,6 +218,12 @@ class Formula
     def fqn
       "#{@namespace}/#{@name}"
     end
+
+    def to_s
+      s = self.fqn
+      s += ":#{@version}" if @version
+      s
+    end
   end
 
   class << self
@@ -329,6 +335,8 @@ class Formula
   end
 
   def parse_host_dep_info(info)
+    @host_build_info = []
+    @host_dep_dirs = Hash.new { |h, k| h[k] = Hash.new }
     info.each_pair do |platform, host_deps|
       host_deps.each_pair do |fqn, dep_info|
         @host_build_info << "#{fqn}:#{dep_info.release}"
@@ -340,9 +348,12 @@ class Formula
   end
 
   def parse_target_dep_info(info)
-    info.each_pair do |fqn, dep_info|
-      @target_build_info << "#{fqn}:#{dep_info.release}"
-      @target_dep_dirs[fqn] = dep_info.release_directory
+    @target_build_info = []
+    @target_dep_dirs = {}
+    info.each do |tdi|
+      @target_build_info << "#{tdi.fqn}:#{tdi.release}"
+      # todo: fix needed for a boost-like case, when formula depends on two versions of the same package (python for boost)
+      @target_dep_dirs[tdi.fqn] = tdi.release_directory
     end
   end
 
