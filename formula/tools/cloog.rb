@@ -4,17 +4,16 @@ class Cloog < BuildDependency
   homepage "https://www.cloog.org/"
   url "https://www.bastoul.net/cloog/pages/download/cloog-${version}.tar.gz"
 
-  release '0.18.4', crystax: 3
+  release '0.18.4', crystax: 4
 
   depends_on 'gmp'
-  depends_on 'ppl'
   depends_on 'isl'
 
-  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     install_dir = install_dir_for_platform(platform.name, release)
 
-    isl_dir = host_dep_dirs[platform.name]['isl']
-    gmp_dir = host_dep_dirs[platform.name]['gmp']
+    isl_dir = host_dep_dir(platform.name, 'isl')
+    gmp_dir = host_dep_dir(platform.name, 'gmp')
 
     args = platform.configure_args +
            ["--prefix=#{install_dir}",

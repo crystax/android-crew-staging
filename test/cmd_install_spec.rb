@@ -237,7 +237,7 @@ describe "crew install" do
         crew 'install', 'libfive'
         expect(result).to eq(:ok)
         expect(out.split("\n").map(&:strip)).to eq(["calculating dependencies for libfive:",
-                                                    "dependencies to install: libfour",
+                                                    "dependencies to install: libfour:1.1.2_2",
                                                     "installing dependencies for libfive:",
                                                     "downloading #{dep_url}",
                                                     "checking integrity of the archive file #{dep_file}",
@@ -265,7 +265,7 @@ describe "crew install" do
         crew 'install', 'libfive'
         expect(result).to eq(:ok)
         expect(out.split("\n").map(&:strip)).to eq(["calculating dependencies for libfive:",
-                                                    "dependencies to install: libfour",
+                                                    "dependencies to install: libfour:1.1.2_2",
                                                     "installing dependencies for libfive:",
                                                     "using cached file #{dep_file}",
                                                     "checking integrity of the archive file #{dep_file}",

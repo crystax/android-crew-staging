@@ -4,7 +4,7 @@ class NdkBase < HostBase
   name 'ndk-base'
   homepage "https://www.crystax.net"
 
-  release '11', crystax: 16
+  release '11', crystax: 17
 
   def install_archive(release, archive, platform_name)
     # disable warnings since ndk-base archive contains symlinks
@@ -24,7 +24,7 @@ class NdkBase < HostBase
     end
   end
 
-  def build(release, options, host_dep_dirs, target_dep_dirs)
+  def build(release, options, host_dep_info, target_dep_info)
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"
 
@@ -33,6 +33,9 @@ class NdkBase < HostBase
 
     self.num_jobs = options.num_jobs
     self.log_file = File.join(build_base_dir, 'build.log')
+
+    parse_host_dep_info   host_dep_info
+    parse_target_dep_info target_dep_info
 
     puts "= preparing source code"
     prepare_source_code
@@ -53,9 +56,10 @@ class NdkBase < HostBase
       FileUtils.cd(src_dir)     { FileUtils.cp_r Dir["*"], install_dir }
       FileUtils.cd(install_dir) { FileUtils.rm Dir['*.cmd'] unless platform.target_os == 'windows' }
 
-      next if options.build_only?
-
       write_file_list install_dir, platform.name
+      write_build_info platform.name, release
+
+      next if options.build_only?
 
       archive = cache_file(release, platform.name)
       Utils.pack archive, install_dir
@@ -70,6 +74,10 @@ class NdkBase < HostBase
     else
       FileUtils.rm_rf build_base_dir
     end
+  end
+
+  def build_info_install_dir(platform_name, release)
+    File.join(base_dir_for_platform(platform_name), 'install', release_dir_suffix(release, platform_name))
   end
 
   def all_files_cwd

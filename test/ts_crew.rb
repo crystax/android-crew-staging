@@ -7,8 +7,8 @@ FileUtils.mkdir_p File.join(Crew::Test::CREW_DIR, 'etc')
 FileUtils.mkdir_p File.join(Crew::Test::CREW_DIR, 'patches')
 FileUtils.mkdir_p File.join(Crew::Test::CREW_DIR, 'formula', 'packages')
 FileUtils.mkdir_p File.join(Crew::Test::CREW_DIR, 'formula', 'tools')
-FileUtils.mkdir_p File.join(Crew::Test::NDK_DIR, 'sources')
-FileUtils.mkdir_p File.join(Crew::Test::NDK_DIR, 'packages')
+FileUtils.mkdir_p File.join(Crew::Test::NDK_DIR,  'sources')
+FileUtils.mkdir_p File.join(Crew::Test::NDK_DIR,  'packages')
 
 
 require 'minitest/autorun'
@@ -21,6 +21,7 @@ require_relative 'test_release.rb'
 require_relative 'test_utils.rb'
 require_relative 'test_command_options.rb'
 require_relative 'test_build_options.rb'
+require_relative 'test_build_check_options.rb'
 require_relative 'test_cleanup_options.rb'
 require_relative 'test_info_options.rb'
 require_relative 'test_install_options.rb'

@@ -66,4 +66,8 @@ class Utility < Tool
       end
     end
   end
+
+  def build_info_install_dir(platform_name, release)
+    File.join(package_dir_for_platform(platform_name), release_dir_suffix(release, platform_name))
+  end
 end

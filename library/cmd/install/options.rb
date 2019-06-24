@@ -25,6 +25,7 @@ module Crew
             @check_shasum = false
           when /^--platform=/
             @platform = opt.split('=')[1]
+            check_platform_names @platform
           when '--cache-only'
             @cache_only = true
           when '--force'

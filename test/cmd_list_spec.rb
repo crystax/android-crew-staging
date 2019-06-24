@@ -17,7 +17,7 @@ describe "crew list" do
     # make sure that tools installed without dev files
     pkg_cache_add_tool 'curl', update: false
     pkg_cache_add_tool 'ruby', update: false
-    crew_checked '-W install --no-check-shasum --cache-only --force curl ruby'
+    crew_checked '-W install --no-check-shasum --cache-only --force host/curl host/ruby'
   end
 
   context "when given bad arguments" do
@@ -163,7 +163,9 @@ describe "crew list" do
         crew 'list', '--tools', '--no-title'
         expect(result).to eq(:ok)
         got = out.split("\n")
-        exp = [/   cloog\s+\d+\.\d+\.\d+\s+\d+/,
+        exp = [/ \* binutils\s+\d+\.\d+\s+\d+/,
+               / \* bzip2\s+\d+\.\d+\.\d+\s+\d+/,
+               /   cloog\s+\d+\.\d+\.\d+\s+\d+/,
                /   cloog-old\s+\d+\.\d+\.\d+\s+\d+/,
                / \* curl  \s+#{Crew::Test::UTILS_RELEASES['curl'][0].version}\s+#{Crew::Test::UTILS_RELEASES['curl'][0].crystax_version}\s+no dev files\s*$/,
                /   expat\s+\d+\.\d+\.\d+\s+\d+/,
@@ -203,7 +205,9 @@ describe "crew list" do
         crew 'list', '--tools', '--no-title'
         expect(result).to eq(:ok)
         got = out.split("\n")
-        exp = [/   cloog\s+\d+\.\d+\.\d+\s+\d+/,
+        exp = [/ \* binutils\s+\d+\.\d+\s+\d+/,
+               / \* bzip2\s+\d+\.\d+\.\d+\s+\d+/,
+               /   cloog\s+\d+\.\d+\.\d+\s+\d+/,
                /   cloog-old\s+\d+\.\d+\.\d+\s+\d+/,
                / \* curl  \s+#{Crew::Test::UTILS_RELEASES['curl'][0].version}\s+#{Crew::Test::UTILS_RELEASES['curl'][0].crystax_version}\s+dev files\s*$/,
                /   expat\s+\d+\.\d+\.\d+\s+\d+/,
@@ -254,6 +258,8 @@ describe "crew list" do
         expect(result).to eq(:ok)
         got = out.split("\n")
         exp = ["Tools:",
+               / \* binutils\s+\d+\.\d+\s+\d+/,
+               / \* bzip2\s+\d+\.\d+\.\d+\s+\d+/,
                /   cloog\s+\d+\.\d+\.\d+\s+\d+/,
                /   cloog-old\s+\d+\.\d+\.\d+\s+\d+/,
                / \* curl  \s+#{Crew::Test::UTILS_RELEASES['curl'][0].version}\s+#{Crew::Test::UTILS_RELEASES['curl'][0].crystax_version}\s+no dev files\s*$/,

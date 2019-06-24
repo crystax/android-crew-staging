@@ -65,6 +65,18 @@ module Crew
         s = formula.has_dev_files? ? 'yes' : 'no'
         puts "Has dev files:      #{s}"
       end
+
+      puts "Build info:"
+      options.build_info_platforms.each do |platform|
+        formula.releases.each do |release|
+          puts "#{platform}, #{release}"
+          host_bi, target_bi = formula.build_info(release, platform).partition { |a| a.start_with? 'host/' }
+          host_bi.map! { |a| a.delete_prefix('host/')}
+          target_bi.map! { |a| a.delete_prefix('target/')}
+          puts "  host:   #{host_bi.join(', ')}"
+          puts "  target: #{target_bi.join(', ')}"
+        end
+      end
     end
 
     def format_dependencies(deps)

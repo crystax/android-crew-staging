@@ -4,9 +4,8 @@ class Icu4c < Package
   homepage "http://site.icu-project.org/"
   url "https://ssl.icu-project.org/files/icu4c/${version}/icu4c-${block}-src.tgz" do |r| r.version.gsub('.', '_') end
 
-  release '63.1'
+  release '64.2'
 
-  # this libs were in 57.1: 'libicule'
   # todo: 'libiculx' requires harfbuzz
   build_libs 'libicudata', 'libicui18n', 'libicuio', 'libicutest', 'libicutu', 'libicuuc'
   build_copy 'license.html'
@@ -19,11 +18,14 @@ class Icu4c < Package
     FileUtils.mkdir_p build_dir
     FileUtils.cp_r "#{src_dir}/.", build_dir
 
-    Build.gen_host_compiler_wrapper "#{build_dir}/gcc", 'gcc', '-m32'
-    Build.gen_host_compiler_wrapper "#{build_dir}/g++", 'g++', '-m32'
+    # todo: there are problems when using prebuilt gcc on darwin systems
+    unless Global::OS == 'darwin'
+      Build.gen_host_compiler_wrapper "#{build_dir}/gcc", 'gcc'
+      Build.gen_host_compiler_wrapper "#{build_dir}/g++", 'g++'
 
-    build_env['PATH'] = "#{build_dir}:#{ENV['PATH']}"
-    build_env['ICULEHB_LIBS']   = ' '
+      build_env['PATH'] = "#{build_dir}:#{ENV['PATH']}"
+      build_env['ICULEHB_LIBS']   = ' '
+    end
 
     FileUtils.cd(build_dir) do
       system './source/runConfigureICU', icu_host_platform

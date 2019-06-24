@@ -4,17 +4,21 @@ class Libarchive < Utility
   homepage 'http://www.libarchive.org'
   url 'http://www.libarchive.org/downloads/libarchive-${version}.tar.gz'
 
-  release '3.3.3'
+  release '3.3.3', crystax: 3
 
+  build_depends_on 'bzip2'
   build_depends_on 'xz'
+  build_depends_on 'openssl'
+
   postpone_install true
 
-  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     install_dir = install_dir_for_platform(platform.name, release)
-    xz_dir = host_dep_dirs[platform.name]['xz']
+    xz_dir = host_dep_dir(platform.name, 'xz')
 
     build_env['CFLAGS']  += " -I#{xz_dir}/include #{platform.cflags}"
     build_env['LDFLAGS']  = "-L#{xz_dir}/lib"
+    build_env['LDFLAGS'] += ' -lbz2' if platform.target_os == 'windows'
 
     args = platform.configure_args +
            ["--prefix=#{install_dir}",

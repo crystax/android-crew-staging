@@ -4,13 +4,13 @@ class Nawk < Utility
   homepage "https://www.cs.princeton.edu/~bwk/btl.mirror/"
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release '20071023', crystax: 3
+  release '20071023', crystax: 4
 
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in source/host-tools/ directory
   end
 
-  def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     src_dir = File.join(Build::NDK_HOST_TOOLS_DIR, "nawk-#{release.version}")
 
     build_env['BUILD_DIR']     = Dir.pwd

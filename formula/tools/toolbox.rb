@@ -4,13 +4,13 @@ class Toolbox < Utility
   homepage ''
   url ''
 
-  release '1', crystax: 2
+  release '1', crystax: 3
 
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in source/host-tools/ directory
   end
 
-  def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     if platform.target_os != 'windows'
       puts "#{name} can be build only for Windows OS"
       return

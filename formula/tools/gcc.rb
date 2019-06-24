@@ -6,9 +6,9 @@ class Gcc < Tool
   homepage "https://gcc.gnu.org"
   url "toolchain/gcc"
 
-  release '4.9', crystax: 3
-  release '5',   crystax: 3
-  release '6',   crystax: 3
+  release '4.9', crystax: 4
+  release '5',   crystax: 4
+  release '6',   crystax: 4
 
   build_depends_on 'gmp'
   build_depends_on 'isl'
@@ -50,6 +50,7 @@ class Gcc < Tool
     remove_installed_files release, platform_name, prop[:libunwind_installed]
     Utils.unpack archive, Global::NDK_DIR
 
+    prop.merge! get_properties(rel_dir)
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version
     prop[:libunwind_installed] = Toolchain::DEFAULT_GCC.version == release.version
@@ -69,6 +70,7 @@ class Gcc < Tool
     prop[:installed] = false
     prop.delete :installed_crystax_version
     prop.delete :libunwind_installed
+    prop.delete :build_info
     save_properties prop, rel_dir
 
     release.installed = false
@@ -80,17 +82,20 @@ class Gcc < Tool
     File.join(Global::NDK_DIR, ARCHIVE_TOP_DIR)
   end
 
-  def build(release, options, host_dep_dirs, _target_dep_dirs)
+  def build(release, options, host_dep_info, _target_dep_info)
     platforms = options.platforms.map { |name| Platform.new(name) }
     arch_list = Build.abis_to_arch_list(options.abis)
     puts "Building #{name} #{release} for platforms: #{platforms.map(&:name).join(', ')}; for architectures: #{arch_list.map(&:name).join(', ')}"
 
     self.num_jobs = options.num_jobs
 
+    parse_host_dep_info host_dep_info
+
     FileUtils.rm_rf build_base_dir
 
     platforms.each do |platform|
       puts "= building for #{platform.name}"
+
       arch_list.each do |arch|
         base_dir = base_dir(platform, arch)
         self.log_file = build_log_file(base_dir)
@@ -100,11 +105,11 @@ class Gcc < Tool
           # when building widows based toolchain (or darwin based on linux) we must at first build toolchain
           # that targets the same arch and works on the host we're building on
           host_platform = Platform.new(Global::PLATFORM_NAME)
-          update_dep_dirs(host_dep_dirs, platform, host_platform)
-          build_toolchain host_platform, arch, release, host_dep_dirs, File.join(base_dir, 'host'), build_gdb: false, strip_executables: false
+          update_host_dep_dirs platform, host_platform
+          build_toolchain host_platform, arch, release, File.join(base_dir, 'host'), build_gdb: false, strip_executables: false
           print '   '
         end
-        build_toolchain platform, arch, release, host_dep_dirs, base_dir
+        build_toolchain platform, arch, release, base_dir
         puts ""
       end
 
@@ -127,9 +132,11 @@ class Gcc < Tool
           create_libgccunwind platform, arch, base_dir if Toolchain::DEFAULT_GCC.version == release.version
         end
 
+        write_build_info platform.name, release
+
         archive = cache_file(release, platform.name)
         puts "= packaging #{archive}"
-        dirs = [ARCHIVE_TOP_DIR]
+        dirs = [ARCHIVE_TOP_DIR, File.basename(Global::SERVICE_DIR)]
         dirs << UNWIND_SUB_DIR.split('/')[0] if Toolchain::DEFAULT_GCC.version == release.version
         Utils.pack archive, base_dir_for_platform(platform.name), *dirs
 
@@ -157,7 +164,7 @@ class Gcc < Tool
     platform.cross_compile?
   end
 
-  def build_toolchain(platform, arch, release, host_dep_dirs, base_dir, params = { build_gdb: true, strip_executables: true })
+  def build_toolchain(platform, arch, release, base_dir, params = { build_gdb: true, strip_executables: true })
     # prepare base dirs and log file
     install_dir = install_dir(base_dir)
     FileUtils.mkdir_p install_dir
@@ -177,9 +184,9 @@ class Gcc < Tool
                   ]
 
     # todo:
-    build_binutils platform, arch, release, host_dep_dirs, common_args, sysroot_dir, base_dir
-    build_gcc      platform, arch, release, host_dep_dirs, common_args, sysroot_dir, base_dir
-    build_gdb      platform, arch, release, host_dep_dirs, common_args, sysroot_dir, base_dir if params[:build_gdb]
+    build_binutils platform, arch, release, common_args, sysroot_dir, base_dir
+    build_gcc      platform, arch, release, common_args, sysroot_dir, base_dir
+    build_gdb      platform, arch, release, common_args, sysroot_dir, base_dir if params[:build_gdb]
 
     # strip executables
     if params[:strip_executables]
@@ -190,7 +197,7 @@ class Gcc < Tool
     end
   end
 
-  def build_binutils(platform, arch, release, host_dep_dirs, cfg_args, sysroot_dir, base_dir)
+  def build_binutils(platform, arch, release, cfg_args, sysroot_dir, base_dir)
     print "binutils"
 
     src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'binutils', "binutils-#{Build::BINUTILS_VER}")
@@ -199,9 +206,9 @@ class Gcc < Tool
 
     prepare_build_environment platform
 
-    gmp_dir   = host_dep_dirs[platform.name]['gmp']
-    isl_dir   = host_dep_dirs[platform.name][release.version == '4.9' ? 'isl-old' : 'isl']
-    cloog_dir = host_dep_dirs[platform.name][release.version == '4.9' ? 'cloog-old' : 'cloog']
+    gmp_dir   = host_dep_dir(platform.name, 'gmp')
+    isl_dir   = host_dep_dir(platform.name, release.version == '4.9' ? 'isl-old' : 'isl')
+    cloog_dir = host_dep_dir(platform.name, release.version == '4.9' ? 'cloog-old' : 'cloog')
 
     build_env['CXXFLAGS'] += ' -std=gnu++98' if (platform.target_os == 'darwin' and platform.cross_compile?) # gcc 6.0
 
@@ -223,7 +230,7 @@ class Gcc < Tool
     end
   end
 
-  def build_gcc(platform, arch, release, host_dep_dirs, cfg_args, sysroot_dir, base_dir)
+  def build_gcc(platform, arch, release, cfg_args, sysroot_dir, base_dir)
     print ", gcc"
     src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'gcc', "gcc-#{release.version}")
     build_dir = build_dir_for_component(base_dir, 'gcc')
@@ -261,11 +268,11 @@ class Gcc < Tool
       install_target = 'install-gcc'
     end
 
-    mpc_dir   = host_dep_dirs[platform.name]['mpc']
-    mpfr_dir  = host_dep_dirs[platform.name]['mpfr']
-    gmp_dir   = host_dep_dirs[platform.name]['gmp']
-    isl_dir   = host_dep_dirs[platform.name][release.version == '4.9' ? 'isl-old' : 'isl']
-    cloog_dir = host_dep_dirs[platform.name][release.version == '4.9' ? 'cloog-old' : 'cloog']
+    mpc_dir   = host_dep_dir(platform.name, 'mpc')
+    mpfr_dir  = host_dep_dir(platform.name, 'mpfr')
+    gmp_dir   = host_dep_dir(platform.name, 'gmp')
+    isl_dir   = host_dep_dir(platform.name, release.version == '4.9' ? 'isl-old' : 'isl')
+    cloog_dir = host_dep_dir(platform.name, release.version == '4.9' ? 'cloog-old' : 'cloog')
 
     args = cfg_args + gcc_arch_args(arch) + gcc_libstdcxx_args(platform) +
            ["--with-gnu-as",
@@ -327,7 +334,7 @@ class Gcc < Tool
     # todo: remove more files? see build-gcc.sh
   end
 
-  def build_gdb(platform, arch, release, host_dep_dirs, cfg_args, sysroot_dir, base_dir)
+  def build_gdb(platform, arch, release, cfg_args, sysroot_dir, base_dir)
     print ", gdb"
 
     src_dir = File.join(Build::TOOLCHAIN_SRC_DIR, 'gdb', "gdb-#{GDB_VER}")
@@ -336,7 +343,7 @@ class Gcc < Tool
 
     prepare_build_environment platform
 
-    expat_dir = host_dep_dirs[platform.name]['expat']
+    expat_dir = host_dep_dir(platform.name, 'expat')
 
     if canadian_build? platform
       build_env['CC_FOR_BUILD'] = Platform.new(Global::PLATFORM_NAME).cc
@@ -602,13 +609,15 @@ class Gcc < Tool
     len
   end
 
-  def update_dep_dirs(dep_dirs, platform, host_platform)
-    if dep_dirs[host_platform.name].empty?
-      dep_dirs[platform.name].each_pair do |key, value|
+  # this is a workaround
+  # build command must check that build dependencies installed for all required platforms
+  def update_host_dep_dirs(platform, host_platform)
+    if @host_dep_dirs[host_platform.name].empty?
+      @host_dep_dirs[platform.name].each_pair do |key, value|
         dir = value.gsub(platform.name, host_platform.name)
         raise "not exists required dependency directory: #{dir}" unless Dir.exist? dir
         dep = { key => dir }
-        dep_dirs[host_platform.name].update dep
+        @host_dep_dirs[host_platform.name].update dep
       end
     end
   end

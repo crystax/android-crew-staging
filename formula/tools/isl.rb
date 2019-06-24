@@ -5,14 +5,14 @@ class Isl < BuildDependency
   url "http://isl.gforge.inria.fr/isl-${version}.tar.xz"
   url "https://mirrors.ocf.berkeley.edu/debian/pool/main/i/isl/isl-${version}.orig.tar.xz"
 
-  release '0.18', crystax: 3
+  release '0.18', crystax: 4
 
   depends_on 'gmp'
 
-  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     install_dir = install_dir_for_platform(platform.name, release)
 
-    gmp_dir = host_dep_dirs[platform.name]['gmp']
+    gmp_dir = host_dep_dir(platform.name, 'gmp')
 
     args = platform.configure_args +
            ["--prefix=#{install_dir}",

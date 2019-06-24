@@ -11,7 +11,8 @@ module Crew
     Build.new(args).execute
   end
 
-  TargetDepInfo = Struct.new(:release, :release_directory)
+  HostDepInfo   = Struct.new(:release, :code_directory)
+  TargetDepInfo = Struct.new(:fqn, :release, :release_directory)
 
   class Build < Command
 
@@ -64,24 +65,24 @@ module Crew
         host_deps, target_deps = deps.partition { |d| d.namespace == :host }
 
         # really stupid hash behaviour: just Hash.new({}) does not work
-        host_dep_dirs = Hash.new { |h, k| h[k] = Hash.new }
+        host_dep_info = Hash.new { |h, k| h[k] = Hash.new }
         host_deps.each do |d|
           f = formulary[d.fqn]
           options.platforms.each do |platform|
             rel = d.version ? f.find_release(d.version) : f.highest_installed_release
-            dep = { f.name => f.code_directory(rel, platform) }
-            host_dep_dirs[platform].update dep
+            dep = { f.fqn => HostDepInfo.new(rel, f.code_directory(rel, platform)) }
+            host_dep_info[platform].update dep
           end
         end
 
-        target_dep_info = {}
+        target_dep_info = []
         target_deps.each do |d|
           f = formulary[d.fqn]
           rel = d.version ? f.find_release(d.version) : f.highest_installed_release
-          target_dep_info[f.fqn] = TargetDepInfo.new(rel, f.release_directory(rel))
+          target_dep_info << TargetDepInfo.new(f.fqn, rel, f.release_directory(rel))
         end
 
-        formula.build release, options, host_dep_dirs, target_dep_info
+        formula.build release, options, host_dep_info, target_dep_info
 
         puts "" unless n == args.last
       end

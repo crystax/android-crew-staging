@@ -9,9 +9,12 @@ require_relative 'multi_version.rb'
 require_relative 'release.rb'
 require_relative 'utils.rb'
 require_relative 'patch.rb'
+require_relative 'properties.rb'
 
 
 class Formula
+
+  include Properties
 
   DEF_BUILD_OPTIONS = { source_archive_without_top_dir: false }.freeze
 
@@ -29,6 +32,10 @@ class Formula
     @patches = {}
     @log_file = File.join('/tmp', name)
     @system_ignore_result = false
+    @host_build_info = []
+    @host_dep_dirs = Hash.new { |h, k| h[k] = Hash.new }
+    @target_build_info = []
+    @target_dep_dirs = {}
   end
 
   def name
@@ -110,6 +117,12 @@ class Formula
     DefaultBuildOptions.new
   end
 
+  def build_info(release, platform_name = Global::PLATFORM_NAME)
+    rel_dir = properties_directory(release, platform_name)
+    prop = get_properties(rel_dir)
+    prop[:build_info] ? prop[:build_info] : []
+  end
+
   def merge_default_install_options(opts)
     { platform: Global::PLATFORM_NAME, check_shasum: true, cache_only: false }.merge(opts)
   end
@@ -160,6 +173,12 @@ class Formula
     releases.any? { |r| r.match?(release) and r.installed? }
   end
 
+  def find_exact_release(release)
+    rel = releases.reverse_each.find { |r| (r.version == release.version) && (r.crystax_version == release.crystax_version) }
+    raise ReleaseNotFound.new(name, release) unless rel
+    rel
+  end
+
   def find_release(release)
     rel = releases.reverse_each.find { |r| r.match?(release) }
     raise ReleaseNotFound.new(name, release) unless rel
@@ -199,6 +218,12 @@ class Formula
     def fqn
       "#{@namespace}/#{@name}"
     end
+
+    def to_s
+      s = self.fqn
+      s += ":#{@version}" if @version
+      s
+    end
   end
 
   class << self
@@ -225,9 +250,11 @@ class Formula
       raise "#{name}: wrong crystax version: #{r[:crystax_version].inspect}" unless r[:crystax_version].is_a?(Integer) && r[:crystax_version] > 0
 
       @releases = [] if !@releases
-      raise "#{name}: has more than one version #{r[:version]}" if @releases.any? { |rel| rel.version == r[:version] }
 
-      @releases << Release.new(r[:version], r[:crystax_version])
+      rel = Release.new(r[:version], r[:crystax_version])
+      raise "#{name}: has more than one release #{rel}" if @releases.any? { |r| (rel.version == r.version) && (rel.crystax_version == r.crystax_version) }
+
+      @releases << rel
     end
 
     def depends_on(name, options = {})
@@ -260,8 +287,9 @@ class Formula
   end
 
   def self.parse_name(name)
-    nm, ns = name.split('/')
-    if not ns
+    ns, nm = name.split('/')
+    if not nm
+      nm = ns
       ns = namespace
     elsif
       ns = ns.to_sym
@@ -290,12 +318,64 @@ class Formula
     false
   end
 
+  def make_host_fqn(n)
+    self.class.make_host_fqn(n)
+  end
+
+  def self.make_host_fqn(n)
+    n.start_with?('host/') ? n : 'host/' + n
+  end
+
   def make_target_fqn(n)
     self.class.make_target_fqn(n)
   end
 
   def self.make_target_fqn(n)
     n.start_with?('target/') ? n : 'target/' + n
+  end
+
+  def parse_host_dep_info(info)
+    @host_build_info = []
+    @host_dep_dirs = Hash.new { |h, k| h[k] = Hash.new }
+    info.each_pair do |platform, host_deps|
+      host_deps.each_pair do |fqn, dep_info|
+        @host_build_info << "#{fqn}:#{dep_info.release}"
+        dep = { fqn => dep_info.code_directory }
+        @host_dep_dirs[platform].update dep
+      end
+    end
+    @host_build_info.uniq!
+  end
+
+  def parse_target_dep_info(info)
+    @target_build_info = []
+    @target_dep_dirs = {}
+    info.each do |tdi|
+      @target_build_info << "#{tdi.fqn}:#{tdi.release}"
+      # todo: fix needed for a boost-like case, when formula depends on two versions of the same package (python for boost)
+      @target_dep_dirs[tdi.fqn] = tdi.release_directory
+    end
+  end
+
+  def host_dep_dir(platform_name, dep_name)
+    dep_name = make_host_fqn(dep_name)
+    @host_dep_dirs[platform_name][dep_name]
+  end
+
+  def target_dep_include_dir(dep_name)
+    dep_name = make_target_fqn(dep_name)
+    raise "no such dependency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
+    "#{@target_dep_dirs[dep_name]}/include"
+  end
+
+  def target_dep_lib_dir(dep_name, abi)
+    dep_name = make_target_fqn(dep_name)
+    raise "no such dependency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
+    "#{@target_dep_dirs[dep_name]}/libs/#{abi}"
+  end
+
+  def target_dep_pkgconfig_dir(dep_name, abi)
+    "#{target_dep_lib_dir(dep_name, abi)}/pkgconfig"
   end
 
   private

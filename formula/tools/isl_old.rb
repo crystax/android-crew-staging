@@ -5,14 +5,14 @@ class IslOld < BuildDependency
   homepage "http://isl.gforge.inria.fr"
   url "http://isl.gforge.inria.fr/isl-${version}.tar.gz"
 
-  release '0.11.1', crystax: 3
+  release '0.11.1', crystax: 4
 
   depends_on 'gmp'
 
-  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     install_dir = install_dir_for_platform(platform.name, release)
 
-    gmp_dir = host_dep_dirs[platform.name]['gmp']
+    gmp_dir = host_dep_dir(platform.name, 'gmp')
 
     # without -O2 there is uresolved reference to ffs()
     build_env['CFLAGS'] += ' -O2' if platform.target_os == 'windows'

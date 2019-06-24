@@ -1,7 +1,7 @@
 diff -Naurw a/src/auto/configure b/src/auto/configure
---- a/src/auto/configure	2019-03-26 02:31:21.000000000 +0300
-+++ b/src/auto/configure	2019-03-26 19:27:48.333612570 +0300
-@@ -4559,8 +4559,8 @@
+--- a/src/auto/configure	2019-06-02 21:33:32.000000000 +0300
++++ b/src/auto/configure	2019-06-03 16:08:31.739318115 +0300
+@@ -4560,8 +4560,8 @@
  if test "`(uname) 2>/dev/null`" = Darwin; then
    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
  $as_echo "yes" >&6; }
@@ -13,8 +13,8 @@ diff -Naurw a/src/auto/configure b/src/auto/configure
    { $as_echo "$as_me:${as_lineno-$LINENO}: checking --disable-darwin argument" >&5
  $as_echo_n "checking --disable-darwin argument... " >&6; }
 diff -Naurw a/src/configure.ac b/src/configure.ac
---- a/src/configure.ac	2019-03-26 02:31:21.000000000 +0300
-+++ b/src/configure.ac	2019-03-26 19:28:13.076639284 +0300
+--- a/src/configure.ac	2019-06-02 21:33:32.000000000 +0300
++++ b/src/configure.ac	2019-06-03 16:07:43.434775611 +0300
 @@ -170,8 +170,8 @@
  AC_MSG_CHECKING([for Darwin (Mac OS X)])
  if test "`(uname) 2>/dev/null`" = Darwin; then

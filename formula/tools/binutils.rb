@@ -4,12 +4,12 @@ class Binutils < Utility
   homepage 'https://www.gnu.org/software/binutils/'
   url 'https://ftpmirror.gnu.org/binutils/binutils-${version}.tar.xz'
 
-  release '2.31'
+  release '2.31', crystax: 2
 
   depends_on 'zlib'
   postpone_install true
 
-  def build_for_platform(platform, release, options, _host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     FileUtils.cp_r Dir["#{src_dir}/*"], '.'
     tools_dir = Global::tools_dir(platform.name)
 

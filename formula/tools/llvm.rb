@@ -6,9 +6,9 @@ class Llvm < Tool
   homepage "http://llvm.org/"
   url "toolchain/llvm-${version}"
 
-  release '3.6', crystax: 3
-  release '3.7', crystax: 3
-  release '3.8', crystax: 3
+  release '3.6', crystax: 4
+  release '3.7', crystax: 4
+  release '3.8', crystax: 4
 
   build_depends_on 'libedit'
   depends_on 'python'
@@ -39,6 +39,7 @@ class Llvm < Tool
     remove_installed_files release, platform_name
     Utils.unpack archive, Global::NDK_DIR
 
+    prop.merge! get_properties(rel_dir)
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version
     save_properties prop, rel_dir
@@ -55,6 +56,7 @@ class Llvm < Tool
 
     prop[:installed] = false
     prop.delete :installed_crystax_version
+    prop.delete :build_info
     save_properties prop, rel_dir
 
     release.installed = false
@@ -64,11 +66,13 @@ class Llvm < Tool
     File.join(Global::NDK_DIR, ARCHIVE_TOP_DIR, "llvm-#{release.version}", 'prebuilt', platform_name)
   end
 
-  def build(release, options, host_dep_dirs, _target_dep_dirs)
+  def build(release, options, host_dep_info, _target_dep_info)
     platforms = options.platforms.map { |name| Platform.new(name) }
     puts "Building #{name} #{release} for platforms: #{platforms.map{|a| a.name}.join(' ')}"
 
     self.num_jobs = options.num_jobs
+
+    parse_host_dep_info host_dep_info
 
     FileUtils.rm_rf build_base_dir
 
@@ -83,8 +87,8 @@ class Llvm < Tool
       install_dir = File.join(base_dir, ARCHIVE_TOP_DIR, "llvm-#{release.version}", 'prebuilt', platform.name)
       self.log_file = build_log_file(platform.name)
 
-      libedit_dir = host_dep_dirs[platform.name]['libedit']
-      python_dir  = host_dep_dirs[platform.name]['python']
+      libedit_dir = host_dep_dir(platform.name, 'libedit')
+      python_dir  = host_dep_dir(platform.name, 'python')
 
       prepare_build_env platform, libedit_dir, python_dir
 
@@ -101,7 +105,6 @@ class Llvm < Tool
              ]
 
       make_flags = ['VERBOSE=1']
-      #make_flags << 'LIBS=-lmsvcr90' if platform.target_os == 'windows'
 
       FileUtils.mkdir_p build_dir
       FileUtils.cd(build_dir) do
@@ -142,9 +145,11 @@ class Llvm < Tool
       end
 
       if not options.build_only?
+        write_build_info platform.name, release
+
         archive = cache_file(release, platform.name)
         puts "= packaging #{archive}"
-        Utils.pack archive, base_dir, ARCHIVE_TOP_DIR
+        Utils.pack archive, base_dir, ARCHIVE_TOP_DIR, File.basename(Global::SERVICE_DIR)
 
         update_shasum release, platform.name if options.update_shasum?
 

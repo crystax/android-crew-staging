@@ -1,6 +1,5 @@
 require_relative 'shasum.rb'
 require_relative 'release.rb'
-require_relative 'properties.rb'
 require_relative 'formula.rb'
 require_relative 'build.rb'
 
@@ -9,7 +8,6 @@ class TargetBase < Formula
 
   namespace :target
 
-  include Properties
   include MultiVersion
 
   BIN_PACKAGE_DIRS = ['bin', 'libs', 'libexec', 'sbin']
@@ -107,15 +105,6 @@ class TargetBase < Formula
     dirs << 'lib/pkgconfig'
 
     FileUtils.cd(target_dir) { FileUtils.mkdir_p dirs }
-  end
-
-  def parse_target_dep_info(info)
-    @target_build_info = []
-    @target_dep_dirs = {}
-    info.each_pair do |fqn, dep_info|
-      @target_build_info << "#{fqn}:#{dep_info.release}"
-      @target_dep_dirs[fqn] = dep_info.release_directory
-    end
   end
 
   def build_base_dir

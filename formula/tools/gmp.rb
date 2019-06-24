@@ -4,9 +4,9 @@ class Gmp < BuildDependency
   homepage "https://gmplib.org/"
   url "https://gmplib.org/download/gmp/gmp-${version}.tar.xz"
 
-  release '6.1.2', crystax: 3
+  release '6.1.2', crystax: 4
 
-  def build_for_platform(platform, release, options, _host_deps_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     install_dir = install_dir_for_platform(platform.name, release)
 
     args = ["--host=#{platform.configure_host}",

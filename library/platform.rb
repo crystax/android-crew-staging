@@ -7,7 +7,6 @@ class Platform
 
   NAMES = SUPPORTED_ON.values.flatten
 
-  MACOSX_VERSION_MIN = '10.6'
   TOOLCHAIN = { 'darwin/darwin' => { tool_path:     "#{Build::PLATFORM_PREBUILTS_DIR}/gcc/darwin-x86/host/x86_64-apple-darwin-4.9.3/bin",
                                      tool_prefix:   '',
                                      major_version: 4,
@@ -139,8 +138,8 @@ class Platform
     when 'darwin-x86_64'
       # openssl build fails if put a blank bettwen -isysroot and sysroot path
       # --sysroot can not be used here even for gcc, it will break almost all builds on darwin
-      @sysroot         = "#{Build::PLATFORM_PREBUILTS_DIR}/sysroot/darwin-x86/MacOSX10.6.sdk"
-      @cflags          = "-isysroot#{sysroot} -mmacosx-version-min=#{MACOSX_VERSION_MIN} -DMACOSX_DEPLOYMENT_TARGET=#{MACOSX_VERSION_MIN} -m64"
+      @sysroot         = "#{Build::PLATFORM_PREBUILTS_DIR}/sysroot/darwin-x86/MacOSX#{Build::MACOS_MIN_VER}.sdk"
+      @cflags          = "-isysroot#{sysroot} -mmacosx-version-min=#{Build::MACOS_MIN_VER} -DMACOSX_DEPLOYMENT_TARGET=#{Build::MACOS_MIN_VER} -m64"
       @configure_host  = 'x86_64-apple-darwin10'
       @configure_build = (@host_os == 'darwin') ? @configure_host : 'x86_64-linux-gnu'
       #@toolchain_host  = 'x86_64-darwin10' #'x86_64-apple-darwin'

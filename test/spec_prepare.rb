@@ -2,6 +2,7 @@ require 'fileutils'
 require 'digest'
 require 'pathname'
 require 'json'
+require_relative '../library/properties.rb'
 require_relative 'spec_consts.rb'
 
 
@@ -92,8 +93,8 @@ def create_archive(orig_release, release, util)
   FileUtils.mkdir_p package_dir
   package_dir = Pathname.new(package_dir).realpath.to_s
 
-  # copy files
   FileUtils.cd(CREW_NDK_DIR) do
+    # copy files
     list_file = File.join('.crew', util, PLATFORM, orig_release.version, 'list')
     File.read(list_file).split("\n").each do |file|
       if File.exist?(file)
@@ -108,6 +109,12 @@ def create_archive(orig_release, release, util)
     end
     FileUtils.cp list_file, package_dir
     FileUtils.touch "#{package_dir}/list-dev"
+    # update and save properties
+    prop = Properties::get_properties(File.join('.crew', util, PLATFORM, orig_release.version.to_s))
+    prop[:installed_crystax_version] = release.crystax_version
+    target_rel_dir = File.join(package_dir, '.crew', util, PLATFORM, release.version.to_s)
+    FileUtils.mkdir_p target_rel_dir
+    Properties::save_properties prop, target_rel_dir
   end
 
   # make archive

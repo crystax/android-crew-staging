@@ -46,12 +46,12 @@ class Package < TargetBase
     File.join(Global::HOLD_DIR, file_name)
   end
 
-  def release_directory(release)
+  def release_directory(release, _platform_name = nil)
     File.join(home_directory, release.version)
   end
 
-  def properties_directory(release)
-    release_directory release
+  def properties_directory(release, platform_name = nil)
+    release_directory release, platform_name
   end
 
   def install_archive(release, archive, _platform_name = nil)
@@ -65,7 +65,7 @@ class Package < TargetBase
     # todo:
     #update_root_android_mk release
 
-    prop.merge(get_properties(rel_dir))
+    prop.merge! get_properties(rel_dir)
     prop[:installed] = true
     prop[:installed_crystax_version] = release.crystax_version
     save_properties prop, rel_dir
@@ -124,15 +124,15 @@ class Package < TargetBase
     release.source_installed = false
   end
 
-  def build(release, options, host_dep_dirs, target_dep_info)
+  def build(release, options, host_dep_info, target_dep_info)
     base_dir = build_base_dir
     FileUtils.rm_rf base_dir
     FileUtils.mkdir_p base_dir
 
     @log_file = build_log_file
     @build_release = release
-    @host_dep_dirs = host_dep_dirs
 
+    parse_host_dep_info   host_dep_info
     parse_target_dep_info target_dep_info
 
     arch_list = Build.abis_to_arch_list(options.abis)
@@ -415,9 +415,8 @@ class Package < TargetBase
     end
   end
 
-
   def write_build_info(package_dir)
-    prop = { build_info: @target_build_info }
+    prop = { build_info: @host_build_info + @target_build_info }
     save_properties prop, package_dir
   end
 
@@ -545,22 +544,6 @@ class Package < TargetBase
       FileUtils.rm_rf Dir['lib/**/*.la']
       Dir['lib/**/*.a', 'lib/**/*.so', 'lib/**/*.so.*'].each { |f| FileUtils.rm f if File.symlink?(f) }
     end
-  end
-
-  def target_dep_include_dir(dep_name)
-    dep_name = make_target_fqn(dep_name)
-    raise "no such dependency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
-    "#{@target_dep_dirs[dep_name]}/include"
-  end
-
-  def target_dep_lib_dir(dep_name, abi)
-    dep_name = make_target_fqn(dep_name)
-    raise "no such dependency: #{dep_name}" unless @target_dep_dirs.has_key? dep_name
-    "#{@target_dep_dirs[dep_name]}/libs/#{abi}"
-  end
-
-  def target_dep_pkgconfig_dir(dep_name, abi)
-    "#{target_dep_lib_dir(dep_name, abi)}/pkgconfig"
   end
 
   # def target_dep_all_include_dirs(dirs)

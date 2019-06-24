@@ -1,5 +1,17 @@
 module TestBasePackageMethods
 
+  def home_directory
+    File.join(Global::HOLD_DIR, file_name)
+  end
+
+  def release_directory(release, _platform_name = nil)
+    File.join(home_directory, release.version)
+  end
+
+  def properties_directory(release)
+    release_directory release
+  end
+
   def install_archive(release, archive, _platform_name = nil)
     prop_dir = properties_directory(release)
     FileUtils.mkdir_p prop_dir unless Dir.exists? prop_dir

@@ -11,6 +11,7 @@ INFO_SYNTAX                      = 'info [options] name1 [name2 ...]'.freeze
 INSTALL_SYNTAX                   = 'install [options] name[:version] ...'.freeze
 SOURCE_SYNTAX                    = 'source [options] name[:version] ...'.freeze
 BUILD_SYNTAX                     = 'build [options] name[:version] ...'.freeze
+BUILD_CHECK_SYNTAX               = 'build-check [options] [name1 name2 ...]'.freeze
 UPGRADE_SYNTAX                   = 'upgrade [options]'.freeze
 CLEANUP_SYNTAX                   = 'cleanup [options]'.freeze
 SHASUM_SYNTAX                    = 'shasum [options] [name1 name2 ...]'.freeze
@@ -71,6 +72,9 @@ COMMAND is one of the following:
                   install source code for the specified formula(s)
   #{BUILD_SYNTAX}
                   build the specified formula(s) from the source code
+  #{BUILD_CHECK_SYNTAX}
+                  check if the specified formulas were build with outdated
+                  or non-existing dependencies;
   remove-source name[:version] ...
                   remove source code for the specified formulas
   update          update crew repository information
@@ -149,7 +153,7 @@ The LIST command supports the following options:
 
   --names-only   output only formula names
 
-  --buildable-order
+\  --buildable-order
                  output formulas in buldable order, otherwise
                  formulas will be sorted by their names
 EOS
@@ -258,6 +262,18 @@ Options for building target packages:
                  available ABIs are armeabi-v7a, armeabi-v7a-hard,
                  x86, mips, arm64-v8a, x86_64, mips64
                  by default the formula will be built for all ABIs
+EOS
+
+BUILD_CHECK_HELP = <<-EOS
+#{BUILD_CHECK_SYNTAX}
+
+If no formula name was specified then all formulas will be checked.
+The BUILD-CHECK command support the following options:
+
+  --show-bad-only
+                 output information only for formulas that have
+                 some issues
+
 EOS
 
 UPGRADE_HELP = <<-EOS
@@ -472,6 +488,7 @@ CMD_HELP = {
   'remove'                    => NO_HELP,
   'source'                    => SOURCE_HELP,
   'build'                     => BUILD_HELP,
+  'build-check'               => BUILD_CHECK_HELP,
   'remove-source'             => NO_HELP,
   'update'                    => NO_HELP,
   'upgrade'                   => UPGRADE_HELP,

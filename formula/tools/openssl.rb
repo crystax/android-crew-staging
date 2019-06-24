@@ -4,12 +4,12 @@ class Openssl < Library
   homepage "https://openssl.org/"
   url 'https://www.openssl.org/source/openssl-${version}.tar.gz'
 
-  release '1.1.0j'
+  release '1.1.0k'
 
   depends_on 'zlib'
   postpone_install true
 
-  def build_for_platform(platform, release, options, host_dep_dirs, _target_dep_dirs)
+  def build_for_platform(platform, release, options)
     install_dir = install_dir_for_platform(platform.name, release)
     tools_dir = Global.tools_dir(platform.name)
 

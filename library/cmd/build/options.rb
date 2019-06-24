@@ -50,6 +50,7 @@ module Crew
             @num_jobs_default = false
           when /^--platforms=/
             @platforms = opt.split('=')[1].split(',')
+            check_platform_names *@platforms
           when '--check'
             @check = true
           when '--all-versions'

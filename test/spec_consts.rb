@@ -10,7 +10,9 @@ module Crew
     end
 
     # here utilities must be sorted by their filenames
-    ALL_TOOLS           = [FormulaData.new(:build_dependency, 'cloog'),
+    ALL_TOOLS           = [FormulaData.new(:tookl,            'binutils'),
+                           FormulaData.new(:build_dependency, 'bzip2'),
+                           FormulaData.new(:build_dependency, 'cloog'),
                            FormulaData.new(:build_dependency, 'cloog_old'),
                            FormulaData.new(:tool,             'curl'),
                            FormulaData.new(:build_dependency, 'expat'),

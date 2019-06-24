@@ -4,7 +4,7 @@ class Bison < Package
   homepage "https://www.gnu.org/software/bison/"
   url "https://ftp.gnu.org/gnu/bison/bison-${version}.tar.xz"
 
-  release '3.3.2', crystax: 2
+  release '3.4.1'
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'lib', 'share'],

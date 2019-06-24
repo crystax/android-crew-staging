@@ -45,7 +45,7 @@ module Crew
             not ( d.version ? d.matched_releases.any? { |e| d.formula.installed?(e) } : d.formula.installed? )
           end
 
-          puts "  dependencies to install: #{(deps.map { |d| d.name }).join(', ')}"
+          puts "  dependencies to install: #{(deps.map { |d| d.release ? (d.name + ':' + d.release.to_s) : d.name }).join(', ')}"
 
           if deps.count > 0
             puts "installing dependencies for #{name}:"

@@ -18,19 +18,19 @@ module Crew
     end
 
     def execute
-      list('Tools:',    formulary.tools)    if options.list_tools?
-      list('Packages:', formulary.packages) if options.list_packages?
+      list('Tools:',    formulary.tools,    :host)   if options.list_tools?
+      list('Packages:', formulary.packages, :target) if options.list_packages?
     end
 
     private
 
-    def list(title, formulas)
-      output(title, sort(formulas))
+    def list(title, formulas, ns)
+      output(title, sort(formulas, ns))
     end
 
-    def sort(formulas)
+    def sort(formulas, ns)
       if options.buildable_order?
-        sort_in_buildable_order(formulas)
+        sort_in_buildable_order(formulas, ns)
       else
         sort_by_name(formulas)
       end
@@ -40,9 +40,11 @@ module Crew
       formulas.sort { |f1, f2| f1.name <=> f2.name }
     end
 
-    def sort_in_buildable_order(formulas)
+    def sort_in_buildable_order(formulas, ns)
       Struct.new('Pair', :formula, :dependencies)
-      unresolved = sort_by_name(formulas).map { |f| Struct::Pair.new(f, formulary.dependencies(f).map(&:fqn)) }
+      unresolved = sort_by_name(formulas).map do |f|
+        Struct::Pair.new(f, formulary.dependencies(f, with_build_deps: true).delete_if { |e| e.namespace != ns }.map(&:fqn))
+      end
       resolved, unresolved = sort_in_buildable_order_impl([], unresolved)
 
       unless unresolved.empty?

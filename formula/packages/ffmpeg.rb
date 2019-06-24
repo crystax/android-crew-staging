@@ -4,7 +4,7 @@ class Ffmpeg < Package
   homepage "https://www.ffmpeg.org"
   url "https://ffmpeg.org/releases/ffmpeg-${version}.tar.bz2"
 
-  release '4.1', crystax: 2
+  release '4.1.3'
 
   depends_on 'xz'
   depends_on 'x264'
