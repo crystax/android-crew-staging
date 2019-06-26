@@ -51,18 +51,6 @@ class HostBase < Formula
     false
   end
 
-  # def upgrading_ruby?(platform_name)
-  #   (name == 'ruby') and (Global::PLATFORM_NAME == platform_name)
-  # end
-
-  # def upgrading_xz?(platform_name)
-  #   (name == 'xz') and (Global::PLATFORM_NAME == platform_name)
-  # end
-
-  # def upgrading_tar?(platform_name)
-  #   (name == 'tar') and (Global::PLATFORM_NAME == platform_name)
-  # end
-
   def postpone_dir
     "#{Global::NDK_DIR}/postpone"
   end
