@@ -51,18 +51,6 @@ class HostBase < Formula
     false
   end
 
-  # def upgrading_ruby?(platform_name)
-  #   (name == 'ruby') and (Global::PLATFORM_NAME == platform_name)
-  # end
-
-  # def upgrading_xz?(platform_name)
-  #   (name == 'xz') and (Global::PLATFORM_NAME == platform_name)
-  # end
-
-  # def upgrading_tar?(platform_name)
-  #   (name == 'tar') and (Global::PLATFORM_NAME == platform_name)
-  # end
-
   def postpone_dir
     "#{Global::NDK_DIR}/postpone"
   end
@@ -248,19 +236,11 @@ class HostBase < Formula
           end
         end
       end
-
-      # f.puts
-      # f.puts "echo = Copying new files"
-      # src_dir = "#{postpone_dir}/prebuilt"
-      # if Global::OS != 'windows'
-      #   f.puts "cp -r #{src_dir} #{Global::NDK_DIR}"
-      # else
-      #   src_dir.gsub!('/', '\\')
-      #   dst_dir = "#{Global::NDK_DIR}/prebuilt".gsub('/', '\\')
-      #   f.puts "xcopy #{src_dir} #{dst_dir} /e/q"
-      # end
     end
     FileUtils.chmod 'a+x', upgrade_script_filename
+
+    # the script only removes old files and directories
+    # new files will be copied directly from crew driver script
   end
 
   def remove_files_from_list(file_list, platform_name)
