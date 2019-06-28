@@ -96,7 +96,7 @@ class HostBase < Formula
     if prev_release
       uninstall_archive prev_release, platform_name
     else
-      create_empty_upgrade_script
+      create_empty_upgrade_script if postpone_install?(platform_name)
     end
 
     rel_dir = release_directory(release, platform_name)

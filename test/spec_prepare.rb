@@ -37,6 +37,8 @@ FileUtils.cp_r Dir["#{CREW_TOOLS_DIR}/*"], TOOLS_DIR
 FileUtils.cp_r "#{CREW_NDK_DIR}/#{File.basename(Global::SERVICE_DIR)}", NDK_DIR
 FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/*.tar.xz"] - Dir["#{Crew::Test::DATA_DIR}/test_tool-*-*.tar.xz"], packages_download_dir
 FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/test_tool-*-*.tar.xz"], tools_download_dir
+FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/test_postpone_tool-*-*.tar.xz"], tools_download_dir
+FileUtils.cp Dir["#{Crew::Test::DATA_DIR}/test_library-*-*.tar.xz"], tools_download_dir
 FileUtils.rm_rf "#{TOOLS_DIR}/build_dependencies"
 FileUtils.rm_rf Dir["#{NDK_DIR}/#{File.basename(Global::SERVICE_DIR)}/**/*"].select { |f| f.end_with? 'list-dev' }
 
