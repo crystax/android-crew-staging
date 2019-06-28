@@ -92,7 +92,12 @@ class HostBase < Formula
     # todo: handle multi platform
     #       add platform support into Release class
     prev_release = releases.select { |r| r.installed? }.last
-    uninstall_archive prev_release, platform_name if prev_release
+
+    if prev_release
+      uninstall_archive prev_release, platform_name
+    else
+      create_empty_upgrade_script
+    end
 
     rel_dir = release_directory(release, platform_name)
     FileUtils.mkdir_p rel_dir
@@ -184,19 +189,19 @@ class HostBase < Formula
     remove_files_from_list(dev_list_file, platform_name) if File.exist? dev_list_file
   end
 
-  def update_upgrade_script rel_dir
-    unless File.exist? upgrade_script_filename
-      FileUtils.mkdir_p File.dirname(upgrade_script_filename)
-      File.open(upgrade_script_filename, 'w') do |f|
-        ttl = 'This script is automatically generated to finish upgrade proccess of ruby'
-        if Global::OS != 'windows'
-          f.puts "\# #{ttl}"
-        else
-          f.puts '%echo off'
-          f.puts "rem #{ttl}"
-        end
-      end
+
+  def create_empty_upgrade_script
+    create_upgrade_script_header
+
+    File.open(upgrade_script_filename, 'a') do |f|
+      f.puts
+      f.puts "echo Empty #{name.upcase} upgrade process"
+      f.puts
     end
+  end
+
+  def update_upgrade_script rel_dir
+    create_upgrade_script_header
 
     dirs = []
     files = []
@@ -209,7 +214,6 @@ class HostBase < Formula
       end
     end
 
-    FileUtils.mkdir_p postpone_dir
     File.open(upgrade_script_filename, 'a') do |f|
       f.puts
       f.puts "echo Finishing #{name.upcase} upgrade process"
@@ -237,10 +241,25 @@ class HostBase < Formula
         end
       end
     end
-    FileUtils.chmod 'a+x', upgrade_script_filename
 
     # the script only removes old files and directories
     # new files will be copied directly from crew driver script
+  end
+
+  def create_upgrade_script_header
+    unless File.exist? upgrade_script_filename
+      FileUtils.mkdir_p File.dirname(upgrade_script_filename)
+      File.open(upgrade_script_filename, 'w') do |f|
+        ttl = 'This script is automatically generated to finish upgrade proccess of ruby'
+        if Global::OS != 'windows'
+          f.puts "\# #{ttl}"
+        else
+          f.puts '%echo off'
+          f.puts "rem #{ttl}"
+        end
+      end
+    end
+    FileUtils.chmod 'a+x', upgrade_script_filename
   end
 
   def remove_files_from_list(file_list, platform_name)

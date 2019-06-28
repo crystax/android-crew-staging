@@ -242,14 +242,18 @@ module Spec
       options[:release]
     end
 
-    def pkg_cache_add_with_formula(type, filename, opts)
+    def pkg_cache_add_with_formula(type, basename, opts)
       options = { release: nil, update: true, delete: false }
       options.update opts
-      options[:release] ||= formula_most_recent_release(filename)
-      copy_formulas type, "#{filename}.rb"
-      pkg_cache_add_file type, filename, options[:release]
-      crew_checked 'shasum', '--update', filename          if options[:update]
-      pkg_cache_del_file type, filename, options[:release] if options[:delete]
+
+      src_name, dst_name = basename.split(':')
+      dst_name ||= src_name
+
+      options[:release] ||= formula_most_recent_release(src_name)
+      copy_formulas type, "#{src_name}.rb:#{dst_name}.rb"
+      pkg_cache_add_file type, dst_name, options[:release]
+      crew_checked 'shasum', '--update', dst_name          if options[:update]
+      pkg_cache_del_file type, dst_name, options[:release] if options[:delete]
       options[:release]
     end
 
@@ -296,15 +300,21 @@ module Spec
       tools_dir      = File.join(Crew::Test::NDK_DIR,      'prebuilt', Global::PLATFORM_NAME)
       FileUtils.rm_rf tools_dir
       FileUtils.cp_r orig_tools_dir, File.dirname(tools_dir)
-      Crew::Test::UTILS_FILES.each do |util|
-        FileUtils.rm_rf File.join(Crew::Test::NDK_DIR, '.crew', util)
-        FileUtils.cp_r File.join(Crew::Test::NDK_COPY_DIR, '.crew', util), File.join(Crew::Test::NDK_DIR, '.crew')
-      end
+      FileUtils.rm_rf File.join(Crew::Test::NDK_DIR, '.crew')
+      FileUtils.cp_r File.join(Crew::Test::NDK_COPY_DIR, '.crew'), Crew::Test::NDK_DIR
+      # Crew::Test::UTILS_FILES.each do |util|
+      #   FileUtils.rm_rf File.join(Crew::Test::NDK_DIR, '.crew', util)
+      #   FileUtils.cp_r File.join(Crew::Test::NDK_COPY_DIR, '.crew', util), File.join(Crew::Test::NDK_DIR, '.crew')
+      # end
     end
 
+    # copy a    data/a -> .../a
+    #      a:b  data/a -> .../b
     def copy_formulas(type, *names)
       names.each do |n|
-        FileUtils.cp File.join('data', n), File.join(Global::FORMULA_DIR, Global::NS_DIR[type])
+        a, b = n.split(':')
+        b ||= a
+        FileUtils.cp File.join('data', a), File.join(Global::FORMULA_DIR, Global::NS_DIR[type], b)
       end
     end
 
@@ -394,9 +404,9 @@ module Spec
       repo.commit "del_#{names.join('_')}"
     end
 
-    def formula_most_recent_release(filename)
+    def formula_most_recent_release(basename)
       lines = []
-      path = "#{Crew::Test::DATA_DIR}/#{filename}.rb"
+      path = "#{Crew::Test::DATA_DIR}/#{basename}.rb"
       File.foreach(path) { |l| lines << l if l =~ /^[[:space:]]*release[[:space:]]'/ }
       raise "bad formulas syntax #{filename}: no release lines" if lines.empty?
       rl = lines.last.split(' ')
