@@ -29,7 +29,7 @@ module Build
   PLATFORM_DEVELOPMENT_DIR = Pathname.new("#{Global::BASE_DIR}/../platform/development").cleanpath.to_s
   PLATFORM_PREBUILTS_DIR   = Pathname.new("#{Global::BASE_DIR}/../platform/prebuilts").cleanpath.to_s
 
-  NDK_HOST_TOOLS_DIR = File.join(Global::NDK_DIR, 'sources', 'host-tools')
+  NDK_HOST_TOOLS_DIR = File.join(NDK_SRC_DIR, 'sources', 'host-tools')
 
   CMAKE_TOOLCHAIN_FILE = File.join(Global::NDK_DIR, 'cmake', 'toolchain.cmake')
 
