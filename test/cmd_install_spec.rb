@@ -15,6 +15,24 @@ describe "crew install" do
     ]
   end
 
+  def postpone_empty_install_message(name)
+    ["Start postponed upgrade process",
+     "Empty #{name.upcase} upgrade process",
+     "= Copying new files",
+     "= Cleaning up"
+    ]
+  end
+
+  def postpone_install_message(name)
+    ["Start postponed upgrade process",
+     "Finishing #{name.upcase} upgrade process",
+     "= Removing old binary files",
+     "= Removing old directories",
+     "= Copying new files",
+     "= Cleaning up"
+    ]
+  end
+
   before(:all) do
     environment_init
     ndk_init
@@ -23,6 +41,7 @@ describe "crew install" do
   before(:each) do
     clean_hold
     clean_cache
+    clean_utilities
     environment_init
     repository_init
     repository_clone
@@ -329,6 +348,7 @@ describe "crew install" do
       end
     end
 
+    # todo: fix test_tool to use actual code, derive it directly from Library or Utilitty - when download server gets fixed
     context 'test tool from release assets' do
       it 'outputs info about installing test_tool 1.0.0:1' do
         rel = pkg_cache_add_tool_with_formula('test_tool', release: Release.new('1.0.0', 1), update: true, delete: true)
@@ -347,5 +367,111 @@ describe "crew install" do
 
   # todo: test that when package installed information about installed sources kept intact
   context '' do
+  end
+
+  context 'tool without postponed install' do
+
+    context 'when installed first time' do
+      it 'outputs info about installing the tool' do
+        name = 'test_library'
+        rel = pkg_cache_add_tool_with_formula("#{name}-1:#{name}", delete: true)
+        file = tool_archive_name(name, rel)
+        url = "#{Global::DOWNLOAD_BASE}/tools/#{file}"
+        crew 'install', name
+        content = File.read("#{Global::TOOLS_DIR}/bin/#{name}.txt").strip
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(install_message(name, url, file))
+        expect(pkg_cache_has_tool?(name, rel)).to eq(true)
+        expect(content).to eq("#{rel}")
+      end
+    end
+
+    context 'when the same version installed second time with --force option' do
+      it 'outputs info about installing the same tool' do
+        name = 'test_library'
+        rel = pkg_cache_add_tool_with_formula("#{name}-1:#{name}", delete: true)
+        file = tool_archive_name(name, rel)
+        url = "#{Global::DOWNLOAD_BASE}/tools/#{file}"
+        crew_checked 'install', name
+        pkg_cache_del_file :host, name, rel
+        crew '-W install --force', name
+        content = File.read("#{Global::TOOLS_DIR}/bin/#{name}.txt").strip
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(install_message(name, url, file))
+        expect(pkg_cache_has_tool?(name, rel)).to eq(true)
+        expect(content).to eq("#{rel}")
+      end
+    end
+
+    context 'when new version installed upon old version' do
+      it 'outputs info about installing new version of the tool' do
+        name = 'test_library'
+        rel = pkg_cache_add_tool_with_formula("#{name}-1:#{name}", delete: true)
+        file = tool_archive_name(name, rel)
+        url = "#{Global::DOWNLOAD_BASE}/tools/#{file}"
+        crew_checked 'install', name
+        pkg_cache_del_file :host, name, rel
+        crew '-W install --force', name
+        content = File.read("#{Global::TOOLS_DIR}/bin/#{name}.txt").strip
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(install_message(name, url, file))
+        expect(pkg_cache_has_tool?(name, rel)).to eq(true)
+        expect(content).to eq("#{rel}")
+      end
+    end
+  end
+
+  context 'tool with postponed install' do
+
+    context 'when installed first time' do
+      it 'outputs info about installing the tool' do
+        name = 'test_postpone_tool'
+        rel = pkg_cache_add_tool_with_formula("#{name}-1:#{name}", delete: true)
+        file = tool_archive_name(name, rel)
+        url = "#{Global::DOWNLOAD_BASE}/tools/#{file}"
+        crew 'install', name
+        content = File.read("#{Global::TOOLS_DIR}/bin/#{name}.txt").strip
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(install_message(name, url, file)+postpone_empty_install_message(name))
+        expect(pkg_cache_has_tool?(name, rel)).to eq(true)
+        expect(content).to eq("#{rel}")
+      end
+    end
+
+    context 'when the same version installed second time with --force option' do
+      it 'outputs info about installing the same tool' do
+        name = 'test_postpone_tool'
+        rel = pkg_cache_add_tool_with_formula("#{name}-1:#{name}", delete: true)
+        file = tool_archive_name(name, rel)
+        url = "#{Global::DOWNLOAD_BASE}/tools/#{file}"
+        crew_checked 'install', name
+        pkg_cache_del_file :host, name, rel
+        crew '-W install --force', name
+        content = File.read("#{Global::TOOLS_DIR}/bin/#{name}.txt").strip
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(install_message(name, url, file)+postpone_install_message(name))
+        expect(pkg_cache_has_tool?(name, rel)).to eq(true)
+        expect(content).to eq("#{rel}")
+      end
+    end
+
+    context 'when new version installed upon old version' do
+      it 'outputs info about installing new version of the tool' do
+        # install old version
+        name = 'test_postpone_tool'
+        pkg_cache_add_tool_with_formula("#{name}-1:#{name}", delete: true)
+        crew_checked 'install', name
+        # install new version
+        rel = pkg_cache_add_tool_with_formula("#{name}-2:#{name}", delete: true)
+        file = tool_archive_name(name, rel)
+        url = "#{Global::DOWNLOAD_BASE}/tools/#{file}"
+        crew 'install', name
+        content = File.read("#{Global::TOOLS_DIR}/bin/#{name}.txt").strip
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(install_message(name, url, file)+postpone_install_message(name))
+        expect(pkg_cache_has_tool?(name, rel)).to eq(true)
+        expect(content).to eq("#{rel}")
+      end
+    end
   end
 end

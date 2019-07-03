@@ -6,9 +6,9 @@ class Gcc < Tool
   homepage "https://gcc.gnu.org"
   url "toolchain/gcc"
 
-  release '4.9', crystax: 4
-  release '5',   crystax: 4
-  release '6',   crystax: 4
+  release '4.9', crystax: 5
+  release '5',   crystax: 5
+  release '6',   crystax: 5
 
   build_depends_on 'gmp'
   build_depends_on 'isl'
@@ -434,7 +434,7 @@ class Gcc < Tool
     gdb_to_python_rel_dir = '..\\..\\..\\..\\..\\prebuilt\\windows-x86_64\\bin'
     pythonhome_rel_dir    = '..\\..\\..\\..\\..\\prebuilt\\windows-x86_64'
 
-    gdb_stub_c = File.join(Global::NDK_DIR, 'sources', 'host-tools', 'gdb-stub', 'gdb-stub.c')
+    gdb_stub_c = File.join(Build::NDK_SRC_DIR, 'sources', 'host-tools', 'gdb-stub', 'gdb-stub.c')
 
     args = platform.cflags.split(' ') +
            ['-O2',
@@ -491,7 +491,7 @@ class Gcc < Tool
         else
           FileUtils.cp_r Dir["#{bootstrap_dir}/*.*o"], libdir
         end
-        ['libcrystax.a', 'libstdc++.a', 'libm.a'].each { |lib| FileUtils.cp "#{Global::NDK_DIR}/sources/crystax/empty/libcrystax.a", "#{libdir}/#{lib}" }
+        ['libcrystax.a', 'libstdc++.a', 'libm.a'].each { |lib| FileUtils.cp "#{Build::NDK_SRC_DIR}/sources/crystax/empty/libcrystax.a", "#{libdir}/#{lib}" }
         end
       end
     end
