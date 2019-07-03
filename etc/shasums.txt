@@ -2,7 +2,7 @@ packages/openssl.rb 1.1.1-pre8_1 android c5805270348b7d722e892d1edd9f607ee86b40e
 packages/protobuf.rb 3.7.1_1 android c7429df7cc2f7e197566ade30ed0dba3d4170e252b577bed9302ce82808578c5
 packages/boost.rb 1.70.0_1 android dd09c4fd3f51d453eb615be5e9812648491f0dd79af0779aebccc725429fea1a
 packages/ndn_cpp.rb 0.16-48-g4ace2ff4_2 android 52ae1ce0b71218d7c6ad9fec449aa47f32ac15eb5bd4a2ad5b5a955ff1ba4d25
-packages/ndnrtc.rb 0.0.2_1 android 3c8314476e186d250f93e68cbc820fc6eb78a9bef07ec43f8a9f1c5261b24b4b
+packages/ndnrtc.rb 0.0.2_1 android ed9de5799992b0b4791804abc1751ae28609478355060d7efe0ee29d6cb4c598
 packages/openfec.rb 1.4.2_2 android aa8c46b4af5691ba8b7a0c01fff19a4915542854629914647d171495a831a6ec
 packages/webrtc.rb 59_2 android b6009a1539375412221b67ad64c584dc6e3fe9aa13ae9342067fe2e468817bba
 packages/sqlite.rb 3.28.0_1 android 5a07131ec214254b36bd82a018914474223c00d3942a45e816c1781f6ba9176b
@@ -10,3 +10,5 @@ packages/libsqlitejdbc.rb 3.25.2_2 android 08652b14f17da5858c574f8b7eeb610f30b17
 packages/ndn_cxx.rb 0.6.6_3 android c19df82cc9559394ca8519d352ec17ff96c239e4587989c047711238ccf14498
 packages/nfd.rb 0.6.6_4 android bf866f34feb4e75f8400fc83ac71116f90057eb758d52aed5fa12051792ba37d
 packages/psync.rb 0.1.0_3 android 0b4ac214aada52bd73f876f180747825ba33b9eee007955f3185c7034d0de968
+packages/cryptopp.rb 5.6.3-1_1 android c476ae25a7786af83a8f896f1ede1a371a0e48c2d8f2bb059e5ae3a0fc8545a3
+packages/ndncert_guest.rb 0.1.1_3 android 07a34edbf08f9ec342db18e68bbdb1e58459800c778093514ec534e47c541927

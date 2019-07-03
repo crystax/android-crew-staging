@@ -2,15 +2,14 @@ class NdncertGuest < Package
 
   desc "NDN Certificate Management Protocol (NDNCERT)"
   homepage "https://github.com/danameme/ndncert"
-  url "git://github.com/danameme/ndncert.git|git_commit:f9f285f86dadc0eb47e3ca1f7978212d043a26d0"
+  url "git://github.com/danameme/ndncert.git|git_commit:a464c2a6b75ed683585f92fe0f741f967477f127"
 
-  release version: '0.1.0', crystax_version: 1
+  release version: '0.1.1', crystax_version: 3
 
   depends_on 'boost'
   depends_on 'ndn_cxx'
   depends_on 'openssl'
   depends_on 'sqlite'
-  depends_on 'cryptopp'
 
   build_options setup_env:            false,
                 use_cxx:              true,
@@ -36,7 +35,6 @@ class NdncertGuest < Package
     @ndn_cxx_dir = _target_dep_dirs['ndn_cxx']
     @openssl_dir = _target_dep_dirs['openssl']
     @sqlite3_dir = _target_dep_dirs['sqlite']
-    @cryptopp_dir = _target_dep_dirs['cryptopp']
 
     arch = Build.arch_for_abi(abi)
     src_dir = build_dir_for_abi(abi)
@@ -70,17 +68,14 @@ class NdncertGuest < Package
                  ]
       @build_env['CXXFLAGS_NDN_CXX'] = [
         "-I#{@ndn_cxx_dir}/include",
-        "-I#{@cryptopp_dir}/include",
       ].join(' ')
 
       @build_env['LINKFLAGS_NDN_CXX'] = [
         "-L#{@ndn_cxx_dir}/libs/#{abi}/#{stl_name}",
-        "-L#{@cryptopp_dir}/libs/#{abi}",
       ].join(' ')
 
       @build_env['LIB_NDN_CXX'] = [
         "ndn-cxx",
-        "cryptopp_shared",
         "boost_stacktrace_basic",
       ].join(' ')
 
@@ -118,7 +113,7 @@ class NdncertGuest < Package
       # copy libs
       libs_dir = "#{package_dir}/libs/#{abi}/#{stl_name}"
       FileUtils.mkdir_p libs_dir
-      FileUtils.cp Dir["#{prefix_dir}/lib/*.so"], libs_dir
+      FileUtils.cp "#{prefix_dir}/lib/libndn-cert.so", "#{libs_dir}/libndn-cert-guest.so"
     end
   end
 
@@ -139,14 +134,14 @@ class NdncertGuest < Package
       f.puts 'include $(CLEAR_VARS)'
       f.puts "LOCAL_MODULE := ndncert_guest_shared"
       f.puts "LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/llvm/libndn-cert-guest.so"
-      f.puts 'LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include/ndncert'
+      f.puts 'LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include'
       f.puts 'ifneq (,$(filter clang%,$(NDK_TOOLCHAIN_VERSION)))'
       f.puts 'LOCAL_EXPORT_LDLIBS := -latomic'
       f.puts 'endif'
       @lib_deps["libndncert"].each do |dep|
         f.puts "LOCAL_SHARED_LIBRARIES += boost_#{dep}_shared"
       end
-      f.puts "LOCAL_SHARED_LIBRARIES += libcrypto_shared libssl_shared"
+      f.puts "LOCAL_SHARED_LIBRARIES += libssl_shared"
       f.puts "LOCAL_SHARED_LIBRARIES += libsqlite3_shared"
       f.puts "LOCAL_SHARED_LIBRARIES += ndn_cxx_shared"
       f.puts 'include $(PREBUILT_SHARED_LIBRARY)'
@@ -169,7 +164,7 @@ class NdncertGuest < Package
     v = release.version.split('-')[0]
     puts "version for soname: #{v}"
     {
-      "libndn-cert.so.#{v}" => "libndn-cert-guest"
+      "libndn-cert.so.#{v}" => "libndn-cert"
     }
   end
 
