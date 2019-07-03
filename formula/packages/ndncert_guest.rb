@@ -10,6 +10,7 @@ class NdncertGuest < Package
   depends_on 'ndn_cxx'
   depends_on 'openssl'
   depends_on 'sqlite'
+  depends_on 'cryptopp'
 
   build_options setup_env:            false,
                 use_cxx:              true,
@@ -35,6 +36,7 @@ class NdncertGuest < Package
     @ndn_cxx_dir = _target_dep_dirs['ndn_cxx']
     @openssl_dir = _target_dep_dirs['openssl']
     @sqlite3_dir = _target_dep_dirs['sqlite']
+    @cryptopp_dir = _target_dep_dirs['cryptopp']
 
     arch = Build.arch_for_abi(abi)
     src_dir = build_dir_for_abi(abi)
@@ -68,14 +70,18 @@ class NdncertGuest < Package
                  ]
       @build_env['CXXFLAGS_NDN_CXX'] = [
         "-I#{@ndn_cxx_dir}/include",
+        "-I#{@cryptopp_dir}/include",
       ].join(' ')
 
       @build_env['LINKFLAGS_NDN_CXX'] = [
         "-L#{@ndn_cxx_dir}/libs/#{abi}/#{stl_name}",
+        "-L#{@cryptopp_dir}/libs/#{abi}",
       ].join(' ')
 
       @build_env['LIB_NDN_CXX'] = [
         "ndn-cxx",
+        "cryptopp_shared",
+        "boost_stacktrace_basic",
       ].join(' ')
 
       @build_env['LINKFLAGS'] = [
