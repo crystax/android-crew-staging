@@ -1,16 +1,23 @@
-From cf77005ce54c74be2efde93f3418dab353a205b7 Mon Sep 17 00:00:00 2001
+From ccbd2680da0fe64a15952262bf8f9ca6cbfdbb6b Mon Sep 17 00:00:00 2001
 From: Alexander Afanasyev <aa@cs.fiu.edu>
 Date: Wed, 3 Jul 2019 19:28:59 -0400
 Subject: [PATCH] Build patches
 
 ---
- wscript | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ wscript | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
 diff --git a/wscript b/wscript
-index c3519b4..17448dd 100644
+index c3519b4..cc73417 100644
 --- a/wscript
 +++ b/wscript
+@@ -1,5 +1,5 @@
+ # -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+-VERSION = "0.1.0"
++VERSION = "0.1.1"
+ APPNAME = "ndncert"
+ BUGREPORT = "https://redmine.named-data.net/projects/ndncert"
+ GIT_TAG_PREFIX = "ndncert-"
 @@ -23,12 +23,17 @@ def configure(conf):
                 'boost', 'default-compiler-flags', 'sqlite3',
                 'doxygen', 'sphinx_build'])

@@ -4,7 +4,7 @@ class NdncertGuest < Package
   homepage "https://github.com/danameme/ndncert"
   url "git://github.com/danameme/ndncert.git|git_commit:a464c2a6b75ed683585f92fe0f741f967477f127"
 
-  release version: '0.1.1', crystax_version: 3
+  release version: '0.1.1', crystax_version: 4
 
   depends_on 'boost'
   depends_on 'ndn_cxx'
@@ -164,7 +164,7 @@ class NdncertGuest < Package
     v = release.version.split('-')[0]
     puts "version for soname: #{v}"
     {
-      "libndn-cert.so.#{v}" => "libndn-cert"
+      "libndn-cert.so.#{v}" => "libndn-cert-guest"
     }
   end
 

@@ -11,4 +11,4 @@ packages/ndn_cxx.rb 0.6.6_3 android c19df82cc9559394ca8519d352ec17ff96c239e45879
 packages/nfd.rb 0.6.6_4 android bf866f34feb4e75f8400fc83ac71116f90057eb758d52aed5fa12051792ba37d
 packages/psync.rb 0.1.0_3 android 0b4ac214aada52bd73f876f180747825ba33b9eee007955f3185c7034d0de968
 packages/cryptopp.rb 5.6.3-1_1 android c476ae25a7786af83a8f896f1ede1a371a0e48c2d8f2bb059e5ae3a0fc8545a3
-packages/ndncert_guest.rb 0.1.1_3 android 07a34edbf08f9ec342db18e68bbdb1e58459800c778093514ec534e47c541927
+packages/ndncert_guest.rb 0.1.1_4 android 5d5bb44a03dca2f1a0c995ea03b9ff8b8d57b865e438db04d9d1b0192225be5f
