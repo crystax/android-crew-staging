@@ -5,7 +5,7 @@ class Libcrystax < BasePackage
   desc "Crystax Library, the Heart of the Crystax NDK"
   name 'libcrystax'
 
-  release '1.0.0', crystax: 4
+  release '1.0.0', crystax: 5
 
   package_info root_dir: ['libs']
 
