@@ -474,4 +474,163 @@ describe "crew install" do
       end
     end
   end
+
+  context 'when package has two dependencies with the same name but different version requirements' do
+
+    context 'when both required versions of the dependency are installed' do
+      it 'outputs info about installing package' do
+        dep_ffname = 'dep_package'
+        pkg_ffname = 'install_dep_two_versions_package'
+        repository_add_formula :target, "#{dep_ffname}-3.rb:#{dep_ffname}.rb", "#{pkg_ffname}-1.rb:#{pkg_ffname}.rb"
+        repository_clone
+        dep_name = dep_ffname.gsub(/_/, '-')
+        pkg_name = pkg_ffname.gsub(/_/, '-')
+        crew_checked "install --all-versions #{dep_name}"
+        #
+        crew "install #{pkg_name}"
+        #
+        archive = package_archive_name(pkg_ffname, Release.new(1, 1))
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(["calculating dependencies for #{pkg_name}:",
+                                                    "dependencies to install:",
+                                                    "downloading #{Global::DOWNLOAD_BASE}/packages/#{archive}",
+                                                    "checking integrity of the archive file #{archive}",
+                                                    "unpacking archive"
+                                                   ])
+      end
+    end
+
+    context 'when installed only one required version of the dependency' do
+      it 'outputs info about installing second dependency and the package' do
+        dep_ffname = 'dep_package'
+        pkg_ffname = 'install_dep_two_versions_package'
+        repository_add_formula :target, "#{dep_ffname}-3.rb:#{dep_ffname}.rb", "#{pkg_ffname}-1.rb:#{pkg_ffname}.rb"
+        repository_clone
+        dep_name = dep_ffname.gsub(/_/, '-')
+        pkg_name = pkg_ffname.gsub(/_/, '-')
+        crew_checked "install #{dep_name}"
+        #
+        crew "install #{pkg_name}"
+        #
+        dep_rel = Release.new('1.0.0', 1)
+        dep_archive = package_archive_name(dep_ffname, dep_rel)
+        pkg_archive = package_archive_name(pkg_ffname, Release.new('1', 1))
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(["calculating dependencies for #{pkg_name}:",
+                                                    "dependencies to install: #{dep_name}:#{dep_rel}",
+                                                    "installing dependencies for #{pkg_name}:",
+                                                    "downloading #{Global::DOWNLOAD_BASE}/packages/#{dep_archive}",
+                                                    "checking integrity of the archive file #{dep_archive}",
+                                                    "unpacking archive",
+                                                    "",
+                                                    "downloading #{Global::DOWNLOAD_BASE}/packages/#{pkg_archive}",
+                                                    "checking integrity of the archive file #{pkg_archive}",
+                                                    "unpacking archive"
+                                                   ])
+      end
+    end
+
+    context 'when no versions of the dependency are installed' do
+      it 'outputs info about installing both dependencies and the package' do
+        dep_ffname = 'dep_package'
+        pkg_ffname = 'install_dep_two_versions_package'
+        repository_add_formula :target, "#{dep_ffname}-3.rb:#{dep_ffname}.rb", "#{pkg_ffname}-1.rb:#{pkg_ffname}.rb"
+        repository_clone
+        dep_name = dep_ffname.gsub(/_/, '-')
+        pkg_name = pkg_ffname.gsub(/_/, '-')
+        #
+        crew "install #{pkg_name}"
+        #
+        dep_rel_1 = Release.new('1.0.0', 1)
+        dep_rel_2 = Release.new('2.0.0', 1)
+        dep_archive_1 = package_archive_name(dep_ffname, dep_rel_1)
+        dep_archive_2 = package_archive_name(dep_ffname, dep_rel_2)
+        pkg_archive = package_archive_name(pkg_ffname, Release.new('1', 1))
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(["calculating dependencies for #{pkg_name}:",
+                                                    "dependencies to install: #{dep_name}:#{dep_rel_1}, #{dep_name}:#{dep_rel_2}",
+                                                    "installing dependencies for #{pkg_name}:",
+                                                    "downloading #{Global::DOWNLOAD_BASE}/packages/#{dep_archive_1}",
+                                                    "checking integrity of the archive file #{dep_archive_1}",
+                                                    "unpacking archive",
+                                                    "downloading #{Global::DOWNLOAD_BASE}/packages/#{dep_archive_2}",
+                                                    "checking integrity of the archive file #{dep_archive_2}",
+                                                    "unpacking archive",
+                                                    "",
+                                                    "downloading #{Global::DOWNLOAD_BASE}/packages/#{pkg_archive}",
+                                                    "checking integrity of the archive file #{pkg_archive}",
+                                                    "unpacking archive"
+                                                   ])
+      end
+    end
+
+    context 'when two versions of the dependency are installed and one matches requirement while other not' do
+      it 'outputs info about installing second dependency and the package' do
+        dep_ffname = 'dep_package'
+        pkg_ffname = 'install_dep_two_versions_package'
+        repository_add_formula :target, "#{dep_ffname}-8.rb:#{dep_ffname}.rb", "#{pkg_ffname}-1.rb:#{pkg_ffname}.rb"
+        repository_clone
+        dep_name = dep_ffname.gsub(/_/, '-')
+        pkg_name = pkg_ffname.gsub(/_/, '-')
+        dep_rel_1 = Release.new('1.0.0', 1)
+        dep_rel_3 = Release.new('3.0.0', 1)
+        crew_checked "install #{dep_name}:#{dep_rel_1.version} #{dep_name}:#{dep_rel_3.version}"
+        #
+        crew "install #{pkg_name}"
+        #
+        dep_rel_2 = Release.new('2.0.0', 1)
+        dep_archive_2 = package_archive_name(dep_ffname, dep_rel_2)
+        pkg_archive = package_archive_name(pkg_ffname, Release.new('1', 1))
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(["calculating dependencies for #{pkg_name}:",
+                                                    "dependencies to install: #{dep_name}:#{dep_rel_2}",
+                                                    "installing dependencies for #{pkg_name}:",
+                                                    "downloading #{Global::DOWNLOAD_BASE}/packages/#{dep_archive_2}",
+                                                    "checking integrity of the archive file #{dep_archive_2}",
+                                                    "unpacking archive",
+                                                    "",
+                                                    "downloading #{Global::DOWNLOAD_BASE}/packages/#{pkg_archive}",
+                                                    "checking integrity of the archive file #{pkg_archive}",
+                                                    "unpacking archive"
+                                                   ])
+      end
+    end
+
+    context 'when two versions of the dependency are installed and none matches the requirements' do
+      it 'outputs info about installing both dependencies and the package' do
+        dep_ffname = 'dep_package'
+        pkg_ffname = 'install_dep_two_versions_package'
+        repository_add_formula :target, "#{dep_ffname}-9.rb:#{dep_ffname}.rb", "#{pkg_ffname}-1.rb:#{pkg_ffname}.rb"
+        repository_clone
+        dep_name = dep_ffname.gsub(/_/, '-')
+        pkg_name = pkg_ffname.gsub(/_/, '-')
+        dep_rel_3 = Release.new('3.0.0', 1)
+        dep_rel_4 = Release.new('4.0.0', 1)
+        crew_checked "install #{dep_name}:#{dep_rel_3.version} #{dep_name}:#{dep_rel_4.version}"
+        #
+        crew "install #{pkg_name}"
+        #
+        dep_rel_1 = Release.new('1.0.0', 1)
+        dep_rel_2 = Release.new('2.0.0', 1)
+        dep_archive_1 = package_archive_name(dep_ffname, dep_rel_1)
+        dep_archive_2 = package_archive_name(dep_ffname, dep_rel_2)
+        pkg_archive = package_archive_name(pkg_ffname, Release.new('1', 1))
+        expect(result).to eq(:ok)
+        expect(out.split("\n").map(&:strip)).to eq(["calculating dependencies for #{pkg_name}:",
+                                                    "dependencies to install: #{dep_name}:#{dep_rel_1}, #{dep_name}:#{dep_rel_2}",
+                                                    "installing dependencies for #{pkg_name}:",
+                                                    "downloading #{Global::DOWNLOAD_BASE}/packages/#{dep_archive_1}",
+                                                    "checking integrity of the archive file #{dep_archive_1}",
+                                                    "unpacking archive",
+                                                    "downloading #{Global::DOWNLOAD_BASE}/packages/#{dep_archive_2}",
+                                                    "checking integrity of the archive file #{dep_archive_2}",
+                                                    "unpacking archive",
+                                                    "",
+                                                    "downloading #{Global::DOWNLOAD_BASE}/packages/#{pkg_archive}",
+                                                    "checking integrity of the archive file #{pkg_archive}",
+                                                    "unpacking archive"
+                                                   ])
+      end
+    end
+  end
 end

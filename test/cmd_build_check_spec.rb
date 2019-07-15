@@ -123,9 +123,9 @@ describe "crew build-check" do
           expect(result).to eq(:ok)
           expect(out.split("\n")).to eq(['target/build-check-package: ',
                                          '  3_1: build with bad build dependencies:',
-                                         '    not existing formulas: target/build-check-dep-package:1.0.0_1',
+                                         '    not existing formulas: target/dep-package:1.0.0_1',
                                          '    build info does not correspond to formula\'s dependencies:',
-                                         '      build info:   target/build-check-dep-package:1.0.0_1',
+                                         '      build info:   target/dep-package:1.0.0_1',
                                          '      dependencies: '
                                         ])
         end
@@ -133,35 +133,35 @@ describe "crew build-check" do
 
       context 'package was built against non existing release of an existing formula' do
         it  'outputs bad releases line with non existing release on it' do
-          repository_add_formula :target, 'build_check_package-4.rb:build_check_package.rb', 'build_check_dep_package-1.rb:build_check_dep_package.rb'
+          repository_add_formula :target, 'build_check_package-4.rb:build_check_package.rb', 'dep_package-1.rb:dep_package.rb'
           repository_clone
           crew_checked 'install build-check-package'
           crew 'build-check build-check-package'
           expect(result).to eq(:ok)
           expect(out.split("\n")).to eq(['target/build-check-package: ',
                                          '  4_1: build with bad build dependencies:',
-                                         '    not existing releases: target/build-check-dep-package:1.0.0_1'
+                                         '    not existing releases: target/dep-package:1.0.0_1'
                                         ])
         end
       end
 
       context 'package was built against an old release of an existing formula and there is newer release' do
         it 'outputs new releases line with the obsolete release on it' do
-          repository_add_formula :target, 'build_check_package-5.rb:build_check_package.rb', 'build_check_dep_package-2.rb:build_check_dep_package.rb'
+          repository_add_formula :target, 'build_check_package-5.rb:build_check_package.rb', 'dep_package-2.rb:dep_package.rb'
           repository_clone
           crew_checked 'install build-check-package'
           crew 'build-check build-check-package'
           expect(result).to eq(:ok)
           expect(out.split("\n")).to eq(['target/build-check-package: ',
                                          '  5_1: build with bad build dependencies:',
-                                         '    have newer releases: target/build-check-dep-package:1.0.0_1'
+                                         '    have newer releases: target/dep-package:1.0.0_1'
                                         ])
         end
       end
 
       context 'package was built against an old release and there is newer release that not matches required version' do
         it 'outputs OK' do
-          repository_add_formula :target, 'build_check_package-6.rb:build_check_package.rb', 'build_check_dep_package-3.rb:build_check_dep_package.rb'
+          repository_add_formula :target, 'build_check_package-6.rb:build_check_package.rb', 'dep_package-3.rb:dep_package.rb'
           repository_clone
           crew_checked 'install build-check-package'
           crew 'build-check build-check-package'
@@ -174,21 +174,21 @@ describe "crew build-check" do
 
       context 'package was built against an old release and there is newer release that matches required version' do
         it 'outputs new releases line with the obsolete release on it' do
-          repository_add_formula :target, 'build_check_package-7.rb:build_check_package.rb', 'build_check_dep_package-4.rb:build_check_dep_package.rb'
+          repository_add_formula :target, 'build_check_package-7.rb:build_check_package.rb', 'dep_package-4.rb:dep_package.rb'
           repository_clone
           crew_checked 'install build-check-package'
           crew 'build-check build-check-package'
           expect(result).to eq(:ok)
           expect(out.split("\n")).to eq(['target/build-check-package: ',
                                          '  7_1: build with bad build dependencies:',
-                                         '    have newer releases: target/build-check-dep-package:1.0.0_1'
+                                         '    have newer releases: target/dep-package:1.0.0_1'
                                         ])
         end
       end
 
       context 'package has dependency but empty build info' do
         it 'outputs info about bad build info' do
-          repository_add_formula :target, 'build_check_package-8.rb:build_check_package.rb', 'build_check_dep_package-1.rb:build_check_dep_package.rb'
+          repository_add_formula :target, 'build_check_package-8.rb:build_check_package.rb', 'dep_package-1.rb:dep_package.rb'
           repository_clone
           crew_checked 'install build-check-package'
           crew 'build-check build-check-package'
@@ -197,7 +197,7 @@ describe "crew build-check" do
                                          '  8_1: build with bad build dependencies:',
                                          '    build info does not correspond to formula\'s dependencies:',
                                          '      build info:   ',
-                                         '      dependencies: target/build-check-dep-package'
+                                         '      dependencies: target/dep-package'
                                         ])
         end
       end
@@ -206,7 +206,7 @@ describe "crew build-check" do
 
         context 'package was built against actual versions of the both dependencies' do
           it 'outputs OK line' do
-            repository_add_formula :target, 'build_check_package-9.rb:build_check_package.rb', 'build_check_dep_package-3.rb:build_check_dep_package.rb'
+            repository_add_formula :target, 'build_check_package-9.rb:build_check_package.rb', 'dep_package-3.rb:dep_package.rb'
             repository_clone
             crew_checked 'install build-check-package'
             crew 'build-check build-check-package'
@@ -219,42 +219,42 @@ describe "crew build-check" do
 
         context 'package was build against old version of the first dependecy' do
           it 'outputs about non existing release of the first dependency' do
-            repository_add_formula :target, 'build_check_package-9.rb:build_check_package.rb', 'build_check_dep_package-5.rb:build_check_dep_package.rb'
+            repository_add_formula :target, 'build_check_package-9.rb:build_check_package.rb', 'dep_package-5.rb:dep_package.rb'
             repository_clone
             crew_checked 'install build-check-package'
             crew 'build-check build-check-package'
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(['target/build-check-package: ',
                                          '  9_1: build with bad build dependencies:',
-                                         '    not existing releases: target/build-check-dep-package:1.0.0_1'
+                                         '    not existing releases: target/dep-package:1.0.0_1'
                                           ])
           end
         end
 
         context 'package was build against old version of the second dependecy' do
           it 'outputs about non existing release of the second dependency' do
-            repository_add_formula :target, 'build_check_package-9.rb:build_check_package.rb', 'build_check_dep_package-6.rb:build_check_dep_package.rb'
+            repository_add_formula :target, 'build_check_package-9.rb:build_check_package.rb', 'dep_package-6.rb:dep_package.rb'
             repository_clone
             crew_checked 'install build-check-package'
             crew 'build-check build-check-package'
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(['target/build-check-package: ',
                                          '  9_1: build with bad build dependencies:',
-                                         '    not existing releases: target/build-check-dep-package:2.0.0_1'
+                                         '    not existing releases: target/dep-package:2.0.0_1'
                                           ])
           end
         end
 
         context 'package was build against old versions of the both dependecies' do
           it 'outputs about non existing releases of the both dependencies' do
-            repository_add_formula :target, 'build_check_package-9.rb:build_check_package.rb', 'build_check_dep_package-7.rb:build_check_dep_package.rb'
+            repository_add_formula :target, 'build_check_package-9.rb:build_check_package.rb', 'dep_package-7.rb:dep_package.rb'
             repository_clone
             crew_checked 'install build-check-package'
             crew 'build-check build-check-package'
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(['target/build-check-package: ',
                                          '  9_1: build with bad build dependencies:',
-                                         '    not existing releases: target/build-check-dep-package:1.0.0_1, target/build-check-dep-package:2.0.0_1'
+                                         '    not existing releases: target/dep-package:1.0.0_1, target/dep-package:2.0.0_1'
                                           ])
           end
         end
@@ -309,9 +309,9 @@ describe "crew build-check" do
           expect(result).to eq(:ok)
           expect(out.split("\n")).to eq(['target/build-check-package: ',
                                          '  3_1: build with bad build dependencies:',
-                                         '    not existing formulas: target/build-check-dep-package:1.0.0_1',
+                                         '    not existing formulas: target/dep-package:1.0.0_1',
                                          '    build info does not correspond to formula\'s dependencies:',
-                                         '      build info:   target/build-check-dep-package:1.0.0_1',
+                                         '      build info:   target/dep-package:1.0.0_1',
                                          '      dependencies: '
                                         ])
         end
