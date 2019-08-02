@@ -54,7 +54,7 @@ describe "crew info" do
                                      "Build info:",
                                      "#{Global::PLATFORM_NAME}, #{ruby_rel}",
                                      # todo: versions should not be hardcoded
-                                     "  host:   zlib:1.2.11_7, openssl:1.1.0k_1, libssh2:1.8.2_2, libgit2:0.27.7_4, curl:#{curl_rel}",
+                                     "  host:   zlib:1.2.11_7, openssl:1.1.0k_1, libssh2:1.8.2_2, libgit2:0.27.7_5, curl:#{curl_rel}",
                                      "  target: "
                                     ])
     end
@@ -148,7 +148,7 @@ describe "crew info" do
                                      "Build info:",
                                      "#{Global::PLATFORM_NAME}, #{ruby_rel}",
                                      # todo: versions should not be hardcoded
-                                     "  host:   zlib:1.2.11_7, openssl:1.1.0k_1, libssh2:1.8.2_2, libgit2:0.27.7_4, curl:#{curl_rel}",
+                                     "  host:   zlib:1.2.11_7, openssl:1.1.0k_1, libssh2:1.8.2_2, libgit2:0.27.7_5, curl:#{curl_rel}",
                                      "  target: "
                                     ])
     end
