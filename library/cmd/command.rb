@@ -35,11 +35,18 @@ module Crew
       end
     end
 
-    attr_reader :formulary, :options
+    def self.formulary
+      @formulary ||= Formulary.new
+    end
+
+    def formulary
+      Command.formulary
+    end
+
+    attr_reader :options
     attr_accessor :args
 
     def initialize(args, options = nil)
-      @formulary = Formulary.new
       if options
         @options, @args = options.parse_args(args)
       else
