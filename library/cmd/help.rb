@@ -211,6 +211,8 @@ The SOURCE command support the following options:
 
   --all-versions install source code for all version of the specified
                  formula(s)
+  --force        if required source are already installed then remove them
+                 and install afresh
 EOS
 
 BUILD_HELP = <<-EOS

@@ -15,11 +15,14 @@ module Crew
 
       def initialize(opts)
         @all_versions = false
+        @force = false
 
         opts.each do |opt|
           case opt
           when '--all-versions'
             @all_versions = true
+          when '--force'
+            @force = true
           else
             raise UnknownOption, opt
           end
@@ -28,6 +31,10 @@ module Crew
 
       def all_versions?
         @all_versions
+      end
+
+      def force?
+        @force
       end
     end
   end

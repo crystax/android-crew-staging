@@ -2,6 +2,7 @@ require_relative '../exceptions.rb'
 require_relative '../release.rb'
 require_relative '../formulary.rb'
 require_relative 'command.rb'
+require_relative 'remove_source.rb'
 require_relative 'source/options.rb'
 
 
@@ -30,8 +31,13 @@ module Crew
         releases.each do |release|
           if release.source_installed?
             puts "sources for #{name}:#{release.version}:#{release.crystax_version} already installed"
-            puts "" unless (release == releases.last) and (n == args.last)
-            next
+            if options.force?
+              puts "removing installed sources since --force option was specified"
+              Crew.remove_source ["#{fqn}:#{release.version}"]
+            else
+              puts "" unless (release == releases.last) and (n == args.last)
+              next
+            end
           end
 
           formula.releases.select{ |r| r.installed? and r.version == release.version }.each do |c|
