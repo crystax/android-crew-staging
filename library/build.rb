@@ -114,12 +114,14 @@ module Build
   end
 
   def self.check_sonames(dir, arch)
+    puts '  checking sonames: '
     Dir["#{dir}/**/*.so"].each do |solib|
+      # print "    #{solib}: "
       soname = read_soname(solib, arch)
-      if File.basename(solib) != soname
-        raise "dynamic library #{solib} has bad soname #{soname}"
-      end
+      raise "dynamic library #{solib} has bad soname #{soname}" if File.basename(solib) != soname
+      #puts 'OK'
     end
+    puts 'OK'
   end
 
   def self.read_soname(path, arch)
