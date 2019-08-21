@@ -4,11 +4,10 @@ class Apt < Package
   homepage "https://github.com/Debian/apt"
   url "https://salsa.debian.org/apt-team/apt.git|tag:${version}"
 
-  release '1.6.3', crystax: 6
+  release '1.6.3', crystax: 7
 
   depends_on 'xz'
   depends_on 'lz4'
-  depends_on 'berkley-db'
   depends_on 'curl'
   depends_on 'gnu-tls'
 
