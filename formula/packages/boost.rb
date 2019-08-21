@@ -4,7 +4,7 @@ class Boost < Package
   homepage "http://www.boost.org"
   url "https://downloads.sourceforge.net/project/boost/boost/${version}/boost_${block}.tar.bz2" do |r| r.version.gsub('.', '_') end
 
-  release '1.67.0', crystax: 5
+  release '1.67.0', crystax: 6
 
   depends_on 'python', version: /^2\.7/
   depends_on 'python', version: /^3\.5/
@@ -13,6 +13,7 @@ class Boost < Package
   build_options build_outside_source_tree: true,
                 setup_env:                 false,
                 copy_installed_dirs:       [],
+                check_sonames:             false,
                 gen_android_mk:            false,
                 wrapper_remove_args:       ['-m32', '-m64', '-single_module', '-lpthread', '-lutil'],
                 wrapper_replace_args:      { '-dynamiclib' => '-shared', '-undefined' => '-u' }
@@ -70,10 +71,10 @@ class Boost < Package
     BuildOptions.new
   end
 
-  def initialize(path)
-    super path
-    @lib_deps = Hash.new([])
-  end
+  # def initialize(path)
+  #   super path
+  #   @lib_deps = { |h, k| h[k] = Array.new } # Hash.new([])
+  # end
 
   def pre_build(_, release)
     src_dir = "#{build_base_dir}/src"
@@ -171,7 +172,7 @@ class Boost < Package
       end
 
       # find and store dependencies for the built libraries
-      @lib_deps = Hash.new([])
+      @lib_deps = Hash.new { |h, k| h[k] = Array.new }
       Dir["#{prefix_dir}/lib/*.so"].each do |lib|
         name = File.basename(lib).split('.')[0].sub('libboost_', '')
         abi_deps = toolchain.find_so_needs(lib, arch).select { |l| l.start_with? 'libboost_' }.map { |l| l.split('_')[1].split('.')[0] }.sort
@@ -188,11 +189,15 @@ class Boost < Package
         FileUtils.mkdir_p package_dir
         FileUtils.cp_r "#{prefix_dir}/include", package_dir
       end
+
       # copy libs
       libs_dir = "#{package_dir}/libs/#{abi}/#{stl_name}"
       FileUtils.mkdir_p libs_dir
       FileUtils.cp Dir["#{prefix_dir}/lib/*.a"],  libs_dir
       FileUtils.cp Dir["#{prefix_dir}/lib/*.so"], libs_dir
+
+      Build.check_sonames libs_dir, arch
+
       # run ranlib and update built libraries list
       FileUtils.cd(libs_dir) do
         ranlib = toolchain.tool(arch, 'ranlib')
@@ -201,6 +206,11 @@ class Boost < Package
         update_built_libraries toolchain, abi, libs
       end
     end
+  end
+
+  def sonames_translation_table(release)
+    v = release.version.split('.').join('\.')
+    "lambda { |name| name =~ /(libboost_.*)\.so\.#{v}/ ? $1 : nil }"
   end
 
   def update_built_libraries(toolchain, abi, libs)

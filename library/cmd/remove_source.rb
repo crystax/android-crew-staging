@@ -7,10 +7,10 @@ require_relative 'command.rb'
 module Crew
 
   def self.remove_source(args)
-    RemoveSoure.new(args).execute
+    RemoveSource.new(args).execute
   end
 
-  class RemoveSoure < Command
+  class RemoveSource < Command
 
     def initialize(args)
       super args

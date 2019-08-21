@@ -27,14 +27,14 @@ def process_compiler_args(compiler, build_options, stl_lib_name, cflags, ldflags
 end
 
 def fix_soname(args, translation_table)
-  return if translation_table.empty?
+  return unless translation_table
 
   args.each_index do |i|
     case args[i]
     when '-Wl,-soname', '-Wl,-h', '-install_name'
       puts "args[#{i}] = #{args[i]}"
       puts "args[#{i+1}] = #{args[i+1]}"
-      new_soname = translation_table[extract_libname(args[i+1])]
+      new_soname = make_new_soname(extract_libname(args[i+1]), translation_table)
       if new_soname
         args[i] = '-Wl,-soname'
         args[i+1] = "-Wl,#{new_soname}.so"
@@ -42,12 +42,23 @@ def fix_soname(args, translation_table)
       end
     when /-Wl,-soname[,=]lib.*|-Wl,-h,lib.*/
       puts "args[#{i}] = #{args[i]}"
-      new_soname = translation_table[extract_libname(args[i])]
+      new_soname = make_new_soname(extract_libname(args[i]), translation_table)
       if new_soname
         args[i] = "-Wl,-soname=#{new_soname}.so"
         break
       end
     end
+  end
+end
+
+def make_new_soname(old_soname, translation_table)
+  if translation_table.is_a? Hash
+    translation_table[old_soname]
+  elsif translation_table.is_a? String
+    proc = eval(translation_table)
+    proc.call(old_soname)
+  else
+    raise "translation_table has unsipported class value: #{translation_table.class.name}"
   end
 end
 

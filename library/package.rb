@@ -30,7 +30,7 @@ class Package < TargetBase
                         copy_installed_dirs:            ['lib', 'include'],
                         check_sonames:                  true,
                         gen_android_mk:                 true,
-                        wrapper_translate_sonames:      Hash.new,
+                        wrapper_translate_sonames:      false,
                         wrapper_fix_stl:                false,
                         wrapper_remove_args:            Array.new,
                         wrapper_replace_args:           Hash.new
