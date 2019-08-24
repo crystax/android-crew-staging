@@ -16,6 +16,7 @@ module Crew
       def initialize(opts)
         @all_versions = false
         @force = false
+        @ignore_cache = false
 
         opts.each do |opt|
           case opt
@@ -23,6 +24,8 @@ module Crew
             @all_versions = true
           when '--force'
             @force = true
+          when '--ignore-cache'
+            @ignore_cache = true
           else
             raise UnknownOption, opt
           end
@@ -35,6 +38,10 @@ module Crew
 
       def force?
         @force
+      end
+
+      def ignore_cache?
+        @ignore_cache
       end
     end
   end

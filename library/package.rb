@@ -92,7 +92,7 @@ class Package < TargetBase
     releases.any? { |r| r.match?(release) and r.source_installed? }
   end
 
-  def install_source(release)
+  def install_source(release, options)
     puts "installing source code for #{name}:#{release}"
     rel_dir = release_directory(release)
     prop = get_properties(rel_dir)
@@ -102,7 +102,7 @@ class Package < TargetBase
       FileUtils.mkdir_p rel_dir
     end
 
-    prepare_source_code release, rel_dir, SRC_DIR_BASENAME, '='
+    prepare_source_code release, rel_dir, SRC_DIR_BASENAME, '=', options
 
     release.source_installed = release.crystax_version
     prop[:source_installed] = true

@@ -213,6 +213,7 @@ The SOURCE command support the following options:
                  formula(s)
   --force        if required source are already installed then remove them
                  and install afresh
+  --ignore-cache do not check if reqired tarball was already downloaded
 EOS
 
 BUILD_HELP = <<-EOS

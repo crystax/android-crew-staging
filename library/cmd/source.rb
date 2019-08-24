@@ -46,7 +46,7 @@ module Crew
             end
           end
 
-          formula.install_source release
+          formula.install_source release, ignore_cache: options.ignore_cache?
 
           puts "" unless (release == releases.last) and (n == args.last)
         end

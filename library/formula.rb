@@ -378,6 +378,7 @@ class Formula
     "#{target_dep_lib_dir(dep_name, abi)}/pkgconfig"
   end
 
+
   private
 
 
@@ -424,14 +425,14 @@ class Formula
     Formula.src_cache_file(file_name, release, url)
   end
 
-  def prepare_source_code(release, dir, src_name, log_prefix)
+  def prepare_source_code(release, dir, src_name, log_prefix, options = {})
     urls.each do |url|
       begin
         eurl = expand_url(url, release)
         archive = src_cache_file(release, eurl)
         src_dir = File.join(dir, src_name)
 
-        if File.exist? archive
+        if File.exist?(archive) && !options[:ignore_cache]
           puts "#{log_prefix} using cached file #{archive}"
           unpack_cached_source_code archive, src_dir, log_prefix
         else
