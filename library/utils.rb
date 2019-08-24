@@ -5,6 +5,7 @@ require 'tempfile'
 require 'minitar'
 require_relative 'global.rb'
 require_relative 'exceptions.rb'
+require_relative 'progress_bar.rb'
 
 module Utils
 
@@ -64,20 +65,15 @@ module Utils
   end
 
   def self.run_command(prog, *args)
-    prog = prog.to_s.strip
-    cmd = ([prog] + args).map { |e| to_cmd_s(e) }
-    env = {}
-    if prog == @@system_curl
-      case Global::OS
-      when 'linux'
-        env['LD_LIBRARY_PATH'] = nil
-      when 'darwin'
-        env['DYLD_LIBRARY_PATH'] = nil
-      end
-    end
-    #puts "cmd: #{cmd.join(' ')}"
-    #puts "env: #{env}"
-    outstr, errstr, status = Open3.capture3(env, *cmd)
+    cmd = ([prog.to_s.strip] + args).map { |e| to_cmd_s(e) }
+    # puts "cmd: #{cmd.join(' ')}"
+
+    outstr, errstr, status = Open3.capture3(*cmd)
+    errstr = errstr.split("\n").select { |l| l != '' }.join("\n")
+
+    # puts "outstr: #{outstr}"
+    # puts "errstr: #{errstr}"
+
     raise ErrorDuringExecution.new(cmd.join(' '), status.exitstatus, errstr) unless status.success?
 
     outstr
@@ -88,16 +84,58 @@ module Utils
   end
 
   def self.download(url, outpath)
-    args = [url, '-o', outpath, '--silent', '--fail', '-L']
-    run_command(curl_prog, *args)
-  rescue ErrorDuringExecution => e
-    case e.exit_code
-    when 7
-      raise DownloadError.new(url, e.exit_code, "failed to connect to host")
-    when 22
-      raise DownloadError.new(url, e.exit_code, "HTTP page not retrieved")
-    else
-      raise
+    args = [curl_prog, url, '-o', outpath, '--fail', '-L']  #, '-#']
+    cmd = args.map { |e| to_cmd_s(e) }
+
+    # todo: debug
+    #puts "download cmd: #{cmd.join(' ')}"
+
+    env = {}
+    if curl_prog == @@system_curl
+      case Global::OS
+      when 'linux'
+        env['LD_LIBRARY_PATH'] = nil
+      when 'darwin'
+        env['DYLD_LIBRARY_PATH'] = nil
+      end
+    end
+
+    Open3.popen2e(env, *cmd) do |cin, cout_cerr, wait_thr|
+      cin.close
+
+      bar = Crew::ProgressBar.new
+
+      line_num = 0
+      loop do
+        output = IO.select([cout_cerr])[0][0]
+        break if output.eof?
+        line = output.readline_nonblock
+        # puts "line: #{line}"
+        errstr = line
+        line_num += 1
+        if line_num > 2
+          v = line.split(' ')
+          # puts v.to_s
+          bar.percents_done(v[2].to_i)
+        end
+      rescue IO::WaitReadable, EOFError
+        next
+      end
+      bar.done
+
+      status =  wait_thr.value
+
+      unless status.success?
+        case status.exitstatus
+        when 7
+          raise DownloadError.new(url, status.exitstatus, "failed to connect to host")
+        when 22
+          raise DownloadError.new(url, status.exitstatus, "HTTP page not retrieved")
+        else
+          errstr = errstr.split("\n").select { |l| l != '' }.join("\n")
+          raise ErrorDuringExecution.new(cmd.join(' '), status.exitstatus, errstr)
+        end
+      end
     end
   end
 
