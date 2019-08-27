@@ -10,6 +10,7 @@ require_relative 'release.rb'
 require_relative 'utils.rb'
 require_relative 'patch.rb'
 require_relative 'properties.rb'
+require_relative 'cmd/install/options.rb'
 
 
 class Formula
@@ -123,34 +124,29 @@ class Formula
     prop[:build_info] ? prop[:build_info] : []
   end
 
-  def merge_default_install_options(opts)
-    { platform: Global::PLATFORM_NAME, check_shasum: true, cache_only: false }.merge(opts)
-  end
-
   # derived classes must define two methods in order to use install method:
   #   cache_file
   #   install_archive
   #
   def install(r = releases.last, opts = {})
-    options = merge_default_install_options(opts)
+    options = Crew::Install::Options.default_as_hash.merge(opts)
 
     release = find_release(r)
-    platform_name = options[:platform]
-
-    cachepath = download_archive(release, platform_name, options[:check_shasum] ? read_shasum(release, platform_name) : nil, options[:cache_only])
+    cachepath = download_archive(release, options)
 
     puts "unpacking archive"
     install_archive release, cachepath, options[:platform]
   end
 
-  def download_archive(release, platform_name, shasum, cache_only)
+  def download_archive(release,  options)  #  platform_name, shasum, cache_only)
+    platform_name = options[:platform]
     cachepath = cache_file(release, platform_name)
     archive = File.basename(cachepath)
 
-    if File.exists? cachepath
+    if File.exists?(cachepath) && !options[:ignore_cache]
       puts "using cached file #{archive}"
     else
-      raise "#{archive} not found in the packages cache #{Global.pkg_cache_dir(self)}" if cache_only
+      raise "#{archive} not found in the packages cache #{Global.pkg_cache_dir(self)}" if options[:cache_only]
       # GitHub release assets feature does not support sub-folders
       # that is a packages/libjpeg-9b_1.tag.xz will be stored as packages.libjpeg-9b_1.tag.xz
       sep = (Global::DOWNLOAD_BASE == GitHub::STAGING_DOWNLOAD_BASE) ? '.' : '/'
@@ -159,10 +155,11 @@ class Formula
       Utils.download(url, cachepath)
     end
 
-    if not shasum
+    unless options[:check_shasum]
       puts "skipping integrity check of the archive file #{archive}"
     else
       puts "checking integrity of the archive file #{archive}"
+      shasum = read_shasum(release, platform_name)
       raise "bad SHA256 sum of the file #{cachepath}" if Digest::SHA256.hexdigest(File.read(cachepath, mode: "rb")) != shasum
     end
 

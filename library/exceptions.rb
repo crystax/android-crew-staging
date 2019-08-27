@@ -103,3 +103,9 @@ class UnknownOption < RuntimeError
     super "unknown option: #{opt}"
   end
 end
+
+class IncompatibleOptions < RuntimeError
+  def initialize(*opts)
+    super "these options can not be specified at the same time: #{opts.join(' ')}"
+  end
+end

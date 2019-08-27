@@ -2,6 +2,7 @@ require 'fileutils'
 require_relative '../exceptions.rb'
 require_relative '../utils.rb'
 require_relative '../release.rb'
+require_relative '../formulary.rb'
 require_relative 'command.rb'
 require_relative 'cleanup/options.rb'
 

@@ -81,6 +81,7 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: libone:1.0.0_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libone-1.0.0_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file libone-1.0.0_2.#{Global::ARCH_EXT}",
                                            "unpacking archive"
                                           ])
@@ -144,6 +145,7 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: libtwo:1.1.0_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libtwo-1.1.0_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file libtwo-1.1.0_2.#{Global::ARCH_EXT}",
                                            "unpacking archive"
                                           ])
@@ -175,6 +177,7 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: libtwo:1.1.0_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libtwo-1.1.0_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file libtwo-1.1.0_2.#{Global::ARCH_EXT}",
                                            "unpacking archive"
                                           ])
@@ -189,9 +192,11 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: libtwo:1.1.0_2, libtwo:2.2.0_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libtwo-1.1.0_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file libtwo-1.1.0_2.#{Global::ARCH_EXT}",
                                            "unpacking archive",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libtwo-2.2.0_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file libtwo-2.2.0_2.#{Global::ARCH_EXT}",
                                            "unpacking archive"
                                           ])
@@ -215,6 +220,7 @@ describe "crew upgrade" do
           expect(result).to eq(:ok)
           expect(out.split("\n")).to eq(["Will install: libthree:1.1.1_2",
                                          "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libthree-1.1.1_2.#{Global::ARCH_EXT}",
+                                         "",
                                          "checking integrity of the archive file libthree-1.1.1_2.#{Global::ARCH_EXT}",
                                          "unpacking archive"
                                         ])
@@ -247,6 +253,7 @@ describe "crew upgrade" do
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["Will install: libone:1.0.0_2",
                                        "downloading http://localhost:9999/packages/libone-1.0.0_2.tar.xz",
+                                       "",
                                        "checking integrity of the archive file libone-1.0.0_2.tar.xz",
                                        "unpacking archive"
                                       ])
@@ -281,9 +288,11 @@ describe "crew upgrade" do
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["Will install: libthree:1.1.1_2, libtwo:1.1.0_2",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libthree-1.1.1_2.#{Global::ARCH_EXT}",
+                                       "",
                                        "checking integrity of the archive file libthree-1.1.1_2.#{Global::ARCH_EXT}",
                                        "unpacking archive",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/libtwo-1.1.0_2.#{Global::ARCH_EXT}",
+                                       "",
                                        "checking integrity of the archive file libtwo-1.1.0_2.#{Global::ARCH_EXT}",
                                        "unpacking archive"
                                       ])
@@ -355,6 +364,7 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_base_package:2_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/test_base_package-2_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file test_base_package-2_2.#{Global::ARCH_EXT}",
                                            "unpacking archive"
                                           ])
@@ -369,6 +379,7 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_base_package:2_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/test_base_package-2_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file test_base_package-2_2.#{Global::ARCH_EXT}",
                                            "unpacking archive"
                                           ])
@@ -383,6 +394,7 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_base_package:2_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/test_base_package-2_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file test_base_package-2_2.#{Global::ARCH_EXT}",
                                            "unpacking archive"
                                           ])
@@ -414,6 +426,7 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_base_package:2_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/test_base_package-2_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file test_base_package-2_2.#{Global::ARCH_EXT}",
                                            "unpacking archive"
                                           ])
@@ -428,6 +441,7 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_base_package:2_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/test_base_package-2_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file test_base_package-2_2.#{Global::ARCH_EXT}",
                                            "unpacking archive"
                                           ])
@@ -442,9 +456,11 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_base_package:1_2, test_base_package:2_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/test_base_package-1_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file test_base_package-1_2.#{Global::ARCH_EXT}",
                                            "unpacking archive",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/test_base_package-2_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file test_base_package-2_2.#{Global::ARCH_EXT}",
                                            "unpacking archive"
                                           ])
@@ -459,9 +475,11 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_base_package:1_2, test_base_package:2_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/test_base_package-1_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file test_base_package-1_2.#{Global::ARCH_EXT}",
                                            "unpacking archive",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/test_base_package-2_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file test_base_package-2_2.#{Global::ARCH_EXT}",
                                            "unpacking archive"
                                           ])
@@ -493,6 +511,7 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_base_package:2_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/test_base_package-2_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file test_base_package-2_2.#{Global::ARCH_EXT}",
                                            "unpacking archive"
                                           ])
@@ -507,9 +526,11 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_base_package:1_2, test_base_package:2_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/test_base_package-1_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file test_base_package-1_2.#{Global::ARCH_EXT}",
                                            "unpacking archive",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/test_base_package-2_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file test_base_package-2_2.#{Global::ARCH_EXT}",
                                            "unpacking archive"
                                           ])
@@ -524,12 +545,15 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_base_package:1_2, test_base_package:2_2, test_base_package:3_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/test_base_package-1_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file test_base_package-1_2.#{Global::ARCH_EXT}",
                                            "unpacking archive",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/test_base_package-2_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file test_base_package-2_2.#{Global::ARCH_EXT}",
                                            "unpacking archive",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/test_base_package-3_2.#{Global::ARCH_EXT}",
+                                           "",
                                            "checking integrity of the archive file test_base_package-3_2.#{Global::ARCH_EXT}",
                                            "unpacking archive"
                                           ])
@@ -562,6 +586,7 @@ describe "crew upgrade" do
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["Will install: curl:#{curl_rel}",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{file}",
+                                       "",
                                        "checking integrity of the archive file #{file}",
                                        "unpacking archive",
                                        "Start postponed upgrade process",
@@ -586,6 +611,7 @@ describe "crew upgrade" do
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["Will install: curl:#{curl_rel}",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{file}",
+                                       "",
                                        "checking integrity of the archive file #{file}",
                                        "unpacking archive",
                                        "Start postponed upgrade process",
@@ -610,6 +636,7 @@ describe "crew upgrade" do
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["Will install: curl:#{curl_rel}",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{file}",
+                                       "",
                                        "checking integrity of the archive file #{file}",
                                        "unpacking archive",
                                        "Start postponed upgrade process",
@@ -639,12 +666,15 @@ describe "crew upgrade" do
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["Will install: curl:#{curl_new_rel}, libarchive:#{libarchive_new_rel}, ruby:#{ruby_new_rel}",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{curl_file}",
+                                       "",
                                        "checking integrity of the archive file #{curl_file}",
                                        "unpacking archive",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{libarchive_file}",
+                                       "",
                                        "checking integrity of the archive file #{libarchive_file}",
                                        "unpacking archive",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{ruby_file}",
+                                       "",
                                        "checking integrity of the archive file #{ruby_file}",
                                        "unpacking archive",
                                        "Start postponed upgrade process",
@@ -732,6 +762,7 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_tool:2.0.0_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{archive}",
+                                           "",
                                            "checking integrity of the archive file #{archive}",
                                            "unpacking archive"
                                           ])
@@ -747,6 +778,7 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_tool:2.0.0_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{archive}",
+                                           "",
                                            "checking integrity of the archive file #{archive}",
                                            "unpacking archive"
                                           ])
@@ -762,6 +794,7 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_tool:2.0.0_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{archive}",
+                                           "",
                                            "checking integrity of the archive file #{archive}",
                                            "unpacking archive"
                                           ])
@@ -794,6 +827,7 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_tool:2.0.0_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{archive}",
+                                           "",
                                            "checking integrity of the archive file #{archive}",
                                            "unpacking archive"
                                           ])
@@ -810,9 +844,11 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_tool:1.0.0_2, test_tool:2.0.0_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{archive_1}",
+                                           "",
                                            "checking integrity of the archive file #{archive_1}",
                                            "unpacking archive",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{archive_2}",
+                                           "",
                                            "checking integrity of the archive file #{archive_2}",
                                            "unpacking archive"
                                           ])
@@ -829,9 +865,11 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_tool:1.0.0_2, test_tool:2.0.0_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{archive_1}",
+                                           "",
                                            "checking integrity of the archive file #{archive_1}",
                                            "unpacking archive",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{archive_2}",
+                                           "",
                                            "checking integrity of the archive file #{archive_2}",
                                            "unpacking archive"
                                           ])
@@ -864,6 +902,7 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_tool:2.0.0_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{archive}",
+                                           "",
                                            "checking integrity of the archive file #{archive}",
                                            "unpacking archive"
                                           ])
@@ -880,9 +919,11 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_tool:1.0.0_2, test_tool:2.0.0_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{archive_1}",
+                                           "",
                                            "checking integrity of the archive file #{archive_1}",
                                            "unpacking archive",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{archive_2}",
+                                           "",
                                            "checking integrity of the archive file #{archive_2}",
                                            "unpacking archive"
                                           ])
@@ -900,12 +941,15 @@ describe "crew upgrade" do
             expect(result).to eq(:ok)
             expect(out.split("\n")).to eq(["Will install: test_tool:1.0.0_2, test_tool:2.0.0_2, test_tool:3.0.0_2",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{archive_1}",
+                                           "",
                                            "checking integrity of the archive file #{archive_1}",
                                            "unpacking archive",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{archive_2}",
+                                           "",
                                            "checking integrity of the archive file #{archive_2}",
                                            "unpacking archive",
                                            "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{archive_3}",
+                                           "",
                                            "checking integrity of the archive file #{archive_3}",
                                            "unpacking archive"
                                           ])
@@ -944,9 +988,11 @@ describe "crew upgrade" do
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["Will install: curl:#{curl_new_rel}, libtwo:#{libtwo_ver}",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{curl_file}",
+                                       "",
                                        "checking integrity of the archive file #{curl_file}",
                                        "unpacking archive",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/#{libtwo_file}",
+                                       "",
                                        "checking integrity of the archive file #{libtwo_file}",
                                        "unpacking archive", "Start postponed upgrade process",
                                        "Finishing CURL upgrade process",
@@ -985,18 +1031,23 @@ describe "crew upgrade" do
         expect(result).to eq(:ok)
         expect(out.split("\n")).to eq(["Will install: curl:#{curl_new_rel}, libarchive:#{libarchive_new_rel}, libthree:#{lib3ver}, libtwo:#{lib2ver}, ruby:#{ruby_new_rel}",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{curl_file}",
+                                       "",
                                        "checking integrity of the archive file #{curl_file}",
                                        "unpacking archive",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{libarchive_file}",
+                                       "",
                                        "checking integrity of the archive file #{libarchive_file}",
                                        "unpacking archive",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/#{lib3file}",
+                                       "",
                                        "checking integrity of the archive file #{lib3file}",
                                        "unpacking archive",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:target]}/#{lib2file}",
+                                       "",
                                        "checking integrity of the archive file #{lib2file}",
                                        "unpacking archive",
                                        "downloading #{Global::DOWNLOAD_BASE}/#{Global::NS_DIR[:host]}/#{ruby_file}",
+                                       "",
                                        "checking integrity of the archive file #{ruby_file}",
                                        "unpacking archive",
                                        "Start postponed upgrade process",
