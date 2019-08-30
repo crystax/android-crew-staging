@@ -104,6 +104,7 @@ module Utils
       cin.close
 
       bar = Crew::ProgressBar.new
+      bar.start
 
       line_num = 0
       loop do
@@ -121,8 +122,8 @@ module Utils
       rescue IO::WaitReadable, EOFError
         next
       end
-      bar.done
 
+      bar.stop
       status =  wait_thr.value
 
       unless status.success?
@@ -243,11 +244,36 @@ module Utils
     FileUtils.rm_f archive
     FileUtils.mkdir_p File.dirname(archive)
     dirs << '.' if dirs.empty?
-    # gnu tar and bsd tar use different options to  derefence symlinks
-    args = []
-    #args << (['tar', 'gtar'].include?(tar_prog)) ? '--dereference' : '-L'
-    args += ['--format', 'ustar', '-C', indir, '-Jcf', archive] + dirs
-    run_command(tar_prog, *args)
+    cmd = [tar_prog, '-v', '--format', 'ustar', '-C', indir, '-Jcf', archive] + dirs
+    num_files_and_dirs = Dir[*(dirs.map { |d| "#{indir}/#{d}/**/*" })].size
+
+    # debug:
+    # puts "dirs: #{dirs.join(',')}"
+    # puts "cmd:  #{cmd.join(' ')}"
+    # puts "num files and dirs: #{num_files_and_dirs}"
+
+    Open3.popen2e(*cmd) do |cin, cout_cerr, wait_thr|
+      cin.close
+
+      bar = Crew::NumProgressBar.new(num_files_and_dirs)
+      bar.start
+
+      loop do
+        line = cout_cerr.readline
+        errstr = line
+        bar.plus_one
+      rescue EOFError
+        break
+      end
+
+      bar.stop
+      status =  wait_thr.value
+
+      unless status.success?
+        errstr = errstr.split("\n").select { |l| l != '' }.join("\n")
+        raise ErrorDuringExecution.new(cmd.join(' '), status.exitstatus, errstr)
+      end
+    end
   end
 
   def self.processor_count
