@@ -142,9 +142,10 @@ module Utils
 
   def self.unpack(archive, outdir)
     FileUtils.mkdir_p outdir unless Dir.exists? outdir
+    num_lines = num_lines_in_archive(archive)
     case File.extname(archive)
     when '.zip'
-      run_command unzip_prog, archive, "-d", outdir
+      run_cmd_with_num_progress_bar [unzip_prog, archive, "-d", outdir], num_lines
     when '.xz'
       # we use our custom untar to handle symlinks in crew's own archives on windows;
       # since we do not support building crew packages on windows hosts
@@ -152,10 +153,20 @@ module Utils
       if (Global::OS == 'windows')
         untar archive, outdir, dereference: true
       else
-        run_command tar_prog, "-C", outdir, "-xf", archive
+        run_cmd_with_num_progress_bar [tar_prog, '-v', '-C', outdir, '-xf', archive], num_lines
       end
     else
-      run_command tar_prog, "-C", outdir, "-xf", archive
+      run_cmd_with_num_progress_bar [tar_prog, '-v', '-C', outdir, '-xf', archive], num_lines
+    end
+  end
+
+  def self.num_lines_in_archive(archive)
+    case File.extname(archive)
+    when '.zip'
+      # here -4 accounts for table's header and footer
+      run_command(unzip_prog, '-l', archive).split("\n").size - 4
+    else
+      run_command(tar_prog, '-tf', archive).split("\n").size
     end
   end
 
@@ -181,6 +192,9 @@ module Utils
               end
               alias symlink symlink?
             end
+
+            # todo: check on windows
+            puts entry.full_name
 
             dst = File.join(to_dir, entry.full_name)
             FileUtils.mkdir_p File.dirname(dst)
@@ -252,10 +266,14 @@ module Utils
     # puts "cmd:  #{cmd.join(' ')}"
     # puts "num files and dirs: #{num_files_and_dirs}"
 
+    run_cmd_with_num_progress_bar cmd, num_files_and_dirs
+  end
+
+  def self.run_cmd_with_num_progress_bar(cmd, num_lines)
     Open3.popen2e(*cmd) do |cin, cout_cerr, wait_thr|
       cin.close
 
-      bar = Crew::NumProgressBar.new(num_files_and_dirs)
+      bar = Crew::NumProgressBar.new(num_lines)
       bar.start
 
       loop do
