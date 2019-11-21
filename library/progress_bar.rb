@@ -5,7 +5,7 @@ module Crew
   class ProgressBar
 
     def initialize(title = '')
-      _rows, cols = IO.console.winsize
+      cols = IO.console&.winsize&.last || 80
 
       @stdout_sync = $stdout_sync
 
@@ -80,7 +80,7 @@ module Crew
     def initialize(max_num, title = '')
       raise ArgumentError, "bad 'max_num' value: #{num}; must be a natural number" if max_num < 1
 
-      _rows, cols = IO.console.winsize
+      cols = IO.console&.winsize&.last || 80
       @stdout_sync = $stdout_sync
 
       @title = title
