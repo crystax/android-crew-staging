@@ -1,8 +1,8 @@
 class Expat < BuildDependency
 
   desc "XML 1.0 parser"
-  homepage "http://expat.sourceforge.net"
-  url "https://downloads.sourceforge.net/project/expat/expat/${version}/expat-${version}.tar.bz2"
+  homepage "https://libexpat.github.io/"
+  url 'https://dl.crystax.net/mirror/expat-${version}.tar.bz2'
 
   release '2.2.0', crystax: 4
 

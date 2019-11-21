@@ -190,7 +190,12 @@ The INSTALL command support the following options:
                  installing them
 
   --cache-only   command will fail if required package was not
-                 found in the cache
+                 found in the cache; this option can not be
+                 specified with --ignore-cache
+
+  --ignore-cache command will not look for the required package
+                 in the cache; this option can not be specified
+                 with --cache-only
 
   --force        install even if specified formula(s) installed
 
@@ -213,6 +218,7 @@ The SOURCE command support the following options:
                  formula(s)
   --force        if required source are already installed then remove them
                  and install afresh
+  --ignore-cache do not check if reqired tarball was already downloaded
 EOS
 
 BUILD_HELP = <<-EOS

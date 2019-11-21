@@ -1,7 +1,6 @@
 require_relative '../exceptions.rb'
 require_relative '../arch.rb'
 require_relative '../platform.rb'
-require_relative '../formulary.rb'
 
 
 module Crew

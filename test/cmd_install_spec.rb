@@ -10,8 +10,19 @@ describe "crew install" do
     ["calculating dependencies for #{name}:",
      "dependencies to install:",
      "downloading #{url}",
+     "",
      "checking integrity of the archive file #{file}",
      "unpacking archive"
+    ]
+  end
+
+  def install_message_2(name, url, file)
+    [/calculating dependencies for #{name}:/,
+     /dependencies to install:/,
+     /downloading #{url}/,
+     /#*/,
+     /checking integrity of the archive file #{file}/,
+     /unpacking archive/
     ]
   end
 
@@ -159,10 +170,12 @@ describe "crew install" do
                                                     "dependencies to install: libone",
                                                     "installing dependencies for libtwo:",
                                                     "downloading #{depurl}",
+                                                    "",
                                                     "checking integrity of the archive file #{depfile}",
                                                     "unpacking archive",
                                                     "",
                                                     "downloading #{resurl}",
+                                                    "",
                                                     "checking integrity of the archive file #{resfile}",
                                                     "unpacking archive"
                                                    ])
@@ -203,13 +216,16 @@ describe "crew install" do
                                                   "dependencies to install: libone, libtwo",
                                                   "installing dependencies for libthree:",
                                                   "downloading #{depurl1}",
+                                                  "",
                                                   "checking integrity of the archive file #{depfile1}",
                                                   "unpacking archive",
                                                   "downloading #{depurl2}",
+                                                  "",
                                                   "checking integrity of the archive file #{depfile2}",
                                                   "unpacking archive",
                                                   "",
                                                   "downloading #{resurl}",
+                                                  "",
                                                   "checking integrity of the archive file #{resfile}",
                                                   "unpacking archive"
                                                  ])
@@ -259,10 +275,12 @@ describe "crew install" do
                                                     "dependencies to install: libfour:1.1.2_2",
                                                     "installing dependencies for libfive:",
                                                     "downloading #{dep_url}",
+                                                    "",
                                                     "checking integrity of the archive file #{dep_file}",
                                                     "unpacking archive",
                                                     "",
                                                     "downloading #{url}",
+                                                    "",
                                                     "checking integrity of the archive file #{file}",
                                                     "unpacking archive"
                                                    ])
@@ -291,6 +309,7 @@ describe "crew install" do
                                                     "unpacking archive",
                                                     "",
                                                     "downloading #{url}",
+                                                    "",
                                                     "checking integrity of the archive file #{file}",
                                                     "unpacking archive"
                                                    ])
@@ -343,7 +362,12 @@ describe "crew install" do
         url = "#{out.strip}/packages.#{file}"
         crew 'install', 'test_package'
         expect(result).to eq(:ok)
-        expect(out.split("\n").map(&:strip)).to eq(install_message('test_package', url, file))
+        # todo: write a special method to compare arrays with regexps?
+        got = out.split("\n").map(&:strip)
+        exp = install_message_2('test_package', url, file)
+        got.each_index do |ind|
+          expect(got[ind]).to match(exp[ind])
+        end
         expect(pkg_cache_has_package?('test_package', rel)).to eq(true)
       end
     end
@@ -359,7 +383,12 @@ describe "crew install" do
         url = "#{out.strip}/tools.#{file}"
         crew 'install', 'test_tool:1.0.0'
         expect(result).to eq(:ok)
-        expect(out.split("\n").map(&:strip)).to eq(install_message('test_tool', url, file))
+        # todo: write a special method to compare arrays with regexps?
+        got = out.split("\n").map(&:strip)
+        exp = install_message_2('test_tool', url, file)
+        got.each_index do |ind|
+          expect(got[ind]).to match(exp[ind])
+        end
         expect(pkg_cache_has_tool?('test_tool', rel)).to eq(true)
       end
     end
@@ -494,6 +523,7 @@ describe "crew install" do
         expect(out.split("\n").map(&:strip)).to eq(["calculating dependencies for #{pkg_name}:",
                                                     "dependencies to install:",
                                                     "downloading #{Global::DOWNLOAD_BASE}/packages/#{archive}",
+                                                    "",
                                                     "checking integrity of the archive file #{archive}",
                                                     "unpacking archive"
                                                    ])
@@ -520,10 +550,12 @@ describe "crew install" do
                                                     "dependencies to install: #{dep_name}:#{dep_rel}",
                                                     "installing dependencies for #{pkg_name}:",
                                                     "downloading #{Global::DOWNLOAD_BASE}/packages/#{dep_archive}",
+                                                    "",
                                                     "checking integrity of the archive file #{dep_archive}",
                                                     "unpacking archive",
                                                     "",
                                                     "downloading #{Global::DOWNLOAD_BASE}/packages/#{pkg_archive}",
+                                                    "",
                                                     "checking integrity of the archive file #{pkg_archive}",
                                                     "unpacking archive"
                                                    ])
@@ -551,13 +583,16 @@ describe "crew install" do
                                                     "dependencies to install: #{dep_name}:#{dep_rel_1}, #{dep_name}:#{dep_rel_2}",
                                                     "installing dependencies for #{pkg_name}:",
                                                     "downloading #{Global::DOWNLOAD_BASE}/packages/#{dep_archive_1}",
+                                                    "",
                                                     "checking integrity of the archive file #{dep_archive_1}",
                                                     "unpacking archive",
                                                     "downloading #{Global::DOWNLOAD_BASE}/packages/#{dep_archive_2}",
+                                                    "",
                                                     "checking integrity of the archive file #{dep_archive_2}",
                                                     "unpacking archive",
                                                     "",
                                                     "downloading #{Global::DOWNLOAD_BASE}/packages/#{pkg_archive}",
+                                                    "",
                                                     "checking integrity of the archive file #{pkg_archive}",
                                                     "unpacking archive"
                                                    ])
@@ -586,10 +621,12 @@ describe "crew install" do
                                                     "dependencies to install: #{dep_name}:#{dep_rel_2}",
                                                     "installing dependencies for #{pkg_name}:",
                                                     "downloading #{Global::DOWNLOAD_BASE}/packages/#{dep_archive_2}",
+                                                    "",
                                                     "checking integrity of the archive file #{dep_archive_2}",
                                                     "unpacking archive",
                                                     "",
                                                     "downloading #{Global::DOWNLOAD_BASE}/packages/#{pkg_archive}",
+                                                    "",
                                                     "checking integrity of the archive file #{pkg_archive}",
                                                     "unpacking archive"
                                                    ])
@@ -620,13 +657,16 @@ describe "crew install" do
                                                     "dependencies to install: #{dep_name}:#{dep_rel_1}, #{dep_name}:#{dep_rel_2}",
                                                     "installing dependencies for #{pkg_name}:",
                                                     "downloading #{Global::DOWNLOAD_BASE}/packages/#{dep_archive_1}",
+                                                    "",
                                                     "checking integrity of the archive file #{dep_archive_1}",
                                                     "unpacking archive",
                                                     "downloading #{Global::DOWNLOAD_BASE}/packages/#{dep_archive_2}",
+                                                    "",
                                                     "checking integrity of the archive file #{dep_archive_2}",
                                                     "unpacking archive",
                                                     "",
                                                     "downloading #{Global::DOWNLOAD_BASE}/packages/#{pkg_archive}",
+                                                    "",
                                                     "checking integrity of the archive file #{pkg_archive}",
                                                     "unpacking archive"
                                                    ])

@@ -11,10 +11,15 @@ module Crew
 
       attr_accessor :platform
 
+      def self.default_as_hash
+        Options.new([]).as_hash
+      end
+
       def initialize(opts)
         @platform = Global::PLATFORM_NAME
         @check_shasum = true
         @cache_only = false
+        @ignore_cache = false
         @force = false
         @all_versions = false
         @with_dev_files = false
@@ -27,7 +32,11 @@ module Crew
             @platform = opt.split('=')[1]
             check_platform_names @platform
           when '--cache-only'
+            raise IncompatibleOptions.new('--cache-only', '--ignore-cache') if @ignore_cache
             @cache_only = true
+          when '--ignore-cache'
+            raise IncompatibleOptions.new('--ignore-cache', '--cache-only') if @cache_only
+            @ignore_cache = true
           when '--force'
             @force = true
           when '--all-versions'
@@ -48,6 +57,10 @@ module Crew
         @cache_only
       end
 
+      def ignore_cache?
+        @ignore_cache
+      end
+
       def force?
         @force
       end
@@ -64,6 +77,7 @@ module Crew
         { platform:       self.platform,
           check_shasum:   self.check_shasum?,
           cache_only:     self.cache_only?,
+          ignore_cache:   self.ignore_cache?,
           force:          self.force?,
           all_versions:   self.all_versions?,
           with_dev_files: self.with_dev_files?

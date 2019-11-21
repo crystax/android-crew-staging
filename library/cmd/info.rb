@@ -1,6 +1,8 @@
 require_relative '../exceptions.rb'
+require_relative '../formulary.rb'
 require_relative 'command.rb'
 require_relative 'info/options.rb'
+
 
 module Crew
 

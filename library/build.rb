@@ -114,7 +114,7 @@ module Build
   end
 
   def self.check_sonames(dir, arch)
-    puts '  checking sonames: '
+    print '  checking sonames: '
     Dir["#{dir}/**/*.so"].each do |solib|
       # print "    #{solib}: "
       soname = read_soname(solib, arch)

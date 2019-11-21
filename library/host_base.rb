@@ -61,7 +61,7 @@ class HostBase < Formula
   end
 
   def install(release = releases.last, opts = {})
-    options = merge_default_install_options(opts)
+    options = Crew::Install::Options.default_as_hash.merge(opts)
 
     super release, options
 

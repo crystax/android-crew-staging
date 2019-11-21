@@ -5,6 +5,7 @@ require 'tempfile'
 require 'minitar'
 require_relative 'global.rb'
 require_relative 'exceptions.rb'
+require_relative 'progress_bar.rb'
 
 module Utils
 
@@ -64,20 +65,15 @@ module Utils
   end
 
   def self.run_command(prog, *args)
-    prog = prog.to_s.strip
-    cmd = ([prog] + args).map { |e| to_cmd_s(e) }
-    env = {}
-    if prog == @@system_curl
-      case Global::OS
-      when 'linux'
-        env['LD_LIBRARY_PATH'] = nil
-      when 'darwin'
-        env['DYLD_LIBRARY_PATH'] = nil
-      end
-    end
-    #puts "cmd: #{cmd.join(' ')}"
-    #puts "env: #{env}"
-    outstr, errstr, status = Open3.capture3(env, *cmd)
+    cmd = ([prog.to_s.strip] + args).map { |e| to_cmd_s(e) }
+    # puts "cmd: #{cmd.join(' ')}"
+
+    outstr, errstr, status = Open3.capture3(*cmd)
+    errstr = errstr.split("\n").select { |l| l != '' }.join("\n")
+
+    # puts "outstr: #{outstr}"
+    # puts "errstr: #{errstr}"
+
     raise ErrorDuringExecution.new(cmd.join(' '), status.exitstatus, errstr) unless status.success?
 
     outstr
@@ -88,24 +84,68 @@ module Utils
   end
 
   def self.download(url, outpath)
-    args = [url, '-o', outpath, '--silent', '--fail', '-L']
-    run_command(curl_prog, *args)
-  rescue ErrorDuringExecution => e
-    case e.exit_code
-    when 7
-      raise DownloadError.new(url, e.exit_code, "failed to connect to host")
-    when 22
-      raise DownloadError.new(url, e.exit_code, "HTTP page not retrieved")
-    else
-      raise
+    args = [curl_prog, url, '-o', outpath, '--fail', '-L']  #, '-#']
+    cmd = args.map { |e| to_cmd_s(e) }
+
+    # todo: debug
+    #puts "download cmd: #{cmd.join(' ')}"
+
+    env = {}
+    if curl_prog == @@system_curl
+      case Global::OS
+      when 'linux'
+        env['LD_LIBRARY_PATH'] = nil
+      when 'darwin'
+        env['DYLD_LIBRARY_PATH'] = nil
+      end
+    end
+
+    Open3.popen2e(env, *cmd) do |cin, cout_cerr, wait_thr|
+      cin.close
+
+      bar = Crew::ProgressBar.new
+      bar.start
+
+      line_num = 0
+      loop do
+        output = IO.select([cout_cerr])[0][0]
+        break if output.eof?
+        line = output.readline_nonblock
+        # puts "line: #{line}"
+        errstr = line
+        line_num += 1
+        if line_num > 2
+          v = line.split(' ')
+          # puts v.to_s
+          bar.percents_done(v[2].to_i)
+        end
+      rescue IO::WaitReadable, EOFError
+        next
+      end
+
+      bar.stop
+      status =  wait_thr.value
+
+      unless status.success?
+        case status.exitstatus
+        when 7
+          raise DownloadError.new(url, status.exitstatus, "failed to connect to host")
+        when 22
+          raise DownloadError.new(url, status.exitstatus, "HTTP page not retrieved")
+        else
+          errstr = errstr.split("\n").select { |l| l != '' }.join("\n")
+          raise ErrorDuringExecution.new(cmd.join(' '), status.exitstatus, errstr)
+        end
+      end
     end
   end
 
   def self.unpack(archive, outdir)
     FileUtils.mkdir_p outdir unless Dir.exists? outdir
+    num_lines = num_lines_in_archive(archive)
     case File.extname(archive)
     when '.zip'
-      run_command unzip_prog, archive, "-d", outdir
+      run_cmd_with_num_progress_bar [unzip_prog, archive, "-d", outdir], num_lines
     when '.xz'
       # we use our custom untar to handle symlinks in crew's own archives on windows;
       # since we do not support building crew packages on windows hosts
@@ -113,10 +153,20 @@ module Utils
       if (Global::OS == 'windows')
         untar archive, outdir, dereference: true
       else
-        run_command tar_prog, "-C", outdir, "-xf", archive
+        run_cmd_with_num_progress_bar [tar_prog, '-v', '-C', outdir, '-xf', archive], num_lines
       end
     else
-      run_command tar_prog, "-C", outdir, "-xf", archive
+      run_cmd_with_num_progress_bar [tar_prog, '-v', '-C', outdir, '-xf', archive], num_lines
+    end
+  end
+
+  def self.num_lines_in_archive(archive)
+    case File.extname(archive)
+    when '.zip'
+      # here -4 accounts for table's header and footer
+      run_command(unzip_prog, '-l', archive).split("\n").size - 4
+    else
+      run_command(tar_prog, '-tf', archive).split("\n").size
     end
   end
 
@@ -142,6 +192,9 @@ module Utils
               end
               alias symlink symlink?
             end
+
+            # todo: check on windows
+            puts entry.full_name
 
             dst = File.join(to_dir, entry.full_name)
             FileUtils.mkdir_p File.dirname(dst)
@@ -205,11 +258,40 @@ module Utils
     FileUtils.rm_f archive
     FileUtils.mkdir_p File.dirname(archive)
     dirs << '.' if dirs.empty?
-    # gnu tar and bsd tar use different options to  derefence symlinks
-    args = []
-    #args << (['tar', 'gtar'].include?(tar_prog)) ? '--dereference' : '-L'
-    args += ['--format', 'ustar', '-C', indir, '-Jcf', archive] + dirs
-    run_command(tar_prog, *args)
+    cmd = [tar_prog, '-v', '--format', 'ustar', '-C', indir, '-Jcf', archive] + dirs
+    num_files_and_dirs = Dir[*(dirs.map { |d| "#{indir}/#{d}/**/*" })].size
+
+    # debug:
+    # puts "dirs: #{dirs.join(',')}"
+    # puts "cmd:  #{cmd.join(' ')}"
+    # puts "num files and dirs: #{num_files_and_dirs}"
+
+    run_cmd_with_num_progress_bar cmd, num_files_and_dirs
+  end
+
+  def self.run_cmd_with_num_progress_bar(cmd, num_lines)
+    Open3.popen2e(*cmd) do |cin, cout_cerr, wait_thr|
+      cin.close
+
+      bar = Crew::NumProgressBar.new(num_lines)
+      bar.start
+
+      loop do
+        line = cout_cerr.readline
+        errstr = line
+        bar.plus_one
+      rescue EOFError
+        break
+      end
+
+      bar.stop
+      status =  wait_thr.value
+
+      unless status.success?
+        errstr = errstr.split("\n").select { |l| l != '' }.join("\n")
+        raise ErrorDuringExecution.new(cmd.join(' '), status.exitstatus, errstr)
+      end
+    end
   end
 
   def self.processor_count
