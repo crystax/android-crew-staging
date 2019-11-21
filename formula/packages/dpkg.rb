@@ -2,7 +2,7 @@ class Dpkg < Package
 
   desc "Debian's package maintenance system"
   homepage "https://wiki.debian.org/Teams/Dpkg"
-  url "http://http.debian.net/debian/pool/main/d/dpkg/dpkg_${version}.tar.xz"
+  url 'https://dl.crystax.net/mirror/dpkg-${version}.tar.xz'
 
   release '1.19.0.5', crystax: 9
 
