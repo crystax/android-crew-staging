@@ -1,5 +1,6 @@
 require 'fileutils'
 require_relative '../exceptions.rb'
+require_relative '../formulary.rb'
 require_relative 'command.rb'
 require_relative 'make_standalone_toolchain/options.rb'
 
