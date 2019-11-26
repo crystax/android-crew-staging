@@ -4,7 +4,7 @@ class Libstdcxx < BasePackage
   name 'libstdc++'
 
   release '4.9', crystax: 5
-  release '5',   crystax: 5
+  release '5',   crystax: 6
   release '6',   crystax: 6
 
   build_depends_on 'platforms'
