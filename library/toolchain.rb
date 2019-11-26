@@ -222,9 +222,10 @@ module Toolchain
   GCC_4_9 = GCC.new('4.9')
   GCC_5   = GCC.new('5')
   GCC_6   = GCC.new('6')
+  GCC_7   = GCC.new('7')
 
   DEFAULT_GCC = GCC_5
-  SUPPORTED_GCC = [GCC_4_9, GCC_5, GCC_6]
+  SUPPORTED_GCC = [GCC_4_9, GCC_5, GCC_6, GCC_7]
 
   LLVM_3_6 = LLVM.new('3.6', DEFAULT_GCC)
   LLVM_3_7 = LLVM.new('3.7', DEFAULT_GCC)
