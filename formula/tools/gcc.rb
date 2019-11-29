@@ -9,7 +9,7 @@ class Gcc < Tool
   release '4.9', crystax: 5
   release '5',   crystax: 6
   release '6',   crystax: 6
-  release '7',   crystax: 1
+  release '7',   crystax: 2
 
   build_depends_on 'gmp'
   build_depends_on 'isl'
