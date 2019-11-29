@@ -7,6 +7,7 @@ class Libstdcxx < BasePackage
   release '5',   crystax: 7
   release '6',   crystax: 7
   release '7',   crystax: 3
+  release '8',   crystax: 1
 
   build_depends_on 'platforms'
   build_depends_on 'libcrystax'
@@ -220,9 +221,18 @@ class Libstdcxx < BasePackage
     end
     extra_cflags += ' -mstackrealign' if ['x86', 'x86_64'].include? arch
 
+    case abi
+    when 'armeabi-v7a'
+      archlibpath = 'lib/armv7-a'
+    when 'armeabi-v7a-hard'
+      archlibpath = 'lib/armv7-a/hard'
+    else
+      archlibpath = 'lib'
+    end
+
     cflags   = "-g -fPIC --sysroot=#{sysroot} -fexceptions -funwind-tables -D__BIONIC__ -O2 #{extra_cflags}"
     cppflags = "--sysroot=#{sysroot}"
-    ldflags  = "-lcrystax #{extra_ldflags} -lc"
+    ldflags  = "-L#{sysroot}/usr/#{archlibpath} -lcrystax #{extra_ldflags} -lc"
 
     case arch.name
     when 'arm64'
@@ -308,6 +318,7 @@ class Libstdcxx < BasePackage
     when '5'   then Toolchain::GCC_5
     when '6'   then Toolchain::GCC_6
     when '7'   then Toolchain::GCC_7
+    when '8'   then Toolchain::GCC_8
     else
       raise "no GCC version for libstdc++ version: #{version}"
     end
