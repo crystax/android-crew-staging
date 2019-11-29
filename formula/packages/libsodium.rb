@@ -4,7 +4,7 @@ class Libsodium < Package
   homepage "https://github.com/jedisct1/libsodium/"
   url "https://github.com/jedisct1/libsodium/releases/download/${version}/libsodium-${version}.tar.gz"
 
-  release '1.0.17', crystax: 2
+  release '1.0.17', crystax: 3
 
   build_copy 'LICENSE'
 

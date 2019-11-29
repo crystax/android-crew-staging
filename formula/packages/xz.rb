@@ -4,7 +4,7 @@ class Xz < Package
   homepage "https://tukaani.org/xz/"
   url "https://tukaani.org/xz/xz-${version}.tar.xz"
 
-  release '5.2.4', crystax: 4
+  release '5.2.4', crystax: 5
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'include', 'lib']

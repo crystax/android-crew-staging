@@ -4,7 +4,7 @@ class Libssh2 < Package
   homepage 'https://www.libssh2.org/'
   url 'http://www.libssh2.org/download/libssh2-${version}.tar.gz'
 
-  release '1.8.2',  crystax: 2
+  release '1.8.2',  crystax: 3
 
   depends_on 'openssl'
 
@@ -24,7 +24,7 @@ class Libssh2 < Package
     configure *args
 
     # for some reason libtool for some abis does not handle dependency libs
-    fix_tests_makefile if ['mips', 'arm64-v8a', 'mips64'].include? abi
+    fix_tests_makefile if ['arm64-v8a'].include? abi
 
     make
     make 'install'

@@ -4,7 +4,7 @@ class Coreutils < Package
   homepage "https://www.gnu.org/software/coreutils"
   url "https://ftpmirror.gnu.org/coreutils/coreutils-${version}.tar.xz"
 
-  release '8.31', crystax: 2
+  release '8.31', crystax: 3
 
   package_info root_dir: ['bin']
 
@@ -17,7 +17,7 @@ class Coreutils < Package
     args =  [ "--enable-single-binary=symlinks",
               "--disable-silent-rules",
               "--disable-rpath",
-	      "--disable-nls"
+              "--disable-nls"
             ]
 
     configure *args

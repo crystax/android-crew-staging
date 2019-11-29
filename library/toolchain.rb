@@ -179,10 +179,6 @@ module Toolchain
         f += ' -m32'
       when 'x86_64'
         f += ' -m64'
-      when 'mips'
-        f += ' -mabi=32 -mips32'
-      when 'mips64'
-        f += ' -mabi=64 -mips64r6'
       end
       f
     end
@@ -209,10 +205,6 @@ module Toolchain
         'i686-none-linux-android'
       when 'x86_64'
         'x86_64-none-linux-android'
-      when 'mips'
-            'mipsel-none-linux-android'
-      when 'mips64'
-        'mips64el-none-linux-android'
       else
         raise UnknownAbi.new(abi)
       end

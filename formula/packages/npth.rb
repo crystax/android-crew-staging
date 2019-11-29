@@ -5,7 +5,7 @@ class Npth < Package
   homepage "https://github.com/gpg/npth"
   url "https://www.gnupg.org/ftp/gcrypt/npth/npth-${version}.tar.bz2"
 
-  release '1.6', crystax: 3
+  release '1.6', crystax: 4
 
   build_copy 'COPYING.LIB'
   build_libs 'libnpth'

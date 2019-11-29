@@ -4,7 +4,7 @@ class Dpkg < Package
   homepage "https://wiki.debian.org/Teams/Dpkg"
   url 'https://dl.crystax.net/mirror/dpkg-${version}.tar.xz'
 
-  release '1.19.0.5', crystax: 9
+  release '1.19.0.5', crystax: 10
 
   depends_on 'libmd'
   depends_on 'xz'

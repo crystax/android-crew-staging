@@ -4,7 +4,7 @@ class Toolbox < Utility
   homepage ''
   url ''
 
-  release '1', crystax: 3
+  release '1', crystax: 4
 
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in source/host-tools/ directory

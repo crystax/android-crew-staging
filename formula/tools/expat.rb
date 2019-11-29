@@ -4,7 +4,7 @@ class Expat < BuildDependency
   homepage "https://libexpat.github.io/"
   url 'https://dl.crystax.net/mirror/expat-${version}.tar.bz2'
 
-  release '2.2.0', crystax: 4
+  release '2.2.0', crystax: 5
 
   def build_for_platform(platform, release, options)
     install_dir = install_dir_for_platform(platform.name, release)

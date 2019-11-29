@@ -4,7 +4,7 @@ class Ffmpeg < Package
   homepage "https://www.ffmpeg.org"
   url "https://ffmpeg.org/releases/ffmpeg-${version}.tar.bz2"
 
-  release '4.1.3'
+  release '4.1.3', crystax: 2
 
   depends_on 'xz'
   depends_on 'x264'
@@ -49,8 +49,6 @@ class Ffmpeg < Package
               "--extra-ldexeflags=-pie"
             ]
 
-    args << '--disable-asm' if ['mipsel', 'mips64'].include? arch
-
     gnutls_libs = '-lgnutls -lp11-kit -lidn2 -lunistring -lnettle -lhogweed -lffi -lgmp -lz'
 
     build_env['LDFLAGS'] += ' ' + gnutls_libs + ' -lx264 -lgmp -llzma' + " -L#{toolchain.sysroot_dir}/usr/lib64"
@@ -75,14 +73,10 @@ class Ffmpeg < Package
       ['arm', 'armv7-a']
     when 'arm64-v8a'
       ['aarch64', 'armv8-a']
-    when 'mips'
-      ['mipsel', 'mips32r6']
     when 'x86'
       ['x86', 'atom']
     when 'x86_64'
       ['x86_64', 'atom']
-    when 'mips64'
-      ['mips64', 'mips64r6']
     else
       raise "unsupported abi '#{abi}'"
     end

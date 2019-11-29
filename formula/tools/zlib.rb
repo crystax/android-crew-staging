@@ -5,7 +5,7 @@ class Zlib < Library
   url 'http://zlib.net/zlib-${version}.tar.xz'
   url 'https://github.com/madler/zlib/archive/v${version}.tar.gz'
 
-  release '1.2.11', crystax: 7
+  release '1.2.11', crystax: 8
 
   postpone_install true
 

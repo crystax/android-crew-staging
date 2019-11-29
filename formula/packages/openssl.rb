@@ -4,9 +4,9 @@ class Openssl < Package
   homepage "https://openssl.org/"
   url 'https://openssl.org/source/openssl-${version}.tar.gz'
 
-  release '1.0.2s'
-  release '1.1.0k'
-  release '1.1.1c'
+  release '1.0.2s', crystax: 2
+  release '1.1.0k', crystax: 2
+  release '1.1.1c', crystax: 2
 
   build_copy 'LICENSE'
   build_libs 'libcrypto', 'libssl'
@@ -66,8 +66,6 @@ class Openssl < Package
     when 'x86_64'    then 'linux-x86_64'
     when /^armeabi/  then 'linux-armv4'
     when 'arm64-v8a' then 'linux-aarch64'
-    when 'mips'      then 'linux-generic32'   # Looks like asm code in OpenSSL doesn't support MIPS32r6
-    when 'mips64'    then 'linux-generic64'   # Looks like asm code in OpenSSL doesn't support MIPS64r6
     else
       raise "Unsupported abi #{abi}"
     end

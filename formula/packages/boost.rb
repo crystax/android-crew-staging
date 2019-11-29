@@ -4,7 +4,7 @@ class Boost < Package
   homepage "http://www.boost.org"
   url "https://downloads.sourceforge.net/project/boost/boost/${version}/boost_${block}.tar.bz2" do |r| r.version.gsub('.', '_') end
 
-  release '1.67.0', crystax: 7
+  release '1.67.0', crystax: 8
 
   depends_on 'python', version: /^2\.7/
   depends_on 'python', version: /^3\.5/
@@ -149,7 +149,7 @@ class Boost < Package
       gen_project_config_jam src_dir, arch, abi, stl_name, { ver: :none }
       Build.gen_compiler_wrapper cxx, toolchain.cxx_compiler(arch, abi), toolchain, build_options, cxxflags, ldflags
       puts "      building boost libraries"
-      args = common_args + without_libs(release, arch) + ['--without-mpi', '--without-python', "--build-dir=#{build_dir}", "--prefix=#{prefix_dir}"]
+      args = common_args + ['--without-mpi', '--without-python', "--build-dir=#{build_dir}", "--prefix=#{prefix_dir}"]
       FileUtils.cd(src_dir) { system "./b2", *args, 'install' }
 
       # build python libs
@@ -240,34 +240,11 @@ class Boost < Package
     when /^x86/               # x86|x86_64
       bjam_arch = 'x86'
       bjam_abi  = 'sysv'
-    when 'mips'
-      bjam_arch = 'mips1'
-      bjam_abi  = 'o32'
-    when 'mips64'
-      bjam_arch = 'mips1'
-      bjam_abi  = 'o64'
     else
       raise UnsupportedArch.new(arch)
     end
 
     [bjam_arch, bjam_abi]
-  end
-
-  def without_libs(release, arch)
-    exclude_libs(release).select { |_, v| v.include? arch.name }.keys.map { |lib| "--without-#{lib}" }
-  end
-
-  def exclude_libs(release)
-    exclude = {}
-    major, minor, _ = release.version.split('.').map { |a| a.to_i }
-
-    # Boost.Fiber fails to build for mips using gcc 6: Error: opcode not supported on this processor: mips32 (mips32) `pause'
-    # check next versions
-    if major == 1 and minor <= 69
-      exclude['fiber'] = ['mips']
-    end
-
-    exclude
   end
 
   def gen_project_config_jam(dir, arch, abi, stl_name, python_data)
@@ -301,8 +278,6 @@ class Boost < Package
   end
 
   def gen_android_mk(pkg_dir, release)
-    #exclude = exclude_libs(release)
-
     File.open("#{pkg_dir}/Android.mk", "w") do |f|
       f.puts Build::COPYRIGHT_STR
       f.puts ''

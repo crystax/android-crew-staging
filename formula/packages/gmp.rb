@@ -4,7 +4,7 @@ class Gmp < Package
   homepage "https://gmplib.org/"
   url "https://gmplib.org/download/gmp/gmp-${version}.tar.xz"
 
-  release '6.1.2', crystax: 4
+  release '6.1.2', crystax: 5
 
   build_copy 'COPYING', 'COPYING.LESSERv3', 'COPYINGv2', 'COPYINGv3'
   build_libs 'libgmp', 'libgmpxx'
@@ -18,7 +18,6 @@ class Gmp < Package
               "--enable-static",
               "--with-pic"
             ]
-    args << "--disable-assembly" if abi == 'mips64'
 
     build_env['CXXFLAGS'] += ' -lgnustl_shared'
 

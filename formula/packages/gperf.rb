@@ -5,7 +5,7 @@ class Gperf < Package
   homepage "https://www.gnu.org/software/gperf/"
   url "https://ftp.gnu.org/pub/gnu/gperf/gperf-${version}.tar.gz"
 
-  release '3.1', crystax: 5
+  release '3.1', crystax: 6
 
   build_copy 'COPYING'
   build_options use_cxx: true,

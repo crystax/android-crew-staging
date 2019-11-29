@@ -5,7 +5,7 @@ class GnuWhich < Package
   homepage 'https://carlowood.github.io/which/index.html'
   url 'https://carlowood.github.io/which/which-${version}.tar.gz'
 
-  release '2.21', crystax: 5
+  release '2.21', crystax: 6
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin'],

@@ -4,7 +4,7 @@ class Xz < Library
   homepage "http://tukaani.org/xz/"
   url "http://tukaani.org/xz/xz-${version}.tar.xz"
 
-  release '5.2.4', crystax: 4
+  release '5.2.4', crystax: 5
 
   postpone_install true
 

@@ -4,7 +4,7 @@ class X264 < Package
   homepage "https://www.videolan.org/developers/x264.html"
   url "https://git.videolan.org/git/x264.git|commit:72db437770fd1ce3961f624dd57a8e75ff65ae0b"
 
-  release 'r2945'
+  release 'r2945', crystax: 2
 
   build_copy 'COPYING'
   build_libs 'libx264'
@@ -20,8 +20,6 @@ class X264 < Package
               "--enable-shared",
               "--enable-static"
             ]
-
-    args << '--disable-asm' if ['mips', 'mips64'].include? abi
 
     build_env['PATH'] = "#{toolchain.tc_prefix(Build.arch_for_abi(abi))}/bin:#{ENV['PATH']}"
 

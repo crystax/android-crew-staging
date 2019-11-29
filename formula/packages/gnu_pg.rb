@@ -5,7 +5,7 @@ class GnuPg < Package
   homepage "https://www.gnupg.org"
   url "https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-${version}.tar.bz2"
 
-  release '2.2.16'
+  release '2.2.16', crystax: 2
 
   depends_on 'sqlite'
   depends_on 'npth'

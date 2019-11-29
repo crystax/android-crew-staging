@@ -6,9 +6,9 @@ class Llvm < Tool
   homepage "http://llvm.org/"
   url "toolchain/llvm-${version}"
 
-  release '3.6', crystax: 4
-  release '3.7', crystax: 4
-  release '3.8', crystax: 4
+  release '3.6', crystax: 5
+  release '3.7', crystax: 5
+  release '3.8', crystax: 5
 
   build_depends_on 'libedit'
   depends_on 'python'
@@ -96,7 +96,7 @@ class Llvm < Tool
               "--host=#{platform.configure_host}",
               "--build=#{platform.configure_build}",
               "--with-bugurl=#{Build::BUG_URL}",
-              "--enable-targets=arm,mips,x86,aarch64",
+              "--enable-targets=arm,x86,aarch64",
               "--enable-optimized",
               "--with-binutils-include=#{binutils_inc_dir}",
               "--disable-lldb",
@@ -322,10 +322,6 @@ class Llvm < Tool
       'i686-none-linux-android'
     when 'x86_64'
       'x86_64-none-linux-android'
-    when 'mips', 'mips32r6'
-      'mipsel-none-linux-android'
-    when 'mips64'
-      'mips64el-none-linux-android'
     else
       raise "unsupported ABI: #{abi}"
     end

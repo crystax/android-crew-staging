@@ -4,7 +4,7 @@ class Ncurses < Package
   homepage "https://www.gnu.org/software/ncurses/"
   url "https://ftp.gnu.org/gnu/ncurses/ncurses-${version}.tar.gz"
 
-  release '6.1', crystax: 3
+  release '6.1', crystax: 4
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'lib', 'include', 'share'],

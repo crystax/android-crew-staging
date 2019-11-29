@@ -268,7 +268,7 @@ Options for building target packages:
   --abis=LIST    the list of ABIs for which to build formulas;
                  ABIs must be separated with comma;
                  available ABIs are armeabi-v7a, armeabi-v7a-hard,
-                 x86, mips, arm64-v8a, x86_64, mips64
+                 x86, arm64-v8a, x86_64
                  by default the formula will be built for all ABIs
 EOS
 
@@ -474,7 +474,7 @@ The TEST command supports the following options:
   --abis=LIST    the list of ABIs for which to test formulas;
                  ABIs must be separated with comma;
                  available ABIs are armeabi-v7a, armeabi-v7a-hard,
-                 x86, mips, arm64-v8a, x86_64, mips64
+                 x86, arm64-v8a, x86_64
                  by default the formula will be tested for all ABIs
 
   --toolchains=LIST

@@ -68,14 +68,10 @@ module Deb
       'armhf'
     when 'x86'
       'i386'
-    when 'mips'
-      'mipsel'
     when 'arm64-v8a'
       'arm64'
     when 'x86_64'
       'amd64'
-    when 'mips64'
-      'mips64el'
     else
       raise "unsupported abi for make deb: #{abi}"
     end

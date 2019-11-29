@@ -4,7 +4,7 @@ class Cpulimit < Package
   homepage "https://github.com/opsengine/cpulimit"
   url "https://github.com/opsengine/cpulimit/archive/v${version}.tar.gz"
 
-  release '0.2', crystax: 4
+  release '0.2', crystax: 5
 
   build_copy 'LICENSE'
   build_options build_outside_source_tree: false,
