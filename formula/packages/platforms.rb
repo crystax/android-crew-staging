@@ -4,7 +4,7 @@ class Platforms < BasePackage
 
   desc "Android platforms headers and libraries"
 
-  release '24', crystax: 10
+  release '24', crystax: 11
 
   # todo:
   #build_depends_on default_compiler
@@ -79,7 +79,7 @@ class Platforms < BasePackage
         sysroot_dst = "#{platform_dst}/arch-#{arch}/usr"
         # Skip over if there is no arch-specific file for this platform
         # and no destination platform directory was created. This is needed
-        # because x86 and MIPS don't have files for API levels 3-8.
+        # because x86 doesn't have files for API levels 3-8.
         next if !prev_sysroot_dst and !File.directory?("#{src_dir}/#{platform_src}/arch-#{arch}")
 
         #puts "    populating platforms/android-#{api_level}/arch-#{arch}"
@@ -96,7 +96,7 @@ class Platforms < BasePackage
           # If this is the first destination directory, copy the common
           # files from previous platform directories into this one.
           # This helps copy the common headers from android-3 to android-8
-          # into the x86 and mips android-9 directories.
+          # into the x86 android-9 directory.
           Build::API_LEVELS.each do |old_api_level|
             break if old_api_level == api_level
             copy_src_directory "platforms/android-#{old_api_level}/include", "#{sysroot_dst}/include"   # common android-#{old_api_level} headers
@@ -129,16 +129,6 @@ class Platforms < BasePackage
           copy_src_directory "#{platform_src}/arch-#{arch}/lib",    "#{sysroot_dst}/lib"             # x86 sysroot libs
           copy_src_directory "#{platform_src}/arch-#{arch}/lib64",  "#{sysroot_dst}/lib64"           # x86_64 sysroot libs
           copy_src_directory "#{platform_src}/arch-#{arch}/libx32", "#{sysroot_dst}/libx32"          # x32 sysroot libs
-        when 'mips64'
-          copy_src_directory "#{platform_src}/arch-#{arch}/lib",     "#{sysroot_dst}/lib"            # mips -mabi=32 -mips32 sysroot libs
-          copy_src_directory "#{platform_src}/arch-#{arch}/libr2",   "#{sysroot_dst}/libr2"          # mips -mabi=32 -mips32r2 sysroot libs
-          copy_src_directory "#{platform_src}/arch-#{arch}/libr6",   "#{sysroot_dst}/libr6"          # mips -mabi=32 -mips32r6 sysroot libs
-          copy_src_directory "#{platform_src}/arch-#{arch}/lib64r2", "#{sysroot_dst}/lib64r2"        # mips -mabi=64 -mips64r2 sysroot libs
-          copy_src_directory "#{platform_src}/arch-#{arch}/lib64",   "#{sysroot_dst}/lib64"          # mips -mabi=64 -mips64r6 sysroot libs
-        when 'mips'
-          copy_src_directory "#{platform_src}/arch-#{arch}/lib",   "#{sysroot_dst}/lib"              # mips -mabi=32 -mips32 sysroot libs
-          copy_src_directory "#{platform_src}/arch-#{arch}/libr2", "#{sysroot_dst}/libr2"            # mips -mabi=32 -mips32r2 sysroot libs
-          copy_src_directory "#{platform_src}/arch-#{arch}/libr6", "#{sysroot_dst}/libr6"            # mips -mabi=32 -mips32r6 sysroot libs
         else
           copy_src_directory "#{platform_src}/arch-#{arch}/#{lib_dir}", "#{sysroot_dst}/#{lib_dir}"  # $ARCH sysroot libs
         end
@@ -157,16 +147,6 @@ class Platforms < BasePackage
           gen_crt_objects api_level, arch, "platforms/common/src", platform_src_arch, "#{sysroot_dst}/lib",    "-m32"
           gen_crt_objects api_level, arch, "platforms/common/src", platform_src_arch, "#{sysroot_dst}/lib64",  "-m64"
           gen_crt_objects api_level, arch, "platforms/common/src", platform_src_arch, "#{sysroot_dst}/libx32", "-mx32"
-        when 'mips64'
-          gen_crt_objects api_level, arch, "platforms/common/src", platform_src_arch, "#{sysroot_dst}/lib",     "-mabi=32", "-mips32"
-          gen_crt_objects api_level, arch, "platforms/common/src", platform_src_arch, "#{sysroot_dst}/libr2",   "-mabi=32", "-mips32r2"
-          gen_crt_objects api_level, arch, "platforms/common/src", platform_src_arch, "#{sysroot_dst}/libr6",   "-mabi=32", "-mips32r6"
-          gen_crt_objects api_level, arch, "platforms/common/src", platform_src_arch, "#{sysroot_dst}/lib64r2", "-mabi=64", "-mips64r2"
-          gen_crt_objects api_level, arch, "platforms/common/src", platform_src_arch, "#{sysroot_dst}/lib64",   "-mabi=64", "-mips64r6"
-        when 'mips'
-          gen_crt_objects api_level, arch, "platforms/common/src", platform_src_arch, "#{sysroot_dst}/lib",   "-mabi=32", "-mips32"
-          gen_crt_objects api_level, arch, "platforms/common/src", platform_src_arch, "#{sysroot_dst}/libr2", "-mabi=32", "-mips32r2"
-          gen_crt_objects api_level, arch, "platforms/common/src", platform_src_arch, "#{sysroot_dst}/libr6", "-mabi=32", "-mips32r6"
         else
           gen_crt_objects api_level, arch, "platforms/common/src", platform_src_arch, "#{sysroot_dst}/#{lib_dir}"
         end
@@ -177,16 +157,6 @@ class Platforms < BasePackage
           gen_shared_libraries arch, "#{platform_src}/arch-#{arch}/symbols", "#{sysroot_dst}/lib",    "-m32"
           gen_shared_libraries arch, "#{platform_src}/arch-#{arch}/symbols", "#{sysroot_dst}/lib64",  "-m64"
           gen_shared_libraries arch, "#{platform_src}/arch-#{arch}/symbols", "#{sysroot_dst}/libx32", "-mx32"
-        when 'mips64'
-          gen_shared_libraries arch, "#{platform_src}/arch-#{arch}/symbols", "#{sysroot_dst}/lib",     "-mabi=32", "-mips32"
-          gen_shared_libraries arch, "#{platform_src}/arch-#{arch}/symbols", "#{sysroot_dst}/libr2",   "-mabi=32", "-mips32r2"
-          gen_shared_libraries arch, "#{platform_src}/arch-#{arch}/symbols", "#{sysroot_dst}/libr6",   "-mabi=32", "-mips32r6"
-          gen_shared_libraries arch, "#{platform_src}/arch-#{arch}/symbols", "#{sysroot_dst}/lib64r2", "-mabi=64", "-mips64r2"
-          gen_shared_libraries arch, "#{platform_src}/arch-#{arch}/symbols", "#{sysroot_dst}/lib64",   "-mabi=64", "-mips64r6"
-        when 'mips'
-          gen_shared_libraries arch, "#{platform_src}/arch-#{arch}/symbols", "#{sysroot_dst}/lib",   "-mabi=32", "-mips32"
-          gen_shared_libraries arch, "#{platform_src}/arch-#{arch}/symbols", "#{sysroot_dst}/libr2", "-mabi=32", "-mips32r2"
-          gen_shared_libraries arch, "#{platform_src}/arch-#{arch}/symbols", "#{sysroot_dst}/libr6", "-mabi=32", "-mips32r6"
         else
           gen_shared_libraries arch, "#{platform_src}/arch-#{arch}/symbols", "#{sysroot_dst}/#{lib_dir}"
         end

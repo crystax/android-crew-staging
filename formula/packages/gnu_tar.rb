@@ -5,7 +5,7 @@ class GnuTar < Package
   homepage 'https://www.gnu.org/software/tar/'
   url 'https://ftp.gnu.org/gnu/tar/tar-${version}.tar.xz'
 
-  release '1.32'
+  release '1.32', crystax: 2
 
   build_copy 'COPYING'
   build_options copy_installed_dirs: ['bin', 'libexec'],

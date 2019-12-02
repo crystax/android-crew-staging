@@ -4,7 +4,7 @@ class Bash < Package
   homepage "https://www.gnu.org/software/bash/"
   url "http://ftp.gnu.org/gnu/bash/bash-${version}.tar.gz"
 
-  release '5.0', crystax: 2
+  release '5.0', crystax: 3
 
   package_info root_dir: ['bin']
 

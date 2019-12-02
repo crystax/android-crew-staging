@@ -5,7 +5,7 @@ class Libcrystax < BasePackage
   desc "Crystax Library, the Heart of the Crystax NDK"
   name 'libcrystax'
 
-  release '1.0.2'
+  release '1.0.3'
 
   package_info root_dir: ['libs']
 
@@ -116,16 +116,6 @@ class Libcrystax < BasePackage
       FileUtils.cp Dir["#{crystax_libs_dir}/armeabi-v7a/thumb/libcrystax.*"],      "#{target_lib_dir}/lib/armv7-a/thumb/"
       FileUtils.cp Dir["#{crystax_libs_dir}/armeabi-v7a-hard/libcrystax.*"],       "#{target_lib_dir}/lib/armv7-a/hard/"
       FileUtils.cp Dir["#{crystax_libs_dir}/armeabi-v7a-hard/thumb/libcrystax.*"], "#{target_lib_dir}/lib/armv7-a/thumb/hard/"
-    when 'mips'
-      FileUtils.cp Dir["#{crystax_libs_dir}/mips/libcrystax.*"],    "#{target_lib_dir}/lib"
-      FileUtils.cp Dir["#{crystax_libs_dir}/mips/r2/libcrystax.*"], "#{target_lib_dir}/libr2"
-      FileUtils.cp Dir["#{crystax_libs_dir}/mips/r6/libcrystax.*"], "#{target_lib_dir}/libr6"
-    when 'mips64'
-      FileUtils.cp Dir["#{crystax_libs_dir}/mips64/libcrystax.*"],         "#{target_lib_dir}/lib64/"
-      FileUtils.cp Dir["#{crystax_libs_dir}/mips64/r2/libcrystax.*"],      "#{target_lib_dir}/lib64r2/"
-      FileUtils.cp Dir["#{crystax_libs_dir}/mips64/lib32/libcrystax.*"],   "#{target_lib_dir}/lib/"
-      FileUtils.cp Dir["#{crystax_libs_dir}/mips64/lib32r2/libcrystax.*"], "#{target_lib_dir}/libr2/"
-      FileUtils.cp Dir["#{crystax_libs_dir}/mips64/lib32r6/libcrystax.*"], "#{target_lib_dir}/libr6/"
     when 'x86_64'
       FileUtils.cp Dir["#{crystax_libs_dir}/x86_64/libcrystax.*"],     "#{target_lib_dir}/lib64/"
       FileUtils.cp Dir["#{crystax_libs_dir}/x86_64/32/libcrystax.*"],  "#{target_lib_dir}/lib/"

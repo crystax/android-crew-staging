@@ -4,7 +4,7 @@ class Binutils < Utility
   homepage 'https://www.gnu.org/software/binutils/'
   url 'https://ftpmirror.gnu.org/binutils/binutils-${version}.tar.xz'
 
-  release '2.31', crystax: 2
+  release '2.31', crystax: 3
 
   depends_on 'zlib'
   postpone_install true

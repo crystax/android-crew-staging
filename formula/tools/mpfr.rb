@@ -4,7 +4,7 @@ class Mpfr < BuildDependency
   homepage "http://www.mpfr.org/"
   url "http://www.mpfr.org/mpfr-${version}/mpfr-${version}.tar.xz"
 
-  release '3.1.5', crystax: 4
+  release '3.1.5', crystax: 5
 
   depends_on 'gmp'
 

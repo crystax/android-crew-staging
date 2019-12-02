@@ -10,7 +10,7 @@ module Build
   API_LEVELS = [3, 4, 5, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 21, 23, 24]
 
   # for some reason libtool does not handle library dependencies for these abis
-  BAD_ABIS = ['mips', 'arm64-v8a', 'mips64']
+  BAD_ABIS = ['arm64-v8a']
 
   USER = ENV['USER']
 
@@ -145,16 +145,6 @@ module Build
   #       FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"],     "#{usr_dir}/lib64/"
   #       FileUtils.cp Dir["#{crystax_libdir}/32/libcrystax.*"],  "#{usr_dir}/lib/"
   #       FileUtils.cp Dir["#{crystax_libdir}/x32/libcrystax.*"], "#{usr_dir}/libx32/"
-  #     when 'mips64'
-  #       FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"],         "#{usr_dir}/lib64"
-  #       FileUtils.cp Dir["#{crystax_libdir}/libr2/libcrystax.*"],   "#{usr_dir}/lib64r2"
-  #       FileUtils.cp Dir["#{crystax_libdir}/lib32/libcrystax.*"],   "#{usr_dir}/lib"
-  #       FileUtils.cp Dir["#{crystax_libdir}/lib32r2/libcrystax.*"], "#{usr_dir}/libr2"
-  #       FileUtils.cp Dir["#{crystax_libdir}/lib32r6/libcrystax.*"], "#{usr_dir}/libr6"
-  #     when 'mips'
-  #       FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"],    "#{usr_dir}/lib"
-  #       FileUtils.cp Dir["#{crystax_libdir}/r2/libcrystax.*"], "#{usr_dir}/libr2"
-  #       FileUtils.cp Dir["#{crystax_libdir}/r6/libcrystax.*"], "#{usr_dir}/libr6"
   #     when 'armeabi-v7a'
   #       FileUtils.mkdir_p "#{usr_dir}/lib/armv7-a/thumb"
   #       FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"],       "#{usr_dir}/lib/armv7-a/"

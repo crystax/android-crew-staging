@@ -5,7 +5,7 @@ class LibpcreOld < Package
   homepage 'https://www.pcre.org'
   url 'https://ftp.pcre.org/pub/pcre/pcre-${version}.tar.gz'
 
-  release '8.43'
+  release '8.43', crystax: 2
 
   build_libs 'libpcre', 'libpcrecpp', 'libpcreposix'
   build_copy 'LICENCE'

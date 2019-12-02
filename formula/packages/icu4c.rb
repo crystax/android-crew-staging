@@ -4,7 +4,7 @@ class Icu4c < Package
   homepage "http://site.icu-project.org/"
   url 'https://dl.crystax.net/mirror/icu4c-${version}.tgz'
 
-  release '64.2'
+  release '64.2', crystax: 2
 
   # todo: 'libiculx' requires harfbuzz
   build_libs 'libicudata', 'libicui18n', 'libicuio', 'libicutest', 'libicutu', 'libicuuc'
@@ -49,9 +49,6 @@ class Icu4c < Package
 
     build_env['CFLAGS']  << ' -fPIC -DU_USING_ICU_NAMESPACE=0 -DU_CHARSET_IS_UTF8=1'
     build_env['LDFLAGS'] << ' -lgnustl_shared'
-
-    build_env['CFLAGS'] << ' -mabi=32 -mips32'   if abi == 'mips'
-    build_env['CFLAGS'] << ' -mabi=64 -mips64r6' if abi == 'mips64'
 
     build_env['ICULEHB_LIBS']   = ' '
 

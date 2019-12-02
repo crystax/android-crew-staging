@@ -293,9 +293,8 @@ class Package < TargetBase
     @build_env = {}
 
     if toolchain.standalone?
-      lib = (abi == 'mips64') ? 'lib64' : 'lib'
       cflags  = toolchain.gcc_cflags(abi) + " --sysroot=#{toolchain.sysroot_dir}"   # -I#{toolchain.sysroot_dir}/usr/include"
-      ldflags = toolchain.gcc_ldflags(abi) + " --sysroot=#{toolchain.sysroot_dir}"  # -L#{toolchain.sysroot_dir}/usr/#{lib}"
+      ldflags = toolchain.gcc_ldflags(abi) + " --sysroot=#{toolchain.sysroot_dir}"  # -L#{toolchain.sysroot_dir}/usr/lib"
       cc = toolchain.gcc
       @build_env['PKG_CONFIG_PATH'] = nil
       @build_env['PKG_CONFIG_SYSROOT_DIR'] = nil
@@ -492,7 +491,7 @@ class Package < TargetBase
       FileUtils.cp_r toolchain_libs(src_lib_dir, 'armeabi-v7a'),      "#{target_lib_dir}/lib/armv7-a/thumb/"
       FileUtils.cp_r toolchain_libs(src_lib_dir, 'armeabi-v7a-hard'), "#{target_lib_dir}/lib/armv7-a/hard/"
       FileUtils.cp_r toolchain_libs(src_lib_dir, 'armeabi-v7a-hard'), "#{target_lib_dir}/lib/armv7-a/thumb/hard/"
-    when 'mips64', 'x86_64'
+    when 'x86_64'
       pkgconfig_src_base_dir = "#{src_lib_dir}/#{arch.abis[0]}"
       FileUtils.cp_r toolchain_libs(src_lib_dir, arch.abis[0]), "#{target_lib_dir}/lib64/"
     else

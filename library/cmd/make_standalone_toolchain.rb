@@ -114,19 +114,11 @@ module Crew
 
         FileUtils.cp_r src_sysroot_inc, install_sysroot_usr_dir
         FileUtils.cp_r src_sysroot_lib, install_sysroot_usr_dir
-        # x86_64 and mips* toolchain are built multilib.
+        # x86_64 toolchain was built with multilib support.
         case options.arch.name
         when 'x86_64'
           FileUtils.cp_r "#{src_sysroot_lib}/../lib64",  install_sysroot_usr_dir
           FileUtils.cp_r "#{src_sysroot_lib}/../libx32", install_sysroot_usr_dir
-        when 'mips'
-          FileUtils.cp_r "#{src_sysroot_lib}/../libr2", install_sysroot_usr_dir
-          FileUtils.cp_r "#{src_sysroot_lib}/../libr6", install_sysroot_usr_dir
-        when 'mips64'
-          FileUtils.cp_r "#{src_sysroot_lib}/../libr2",   install_sysroot_usr_dir
-          FileUtils.cp_r "#{src_sysroot_lib}/../libr6",   install_sysroot_usr_dir
-          FileUtils.cp_r "#{src_sysroot_lib}/../lib64",   install_sysroot_usr_dir
-          FileUtils.cp_r "#{src_sysroot_lib}/../lib64r2", install_sysroot_usr_dir
         end
 
         # remove this libstdc++ library to avoid possible clashes with real ones
@@ -180,7 +172,6 @@ module Crew
                         end
           gccunwind_lib = "#{Global::NDK_DIR}/sources/android/gccunwind/libs/#{arch_subdir}/libgccunwind.a"
           FileUtils.cp gccunwind_lib, "#{install_sysroot_usr_dir}/lib/"
-          FileUtils.cp gccunwind_lib, "#{install_sysroot_usr_dir}/lib64/" if options.arch.name == 'mips64'
         end
 
         [PackageInfo.new('libcrystax'), PackageInfo.new('libobjc2')].each do |package|

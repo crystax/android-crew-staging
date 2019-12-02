@@ -5,7 +5,7 @@ class Bzip2 < Library
   homepage "https://sourceforge.net/projects/bzip2/"
   url "https://sourceforge.net/projects/bzip2/files/bzip2-1.0.6.tar.gz"
 
-  release '1.0.6'
+  release '1.0.6', crystax: 2
 
   def build_for_platform(platform, release, options)
     install_dir = install_dir_for_platform(platform.name, release)

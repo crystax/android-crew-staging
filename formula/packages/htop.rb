@@ -4,7 +4,7 @@ class Htop < Package
   homepage 'https://hisham.hm/htop/'
   url 'https://hisham.hm/htop/releases/${version}/htop-${version}.tar.gz'
 
-  release '2.2.0', crystax: 5
+  release '2.2.0', crystax: 6
 
   depends_on 'ncurses'
 

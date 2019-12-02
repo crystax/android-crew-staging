@@ -5,7 +5,7 @@ class GnuCpio < Package
   homepage "https://www.gnu.org/software/cpio/"
   url "https://ftp.gnu.org/gnu/cpio/cpio-${version}.tar.bz2"
 
-  release '2.12', crystax: 5
+  release '2.12', crystax: 6
 
   build_options copy_installed_dirs: ['bin', 'lib', 'libexec'],
                 gen_android_mk:      false

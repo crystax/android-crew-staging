@@ -5,7 +5,7 @@ class IslOld < BuildDependency
   homepage "http://isl.gforge.inria.fr"
   url "http://isl.gforge.inria.fr/isl-${version}.tar.gz"
 
-  release '0.11.1', crystax: 4
+  release '0.11.1', crystax: 5
 
   depends_on 'gmp'
 

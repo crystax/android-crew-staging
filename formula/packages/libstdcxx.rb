@@ -3,10 +3,11 @@ class Libstdcxx < BasePackage
   desc "GNU Standard C++ Library"
   name 'libstdc++'
 
-  release '4.9', crystax: 5
-  release '5',   crystax: 6
-  release '6',   crystax: 6
-  release '7',   crystax: 2
+  release '4.9', crystax: 6
+  release '5',   crystax: 7
+  release '6',   crystax: 7
+  release '7',   crystax: 3
+  release '8',   crystax: 1
 
   build_depends_on 'platforms'
   build_depends_on 'libcrystax'
@@ -123,23 +124,6 @@ class Libstdcxx < BasePackage
       FileUtils.cp_r "#{release_dir}/libs/armeabi-v7a/include/bits",      "#{arch_include_dir}/armv7-a/thumb/"
       FileUtils.cp_r "#{release_dir}/libs/armeabi-v7a-hard/include/bits", "#{arch_include_dir}/armv7-a/hard"
       FileUtils.cp_r "#{release_dir}/libs/armeabi-v7a-hard/include/bits", "#{arch_include_dir}/armv7-a/thumb/hard"
-    when 'mips'
-      FileUtils.cp "#{release_dir}/libs/mips/lib/libgnustl_shared.so", "#{target_lib_dir}/lib/"
-      FileUtils.cp "#{release_dir}/libs/mips/lib/libsupc++.a",         "#{target_lib_dir}/lib/"
-      FileUtils.cp "#{release_dir}/libs/mips/lib/libgnustl_static.a",  "#{target_lib_dir}/lib/libstdc++.a"
-      #
-      FileUtils.cp "#{release_dir}/libs/mips/libr2/libgnustl_shared.so", "#{target_lib_dir}/libr2/"
-      FileUtils.cp "#{release_dir}/libs/mips/libr2/libsupc++.a",         "#{target_lib_dir}/libr2/"
-      FileUtils.cp "#{release_dir}/libs/mips/libr2/libgnustl_static.a",  "#{target_lib_dir}/libr2/libstdc++.a"
-      #
-      FileUtils.cp "#{release_dir}/libs/mips/libr6/libgnustl_shared.so", "#{target_lib_dir}/libr6/"
-      FileUtils.cp "#{release_dir}/libs/mips/libr6/libsupc++.a",         "#{target_lib_dir}/libr6/"
-      FileUtils.cp "#{release_dir}/libs/mips/libr6/libgnustl_static.a",  "#{target_lib_dir}/libr6/libstdc++.a"
-      #
-      FileUtils.mkdir_p ["#{arch_include_dir}/mips-r2", "#{arch_include_dir}/mips-r6"]
-      FileUtils.cp_r "#{release_dir}/libs/mips/include/bits", "#{arch_include_dir}/"
-      FileUtils.cp_r "#{release_dir}/libs/mips/include/bits", "#{arch_include_dir}/mips-r2"
-      FileUtils.cp_r "#{release_dir}/libs/mips/include/bits", "#{arch_include_dir}/mips-r6"
     when 'x86_64'
       FileUtils.cp "#{release_dir}/libs/x86_64/lib/libgnustl_shared.so", "#{target_lib_dir}/lib/"
       FileUtils.cp "#{release_dir}/libs/x86_64/lib/libsupc++.a",         "#{target_lib_dir}/lib/"
@@ -157,33 +141,6 @@ class Libstdcxx < BasePackage
       FileUtils.cp_r "#{release_dir}/libs/x86_64/include/32/bits",  "#{arch_include_dir}/32/"
       FileUtils.cp_r "#{release_dir}/libs/x86_64/include/bits",     "#{arch_include_dir}/"
       FileUtils.cp_r "#{release_dir}/libs/x86_64/include/x32/bits", "#{arch_include_dir}/x32/"
-    when 'mips64'
-      FileUtils.cp "#{release_dir}/libs/mips64/lib/libgnustl_shared.so", "#{target_lib_dir}/lib/"
-      FileUtils.cp "#{release_dir}/libs/mips64/lib/libsupc++.a",         "#{target_lib_dir}/lib/"
-      FileUtils.cp "#{release_dir}/libs/mips64/lib/libgnustl_static.a",  "#{target_lib_dir}/lib/libstdc++.a"
-      #
-      FileUtils.cp "#{release_dir}/libs/mips64/libr2/libgnustl_shared.so", "#{target_lib_dir}/libr2/"
-      FileUtils.cp "#{release_dir}/libs/mips64/libr2/libsupc++.a",         "#{target_lib_dir}/libr2/"
-      FileUtils.cp "#{release_dir}/libs/mips64/libr2/libgnustl_static.a",  "#{target_lib_dir}/libr2/libstdc++.a"
-      #
-      FileUtils.cp "#{release_dir}/libs/mips64/libr6/libgnustl_shared.so", "#{target_lib_dir}/libr6/"
-      FileUtils.cp "#{release_dir}/libs/mips64/libr6/libsupc++.a",         "#{target_lib_dir}/libr6/"
-      FileUtils.cp "#{release_dir}/libs/mips64/libr6/libgnustl_static.a",  "#{target_lib_dir}/libr6/libstdc++.a"
-      #
-      FileUtils.cp "#{release_dir}/libs/mips64/lib64/libgnustl_shared.so", "#{target_lib_dir}/lib64/"
-      FileUtils.cp "#{release_dir}/libs/mips64/lib64/libsupc++.a",         "#{target_lib_dir}/lib64/"
-      FileUtils.cp "#{release_dir}/libs/mips64/lib64/libgnustl_static.a",  "#{target_lib_dir}/lib64/libstdc++.a"
-      #
-      FileUtils.cp "#{release_dir}/libs/mips64/lib64r2/libgnustl_shared.so", "#{target_lib_dir}/lib64r2/"
-      FileUtils.cp "#{release_dir}/libs/mips64/lib64r2/libsupc++.a",         "#{target_lib_dir}/lib64r2/"
-      FileUtils.cp "#{release_dir}/libs/mips64/lib64r2/libgnustl_static.a",  "#{target_lib_dir}/lib64r2/libstdc++.a"
-      #
-      FileUtils.mkdir_p ["#{arch_include_dir}/32/mips-r1/", "#{arch_include_dir}/32/mips-r2/", "#{arch_include_dir}/32/mips-r6/", "#{arch_include_dir}/mips64-r2/"]
-      FileUtils.cp_r "#{release_dir}/libs/mips64/include/32/mips-r1/bits",  "#{arch_include_dir}/32/mips-r1/"
-      FileUtils.cp_r "#{release_dir}/libs/mips64/include/32/mips-r2/bits",  "#{arch_include_dir}/32/mips-r2/"
-      FileUtils.cp_r "#{release_dir}/libs/mips64/include/32/mips-r6/bits",  "#{arch_include_dir}/32/mips-r6/"
-      FileUtils.cp_r "#{release_dir}/libs/mips64/include/bits",             "#{arch_include_dir}/"
-      FileUtils.cp_r "#{release_dir}/libs/mips64/include/mips64-r2/bits",   "#{arch_include_dir}/mips64-r2/"
     else
       FileUtils.cp "#{release_dir}/libs/#{arch.abis[0]}/libgnustl_shared.so", "#{target_lib_dir}/lib/"
       FileUtils.cp "#{release_dir}/libs/#{arch.abis[0]}/libsupc++.a",         "#{target_lib_dir}/lib/"
@@ -205,16 +162,6 @@ class Libstdcxx < BasePackage
         FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"],     "#{usr_dir}/lib64/"
         FileUtils.cp Dir["#{crystax_libdir}/32/libcrystax.*"],  "#{usr_dir}/lib/"
         FileUtils.cp Dir["#{crystax_libdir}/x32/libcrystax.*"], "#{usr_dir}/libx32/"
-      when 'mips64'
-        FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"],         "#{usr_dir}/lib64"
-        FileUtils.cp Dir["#{crystax_libdir}/libr2/libcrystax.*"],   "#{usr_dir}/lib64r2"
-        FileUtils.cp Dir["#{crystax_libdir}/lib32/libcrystax.*"],   "#{usr_dir}/lib"
-        FileUtils.cp Dir["#{crystax_libdir}/lib32r2/libcrystax.*"], "#{usr_dir}/libr2"
-        FileUtils.cp Dir["#{crystax_libdir}/lib32r6/libcrystax.*"], "#{usr_dir}/libr6"
-      when 'mips'
-        FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"],    "#{usr_dir}/lib"
-        FileUtils.cp Dir["#{crystax_libdir}/r2/libcrystax.*"], "#{usr_dir}/libr2"
-        FileUtils.cp Dir["#{crystax_libdir}/r6/libcrystax.*"], "#{usr_dir}/libr6"
       when 'armeabi-v7a'
         FileUtils.mkdir_p "#{usr_dir}/lib/armv7-a/thumb"
         FileUtils.cp Dir["#{crystax_libdir}/libcrystax.*"],       "#{usr_dir}/lib/armv7-a/"
@@ -249,7 +196,7 @@ class Libstdcxx < BasePackage
 
     args += ['--disable-static', '--enable-shared']                                   if options[:lib_type] == :shared
     args += ['--enable-static', '--disable-shared', '--disable-libstdcxx-visibility'] if options[:lib_type] == :static
-    args << '--disable-multilib'                                                      unless ['x86_64', 'mips64', 'mips'].include? arch.name
+    args << '--disable-multilib'                                                      unless ['x86_64'].include? arch.name
     args << '--disable-sjlj-exceptions'                                               if ['4.9', '5'].include? release.version
 
     build_dir = options[:lib_type].to_s
@@ -274,9 +221,18 @@ class Libstdcxx < BasePackage
     end
     extra_cflags += ' -mstackrealign' if ['x86', 'x86_64'].include? arch
 
+    case abi
+    when 'armeabi-v7a'
+      archlibpath = 'lib/armv7-a'
+    when 'armeabi-v7a-hard'
+      archlibpath = 'lib/armv7-a/hard'
+    else
+      archlibpath = 'lib'
+    end
+
     cflags   = "-g -fPIC --sysroot=#{sysroot} -fexceptions -funwind-tables -D__BIONIC__ -O2 #{extra_cflags}"
     cppflags = "--sysroot=#{sysroot}"
-    ldflags  = "-lcrystax #{extra_ldflags} -lc"
+    ldflags  = "-L#{sysroot}/usr/#{archlibpath} -lcrystax #{extra_ldflags} -lc"
 
     case arch.name
     when 'arm64'
@@ -327,14 +283,6 @@ class Libstdcxx < BasePackage
     when 'x86_64'
       copy_directory "#{install_dir}/include/c++/#{release.version}/#{arch.host}/32/bits",  "#{dst_dir}/libs/#{abi}/include/32/bits"
       copy_directory "#{install_dir}/include/c++/#{release.version}/#{arch.host}/x32/bits", "#{dst_dir}/libs/#{abi}/include/x32/bits"
-    when 'mips64'
-      copy_directory "#{install_dir}/include/c++/#{release.version}/#{arch.host}/32/mips-r1/bits", "#{dst_dir}/libs/#{abi}/include/32/mips-r1/bits"
-      copy_directory "#{install_dir}/include/c++/#{release.version}/#{arch.host}/32/mips-r2/bits", "#{dst_dir}/libs/#{abi}/include/32/mips-r2/bits"
-      copy_directory "#{install_dir}/include/c++/#{release.version}/#{arch.host}/32/mips-r6/bits", "#{dst_dir}/libs/#{abi}/include/32/mips-r6/bits"
-      copy_directory "#{install_dir}/include/c++/#{release.version}/#{arch.host}/mips64-r2/bits",  "#{dst_dir}/libs/#{abi}/include/mips64-r2/bits"
-    when 'mips'
-      copy_directory "#{install_dir}/include/c++/#{release.version}/#{arch.host}/mips-r2/bits", "#{dst_dir}/libs/#{abi}/include/mips-r2/bits"
-      copy_directory "#{install_dir}/include/c++/#{release.version}/#{arch.host}/mips-r6/bits", "#{dst_dir}/libs/#{abi}/include/mips-r6/bits"
     end
 
     ldir = (arch.num_bits == 64) ? 'lib64' : 'lib'
@@ -356,26 +304,6 @@ class Libstdcxx < BasePackage
       FileUtils.cp "#{install_dir}/lib/libgnustl_shared.a",    "#{dst_dir}/libs/#{abi}/lib/libgnustl_static.a"
       FileUtils.cp "#{install_dir}/lib64/libgnustl_shared.a",  "#{dst_dir}/libs/#{abi}/lib64/libgnustl_static.a"
       FileUtils.cp "#{install_dir}/libx32/libgnustl_shared.a", "#{dst_dir}/libs/#{abi}/libx32/libgnustl_static.a"
-    when 'mips64'
-      copy_file_list "#{install_dir}/lib",     "#{dst_dir}/libs/#{abi}/lib",     lib_list
-      copy_file_list "#{install_dir}/libr2",   "#{dst_dir}/libs/#{abi}/libr2",   lib_list
-      copy_file_list "#{install_dir}/libr6",   "#{dst_dir}/libs/#{abi}/libr6",   lib_list
-      copy_file_list "#{install_dir}/lib64",   "#{dst_dir}/libs/#{abi}/lib64",   lib_list
-      copy_file_list "#{install_dir}/lib64r2", "#{dst_dir}/libs/#{abi}/lib64r2", lib_list
-      #
-      FileUtils.cp "#{install_dir}/lib/libgnustl_shared.a",     "#{dst_dir}/libs/#{abi}/lib/libgnustl_static.a"
-      FileUtils.cp "#{install_dir}/libr2/libgnustl_shared.a",   "#{dst_dir}/libs/#{abi}/libr2/libgnustl_static.a"
-      FileUtils.cp "#{install_dir}/libr6/libgnustl_shared.a",   "#{dst_dir}/libs/#{abi}/libr6/libgnustl_static.a"
-      FileUtils.cp "#{install_dir}/lib64/libgnustl_shared.a",   "#{dst_dir}/libs/#{abi}/lib64/libgnustl_static.a"
-      FileUtils.cp "#{install_dir}/lib64r2/libgnustl_shared.a", "#{dst_dir}/libs/#{abi}/lib64r2/libgnustl_static.a"
-    when 'mips'
-      copy_file_list "#{install_dir}/lib",   "#{dst_dir}/libs/#{abi}/lib",   lib_list
-      copy_file_list "#{install_dir}/libr2", "#{dst_dir}/libs/#{abi}/libr2", lib_list
-      copy_file_list "#{install_dir}/libr6", "#{dst_dir}/libs/#{abi}/libr6", lib_list
-      #
-      FileUtils.cp "#{install_dir}/lib/libgnustl_shared.a",   "#{dst_dir}/libs/#{abi}/lib/libgnustl_static.a"
-      FileUtils.cp "#{install_dir}/libr2/libgnustl_shared.a", "#{dst_dir}/libs/#{abi}/libr2/libgnustl_static.a"
-      FileUtils.cp "#{install_dir}/libr6/libgnustl_shared.a", "#{dst_dir}/libs/#{abi}/libr6/libgnustl_static.a"
     end
 
     if File.directory? "#{install_dir}/thumb"
@@ -390,6 +318,7 @@ class Libstdcxx < BasePackage
     when '5'   then Toolchain::GCC_5
     when '6'   then Toolchain::GCC_6
     when '7'   then Toolchain::GCC_7
+    when '8'   then Toolchain::GCC_8
     else
       raise "no GCC version for libstdc++ version: #{version}"
     end

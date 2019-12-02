@@ -4,8 +4,8 @@ class Python < Package
   homepage "https://www.python.org"
   url "https://www.python.org/ftp/python/${version}/Python-${version}.tgz"
 
-  release '2.7.16'
-  release '3.5.7'
+  release '2.7.16', crystax: 2
+  release '3.5.7',  crystax: 2
 
   depends_on 'host/zlib'
   depends_on 'sqlite'
@@ -446,8 +446,6 @@ class Python < Package
     when 'x86_64'    then src += ['src/x86/ffi64.c', 'src/x86/unix64.S']
     when /^armeabi/  then src += ['src/arm/ffi.c', 'src/arm/sysv.S']
     when 'arm64-v8a' then src += ['src/aarch64/ffi.c', 'src/aarch64/sysv.S']
-    when 'mips'      then src += ['src/mips/ffi.c', 'src/mips/o32.S']
-    when 'mips64'    then src += ['src/mips/ffi.c', 'src/mips/o32.S', 'src/mips/n32.S']
     else
       raise "unknown ABI #{abi}"
     end
@@ -766,9 +764,9 @@ class Python < Package
 
   def exe_platform(abi)
     case abi
-    when 'x86', 'armeabi-v7a', 'armeabi-v7a-hard', 'mips'
+    when 'x86', 'armeabi-v7a', 'armeabi-v7a-hard'
       'android-16'
-    when 'x86_64', 'arm64-v8a', 'mips64'
+    when 'x86_64', 'arm64-v8a'
       'android-21'
     else
       raise "unsupported abi: #{abi}"

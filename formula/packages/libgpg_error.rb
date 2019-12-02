@@ -5,7 +5,7 @@ class LibgpgError < Package
   homepage "https://www.gnupg.org/software/libgpg-error/"
   url "https://www.gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${version}.tar.bz2"
 
-  release '1.36', crystax: 2
+  release '1.36', crystax: 4
 
   build_copy 'COPYING','COPYING.LIB'
   build_libs 'libgpg-error'
@@ -36,12 +36,6 @@ class LibgpgError < Package
         FileUtils.cp 'lock-obj-pub.arm-unknown-linux-androideabi.h', 'lock-obj-pub.linux-android.h'
       when 'x86_64'
         FileUtils.cp 'lock-obj-pub.aarch64-unknown-linux-android.h', 'lock-obj-pub.linux-android.h'
-      when 'mips'
-        # todo: generate on device
-        FileUtils.cp 'lock-obj-pub.mipsel-unknown-linux-gnu.h', 'lock-obj-pub.linux-android.h'
-      when 'mips64'
-        # todo: generate on device
-        FileUtils.cp 'lock-obj-pub.mips64el-unknown-linux-gnuabi64.h', 'lock-obj-pub.linux-android.h'
       end
     end
 

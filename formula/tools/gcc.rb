@@ -6,10 +6,11 @@ class Gcc < Tool
   homepage "https://gcc.gnu.org"
   url "toolchain/gcc"
 
-  release '4.9', crystax: 5
-  release '5',   crystax: 6
-  release '6',   crystax: 6
-  release '7',   crystax: 2
+  release '4.9', crystax: 6
+  release '5',   crystax: 7
+  release '6',   crystax: 7
+  release '7',   crystax: 3
+  release '8',   crystax: 1
 
   build_depends_on 'gmp'
   build_depends_on 'isl'
@@ -246,9 +247,6 @@ class Gcc < Tool
     case arch.name
     when 'x86', 'x86_64'
       cflags_for_target += ' -fPIC'
-    when 'mips', 'mips64'
-      cflags_for_target += ' -fexceptions -fpic'
-      cxxflags_for_target += ' -frtti -fpic'
     end
     build_env['CFLAGS_FOR_TARGET']   = cflags_for_target
     build_env['CXXFLAGS_FOR_TARGET'] = cxxflags_for_target
@@ -369,8 +367,6 @@ class Gcc < Tool
 
   def binutils_arch_args(arch)
     case arch.name
-    when 'mips', 'mips64'
-      []
     when 'arm64'
       ['--enable-gold', '--enable-ld=default']
     else
@@ -406,10 +402,6 @@ class Gcc < Tool
       ['--with-float=soft', '--with-fpu=vfp', '--with-arch=armv5te', '--enable-target-optspace']
     when 'arm64'
       ['--enable-fix-cortex-a53-835769', '--enable-fix-cortex-a53-843419']
-    when 'mips'
-      ['--with-arch=mips32', '--disable-fixed-point']
-    when 'mips64'
-      ['--with-arch=mips64r6', '--disable-fixed-point']
     else
       []
     end
@@ -540,10 +532,6 @@ class Gcc < Tool
     case arch.name
     when 'x86_64'
       ['lib', 'lib64', 'libx32']
-    when 'mips64'
-      ['lib', 'libr2', 'libr6', 'lib64r2', 'lib64']
-    when 'mips'
-      ['lib', 'libr2', 'libr6']
     else
       ['lib']
     end
@@ -569,10 +557,10 @@ class Gcc < Tool
     when 'armeabi-v7a-hard'
       base_dir="#{gcc_dir}/armv7-a/hard/libgcc"
       objs = ['unwind-arm.o', 'libunwind.o', 'pr-support.o', 'unwind-c.o']
-    when 'x86', 'mips'
+    when 'x86'
       base_dir = "#{gcc_dir}/libgcc"
       objs = ['unwind-c.o', 'unwind-dw2-fde-dip.o', 'unwind-dw2.o']
-    when 'arm64-v8a', 'x86_64', 'mips64'
+    when 'arm64-v8a', 'x86_64'
       base_dir = "#{gcc_dir}/libgcc"
       objs = ['unwind-c.o', 'unwind-dw2-fde-dip.o', 'unwind-dw2.o']
     end

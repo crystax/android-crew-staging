@@ -5,7 +5,7 @@ class InfoZip < Package
   homepage 'http://www.info-zip.org/Zip.html'
   url 'https://sourceforge.net/projects/infozip/files/Zip%203.x%20%28latest%29/${version}/zip${block}.tar.gz'  do |r| r.version.split('.').first(2).join end
 
-  release '3.0', crystax: 4
+  release '3.0', crystax: 5
 
   build_copy 'LICENSE'
   build_options build_outside_source_tree: false,

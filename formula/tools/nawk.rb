@@ -4,7 +4,7 @@ class Nawk < Utility
   homepage "https://www.cs.princeton.edu/~bwk/btl.mirror/"
   #url "https://www.cs.princeton.edu/~bwk/btl.mirror/awk.tar.gz"
 
-  release '20071023', crystax: 4
+  release '20071023', crystax: 5
 
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in source/host-tools/ directory

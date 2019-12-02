@@ -3,7 +3,7 @@ class Python < Library
   desc "Interpreted, interactive, object-oriented programming language"
   homepage "https://www.python.org"
 
-  release '2.7.5', crystax: 5
+  release '2.7.5', crystax: 6
 
   def prepare_source_code(release, dir, src_name, log_prefix)
     # source code is in toolchain/python repository

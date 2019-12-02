@@ -4,7 +4,7 @@ class Libksba < Package
   homepage "https://github.com/gpg/libksba"
   url "https://www.gnupg.org/ftp/gcrypt/libksba/libksba-${version}.tar.bz2"
 
-  release '1.3.5', crystax: 5
+  release '1.3.5', crystax: 6
 
   depends_on 'libgpg-error'
 

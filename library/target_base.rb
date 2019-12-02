@@ -93,10 +93,6 @@ class TargetBase < Formula
              # todo: remove this when clang isssue with arm will be solved
              ["lib", "lib/thumb"] +
              ["lib/armv7-a", "lib/armv7-a/thumb", "lib/armv7-a/hard", "lib/armv7-a/thumb/hard"]
-           when 'mips'
-             ["lib", "libr2", "libr6"]
-           when 'mips64'
-             ["lib", "libr2", "libr6", "lib64", "lib64r2"]
            when 'x86_64'
              ["lib", "lib64", "libx32"]
            else

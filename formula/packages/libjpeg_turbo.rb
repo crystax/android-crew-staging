@@ -5,7 +5,7 @@ class LibjpegTurbo < Package
   homepage "https://www.libjpeg-turbo.org/"
   url "https://downloads.sourceforge.net/project/libjpeg-turbo/${version}/libjpeg-turbo-${version}.tar.gz"
 
-  release '1.5.3', crystax: 4
+  release '1.5.3', crystax: 5
 
   build_copy 'LICENSE.md'
   build_libs 'libturbojpeg', 'libjpeg'
@@ -19,7 +19,6 @@ class LibjpegTurbo < Package
               "--with-pic",
               "--disable-ld-version-script"
             ]
-    args << '--without-simd' if abi == 'mips'
 
     configure *args
     make

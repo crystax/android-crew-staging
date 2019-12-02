@@ -5,7 +5,7 @@ class GnuTls < Package
   homepage "https://www.gnutls.org"
   url "https://www.gnupg.org/ftp/gcrypt/gnutls/v${block}/gnutls-${version}.tar.xz" do |r| r.version.split('.').first(2).join('.') end
 
-  release '3.6.8'
+  release '3.6.8', crystax: 3
 
   depends_on 'gmp'
   depends_on 'libffi'
@@ -33,12 +33,12 @@ class GnuTls < Package
     build_env['CFLAGS']  += " -I#{target_dep_include_dir('libidn2')}"
     build_env['LDFLAGS'] += " -L#{target_dep_lib_dir('libunistring', abi)} -L#{target_dep_lib_dir('libidn2', abi)} -lunistring -lidn2"
 
-    if ['mips', 'arm64-v8a', 'mips64'].include? abi
+    if ['arm64-v8a'].include? abi
       build_env['LDFLAGS'] += " -L#{target_dep_lib_dir('gmp', abi)} -L#{target_dep_lib_dir('nettle', abi)} -lhogweed -lnettle -lgmp"
     end
 
     configure *args
-    fix_makefile abi if ['mips', 'arm64-v8a', 'mips64'].include? abi
+    fix_makefile abi if ['arm64-v8a'].include? abi
     make
     make 'install'
 
@@ -64,7 +64,6 @@ class GnuTls < Package
       when /^LIBS =[ \t]*/
         line.gsub('LIBS =', 'LIBS = -lp11-kit -lidn2 -lunistring -lnettle -lhogweed -lffi -lgmp -lz ')
       when /^LDFLAGS =[ \t]*/
-        line += " -L#{target_dep_lib_dir('libffi', abi)}" if abi == 'mips'
         line += " -L#{target_dep_lib_dir('p11-kit', abi)} -L#{target_dep_lib_dir('nettle', abi)}"
       else
         line

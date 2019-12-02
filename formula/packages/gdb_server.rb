@@ -5,7 +5,7 @@ class GdbServer < BasePackage
   desc "GDB server"
   name 'gdb-server'
 
-  release '7.10', crystax: 4
+  release '7.10', crystax: 5
 
   # todo:
   #build_depends_on default_compiler
@@ -143,14 +143,10 @@ class GdbServer < BasePackage
       ['arm-eabi-linux', '-fno-short-enums']
     when 'x86'
       ['i686-linux-android', '']
-    when 'mips'
-      ['mipsel-linux-android', '']
     when 'arm64'
       ['aarch64-eabi-linux', '-fno-short-enums -DUAPI_HEADERS']
     when 'x86_64'
       ['x86_64-linux-android', '-DUAPI_HEADERS']
-    when 'mips64'
-      ['mips64el-linux-android', '-DUAPI_HEADERS']
     else
       raise UnsupportedArch, arch
     end

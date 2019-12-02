@@ -3,9 +3,9 @@ class Libcxx < BasePackage
   desc "LLVM Standard C++ Library"
   name 'libc++'
 
-  release '3.6', crystax: 5
-  release '3.7', crystax: 5
-  release '3.8', crystax: 5
+  release '3.6', crystax: 6
+  release '3.7', crystax: 6
+  release '3.8', crystax: 6
 
   build_depends_on 'platforms'
   build_depends_on 'libcrystax'
@@ -116,9 +116,6 @@ class Libcxx < BasePackage
     when 'x86_64'
       FileUtils.cp "#{release_dir}/libs/x86_64/libc++_shared.so", "#{target_lib_dir}/lib64/libc++_shared.so"
       FileUtils.cp "#{release_dir}/libs/x86_64/libc++_static.a",  "#{target_lib_dir}/lib64/libstdc++.a"
-    when 'mips64'
-      FileUtils.cp "#{release_dir}/libs/mips64/libc++_shared.so", "#{target_lib_dir}/lib64/libc++_shared.so"
-      FileUtils.cp "#{release_dir}/libs/mips64/libc++_static.a",  "#{target_lib_dir}/lib64/libstdc++.a"
     else
       FileUtils.cp "#{release_dir}/libs/#{arch.abis[0]}/libc++_shared.so", "#{target_lib_dir}/lib/libc++_shared.so"
       FileUtils.cp "#{release_dir}/libs/#{arch.abis[0]}/libc++_static.a",  "#{target_lib_dir}/lib/libstdc++.a"
@@ -309,8 +306,6 @@ class Libcxx < BasePackage
       # ToDo: remove the following once all x86-based device call JNI function with
       #       stack aligned to 16-byte
       c_flags += ' -mstackrealign'
-    when 'mips64'
-      c_flags += ' -mips64r6'
     end
 
     cxx_flags = c_flags
