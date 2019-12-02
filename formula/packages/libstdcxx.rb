@@ -8,6 +8,7 @@ class Libstdcxx < BasePackage
   release '6',   crystax: 7
   release '7',   crystax: 3
   release '8',   crystax: 1
+  release '9',   crystax: 1
 
   build_depends_on 'platforms'
   build_depends_on 'libcrystax'
@@ -319,6 +320,7 @@ class Libstdcxx < BasePackage
     when '6'   then Toolchain::GCC_6
     when '7'   then Toolchain::GCC_7
     when '8'   then Toolchain::GCC_8
+    when '9'   then Toolchain::GCC_9
     else
       raise "no GCC version for libstdc++ version: #{version}"
     end
