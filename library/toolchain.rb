@@ -87,7 +87,8 @@ module Toolchain
     end
 
     def ldflags(abi)
-      f = "-L#{Global::NDK_DIR}/sources/crystax/libs/#{abi} -pie"
+      f = "--sysroot=#{Build.sysroot(abi)}"
+      f += " -L#{Global::NDK_DIR}/sources/crystax/libs/#{abi} -pie"
       case abi
       when 'armeabi-v7a'
         f += ' -Wl,--fix-cortex-a8'
