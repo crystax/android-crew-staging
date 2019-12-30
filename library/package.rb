@@ -341,6 +341,8 @@ class Package < TargetBase
         c_comp += " --sysroot=#{Build.sysroot(abi)}"
       end
 
+      ldflags += " --sysroot=#{Build.sysroot(abi)} "
+
       if not build_options[:c_wrapper]
         cc = c_comp
       else
